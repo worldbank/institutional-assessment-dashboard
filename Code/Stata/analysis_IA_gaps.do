@@ -289,6 +289,8 @@ foreach g of newlist vars_pol vars_leg vars_transp vars_publ vars_social vars_mk
 		replace dtf_`g' =  0.01 if dtf_`g'==0 // small adjustments to display a very short bar on the graph, in case dtf = 0
 }
 
+****************************** the clean data used for the dashboard app should be created at this point!
+
 ************************************************************************************************************************************************************
 ************************************* define the quantile where country X belongs given the set of chosen comparator ***************************************
 ************************************************************************************************************************************************************
