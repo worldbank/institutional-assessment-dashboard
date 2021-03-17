@@ -24,9 +24,26 @@ vars_minmax <- data_selected %>%
         min = ~ min(.x, na.rm = T),
         max = ~ max(.x, na.rm = T)
       ),
-      .names="{.col}_{.fn}"
+      .names="{.col}-{.fn}"
     )
-  ) 
+  ) %>%
+  pivot_longer(
+    everything(),
+    names_to="variable",
+    values_to = "value_minmax",
+    values_drop_na = F
+  ) %>%
+  separate(
+    variable,
+    into = c("variable","minmax"),
+    sep = "-"
+  ) %>%
+  pivot_wider(
+    id_cols = "variable",
+    names_from = "minmax",
+    values_from = "value_minmax"
+  ) %>%
+  labelled::remove_labels() 
 
 # Collapse at country level, keeping the most recent data for each indicator
 data_recent_country <- data_selected %>%
@@ -39,3 +56,23 @@ data_recent_country <- data_selected %>%
     year == max(year)
   ) %>%
   select(-year)
+
+# Calculate closeness to frontier at indicator level
+dtf_vars_global <- data_recent_country %>%
+  labelled::remove_labels() %>%
+  pivot_longer(
+    all_of(vars_global),
+    names_to="variable",
+    values_drop_na = F
+  ) %>%
+  left_join(vars_minmax,by="variable") %>%
+  mutate(
+    dtf = (min - value) / (min - max),
+    dtf = ifelse(dtf==0,0.01,dtf) # small adjustments to display a very short bar on the graph, in case dtf = 0
+  ) %>%
+  pivot_wider(
+    id_cols = c("country","lac","lac6","oecd","structural"),
+    names_from = "variable",
+    names_prefix = "dtf_",
+    values_from = "dtf"
+  ) 
