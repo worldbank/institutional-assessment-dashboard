@@ -1,3 +1,5 @@
+library(tidyr)
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # CALCULATE GLOBAL CLOSENESS TO FRONTIER FOR EACH INDICATOR AND FOR EACH COUNTRY -----------------------
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -25,3 +27,15 @@ vars_minmax <- data_selected %>%
       .names="{.col}_{.fn}"
     )
   ) 
+
+# Collapse at country level, keeping the most recent data for each indicator
+data_recent_country <- data_selected %>%
+  arrange(country,year) %>%
+  group_by(country) %>%
+  fill(
+    all_of(vars_global)
+  ) %>%
+  filter(
+    year == max(year)
+  ) %>%
+  select(-year)
