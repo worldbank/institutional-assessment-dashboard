@@ -73,6 +73,32 @@ dtf_vars_global <- data_recent_country %>%
   pivot_wider(
     id_cols = c("country","lac","lac6","oecd","structural"),
     names_from = "variable",
-    names_prefix = "dtf_",
+    #names_prefix = "dtf_",
     values_from = "dtf"
   ) 
+
+# Calculate closeness to frontier at institutional family level (mean of DTF of each indicator)
+dtf_family_level <- data.frame(vars_group=NA,dtf_mean=NA)
+
+i=1
+
+for(group in vars_global){
+  
+  dtf_family <- dtf_vars_global[ ,which((names(dtf_vars_global) %in% group)==TRUE)]
+  
+  dtf_family <- dtf_family %>%
+    pivot_longer(everything()) %>%
+    select(-name) %>%
+    summarise(
+      dtf_mean = mean(value,na.rm=T)
+    ) %>%
+    mutate(
+      vars_group = names(vars_global[i])
+    )
+  
+  i=i+1
+  
+  dtf_family_level <- rbind(dtf_family_level,dtf_family)
+}
+
+dtf_family_level <- dtf_family_level %>% filter(!is.na(vars_group))
