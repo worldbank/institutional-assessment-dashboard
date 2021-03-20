@@ -82,7 +82,17 @@ dtf_family_level <- data.frame(vars_group=NA,dtf_mean=NA)
 
 i=1
 
-for(group in vars_global){
+vars_global_list=list(vars_pol=vars_pol,
+                      vars_social=vars_social,
+                      vars_transp=vars_transp,
+                      vars_publ=vars_publ,
+                      vars_leg=vars_leg,
+                      vars_mkt=vars_mkt,
+                      vars_lab=vars_lab,
+                      vars_fin=vars_fin,
+                      vars_service_del=vars_service_del)
+
+for(group in vars_global_list){
   
   dtf_family <- dtf_vars_global[ ,which((names(dtf_vars_global) %in% group)==TRUE)]
   
@@ -99,6 +109,11 @@ for(group in vars_global){
   i=i+1
   
   dtf_family_level <- rbind(dtf_family_level,dtf_family)
+  
 }
 
-dtf_family_level <- dtf_family_level %>% filter(!is.na(vars_group))
+dtf_family_level <- dtf_family_level %>% 
+  filter(!is.na(vars_group)) %>%
+  mutate(
+    dtf_mean = ifelse(dtf_mean==0,0.01,dtf_mean) # small adjustments to display a very short bar on the graph, in case dtf = 0
+  ) 
