@@ -118,15 +118,15 @@ vars_fin <- c("efw_credit_mkt_reg","efw_free_foreign_curr","competition_rules_fi
 vars_service_del <- c("governance_soe","price_controls","command_control")
 
 # Create a list for group all variables
-vars_global <- list(vars_pol=vars_pol,
-                    vars_social=vars_social,
-                    vars_transp=vars_transp,
-                    vars_publ=vars_publ,
-                    vars_leg=vars_leg,
-                    vars_mkt=vars_mkt,
-                    vars_lab=vars_lab,
-                    vars_fin=vars_fin,
-                    vars_service_del=vars_service_del)
+vars_global <- c(vars_pol,
+                    vars_social,
+                    vars_transp,
+                    vars_publ,
+                    vars_leg,
+                    vars_mkt,
+                    vars_lab,
+                    vars_fin,
+                    vars_service_del)
 
 # Keep only vars of interest
 data_selected <- data_cleaned %>% 
