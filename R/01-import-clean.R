@@ -1,19 +1,16 @@
 # Load packages
-library(tidyverse)  
+library(tidyverse)
 library(tidylog)
 library(haven) # package for loading .dta files
-
-# Working directory
-setwd(".")
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # IMPORT ORIGINAL DATA ----------------------
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # Load .dta file
-data_original <- haven::read_dta("./data_cleaned/merged_for_residuals.dta")
+#data_original <- haven::read_dta("./data/merged_for_residuals.dta")
 # Saving as R format and csv
-saveRDS(data_original,"./data/merged_for_residuals.rds") # save as rds format / small file size
+#saveRDS(data_original,"./data/merged_for_residuals.rds") # save as rds format / small file size
 #write.csv2(data_original,"./data/merged_for_residuals.csv",row.names = F) # save as csv format / still large file size
 # Open rds file, faster loading
 data_original <- readRDS("./data/merged_for_residuals.rds")
@@ -23,33 +20,33 @@ data_original <- readRDS("./data/merged_for_residuals.rds")
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 data_cleaned <- data_original %>%
-  # Rename variables 
-  rename( 
-    telecom_infr = telecommunicationinfrastructurei, 
-    daigov_2016 = daigovernmentsubindex_2016, 
-    contract_manag_score = contract_management_score, 
-    perf_guarantee_score = performance_guarantee_score, 
+  # Rename variables
+  rename(
+    telecom_infr = telecommunicationinfrastructurei,
+    daigov_2016 = daigovernmentsubindex_2016,
+    contract_manag_score = contract_management_score,
+    perf_guarantee_score = performance_guarantee_score,
     proc_mean_score = mean_score,
-    f6_regulatoryenf = f6_regulatoryenforcement, 
-    efw_integrity_legalsys = efw_integrityofthelegalsystem, 
+    f6_regulatoryenf = f6_regulatoryenforcement,
+    efw_integrity_legalsys = efw_integrityofthelegalsystem,
     efw_contracts_enf = efw_legalenforcementofcontracts,
     efw_businessreg = efw_businessregulations,
-    efw_free_foreign_curr = efw_freedom_foreign_curr, 
+    efw_free_foreign_curr = efw_freedom_foreign_curr,
     protect_minority_ov = protect_minority_overall,
-    efficiency_superv_bank = efficiancy_supervision_banking, 
+    efficiency_superv_bank = efficiancy_supervision_banking,
     efficiency_superv_fin = efficiancy_supervision_finmkt,
     getting_credit = bl,
     insolvency_framework = resolvinginsolvencystrength,
     credit_registry_cov = gettingcreditcreditregistry, # Peter McConaghy suggested to include this, but already included in access_credit_overall
     rigorous_impartial_pa = v2clrspct,
-    barriers_trade_expl = barriers_trade_explicit, 
+    barriers_trade_expl = barriers_trade_explicit,
     barriers_trade_oth = barriers_trade_other,
     cbi = lvau,
     efw_inv_restr = efw_foreign_invest_restr,
-    efw_tourist = efw_freedomofforeignerstovisit 
+    efw_tourist = efw_freedomofforeignerstovisit
   ) %>%
-  # Fix vars with opposite scale 
-  # reason: for the DTF methodology, we need for all indicators that "higher values" means "better performance" 
+  # Fix vars with opposite scale
+  # reason: for the DTF methodology, we need for all indicators that "higher values" means "better performance"
   # freedom house: Countries are graded between 1 (most free) and 7 (least free).
   mutate(
     across(
@@ -67,7 +64,7 @@ data_cleaned <- data_original %>%
       c(governance_soe,price_controls,command_control,complexity_procedures,barriers_startups,protection_incumbents,barriers_trade_expl,barriers_trade_oth),
       ~(6 - .x)
     )
-  ) 
+  )
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # CHOOSE INDICATORS OF INTEREST --------------------------
@@ -87,7 +84,7 @@ vars_transp <- c("e_ti_cpi","f2_corruption","favoritism","bribes","diversion_pfu
 
 # 4 CENTER OF GOV/PUBLIC SECTOR INSTITUTIONS
 vars_publ <- c("f6_regulatoryenf","proc_mean_score","eff_govspending","regulatory_governance","centregov_mean")
-  # dropped EA: wgi_regulatory wgi_gov_effective 
+  # dropped EA: wgi_regulatory wgi_gov_effective
   # dropped SC: gov_efficiency (GCI)
 
 # 5 LEGAL INSTITUTIONS
@@ -104,7 +101,7 @@ vars_mkt <- c("govreg_burden","gci_overall","mkt_dominance","eff_antimonopoly","
   # dropped SC: wsj_propertyrights, startbus_days, startbus_procedures, wsj_businessfreedom (already from source, WB DB), efw_property_rights 	efw_reg_trade_barr efw_businessreg (already from source, WEF, GCR: nontariff_barriers property_rights govreg_burden)
   # EA unpacked efw_controls_movement ->  efw_inv_restr efw_capitalcontrols efw_tourist
 
-# 7 LABOR MARKET INSTITUTIONS 
+# 7 LABOR MARKET INSTITUTIONS
 vars_lab <- c("efw_labor_mkt_reg","collective_barg","empl_protection_perm","empl_protection_temp","union_density","minimum_wage_ratio")
 
 # 8 FINANCIAL INSTITUTITONS
@@ -114,7 +111,7 @@ vars_fin <- c("efw_credit_mkt_reg","efw_free_foreign_curr","competition_rules_fi
   # dropped SC: wsj_financialfreedom (as suggested by Peter McConaghy), financial_institutions (it is an outcome)
   # added EA: cbi --> SC: what is it?
 
-# 9 SOE Governance/SERVICE DELIVERY INSTITUTIONS 
+# 9 SOE Governance/SERVICE DELIVERY INSTITUTIONS
 vars_service_del <- c("governance_soe","price_controls","command_control")
 
 # Create a list for group all variables
@@ -129,8 +126,8 @@ vars_global <- c(vars_pol,
                     vars_service_del)
 
 # Keep only vars of interest
-data_selected <- data_cleaned %>% 
-  select( 
+data_selected <- data_cleaned %>%
+  select(
     country,year,lac,lac6,oecd,structural,
     all_of(vars_global)
   ) %>%
@@ -142,3 +139,5 @@ data_selected <- data_cleaned %>%
       ~ifelse(year==2018, NA, .x)
     )
   )
+
+rm(data_cleaned,data_original)
