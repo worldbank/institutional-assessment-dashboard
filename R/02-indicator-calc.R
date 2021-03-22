@@ -6,7 +6,7 @@ library(tidyr)
 
 # methodological notes:
 # closeness to frontier (CTF) is global, meaning that we identify the worst and best performance in the full sample (all countries)
-# with the closeness to frontier methodology, for each indicator i, we compare the last available value of indicator i with the worst and best 
+# with the closeness to frontier methodology, for each indicator i, we compare the last available value of indicator i with the worst and best
 # performance for indicator i among all countries and in the last Y years (2013 - most recent data)
 # in the graph that we want to produce, the length of the bars represents the closeness to frontier
 
@@ -43,7 +43,7 @@ vars_minmax <- data_selected %>%
     names_from = "minmax",
     values_from = "value_minmax"
   ) %>%
-  labelled::remove_labels() 
+  labelled::remove_labels()
 
 # Collapse at country level, keeping the most recent data for each indicator
 data_recent_country <- data_selected %>%
@@ -75,7 +75,7 @@ dtf_vars_global <- data_recent_country %>%
     names_from = "variable",
     #names_prefix = "dtf_",
     values_from = "dtf"
-  ) 
+  )
 
 # Calculate closeness to frontier at institutional family level (mean of DTF of each indicator)
 dtf_family_level <- data.frame(vars_group=NA,dtf_mean=NA)
@@ -93,9 +93,9 @@ vars_global_list=list(vars_pol=vars_pol,
                       vars_service_del=vars_service_del)
 
 for(group in vars_global_list){
-  
+
   dtf_family <- dtf_vars_global[ ,which((names(dtf_vars_global) %in% group)==TRUE)]
-  
+
   dtf_family <- dtf_family %>%
     pivot_longer(everything()) %>%
     select(-name) %>%
@@ -103,17 +103,19 @@ for(group in vars_global_list){
       dtf_mean = mean(value,na.rm=T)
     ) %>%
     mutate(
-      vars_group = names(vars_global[i])
+      vars_group = names(vars_global_list[i])
     )
-  
+
   i=i+1
-  
+
   dtf_family_level <- rbind(dtf_family_level,dtf_family)
-  
+
 }
 
-dtf_family_level <- dtf_family_level %>% 
+rm(dtf_family,i,group,vars_minmax,data_recent_country)
+
+dtf_family_level <- dtf_family_level %>%
   filter(!is.na(vars_group)) %>%
   mutate(
     dtf_mean = ifelse(dtf_mean==0,0.01,dtf_mean) # small adjustments to display a very short bar on the graph, in case dtf = 0
-  ) 
+  )
