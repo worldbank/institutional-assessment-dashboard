@@ -1,7 +1,5 @@
-# Load packages
-library(tidyverse)
-library(tidylog)
-library(haven) # package for loading .dta files
+# Load packages and functions
+source('./R/fun/load_packages.R')
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # IMPORT ORIGINAL DATA ----------------------
