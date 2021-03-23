@@ -1,4 +1,4 @@
-# Load packages and functions
+# Load packages
 source('./R/fun/load_packages.R')
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #

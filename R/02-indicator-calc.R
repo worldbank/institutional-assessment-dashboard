@@ -1,4 +1,4 @@
-# Load packages and functions
+# Load packages
 source('./R/fun/load_packages.R')
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -113,7 +113,7 @@ for(group in vars_global_list){
 
 }
 
-rm(dtf_family,i,group,vars_minmax,data_recent_country)
+rm(dtf_family,i,group,vars_minmax,data_recent_country,data_selected)
 
 dtf_family_level <- dtf_family_level %>%
   filter(!is.na(vars_group)) %>%
