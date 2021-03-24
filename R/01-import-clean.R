@@ -133,7 +133,7 @@ data_selected <- data_cleaned %>%
   # --> drop if year ==2018
   mutate(
     across(
-      c(barriers_startups,protection_incumbents), # GVM: doubt, do file had "foreach v of varlist barriers_startups - protection_incumbents" what does it mean - ?
+      c(barriers_startups:protection_incumbents),
       ~ifelse(year==2018, NA, .x)
     )
   )
