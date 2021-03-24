@@ -146,6 +146,7 @@ foreach v of varlist governance_soe price_controls command_control complexity_pr
 	label var wgi_control_corr "Control of corruption"
 	label var v2x_cspart "Civil society participation"
 	label var v2pepwrgen "Power by gender"
+	label var cbi "Central bank independence"
 }
 
 ************************************************************************************************************************************************************
@@ -247,7 +248,7 @@ foreach v of global vars {
 }
 
 * collapse at country level. for each country, keep only the average since 2013
-* SC: in the long term, this step should be flexible adjusted in the dashboard (keep last 7 years, given the present time)
+* SC: in the long term, this step should be flexibly adjusted in the dashboard (keep last 7 years, given the present time)
 keep if year >= 2013
 
 * collapse at country level
