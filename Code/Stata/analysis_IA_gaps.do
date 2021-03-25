@@ -4,6 +4,7 @@
 * updated: 2020 jan 21
 * this version: 2020 june 05
 
+
 clear all
 set maxvar 32000
 
@@ -232,7 +233,7 @@ keep country year lac lac6 oecd structural $vars
 /* methodological notes:
 	closeness to frontier (CTF) is global, meaning that we identify the worst and best performance in the full sample (all countries)
 
-	with the closeness to frontier methodology, for each indicator i, we compare the last available value of indicator i with the worst and best performance for indicator i among all countries and in the last Y years (2013 - most recent data)
+	with the closeness to frontier methodology, for each indicator i, we compare the 7-year average (average since 2013) of indicator i with the worst and best performance for indicator i among all countries and in the last Y years (2013 - most recent data)
 	
 	in the graph that we want to produce, the length of the bars represents the closeness to frontier
 */
