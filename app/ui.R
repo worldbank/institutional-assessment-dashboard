@@ -33,24 +33,7 @@
                            icon = icon("building")),
                   menuItem("Law",
                            tabName = "law",
-                           icon = icon("gavel"))
-                  ),
-      headerPanel(""),
-      headerPanel(""),
-      selectInput(
-        "country",
-        label = "Select a country",
-        choices = c("", country_list),
-        multiple = FALSE
-      ),
-      headerPanel(""),
-      selectInput(
-        "comparison",
-        label = "Select a comparison group",
-        choices = c("", "OECD", "Latin America & the Caribbean"),
-        multiple = FALSE
-      )
-
+                           icon = icon("gavel")),
                   menuItem("Browse the data",
                            tabName = "data",
                            icon = icon("database"))
@@ -85,7 +68,33 @@
                         Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
                         Excepteur sint occaecat cupidatat non proident,
                         sunt in culpa qui officia deserunt mollit anim id est laborum.")
-                  )
+                  ),
+
+                box(title = "Select countries",
+                    solidHeader = TRUE,
+                    width = 9,
+                    box(title = "Select a base country",
+                      selectInput(
+                        "country",
+                        label = NULL,
+                        choices = c("", country_list),
+                        multiple = FALSE,
+                        width = "50%"
+                      )
+                    ),
+                    box(title = "Select comparison group",
+                        width = 12,
+                        box(title = "Regions",
+                            collapsible = TRUE),
+                        box(title = "Country groups",
+                            collapsible = TRUE),
+                        box(title = "Countries",
+                            collapsible = TRUE,
+                            collapsed = TRUE,
+                            width =12),
+                        actionButton("button", "Apply selection")
+                        )
+                )
         ),
         tabItem(tabName = "overview",
                 box(solidHeader = TRUE,
