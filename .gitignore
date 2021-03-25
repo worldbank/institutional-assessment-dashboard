@@ -44,6 +44,7 @@
 !/**/*.R
 !/**/*.Rmd
 !/**/*.Rproj
+!/**/*.rds
 .Rproj.user
 
 # LaTeX
