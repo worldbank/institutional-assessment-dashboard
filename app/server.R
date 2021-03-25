@@ -18,6 +18,10 @@ library(DT)
 
   server <- function(input, output, session) {
 
+    output$dataset = renderDataTable({
+      country_data
+    })
+
     output$Overview <- renderPlot({
       ggplot(data = country_data %>%
                filter(tab == "Overview")) +

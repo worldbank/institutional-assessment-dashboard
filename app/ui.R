@@ -51,6 +51,10 @@
         multiple = FALSE
       )
 
+                  menuItem("Browse the data",
+                           tabName = "data",
+                           icon = icon("database"))
+                  )
     ),
 
     # Body -----------------------------------------------------------------------------------------
@@ -143,6 +147,13 @@
                           sunt in culpa qui officia deserunt mollit anim id est laborum.")
                 )
 
+        ),
+        tabItem(tabName = "data",
+                box(solidHeader = TRUE,
+                    width = 9,
+                    title = "Browse the data",
+                    dataTableOutput("dataset")
+                )
         )
       )
     )
