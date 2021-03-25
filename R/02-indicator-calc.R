@@ -1,6 +1,15 @@
 # Load packages
-source('./R/fun/load_packages.R')
+packages <- c("tidyverse",
+              "here",
+              "skimr",
+              "labelled")
+pacman::p_load(packages,
+               character.only = TRUE)
 
+data_selected <-
+  read_rds(here("data",
+                "data_cleaned",
+                "selected_vars.rds"))
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # CALCULATE GLOBAL CLOSENESS TO FRONTIER FOR EACH INDICATOR AND FOR EACH COUNTRY -----------------------
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -16,7 +25,8 @@ source('./R/fun/load_packages.R')
 # reference: https://www.doingbusiness.org/content/dam/doingBusiness/media/Annual-Reports/English/DB17-Chapters/DB17-DTF-and-DBRankings.pdf
 
 # Get min and max for each variable
-vars_minmax <- data_selected %>%
+vars_minmax <-
+  data_selected %>%
   filter(year >= 2013) %>%
   summarise(
     across(
@@ -36,7 +46,7 @@ vars_minmax <- data_selected %>%
   ) %>%
   separate(
     variable,
-    into = c("variable","minmax"),
+    into = c("variable", "minmax"),
     sep = "-"
   ) %>%
   pivot_wider(
@@ -44,11 +54,13 @@ vars_minmax <- data_selected %>%
     names_from = "minmax",
     values_from = "value_minmax"
   ) %>%
-  labelled::remove_labels()
+  remove_labels()
 
 # Collapse at country level, keeping the most recent data for each indicator
-data_recent_country <- data_selected %>%
-  arrange(country,year) %>%
+data_recent_country <-
+  data_selected %>%
+  arrange(country,
+          year) %>%
   group_by(country) %>%
   fill(
     all_of(vars_global)
@@ -59,39 +71,44 @@ data_recent_country <- data_selected %>%
   select(-year)
 
 # Calculate closeness to frontier at indicator level
-dtf_vars_global <- data_recent_country %>%
-  labelled::remove_labels() %>%
+dtf_vars_global <-
+  data_recent_country %>%
+  remove_labels %>%
   pivot_longer(
     all_of(vars_global),
-    names_to="variable",
+    names_to = "variable",
     values_drop_na = F
   ) %>%
-  left_join(vars_minmax,by="variable") %>%
+  left_join(vars_minmax,
+            by = "variable") %>%
   mutate(
     dtf = (min - value) / (min - max),
-    dtf = ifelse(dtf==0,0.01,dtf) # small adjustments to display a very short bar on the graph, in case dtf = 0
+    dtf = ifelse(dtf == 0,
+                 0.01,
+                 dtf) # small adjustments to display a very short bar on the graph, in case dtf = 0
   ) %>%
   pivot_wider(
-    id_cols = c("country","lac","lac6","oecd","structural"),
+    id_cols = c("country", "lac", "lac6", "oecd", "structural"),
     names_from = "variable",
-    #names_prefix = "dtf_",
     values_from = "dtf"
   )
 
 # Calculate closeness to frontier at institutional family level (mean of DTF of each indicator)
-dtf_family_level <- data.frame(vars_group=NA,dtf_mean=NA)
+dtf_family_level <-
+  data.frame(vars_group = NA,
+             dtf_mean = NA)
 
 i=1
 
-vars_global_list=list(vars_pol=vars_pol,
-                      vars_social=vars_social,
-                      vars_transp=vars_transp,
-                      vars_publ=vars_publ,
-                      vars_leg=vars_leg,
-                      vars_mkt=vars_mkt,
-                      vars_lab=vars_lab,
-                      vars_fin=vars_fin,
-                      vars_service_del=vars_service_del)
+vars_global_list=list(vars_pol = vars_pol,
+                      vars_social = vars_social,
+                      vars_transp = vars_transp,
+                      vars_publ = vars_publ,
+                      vars_leg = vars_leg,
+                      vars_mkt = vars_mkt,
+                      vars_lab = vars_lab,
+                      vars_fin = vars_fin,
+                      vars_service_del = vars_service_del)
 
 for(group in vars_global_list){
 
@@ -109,14 +126,26 @@ for(group in vars_global_list){
 
   i=i+1
 
-  dtf_family_level <- rbind(dtf_family_level,dtf_family)
+  dtf_family_level <- rbind(dtf_family_level, dtf_family)
 
 }
 
-rm(dtf_family,i,group,vars_minmax,data_recent_country,data_selected)
+rm(dtf_family, i, group, vars_minmax, data_recent_country, data_selected, packages)
 
 dtf_family_level <- dtf_family_level %>%
   filter(!is.na(vars_group)) %>%
   mutate(
-    dtf_mean = ifelse(dtf_mean==0,0.01,dtf_mean) # small adjustments to display a very short bar on the graph, in case dtf = 0
+    dtf_mean = ifelse(dtf_mean == 0,
+                      0.01,
+                      dtf_mean) # small adjustments to display a very short bar on the graph, in case dtf = 0
   )
+
+write_rds(dtf_family_level,
+          here("app",
+               "data",
+               "dtf_family_level.rds"))
+
+write_rds(dtf_vars_global,
+          here("app",
+               "data",
+               "dtf_vars_global.rds"))

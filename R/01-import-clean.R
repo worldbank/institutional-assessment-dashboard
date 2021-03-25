@@ -1,17 +1,31 @@
 # Load packages
-source('./R/fun/load_packages.R')
+
+packages <- c("tidyverse",
+              "here",
+              "skimr")
+
+pacman::p_load(packages,
+               character.only = TRUE)
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # IMPORT ORIGINAL DATA ----------------------
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # Load .dta file
-#data_original <- haven::read_dta("./data/merged_for_residuals.dta")
+# data_original <- read_dta(here("data",
+#                                "data_cleaned",
+#                                "merged_for_residuals.dta"))
 # Saving as R format and csv
-#saveRDS(data_original,"./data/merged_for_residuals.rds") # save as rds format / small file size
-#write.csv2(data_original,"./data/merged_for_residuals.csv",row.names = F) # save as csv format / still large file size
+# save_rds(data_original,
+#          here("data",
+#              "data_cleaned",
+#              "merged_for_residuals.rds")) # save as rds format / small file size
 # Open rds file, faster loading
-data_original <- readRDS("./data/merged_for_residuals.rds")
+
+data_original <- readRDS(here("data",
+                              "data_cleaned",
+                              "merged_for_residuals.rds"))
+
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # BASIC CLEANING ---------------------------
@@ -138,4 +152,12 @@ data_selected <- data_cleaned %>%
     )
   )
 
-rm(data_cleaned,data_original)
+# Explore dataset
+skim(data_selected)
+
+write_rds(data_selected,
+          here("data",
+               "data_cleaned",
+               "selected_vars.rds"))
+
+rm(data_cleaned, data_original)
