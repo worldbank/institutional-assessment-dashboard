@@ -100,24 +100,26 @@ vars_publ <- c("f6_regulatoryenf","proc_mean_score","eff_govspending","regulator
   # dropped SC: gov_efficiency (GCI)
 
 # 5 LEGAL INSTITUTIONS
-vars_leg <- c("f8_criminaljustice","f7_civiljustice","es_court_constraint","v2juaccnt", "efw_integrity_legalsys","legaleff_challenging","legaleff_disputes")
-  # dropped EA: wgi_rulelaw enf_contr_overall resolve_insolv_overall - SC: why dropped enf_contr_overall resolve_insolv_overall?
-  # dropped SC: fw_contracts_enf efw_impartialcourts
-  # EA: judicial ind for LJI from LinzerStanton/VDEM?
+vars_leg <- c("f8_criminaljustice","f7_civiljustice","es_court_constraint","v2juaccnt",
+              "efw_integrity_legalsys","legaleff_challenging","legaleff_disputes","enf_contr_overall","resolve_insolv_overall")
+# dropped EA: wgi_rulelaw
+# dropped SC: fw_contracts_enf efw_impartialcourts
+# EA: judicial ind for LJI from LinzerStanton/VDEM?
 
 # 6 BUSINESS ENV. AND TRADE INSTITUTIONS
-vars_mkt <- c("govreg_burden","gci_overall","mkt_dominance","eff_antimonopoly","nontariff_barriers","property_rights","efw_inv_restr","efw_capitalcontrols",
-              "efw_tourist","customs_burden","lpi_clearance_eff","wef_border_admin","complexity_procedures","barriers_startups","protection_incumbents",
-              "barriers_trade_expl","barriers_trade_oth")
-  # dropped EA: start_bus_overall constr_perm_overall register_prop_overall   protect_minority_ov pay_taxes_overall trade_borders_overall - SC: why?
-  # dropped SC: wsj_propertyrights, startbus_days, startbus_procedures, wsj_businessfreedom (already from source, WB DB), efw_property_rights 	efw_reg_trade_barr efw_businessreg (already from source, WEF, GCR: nontariff_barriers property_rights govreg_burden)
-  # EA unpacked efw_controls_movement ->  efw_inv_restr efw_capitalcontrols efw_tourist
+vars_mkt <- c("govreg_burden", "gci_overall", "mkt_dominance", "eff_antimonopoly", "nontariff_barriers", "property_rights",
+              "efw_inv_restr", "efw_capitalcontrols", "efw_tourist", "customs_burden", "lpi_clearance_eff", "wef_border_admin",
+              "complexity_procedures", "barriers_startups", "protection_incumbents", "barriers_trade_expl", "barriers_trade_oth",
+              "start_bus_overall", "constr_perm_overall", "register_prop_overall", "protect_minority_ov", "pay_taxes_overall", "trade_borders_overall")
+# dropped SC: wsj_propertyrights, startbus_days, startbus_procedures, wsj_businessfreedom (already from source, WB DB), efw_property_rights 	efw_reg_trade_barr efw_businessreg (already from source, WEF, GCR: nontariff_barriers property_rights govreg_burden)
+# EA unpacked efw_controls_movement ->  efw_inv_restr efw_capitalcontrols efw_tourist
 
 # 7 LABOR MARKET INSTITUTIONS
 vars_lab <- c("efw_labor_mkt_reg","collective_barg","empl_protection_perm","empl_protection_temp","union_density","minimum_wage_ratio")
 
 # 8 FINANCIAL INSTITUTITONS
-vars_fin <- c("efw_credit_mkt_reg","efw_free_foreign_curr","competition_rules_fin","efficiency_superv_bank","efficiency_superv_fin","cbi")
+vars_fin <- c("efw_credit_mkt_reg", "efw_free_foreign_curr", "competition_rules_fin", "efficiency_superv_bank",
+              "efficiency_superv_fin", "cbi", "access_credit_overall", "insolvency_framework")
   # dropped EA: access_credit_overall insolvency_framework --> SC: why?
   # dropped SC: getting_credit, credit_registry_cov (subindicators of access_credit_overall)
   # dropped SC: wsj_financialfreedom (as suggested by Peter McConaghy), financial_institutions (it is an outcome)
