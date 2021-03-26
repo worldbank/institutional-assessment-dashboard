@@ -127,7 +127,7 @@
 
         tabItem(tabName = "data",
                 box(solidHeader = TRUE,
-                    width = 9,
+                    width = 12,
                     title = "Browse the data",
                     dataTableOutput("dataset")
                 )

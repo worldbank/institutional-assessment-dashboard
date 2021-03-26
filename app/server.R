@@ -17,15 +17,30 @@
                        "mock_country.csv"))
 
   global_data <-
-    read_csv(file.path("data",
+    read_rds(file.path("data",
                        "dtf_vars_global.rds"))
+
+  data_table <-
+    global_data %>%
+    select(-c("lac", "lac6", "structural", "oecd")) %>%
+    mutate(across(where(is.numeric), round, 3))
 
 # Server ---------------------------------------------------------------------------------------------
 
   server <- function(input, output, session) {
 
-    output$dataset = renderDataTable({
-      global_data
+    output$dataset = renderDataTable(server = FALSE, {
+      datatable(data_table,
+                rownames = FALSE,
+                extensions = 'Buttons',
+                options = list(scrollX = TRUE,
+                               pageLength = 20,
+                               fixedColumns = TRUE,
+                               autoWidth = TRUE,
+                               dom = 'tB',
+                               buttons = c('copy', 'csv', 'excel')))
+
+
     })
 
     output$Overview <- renderPlotly({
