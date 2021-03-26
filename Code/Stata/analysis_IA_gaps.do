@@ -177,7 +177,8 @@ global vars_publ f6_regulatoryenf proc_mean_score eff_govspending regulatory_gov
 	* dropped SC: gov_efficiency (GCI)
 
 *5 LEGAL INSTITUTIONS
-global vars_leg judicial_ind  f8_criminaljustice f7_civiljustice es_court_constraint   v2juaccnt  efw_integrity_legalsys legaleff_challenging  legaleff_disputes enf_contr_overall resolve_insolv_overall
+global vars_leg judicial_ind  f8_criminaljustice f7_civiljustice es_court_constraint   v2juaccnt  efw_integrity_legalsys legaleff_challenging legaleff_disputes enf_contr_overall resolve_insolv_overall
+	* dropped EA: wgi_rulelaw
 	* dropped SC: fw_contracts_enf efw_impartialcourts
 	*EA: judicial ind for LJI from LinzerStanton/VDEM?
 
