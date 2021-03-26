@@ -53,56 +53,81 @@
 
       tabItems(
         tabItem(tabName = "home",
-                  box(solidHeader = TRUE,
-                      width = 9,
-                      h3("About"),
-                      p("Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                        sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-                        quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-                        Excepteur sint occaecat cupidatat non proident,
-                        sunt in culpa qui officia deserunt mollit anim id est laborum."),
-                      h3("How to use this dashboard"),
-                      p("Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                        sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-                        quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-                        Excepteur sint occaecat cupidatat non proident,
-                        sunt in culpa qui officia deserunt mollit anim id est laborum."),
-                      h3("Methodological notes"),
-                      p("Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                        sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-                        quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-                        Excepteur sint occaecat cupidatat non proident,
-                        sunt in culpa qui officia deserunt mollit anim id est laborum.")
+
+  # About ----------------------------------------------------------------------------------------------------------
+                fluidRow(
+                  box(
+                    solidHeader = TRUE,
+                    width = 12,
+                    h3("About"),
+                    p("Lorem ipsum dolor sit amet, consectetur adipiscing elit"),
+                    h3("How to use this dashboard"),
+                    p("Lorem ipsum dolor sit amet, consectetur adipiscing elit"),
+                    h3("Methodological notes"),
+                    p("Lorem ipsum dolor sit amet, consectetur adipiscing elit.")
+                  )
+                ),
+
+  # Country selection ----------------------------------------------------------------------------------------------
+
+                fluidRow(
+                  box(
+                    solidHeader = TRUE,
+                    width = 6,
+                    title = "Select a base country",
+                    selectInput(
+                      "country",
+                      label = NULL,
+                      choices = c("", global_data$country),
+                      multiple = FALSE
+                    )
                   ),
 
-                box(title = "Select countries",
+                  box(
                     solidHeader = TRUE,
-                    width = 9,
-                    box(title = "Select a base country",
-                      selectInput(
-                        "country",
-                        label = NULL,
-                        choices = c("", country_list),
-                        multiple = FALSE,
-                        width = "50%"
-                      )
-                    ),
-                    box(title = "Select comparison group",
-                        width = 12,
-                        box(title = "Regions",
-                            collapsible = TRUE),
-                        box(title = "Country groups",
-                            collapsible = TRUE),
-                        box(title = "Countries",
-                            collapsible = TRUE,
-                            collapsed = TRUE,
-                            width =12),
-                        actionButton("button", "Apply selection")
-                        )
-                )
+                    width = 6,
+                    title = "Select comparison group",
+                    collapsible = TRUE,
+                    checkboxGroupInput(
+                      "groups",
+                      label = NULL,
+                      choiceNames = c("High income",
+                                      "Low & middle income",
+                                      "Low income",
+                                      "Lower middle income",
+                                      "Middle income",
+                                      "Upper middle income",
+                                      "OECD"),
+                      choiceValues = c("hic",
+                                       "lnmic",
+                                       "lic",
+                                       "lmic",
+                                       "mic",
+                                       "imic",
+                                       "oecd"),
+                      inline = TRUE
+                    )
+                  )
+                ),
+
+                box(
+                  solidHeader = TRUE,
+                  title = "All countries",
+                  collapsible = TRUE,
+                  collapsed = TRUE,
+                  width = "100%",
+                  selected = "NULL",
+                  checkboxGroupInput(
+                    "countries",
+                    label = NULL,
+                    choices = country_list$country %>% unique,
+                    inline = TRUE
+                  )
+                ),
+
+                actionButton("button",
+                             "Apply selection")
+
         ),
 
         tabItem(tabName = "overview",
