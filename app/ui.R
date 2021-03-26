@@ -11,9 +11,17 @@
     read_csv(file.path("data",
                        "wb_country_list.csv"))
 
+  source(file.path("auxiliary",
+                   "vars-by-family.R"))
+
+
+  global_data <-
+    read_rds(file.path("data",
+                       "dtf_vars_global.rds"))
+
   ui <- dashboardPage(
 
-    # Header ------------------------------------------------------------------------------------
+   # Header ------------------------------------------------------------------------------------
     dashboardHeader(title = h3("Title"),
                     titleWidth = 1800),
 
@@ -38,6 +46,10 @@
 
     # Body -----------------------------------------------------------------------------------------
     dashboardBody(
+
+      tags$head(
+        tags$link(rel = "stylesheet", type = "text/css", href = "styles.css")
+      ),
 
       tabItems(
         tabItem(tabName = "home",
@@ -126,6 +138,50 @@
         ),
 
         tabItem(tabName = "data",
+
+                box(solidHeader = TRUE,
+                    width = 3,
+                    title = "Select countries to display",
+                    collapsible = TRUE,
+                    collapsed = TRUE,
+                    selectInput(
+                      "vars",
+                      label = NULL,
+                      choices = c("All",
+                                  "Current comparison"
+                      ),
+                      selected = 1,
+                      width = "100%"
+                    )
+                ),
+
+                box(solidHeader = TRUE,
+                    width = 9,
+                    title = "Select indicators to display",
+                    collapsible = TRUE,
+                    collapsed = TRUE,
+                    checkboxGroupInput(
+                      "vars",
+                      label = NULL,
+                      choiceNames = c("Governance of SOEs",
+                                      "Accountability institutions",
+                                      "Business & trade institutions",
+                                      "Financial institutions",
+                                      "Labor market institutions",
+                                      "Legal institutions",
+                                      "Political institutions",
+                                      "Public sector institutions  ",
+                                      "Social institutions"
+                                      ),
+                      choiceValues = family_names,
+                      inline = TRUE,
+                      selected = family_names,
+                      width = "100%"
+                    )
+                ),
+
+
+
                 box(solidHeader = TRUE,
                     width = 12,
                     title = "Browse the data",

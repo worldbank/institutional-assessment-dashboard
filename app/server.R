@@ -25,23 +25,34 @@
     select(-c("lac", "lac6", "structural", "oecd")) %>%
     mutate(across(where(is.numeric), round, 3))
 
+  source(file.path("auxiliary",
+                   "vars-by-family.R"))
+
 # Server ---------------------------------------------------------------------------------------------
 
   server <- function(input, output, session) {
 
-    output$dataset = renderDataTable(server = FALSE, {
-      datatable(data_table,
-                rownames = FALSE,
-                extensions = 'Buttons',
-                options = list(scrollX = TRUE,
-                               pageLength = 20,
-                               fixedColumns = TRUE,
-                               autoWidth = TRUE,
-                               dom = 'tB',
-                               buttons = c('copy', 'csv', 'excel')))
+    output$dataset <-
+      renderDataTable(server = FALSE, {
 
+        vars <-
+          input$vars %>%
+          map(get) %>%
+          unlist
 
-    })
+        datatable(data_table %>%
+                    select(country,
+                           all_of(vars)),
+                  rownames = FALSE,
+                  extensions = 'Buttons',
+                  filter = 'top',
+                  options = list(scrollX = TRUE,
+                                 pageLength = 15,
+                                 fixedColumns = TRUE,
+                                 autoWidth = TRUE,
+                                 dom = "lBtipr",
+                                 buttons = c('copy', 'csv', 'excel')))
+      })
 
     output$Overview <- renderPlotly({
       plot <-
