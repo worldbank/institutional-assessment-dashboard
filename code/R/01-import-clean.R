@@ -22,9 +22,9 @@ pacman::p_load(packages,
 #              "merged_for_residuals.rds")) # save as rds format / small file size
 # Open rds file, faster loading
 
-data_original <- readRDS(here("data",
-                              "data_cleaned",
-                              "merged_for_residuals.rds"))
+data_original <- read_rds(here("data",
+                               "data_cleaned",
+                               "merged_for_residuals.rds"))
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -34,6 +34,8 @@ data_original <- readRDS(here("data",
 data_cleaned <- data_original %>%
   # Rename variables
   rename(
+    country_name = countryname,
+    country_code = code,
     telecom_infr = telecommunicationinfrastructurei,
     daigov_2016 = daigovernmentsubindex_2016,
     contract_manag_score = contract_management_score,
@@ -140,7 +142,10 @@ vars_global <- c(vars_pol,
 # Keep only vars of interest
 data_selected <- data_cleaned %>%
   select(
-    country,year,lac,lac6,oecd,structural,
+    country_name, country_code,
+    year,
+    lac, lac6, oecd,
+    structural,
     all_of(vars_global)
   ) %>%
   # SC: methodological note for PRM indicates that 1998 and 2013 indicators are comparable, but not with 2018 due to change in methodology
