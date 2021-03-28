@@ -1,0 +1,22 @@
+.dataTables_wrapper .dt-buttons {
+  float:none;
+  text-align:right;
+}
+
+.multicol-8 {
+  height: 650x;
+  -webkit-column-count: 8; /* Chrome, Safari, Opera */
+  -moz-column-count: 8;    /* Firefox */
+  column-count: 8;
+  -moz-column-fill: auto;
+  -column-fill: auto;
+}
+
+.multicol-3 {
+  height: 75px;
+  -webkit-column-count: 4; /* Chrome, Safari, Opera */
+  -moz-column-count: 4;    /* Firefox */
+  column-count: 4;
+  -moz-column-fill: auto;
+  -column-fill: auto;
+}

@@ -16,9 +16,18 @@
     read_csv(file.path("data",
                        "mock_country.csv"))
 
+  country_groups <-
+    read_rds(file.path("data",
+                       "wb_country_groups.rds"))
+
   global_data <-
     read_rds(file.path("data",
-                       "dtf_vars_global.rds"))
+                       "country_dtf.rds"))
+  country_list <-
+    read_csv(here("data",
+                  "data_raw",
+                  "wb_country_list.csv")) %>%
+    rename(country_name = country)
 
   data_table <-
     global_data %>%
@@ -32,6 +41,42 @@
 
   server <- function(input, output, session) {
 
+    observe({
+      selected_groups  <- input$groups
+      selected_country <- input$country
+
+      # Can use character(0) to remove all choices
+      if (is.null(selected_groups)) {
+        selected <- NULL
+      } else {
+        selected <-
+          country_list %>%
+          filter(group_code %in% selected_groups) %>%
+          select(country_name) %>%
+          unique
+
+        if (!is.null(selected_country)) {
+          selected <-
+            selected %>%
+            filter(country_name != selected_country)
+        }
+
+        selected <-
+          selected %>%
+          pluck(1)
+
+      }
+
+
+      # Can also set the label and select items
+      updateCheckboxGroupInput(session,
+                               "countries",
+                               label = NULL,
+                               choices = global_data$country_name %>% unique,
+                               selected = selected
+      )
+    })
+
     output$dataset <-
       renderDataTable(server = FALSE, {
 
@@ -41,7 +86,7 @@
           unlist
 
         datatable(data_table %>%
-                    select(country,
+                    select(country_name,
                            all_of(vars)),
                   rownames = FALSE,
                   extensions = 'Buttons',
