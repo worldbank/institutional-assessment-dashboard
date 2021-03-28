@@ -7,17 +7,19 @@
   library(DT)
   library(plotly)
 
+  country_groups <-
+    read_rds(file.path("data",
+                       "wb_country_groups.rds"))
+
   country_list <-
-    read_csv(file.path("data",
-                       "wb_country_list.csv"))
+    read_rds(file.path("data",
+                       "wb_country_list.rds"))
+
 
   source(file.path("auxiliary",
                    "vars-by-family.R"))
 
 
-  global_data <-
-    read_rds(file.path("data",
-                       "dtf_vars_global.rds"))
 
   ui <- dashboardPage(
 
@@ -78,7 +80,7 @@
                     selectInput(
                       "country",
                       label = NULL,
-                      choices = c("", global_data$country),
+                      choices = c("", country_list$country_name %>% unique),
                       multiple = FALSE
                     )
                   ),
@@ -91,21 +93,8 @@
                     checkboxGroupInput(
                       "groups",
                       label = NULL,
-                      choiceNames = c("High income",
-                                      "Low & middle income",
-                                      "Low income",
-                                      "Lower middle income",
-                                      "Middle income",
-                                      "Upper middle income",
-                                      "OECD"),
-                      choiceValues = c("hic",
-                                       "lnmic",
-                                       "lic",
-                                       "lmic",
-                                       "mic",
-                                       "imic",
-                                       "oecd"),
-                      inline = TRUE
+                      choiceNames = country_groups$group_name,
+                      choiceValues = country_groups$group_code
                     )
                   )
                 ),

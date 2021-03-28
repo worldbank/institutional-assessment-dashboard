@@ -16,9 +16,18 @@
     read_csv(file.path("data",
                        "mock_country.csv"))
 
+  country_groups <-
+    read_rds(file.path("data",
+                       "wb_country_groups.rds"))
+
   global_data <-
     read_rds(file.path("data",
-                       "dtf_vars_global.rds"))
+                       "country_dtf.rds"))
+  country_list <-
+    read_csv(here("data",
+                  "data_raw",
+                  "wb_country_list.csv")) %>%
+    rename(country_name = country)
 
   data_table <-
     global_data %>%
@@ -41,7 +50,7 @@
           unlist
 
         datatable(data_table %>%
-                    select(country,
+                    select(country_name,
                            all_of(vars)),
                   rownames = FALSE,
                   extensions = 'Buttons',
