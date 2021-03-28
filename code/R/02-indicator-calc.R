@@ -153,7 +153,7 @@ for(group in vars_global_list){
 
 }
 
-rm(dtf_family, i, group, vars_minmax, data_recent_country, data_selected, packages)
+rm(dtf_family, i, group, vars_minmax, data_country, data_selected, packages)
 
 dtf_family_level <- dtf_family_level %>%
   filter(!is.na(vars_group)) %>%
