@@ -59,6 +59,7 @@
 
 # Markdown
 !/**/*.md
+!*.csv
 
 #######################
 # Include all the files with passwords or tokens here. All files named
