@@ -75,7 +75,7 @@
                 fluidRow(
                   box(
                     solidHeader = TRUE,
-                    width = 6,
+                    width = 3,
                     title = "Select a base country",
                     selectInput(
                       "country",
@@ -87,9 +87,10 @@
 
                   box(
                     solidHeader = TRUE,
-                    width = 6,
+                    width = 9,
                     title = "Select comparison group",
                     collapsible = TRUE,
+                    class = "multicol-3",
                     checkboxGroupInput(
                       "groups",
                       label = NULL,
@@ -104,17 +105,17 @@
                   title = "All countries",
                   collapsible = TRUE,
                   collapsed = TRUE,
+                  class = "multicol-8",
                   width = "100%",
                   selected = "NULL",
                   checkboxGroupInput(
                     "countries",
                     label = NULL,
-                    choices = country_list$country %>% unique,
-                    inline = TRUE
+                    choices = country_list$country_name %>% unique
                   )
                 ),
 
-                actionButton("button",
+                actionButton("select",
                              "Apply selection")
 
         ),
