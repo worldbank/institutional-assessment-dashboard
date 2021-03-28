@@ -80,7 +80,7 @@
                     selectInput(
                       "country",
                       label = NULL,
-                      choices = c("", country_list$country_name %>% unique),
+                      choices = c("", country_list$country_name %>% unique %>% sort),
                       multiple = FALSE
                     )
                   ),
