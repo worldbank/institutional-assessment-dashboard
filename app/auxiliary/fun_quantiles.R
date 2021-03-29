@@ -2,14 +2,14 @@
 # FUNCTION THAT DEFINES THE QUANTILES BASED ON SELECTED COUNTRY AND COMPARISON GROUP -----------------------
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-def_quantiles <- function(data, selected_country, comparison_group, vars) {
+def_quantiles <- function(data, selected_country, selected, vars) {
 
   data <- data %>%
     filter(
-      country == selected_country | country %in% comparison_group
+      country_name == selected_country | country_name %in% selected
     ) %>%
     ungroup() %>%
-    select(country,all_of(vars))
+    select(country_name,all_of(vars))
 
   quantiles_group <- as.data.frame(apply(data[all_of(vars)], 2, quantile, probs = c(0.25,0.5) , na.rm = T)) %>%
     rownames_to_column(var="quantile_break") %>%
@@ -25,7 +25,7 @@ def_quantiles <- function(data, selected_country, comparison_group, vars) {
     select(variable,q,dtf_q)
 
   data <- data %>%
-    filter(country==selected_country) %>%
+    filter(country_name==selected_country) %>%
     pivot_longer(all_of(vars)) %>%
     rename(variable=name,dtf=value) %>%
     left_join(quantiles_group,by="variable") %>%
@@ -39,7 +39,8 @@ def_quantiles <- function(data, selected_country, comparison_group, vars) {
         dtf > q25_group & dtf <= q50_group ~ "Emerging",
         dtf > q50_group ~ "Advanced"
       )
-    )
+    ) %>%
+    filter(!is.na(dtf))
 
   return(data)
 
