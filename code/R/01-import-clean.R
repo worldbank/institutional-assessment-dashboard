@@ -26,6 +26,9 @@ data_original <- read_rds(here("data",
                                "data_cleaned",
                                "merged_for_residuals.rds"))
 
+source(file.path("app/auxiliary",
+                 "vars-by-family.R"))
+
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # BASIC CLEANING ---------------------------
@@ -131,7 +134,7 @@ vars_fin <- c("efw_credit_mkt_reg", "efw_free_foreign_curr", "competition_rules_
 vars_service_del <- c("governance_soe","price_controls","command_control")
 
 # Create a list for group all variables
-vars_global <- c(vars_pol,
+vars_all <- c(vars_pol,
                     vars_social,
                     vars_transp,
                     vars_publ,
@@ -148,7 +151,7 @@ data_selected <- data_cleaned %>%
     year,
     lac, lac6, oecd,
     structural,
-    all_of(vars_global)
+    all_of(vars_all)
   ) %>%
   # SC: methodological note for PRM indicates that 1998 and 2013 indicators are comparable, but not with 2018 due to change in methodology
   # --> drop if year ==2018
