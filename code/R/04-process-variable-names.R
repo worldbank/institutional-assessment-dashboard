@@ -133,9 +133,9 @@ variable_names <-
         variable == "start_bus_overall" ~ "Starting a business",
         variable == "trade_borders_overall" ~ "Trading across borders",
         variable == "transparency_polmak" ~ "Transparency of government policymaking",
-        variable == "v2juaccnt" ~ "",
+        variable == "v2juaccnt" ~ "Judicial accountability",
         variable == "v2lgfemleg" ~ "Lower chamber female legislator",
-        variable == "v2xcs_ccsi" ~ "",
+        variable == "v2xcs_ccsi" ~ "Core civil society index",
         variable == "wef_border_admin" ~ "Efficiency and transparency of boarder administration"
       ),
     family_var =
