@@ -27,6 +27,7 @@ data_selected <-
 # Get min and max for each variable
 vars_minmax <-
   data_selected %>%
+  #filter(year >= as.numeric(format(Sys.Date(), "%Y"))-8) %>% # Enable eventually to filter for the last 7 years and disable next line
   filter(year >= 2013) %>%
   summarise(
     across(
@@ -57,22 +58,45 @@ vars_minmax <-
   remove_labels()
 
 # Collapse at country level, keeping the most recent data for each indicator
-data_recent_country <-
+#data_recent_country <-
+#  data_selected %>%
+#  arrange(country_name,
+#          year) %>%
+#  group_by(country_name) %>%
+#  fill(
+#    all_of(vars_global)
+#  ) %>%
+#  filter(
+#    year == max(year)
+#  ) %>%
+#  select(-year)
+
+# Collapse at country level. for each country, keep only the average since 2013
+# SC: in the long term, this step should be flexibly adjusted in the dashboard (keep last 7 years, given the present time)
+data_country <-
   data_selected %>%
-  arrange(country_name,
-          year) %>%
-  group_by(country_name) %>%
-  fill(
-    all_of(vars_global)
+  #filter(year >= as.numeric(format(Sys.Date(), "%Y"))-8) %>% # Enable eventually to filter for the last 7 years and disable next line
+  filter(year >= 2013) %>%
+  group_by(country_name,
+           country_code,
+           lac,lac6,oecd,
+           structural) %>%
+  summarise(
+    across(
+      all_of(vars_global),
+      ~mean(.x, na.rm = T)
+    )
   ) %>%
-  filter(
-    year == max(year)
-  ) %>%
-  select(-year)
+  mutate(
+    across(
+      all_of(vars_global),
+      ~ifelse(is.nan(.x),NA,.x)
+    )
+  )
 
 # Calculate closeness to frontier at indicator level
 dtf_vars_global <-
-  data_recent_country %>%
+  data_country %>%
   remove_labels %>%
   pivot_longer(
     all_of(vars_global),
@@ -130,7 +154,7 @@ for(group in vars_global_list){
 
 }
 
-rm(dtf_family, i, group, vars_minmax, data_recent_country, data_selected, packages)
+rm(dtf_family, i, group, vars_minmax, data_country, data_selected, packages)
 
 dtf_family_level <- dtf_family_level %>%
   filter(!is.na(vars_group)) %>%
