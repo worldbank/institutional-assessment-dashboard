@@ -134,7 +134,7 @@ variable_names <-
         variable == "trade_borders_overall" ~ "Trading across borders",
         variable == "transparency_polmak" ~ "Transparency of government policymaking",
         variable == "v2juaccnt" ~ "",
-        variable == "v2lgfemleg" ~ "",
+        variable == "v2lgfemleg" ~ "Lower chamber female legislator",
         variable == "v2xcs_ccsi" ~ "",
         variable == "wef_border_admin" ~ "Efficiency and transparency of boarder administration"
       ),
