@@ -30,7 +30,8 @@
 
   data_table <-
     global_data %>%
-    select(-c("lac", "lac6", "structural", "oecd")) %>%
+    ungroup() %>%
+    select(-c("lac", "lac6", "structural", "oecd","country_code")) %>%
     mutate(across(where(is.numeric), round, 3))
 
   source(file.path("auxiliary",
@@ -45,6 +46,7 @@
   server <- function(input, output, session) {
 
     observe({
+
       selected_groups  <- input$groups
       selected_country <- input$country
 
@@ -70,7 +72,6 @@
 
       }
 
-
       # Can also set the label and select items
       updateCheckboxGroupInput(session,
                                "countries",
@@ -78,6 +79,89 @@
                                choices = global_data$country_name %>% unique,
                                selected = selected
       )
+
+      req(input$select)
+
+      output$Overview <- renderPlotly({
+        plot <-
+          ggplot(data = dtf_family_level %>%
+                   def_quantiles(
+                     selected_country,
+                     selected,
+                     family_names
+                   )
+          ) +
+          geom_segment(
+            aes(x = reorder(variable,-dtf),
+                xend = reorder(variable,-dtf),
+                y = 0,
+                yend = dtf,
+                color = classification),
+            size = 1) +
+          geom_point(
+            aes(x = reorder(variable,-dtf),
+                y = dtf,
+                color = classification),
+            size = 3)  +
+          coord_flip() +
+          scale_color_manual(values = c("Advanced"="#009E73",
+                                        "Emerging"="#E69F00",
+                                        "Weak"="#D55E00")) +
+          theme_ipsum() +
+          theme(
+            panel.grid.minor.y = element_blank(),
+            panel.grid.major.y = element_blank(),
+            legend.position = "bottom",
+            legend.title = element_blank()
+          ) +
+          ylab("Distance to frontier") +
+          xlab("")
+
+        ggplotly(plot)
+
+      })
+
+      output$Labor <- renderPlotly({
+        plot <-
+          ggplot(data = global_data %>%
+                   def_quantiles(
+                     selected_country,
+                     selected,
+                     vars_lab
+                   )
+          ) +
+          geom_segment(
+            aes(x = reorder(variable,-dtf),
+                xend = reorder(variable,-dtf),
+                y = 0,
+                yend = dtf,
+                color = classification),
+            size = 1) +
+          geom_point(
+            aes(x = reorder(variable,-dtf),
+                y = dtf,
+                color = classification),
+            size = 3)  +
+          coord_flip() +
+          scale_color_manual(values = c("Advanced"="#009E73",
+                                        "Emerging"="#E69F00",
+                                        "Weak"="#D55E00")) +
+          theme_ipsum() +
+          theme(
+            panel.grid.minor.y = element_blank(),
+            panel.grid.major.y = element_blank(),
+            legend.position = "bottom",
+            legend.title = element_blank()
+          ) +
+          ylab("Distance to frontier") +
+          xlab("")
+
+        ggplotly(plot)
+
+      })
+
+
+
     })
 
     output$dataset <-
@@ -102,81 +186,6 @@
                                  buttons = c('copy', 'csv', 'excel')))
       })
 
-    output$Overview <- renderPlotly({
-      plot <-
-        ggplot(data = country_data %>%
-                 filter(tab == "Overview")) +
-          geom_segment(
-            aes(x = reorder(indicator,
-                            -value,
-                            sum),
-                xend = reorder(indicator,
-                               -value,
-                               sum),
-                y = 0,
-                yend = value,
-                color = category),
-            size = 1) +
-          geom_point(
-            aes(x = reorder(indicator,
-                            -value,
-                            sum),
-                y = value,
-                color = category),
-            size = 3)  +
-          coord_flip() +
-          scale_color_manual(values = c("#009E73", "#E69F00", "#D55E00")) +
-          theme_ipsum() +
-          theme(
-            panel.grid.minor.y = element_blank(),
-            panel.grid.major.y = element_blank(),
-            legend.position = "bottom",
-            legend.title = element_blank()
-          ) +
-          ylab("Distance to frontier") +
-          xlab("")
-
-      ggplotly(plot)
-
-    })
-
-    output$Labor <- renderPlotly({
-      plot <-
-        ggplot(data = country_data %>%
-                 filter(tab == "Labor")) +
-          geom_segment(
-            aes(x = reorder(indicator,
-                            -value,
-                            sum),
-                xend = reorder(indicator,
-                               -value,
-                               sum),
-                y = 0,
-                yend = value,
-                color = category),
-            size = 1) +
-          geom_point(
-            aes(x = reorder(indicator,
-                            -value,
-                            sum),
-                y = value,
-                color = category),
-            size = 3)  +
-          coord_flip() +
-          scale_color_manual(values = c("#009E73", "#E69F00", "#D55E00")) +
-          theme_ipsum() +
-          theme(
-            panel.grid.minor.y = element_blank(),
-            panel.grid.major.y = element_blank(),
-            legend.position = "bottom",
-            legend.title = element_blank()
-          ) +
-          ylab("Distance to frontier") +
-          xlab("")
-
-      ggplotly(plot)
-
-    })
 
 
 
