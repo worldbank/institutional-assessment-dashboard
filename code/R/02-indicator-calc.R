@@ -10,6 +10,10 @@ data_selected <-
   read_rds(here("data",
                 "data_cleaned",
                 "selected_vars.rds"))
+
+source(file.path("app/auxiliary",
+                 "vars-by-family.R"))
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # CALCULATE GLOBAL CLOSENESS TO FRONTIER FOR EACH INDICATOR AND FOR EACH COUNTRY -----------------------
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -31,7 +35,7 @@ vars_minmax <-
   filter(year >= 2013) %>%
   summarise(
     across(
-      all_of(vars_global),
+      all_of(vars_all),
       list(
         min = ~ min(.x, na.rm = T),
         max = ~ max(.x, na.rm = T)
@@ -83,13 +87,13 @@ data_country <-
            structural) %>%
   summarise(
     across(
-      all_of(vars_global),
+      all_of(vars_all),
       ~mean(.x, na.rm = T)
     )
   ) %>%
   mutate(
     across(
-      all_of(vars_global),
+      all_of(vars_all),
       ~ifelse(is.nan(.x),NA,.x)
     )
   )
@@ -99,7 +103,7 @@ dtf_vars_global <-
   data_country %>%
   remove_labels %>%
   pivot_longer(
-    all_of(vars_global),
+    all_of(vars_all),
     names_to = "variable",
     values_drop_na = F
   ) %>%
@@ -119,8 +123,9 @@ dtf_vars_global <-
 
 # Calculate closeness to frontier at institutional family level (mean of DTF of each indicator)
 dtf_family_level <-
-  data.frame(vars_group = NA,
-             dtf_mean = NA)
+  dtf_vars_global %>%
+  ungroup() %>%
+  select(country_code,country_name)
 
 i=1
 
@@ -136,32 +141,49 @@ vars_global_list=list(vars_pol = vars_pol,
 
 for(group in vars_global_list){
 
-  dtf_family <- dtf_vars_global[ ,which((names(dtf_vars_global) %in% group)==TRUE)]
+  name_var <- names(vars_global_list[i])
 
-  dtf_family <- dtf_family %>%
-    pivot_longer(everything()) %>%
-    select(-name) %>%
-    summarise(
-      dtf_mean = mean(value,na.rm=T)
+  dtf_family <- dtf_vars_global %>%
+    ungroup() %>%
+    select(
+      country_code,
+      dplyr::contains(group)
     ) %>%
-    mutate(
-      vars_group = names(vars_global_list[i])
+    pivot_longer(dplyr::contains(group)) %>%
+    select(-name) %>%
+    group_by(country_code) %>%
+    summarise(
+      "{name_var}" := mean(value,na.rm=T)
     )
 
   i=i+1
 
-  dtf_family_level <- rbind(dtf_family_level, dtf_family)
+  dtf_family_level <- left_join(dtf_family_level,
+                                dtf_family,
+                                by="country_code")
 
 }
 
-rm(dtf_family, i, group, vars_minmax, data_country, data_selected, packages)
+rm(dtf_family, i, group, vars_minmax, data_country, data_selected, packages,name_var,vars_global_list)
 
 dtf_family_level <- dtf_family_level %>%
-  filter(!is.na(vars_group)) %>%
   mutate(
-    dtf_mean = ifelse(dtf_mean == 0,
-                      0.01,
-                      dtf_mean) # small adjustments to display a very short bar on the graph, in case dtf = 0
+    across(
+      all_of(family_names),
+      ~ifelse(
+        is.nan(.x),
+        NA,
+        .x
+      )
+    )
+  ) %>%
+  mutate(
+    across(
+      all_of(family_names),
+      ~ifelse(.x == 0,
+              0.01,
+              .x) # small adjustments to display a very short bar on the graph, in case dtf = 0
+    )
   )
 
 write_rds(dtf_family_level,
