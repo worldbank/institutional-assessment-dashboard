@@ -7,17 +7,19 @@
   library(DT)
   library(plotly)
 
+  country_groups <-
+    read_rds(file.path("data",
+                       "wb_country_groups.rds"))
+
   country_list <-
-    read_csv(file.path("data",
-                       "wb_country_list.csv"))
+    read_rds(file.path("data",
+                       "wb_country_list.rds"))
+
 
   source(file.path("auxiliary",
                    "vars-by-family.R"))
 
 
-  global_data <-
-    read_rds(file.path("data",
-                       "dtf_vars_global.rds"))
 
   ui <- dashboardPage(
 
@@ -72,39 +74,27 @@
                 fluidRow(
                   box(
                     solidHeader = TRUE,
-                    width = 6,
+                    width = 3,
                     title = "Select a base country",
                     selectInput(
                       "country",
                       label = NULL,
-                      choices = c("", global_data$country),
+                      choices = c("", country_list$country_name %>% unique %>% sort),
                       multiple = FALSE
                     )
                   ),
 
                   box(
                     solidHeader = TRUE,
-                    width = 6,
+                    width = 9,
                     title = "Select comparison group",
                     collapsible = TRUE,
+                    class = "multicol-3",
                     checkboxGroupInput(
                       "groups",
                       label = NULL,
-                      choiceNames = c("High income",
-                                      "Low & middle income",
-                                      "Low income",
-                                      "Lower middle income",
-                                      "Middle income",
-                                      "Upper middle income",
-                                      "OECD"),
-                      choiceValues = c("hic",
-                                       "lnmic",
-                                       "lic",
-                                       "lmic",
-                                       "mic",
-                                       "imic",
-                                       "oecd"),
-                      inline = TRUE
+                      choiceNames = country_groups$group_name,
+                      choiceValues = country_groups$group_code
                     )
                   )
                 ),
@@ -114,17 +104,17 @@
                   title = "All countries",
                   collapsible = TRUE,
                   collapsed = TRUE,
+                  class = "multicol-8",
                   width = "100%",
                   selected = "NULL",
                   checkboxGroupInput(
                     "countries",
                     label = NULL,
-                    choices = country_list$country %>% unique,
-                    inline = TRUE
+                    choices = country_list$country_name %>% unique
                   )
                 ),
 
-                actionButton("button",
+                actionButton("select",
                              "Apply selection")
 
         ),

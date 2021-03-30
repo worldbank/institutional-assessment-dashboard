@@ -41,21 +41,12 @@
 # located unless you explicitly ignore that folder
 
 # R
-!/**/*.R
-!/**/*.Rmd
-!/**/*.Rproj
-!/**/*.rds
+!*.R
+!*.Rmd
+!*.Rproj
+!*.rds
+!*.css
 .Rproj.user
-
-# LaTeX
-!/**/*.tex
-!/**/*.bib
-
-# Python
-!/**/*.py
-!/**/*.ipynb
-# Still ignore .ipynb files in checkpoint folders
-.ipynb_checkpoints
 
 # Markdown
 !/**/*.md

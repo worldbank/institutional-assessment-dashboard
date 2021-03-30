@@ -1,18 +1,23 @@
-  
-  library(tidyverse)
-  
-  
-  country_list <-
-    read_csv(file.path("data",
-                       "wb_country_list.csv"))
-  
-  countries <-
-    country_list %>%
-    select(country, 
-           country_code) %>%
-    unique
+# 1 Set up ########################################################################################
 
-  groups <- 
+# 1.1 Packages ===================================================================================
+
+  packages <-
+    c("tidyverse",
+      "here")
+
+  pacman::p_load(packages,
+                 character.only = TRUE)
+
+# 1.2 Inputs ====================================================================================
+
+  country_list <-
+    read_csv(here("data",
+                  "data_raw",
+                  "wb_country_list.csv")) %>%
+    rename(country_name = country)
+
+  group_codes <-
     c("EUU",
       "HIC",
       "LIC",
@@ -20,26 +25,24 @@
       "LMY",
       "MIC",
       "OED",
-      "NAC",
       "UMC")
-  
-    
-  countries <-
-    mutate
-  
-  code <- "ARB"
-  country <- c("Brazil", "Argentina", "Oman")
-  
-  group_vars <-
-    function(country, code) {
-      
-      group_contries <-
-        country_groups %>%
-        filter(group_code == code) %>%
-        select(country) 
-      
-      country %in% group_contries
-      
-    }
 
-  
+  groups <-
+    country_list %>%
+    filter(group_code %in% group_codes) %>%
+    rename(group_name = group) %>%
+    select(group_code,
+           group_name) %>%
+    unique
+
+# 3 Save datasets ###########################################################################
+
+  write_rds(country_list,
+            here("app",
+                 "data",
+                 "wb_country_list.rds"))
+
+  write_rds(groups,
+            here("app",
+                 "data",
+                 "wb_country_groups.rds"))
