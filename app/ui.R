@@ -6,6 +6,7 @@
   library(tidyverse)
   library(DT)
   library(plotly)
+  library(leaflet)
 
   country_groups <-
     read_rds(file.path("data",
@@ -141,8 +142,13 @@
                   )
                 ),
 
-                actionButton("select",
-                             "Apply selection")
+                actionButton(
+                  "select",
+                  "Apply selection",
+                  icon = icon("check"),
+                  class = "btn-success",
+                  style="color: #fff"
+                )
 
         ),
 
@@ -309,18 +315,31 @@
         ),
 
         tabItem(tabName = "map",
+
+                box(solidHeader = TRUE,
+                    width = 12,
+                    title = "Select indicator to display",
+                    collapsible = TRUE,
+                    collapsed = TRUE,
+                    selectInput(
+                      "vars_map",
+                      label = NULL,
+                      choices = c("",family_names),
+                      width = "100%"
+                    )
+                ),
+
                 box(solidHeader = TRUE,
                     width = 12,
                     title = "Map",
-                    plotlyOutput("Map",
-                                 width = "85%"),
-                    h5("About the data and indicators"),
-                    p("Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                                            sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-                                            quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                                            Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-                                            Excepteur sint occaecat cupidatat non proident,
-                                            sunt in culpa qui officia deserunt mollit anim id est laborum.")
+                    leafletOutput("map_plot", height="600")
+                    #h5("About the data and indicators"),
+                    #p("Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                    #                        sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+                    #                        quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                    #                        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+                    #                        Excepteur sint occaecat cupidatat non proident,
+                    #                        sunt in culpa qui officia deserunt mollit anim id est laborum.")
                 )
         ),
 
@@ -357,7 +376,7 @@
                                       "Labor market institutions",
                                       "Legal institutions",
                                       "Political institutions",
-                                      "Public sector institutions  ",
+                                      "Public sector institutions",
                                       "Social institutions"
                                       ),
                       choiceValues = family_names,
