@@ -169,6 +169,6 @@ variable_names <-
 
   write_rds(variable_names,
             here("app",
-                 "auxiliary",
+                 "data",
                  "variable_names.rds"))
 
