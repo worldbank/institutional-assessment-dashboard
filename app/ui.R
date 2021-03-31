@@ -1,5 +1,3 @@
-
-
   library(shinydashboard)
   library(shiny)
   library(shinyjs)
@@ -16,15 +14,17 @@
     read_rds(file.path("data",
                        "wb_country_list.rds"))
 
+  variable_names <-
+    read_rds(file.path("data",
+                       "variable_names.rds"))
 
   source(file.path("auxiliary",
                    "vars-by-family.R"))
 
-
   ui <- dashboardPage(
 
    # Header ------------------------------------------------------------------------------------
-    dashboardHeader(title = h3("Title"),
+    dashboardHeader(title = h3("Global Institutional Assessment"),
                     titleWidth = 1800),
 
     # Sidebar -----------------------------------------------------------------------------------
@@ -324,7 +324,7 @@
                     selectInput(
                       "vars_map",
                       label = NULL,
-                      choices = c("",family_names),
+                      choices = c("",sort(variable_names$var_name)),
                       width = "100%"
                     )
                 ),
