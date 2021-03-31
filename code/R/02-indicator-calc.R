@@ -186,9 +186,16 @@ dtf_family_level <- dtf_family_level %>%
     )
   )
 
+# Save datasets ====================================================
+
 write_rds(dtf_family_level,
           here("app",
                "data",
+               "dtf_family_level.rds"))
+
+write_rds(dtf_family_level,
+          here("data",
+               "data_cleaned",
                "dtf_family_level.rds"))
 
 write_rds(dtf_vars_global,
