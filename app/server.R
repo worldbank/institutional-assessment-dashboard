@@ -97,7 +97,7 @@
       req(input$select)
 
       # OVERVIEW PLOT ----
-      output$Overview <- renderPlotly({
+      output$overview <- renderPlotly({
         plot <-
           ggplot(
             data =
@@ -149,18 +149,6 @@
 
         ggplotly(plot)
 
-        datatable(data_table %>%
-                    select(country_name,
-                           all_of(vars)),
-                  rownames = FALSE,
-                  extensions = 'Buttons',
-                  filter = 'top',
-                  options = list(scrollX = TRUE,
-                                 pageLength = 13,
-                                 fixedColumns = TRUE,
-                                 autoWidth = TRUE,
-                                 dom = "lBtipr",
-                                 buttons = c('copy', 'csv', 'excel')))
       })
 
       # LABOR PLOT ----

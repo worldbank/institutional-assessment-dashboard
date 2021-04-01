@@ -6,6 +6,10 @@
   library(plotly)
   library(leaflet)
 
+  box_width <- 11
+  graph_width <- "70%"
+  graph_height <- "500px"
+
   country_groups <-
     read_rds(file.path("data",
                        "wb_country_groups.rds"))
@@ -91,7 +95,7 @@
                 fluidRow(
                   box(
                     solidHeader = TRUE,
-                    width = 12,
+                    width = box_width,
                     h3("About"),
                     p("Lorem ipsum dolor sit amet, consectetur adipiscing elit"),
                     h3("How to use this dashboard"),
@@ -110,13 +114,14 @@
                       "country",
                       label = NULL,
                       choices = c("", country_list$country_name %>% unique %>% sort),
+                      selected = "Uruguay",
                       multiple = FALSE
                     )
                   ),
 
                   box(
                     solidHeader = TRUE,
-                    width = 9,
+                    width = box_width - 3,
                     title = "Select comparison group",
                     collapsible = TRUE,
                     class = "multicol-3",
@@ -124,7 +129,8 @@
                       "groups",
                       label = NULL,
                       choiceNames = country_groups$group_name,
-                      choiceValues = country_groups$group_code
+                      choiceValues = country_groups$group_code,
+                      selected = "OED"
                     )
                   )
                 ),
@@ -157,10 +163,11 @@
       # Country overview tab -----------------------------------------------------------------------
       tabItem(tabName = "overview",
               box(solidHeader = TRUE,
-                  width = 9,
+                  width = box_width,
                   title = "Country institutional assessment",
-                  plotlyOutput("Overview",
-                               width = "65%"),
+                  plotlyOutput("overview",
+                               width = graph_width,
+                               height = graph_height),
                   h5("About the data and indicators"),
                   p("Lorem ipsum dolor sit amet, consectetur adipiscing elit,
                         sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
@@ -174,10 +181,11 @@
       # Labor market institutions tab --------------------------------------------------------------
       tabItem(tabName = "labor",
               box(solidHeader = TRUE,
-                  width = 9,
+                  width = box_width,
                   title = "Labor market institutions",
                   plotlyOutput("Labor",
-                               width = "65%"),
+                               width = graph_width,
+                               height = graph_height),
                   h5("About the data and indicators"),
                   p("Lorem ipsum dolor sit amet, consectetur adipiscing elit,
                         sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
@@ -190,10 +198,11 @@
         # Financial institutions tab --------------------------------------------------------------
         tabItem(tabName = "financial",
                 box(solidHeader = TRUE,
-                    width = 12,
+                    width = box_width,
                     title = "Financial institutions",
                     plotlyOutput("Financial",
-                                 width = "85%"),
+                                 width = graph_width,
+                                 height = graph_height),
                     h5("About the data and indicators"),
                     p("Lorem ipsum dolor sit amet, consectetur adipiscing elit,
                                 sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
@@ -207,10 +216,11 @@
         # Legal institutions tab --------------------------------------------------------------
         tabItem(tabName = "legal",
                 box(solidHeader = TRUE,
-                    width = 12,
+                    width = box_width,
                     title = "Legal institutions",
                     plotlyOutput("Legal",
-                                 width = "85%"),
+                                 width = graph_width,
+                                 height = graph_height),
                     h5("About the data and indicators"),
                     p("Lorem ipsum dolor sit amet, consectetur adipiscing elit,
                                       sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
@@ -224,10 +234,11 @@
         # Political institutions tab --------------------------------------------------------------
         tabItem(tabName = "political",
                 box(solidHeader = TRUE,
-                    width = 12,
+                    width = box_width,
                     title = "Political institutions",
                     plotlyOutput("Political",
-                                 width = "85%"),
+                                 width = graph_width,
+                                 height = graph_height),
                     h5("About the data and indicators"),
                     p("Lorem ipsum dolor sit amet, consectetur adipiscing elit,
                                       sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
@@ -241,10 +252,11 @@
         # Social institutions tab --------------------------------------------------------------
         tabItem(tabName = "social",
                 box(solidHeader = TRUE,
-                    width = 12,
+                    width = box_width,
                     title = "Social institutions",
                     plotlyOutput("Social",
-                                 width = "85%"),
+                                 width = graph_width,
+                                 height = graph_height),
                     h5("About the data and indicators"),
                     p("Lorem ipsum dolor sit amet, consectetur adipiscing elit,
                                       sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
@@ -258,10 +270,11 @@
         # Business & Trade institutions tab --------------------------------------------------------------
         tabItem(tabName = "trade",
                 box(solidHeader = TRUE,
-                    width = 12,
+                    width = box_width,
                     title = "Business & Trade institutions",
                     plotlyOutput("Trade",
-                                 width = "85%"),
+                                 width = graph_width,
+                                 height = "600px"),
                     h5("About the data and indicators"),
                     p("Lorem ipsum dolor sit amet, consectetur adipiscing elit,
                                       sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
@@ -275,10 +288,11 @@
         # Public sector institutions tab --------------------------------------------------------------
         tabItem(tabName = "public",
                 box(solidHeader = TRUE,
-                    width = 12,
+                    width = box_width,
                     title = "Public sector institutions",
                     plotlyOutput("Public",
-                                 width = "85%"),
+                                 width = graph_width,
+                                 height = graph_height),
                     h5("About the data and indicators"),
                     p("Lorem ipsum dolor sit amet, consectetur adipiscing elit,
                                       sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
@@ -292,10 +306,11 @@
         # Governance of SOEs tab --------------------------------------------------------------
         tabItem(tabName = "governance",
                 box(solidHeader = TRUE,
-                    width = 12,
+                    width = box_width,
                     title = "Governance of SOEs",
                     plotlyOutput("Governance",
-                                 width = "85%"),
+                                 width = graph_width,
+                                 height = graph_height),
                     h5("About the data and indicators"),
                     p("Lorem ipsum dolor sit amet, consectetur adipiscing elit,
                                       sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
@@ -309,10 +324,11 @@
         # Accountability institutions tab --------------------------------------------------------------
         tabItem(tabName = "account",
                 box(solidHeader = TRUE,
-                    width = 12,
+                    width = box_width,
                     title = "Accountability institutions",
                     plotlyOutput("Account",
-                                 width = "85%"),
+                                 width = graph_width,
+                                 height = graph_height),
                     h5("About the data and indicators"),
                     p("Lorem ipsum dolor sit amet, consectetur adipiscing elit,
                                       sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
@@ -327,10 +343,9 @@
         tabItem(tabName = "map",
 
                 box(solidHeader = TRUE,
-                    width = 12,
+                    width = box_width,
                     title = "Select indicator to display",
                     collapsible = TRUE,
-                    collapsed = TRUE,
                     selectInput(
                       "vars_map",
                       label = NULL,
@@ -340,7 +355,7 @@
                 ),
 
                 box(solidHeader = TRUE,
-                    width = 12,
+                    width = box_width,
                     title = "Map",
                     leafletOutput("map_plot", height="600")
                     #h5("About the data and indicators"),
