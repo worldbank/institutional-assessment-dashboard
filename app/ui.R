@@ -452,7 +452,81 @@
                       "Argentina, which was temporarily unclassified in July 2016 pending release of revised national accounts statistics,",
                       "was classified as upper middle income for FY17 as of 29 September 2016 based on alternative conversion factors."
                     )
+                ),
+
+                box(solidHeader = TRUE,
+                    width = 12,
+                    title = "Accountability institutions",
+                    collapsible = TRUE,
+                    collapsed = TRUE,
+                    tableOutput('account_def')
+                ),
+
+                box(solidHeader = TRUE,
+                    width = 12,
+                    title = "Business environemt and trade institutions",
+                    collapsible = TRUE,
+                    collapsed = TRUE,
+                    tableOutput('business_def')
+                ),
+
+                box(solidHeader = TRUE,
+                    width = 12,
+                    title = "Financial institutions",
+                    collapsible = TRUE,
+                    collapsed = TRUE,
+                    tableOutput('fin_def')
+                ),
+
+                box(solidHeader = TRUE,
+                    width = 12,
+                    title = "Sevices delivery institutions",
+                    collapsible = TRUE,
+                    collapsed = TRUE,
+                    tableOutput('serv_def')
+                ),
+
+                box(solidHeader = TRUE,
+                    width = 12,
+                    title = "Labor market institutions",
+                    collapsible = TRUE,
+                    collapsed = TRUE,
+                    tableOutput('labor_def')
+                ),
+
+                box(solidHeader = TRUE,
+                    width = 12,
+                    title = "Legal institutions",
+                    collapsible = TRUE,
+                    collapsed = TRUE,
+                    tableOutput('legal_def')
+                ),
+
+                box(solidHeader = TRUE,
+                    width = 12,
+                    title = "Political institutions",
+                    collapsible = TRUE,
+                    collapsed = TRUE,
+                    tableOutput('political_def')
+                ),
+
+                box(solidHeader = TRUE,
+                    width = 12,
+                    title = "Public sector performance institutions",
+                    collapsible = TRUE,
+                    collapsed = TRUE,
+                    tableOutput('perf_def')
+                ),
+
+                box(solidHeader = TRUE,
+                    width = 12,
+                    title = "Social institutions",
+                    collapsible = TRUE,
+                    collapsed = TRUE,
+                    tableOutput('social_def')
                 )
+
+
         )
 
 

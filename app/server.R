@@ -22,6 +22,10 @@
   source(file.path("auxiliary",
                    "fun_quantiles.R"))
 
+  definitions <-
+    read_csv(file.path("data",
+                       "indicator_definitions.csv"))
+
   country_groups <-
     read_rds(file.path("data",
                        "wb_country_groups.rds"))
@@ -799,7 +803,8 @@
 
     })
 
-    # COMPLETE DATASET ----
+    # Data table ---------------------------------------------------------------
+
     output$dataset <-
       renderDataTable(server = FALSE, {
 
@@ -823,6 +828,41 @@
       })
 
 
+    # Definitions ------------------------------------------------------------
+
+    families <- definitions$family
+
+    definitions <-
+      definitions %>%
+      select(-family) %>%
+      split(families)
+
+    output$account_def <-
+      renderTable(definitions[["Accountability institutions"]])
+
+    output$business_def <-
+      renderTable(definitions[["Business environment and trade institutions"]])
+
+    output$fin_def <-
+      renderTable(definitions[["Financial market institutions"]])
+
+    output$serv_def <-
+      renderTable(definitions[["Institutions for service delivery"]])
+
+    output$labor_def <-
+      renderTable(definitions[["Labor market institutions"]])
+
+    output$legal_def <-
+      renderTable(definitions[["Legal Institutions"]])
+
+    output$political_def <-
+      renderTable(definitions[["Political Institutions"]])
+
+    output$perf_def <-
+      renderTable(definitions[["Public sector performance Institutions"]])
+
+    output$social_def <-
+      renderTable(definitions[["Social Institutions"]])
 
 
   }
