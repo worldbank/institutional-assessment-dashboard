@@ -10,6 +10,10 @@ data_selected <-
   read_rds(here("data",
                 "data_cleaned",
                 "selected_vars.rds"))
+
+source(file.path("app/auxiliary",
+                 "vars-by-family.R"))
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # CALCULATE GLOBAL CLOSENESS TO FRONTIER FOR EACH INDICATOR AND FOR EACH COUNTRY -----------------------
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -27,10 +31,11 @@ data_selected <-
 # Get min and max for each variable
 vars_minmax <-
   data_selected %>%
+  #filter(year >= as.numeric(format(Sys.Date(), "%Y"))-8) %>% # Enable eventually to filter for the last 7 years and disable next line
   filter(year >= 2013) %>%
   summarise(
     across(
-      all_of(vars_global),
+      all_of(vars_all),
       list(
         min = ~ min(.x, na.rm = T),
         max = ~ max(.x, na.rm = T)
@@ -57,25 +62,48 @@ vars_minmax <-
   remove_labels()
 
 # Collapse at country level, keeping the most recent data for each indicator
-data_recent_country <-
+#data_recent_country <-
+#  data_selected %>%
+#  arrange(country_name,
+#          year) %>%
+#  group_by(country_name) %>%
+#  fill(
+#    all_of(vars_global)
+#  ) %>%
+#  filter(
+#    year == max(year)
+#  ) %>%
+#  select(-year)
+
+# Collapse at country level. for each country, keep only the average since 2013
+# SC: in the long term, this step should be flexibly adjusted in the dashboard (keep last 7 years, given the present time)
+data_country <-
   data_selected %>%
-  arrange(country_name,
-          year) %>%
-  group_by(country_name) %>%
-  fill(
-    all_of(vars_global)
+  #filter(year >= as.numeric(format(Sys.Date(), "%Y"))-8) %>% # Enable eventually to filter for the last 7 years and disable next line
+  filter(year >= 2013) %>%
+  group_by(country_name,
+           country_code,
+           lac,lac6,oecd,
+           structural) %>%
+  summarise(
+    across(
+      all_of(vars_all),
+      ~mean(.x, na.rm = T)
+    )
   ) %>%
-  filter(
-    year == max(year)
-  ) %>%
-  select(-year)
+  mutate(
+    across(
+      all_of(vars_all),
+      ~ifelse(is.nan(.x),NA,.x)
+    )
+  )
 
 # Calculate closeness to frontier at indicator level
 dtf_vars_global <-
-  data_recent_country %>%
+  data_country %>%
   remove_labels %>%
   pivot_longer(
-    all_of(vars_global),
+    all_of(vars_all),
     names_to = "variable",
     values_drop_na = F
   ) %>%
@@ -95,8 +123,9 @@ dtf_vars_global <-
 
 # Calculate closeness to frontier at institutional family level (mean of DTF of each indicator)
 dtf_family_level <-
-  data.frame(vars_group = NA,
-             dtf_mean = NA)
+  dtf_vars_global %>%
+  ungroup() %>%
+  select(country_code,country_name)
 
 i=1
 
@@ -112,40 +141,69 @@ vars_global_list=list(vars_pol = vars_pol,
 
 for(group in vars_global_list){
 
-  dtf_family <- dtf_vars_global[ ,which((names(dtf_vars_global) %in% group)==TRUE)]
+  name_var <- names(vars_global_list[i])
 
-  dtf_family <- dtf_family %>%
-    pivot_longer(everything()) %>%
-    select(-name) %>%
-    summarise(
-      dtf_mean = mean(value,na.rm=T)
+  dtf_family <- dtf_vars_global %>%
+    ungroup() %>%
+    select(
+      country_code,
+      dplyr::contains(group)
     ) %>%
-    mutate(
-      vars_group = names(vars_global_list[i])
+    pivot_longer(dplyr::contains(group)) %>%
+    select(-name) %>%
+    group_by(country_code) %>%
+    summarise(
+      "{name_var}" := mean(value,na.rm=T)
     )
 
   i=i+1
 
-  dtf_family_level <- rbind(dtf_family_level, dtf_family)
+  dtf_family_level <- left_join(dtf_family_level,
+                                dtf_family,
+                                by="country_code")
 
 }
 
-rm(dtf_family, i, group, vars_minmax, data_recent_country, data_selected, packages)
+rm(dtf_family, i, group, vars_minmax, data_country, data_selected, packages,name_var,vars_global_list)
 
 dtf_family_level <- dtf_family_level %>%
-  filter(!is.na(vars_group)) %>%
   mutate(
-    dtf_mean = ifelse(dtf_mean == 0,
-                      0.01,
-                      dtf_mean) # small adjustments to display a very short bar on the graph, in case dtf = 0
+    across(
+      all_of(family_names),
+      ~ifelse(
+        is.nan(.x),
+        NA,
+        .x
+      )
+    )
+  ) %>%
+  mutate(
+    across(
+      all_of(family_names),
+      ~ifelse(.x == 0,
+              0.01,
+              .x) # small adjustments to display a very short bar on the graph, in case dtf = 0
+    )
   )
+
+# Save datasets ====================================================
 
 write_rds(dtf_family_level,
           here("app",
                "data",
                "dtf_family_level.rds"))
 
+write_rds(dtf_family_level,
+          here("data",
+               "data_cleaned",
+               "dtf_family_level.rds"))
+
 write_rds(dtf_vars_global,
           here("data",
                "data_cleaned",
                "dtf_vars_global.rds"))
+
+write_rds(dtf_vars_global,
+          here("app",
+               "data",
+               "country_dtf.rds"))
