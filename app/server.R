@@ -268,7 +268,8 @@
           ylab("Distance to frontier") +
           xlab("")
 
-        ggplotly(plot)
+        ggplotly(plot,
+                 tooltip = "text")
 
       })
 
