@@ -1,11 +1,10 @@
-
-
   library(shinydashboard)
   library(shiny)
   library(shinyjs)
   library(tidyverse)
   library(DT)
   library(plotly)
+  library(leaflet)
 
   country_groups <-
     read_rds(file.path("data",
@@ -15,16 +14,17 @@
     read_rds(file.path("data",
                        "wb_country_list.rds"))
 
+  variable_names <-
+    read_rds(file.path("data",
+                       "variable_names.rds"))
 
   source(file.path("auxiliary",
                    "vars-by-family.R"))
 
-
-
   ui <- dashboardPage(
 
    # Header ------------------------------------------------------------------------------------
-    dashboardHeader(title = h3("Title"),
+    dashboardHeader(title = h3("Global Institutional Assessment"),
                     titleWidth = 1800),
 
     # Sidebar -----------------------------------------------------------------------------------
@@ -40,6 +40,33 @@
                   menuItem("Labor",
                            tabName = "labor",
                            icon = icon("building")),
+                  menuItem("Financial",
+                           tabName = "financial",
+                           icon = icon("money-bill")),
+                  menuItem("Legal ",
+                           tabName = "legal",
+                           icon = icon("balance-scale")),
+                  menuItem("Political",
+                           tabName = "political",
+                           icon = icon("vote-yea")),
+                  menuItem("Social",
+                           tabName = "social",
+                           icon = icon("fist-raised")),
+                  menuItem("Business & Trade",
+                           tabName = "trade",
+                           icon = icon("comments-dollar")),
+                  menuItem("Public sector",
+                           tabName = "public",
+                           icon = icon("university")),
+                  menuItem("Governance of SOEs",
+                           tabName = "governance",
+                           icon = icon("hand-holding-usd")),
+                  menuItem("Accountability",
+                           tabName = "account",
+                           icon = icon("receipt")),
+                  menuItem("Map",
+                           tabName = "map",
+                           icon = icon("map")),
                   menuItem("Browse the data",
                            tabName = "data",
                            icon = icon("database")),
@@ -117,8 +144,13 @@
                   )
                 ),
 
-                actionButton("select",
-                             "Apply selection")
+                actionButton(
+                  "select",
+                  "Apply selection",
+                  icon = icon("check"),
+                  class = "btn-success",
+                  style="color: #fff"
+                )
 
         ),
 
@@ -155,8 +187,173 @@
                         sunt in culpa qui officia deserunt mollit anim id est laborum.")
               )
       ),
+        # Financial institutions tab --------------------------------------------------------------
+        tabItem(tabName = "financial",
+                box(solidHeader = TRUE,
+                    width = 12,
+                    title = "Financial institutions",
+                    plotlyOutput("Financial",
+                                 width = "85%"),
+                    h5("About the data and indicators"),
+                    p("Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                                sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+                                quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                                Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+                                Excepteur sint occaecat cupidatat non proident,
+                                sunt in culpa qui officia deserunt mollit anim id est laborum.")
+                )
+        ),
 
-      # Data tab ----------------------------------------------------------------------------------
+        # Legal institutions tab --------------------------------------------------------------
+        tabItem(tabName = "legal",
+                box(solidHeader = TRUE,
+                    width = 12,
+                    title = "Legal institutions",
+                    plotlyOutput("Legal",
+                                 width = "85%"),
+                    h5("About the data and indicators"),
+                    p("Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                                      sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+                                      quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                                      Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+                                      Excepteur sint occaecat cupidatat non proident,
+                                      sunt in culpa qui officia deserunt mollit anim id est laborum.")
+                )
+        ),
+
+        # Political institutions tab --------------------------------------------------------------
+        tabItem(tabName = "political",
+                box(solidHeader = TRUE,
+                    width = 12,
+                    title = "Political institutions",
+                    plotlyOutput("Political",
+                                 width = "85%"),
+                    h5("About the data and indicators"),
+                    p("Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                                      sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+                                      quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                                      Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+                                      Excepteur sint occaecat cupidatat non proident,
+                                      sunt in culpa qui officia deserunt mollit anim id est laborum.")
+                )
+        ),
+
+        # Social institutions tab --------------------------------------------------------------
+        tabItem(tabName = "social",
+                box(solidHeader = TRUE,
+                    width = 12,
+                    title = "Social institutions",
+                    plotlyOutput("Social",
+                                 width = "85%"),
+                    h5("About the data and indicators"),
+                    p("Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                                      sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+                                      quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                                      Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+                                      Excepteur sint occaecat cupidatat non proident,
+                                      sunt in culpa qui officia deserunt mollit anim id est laborum.")
+                )
+        ),
+
+        # Business & Trade institutions tab --------------------------------------------------------------
+        tabItem(tabName = "trade",
+                box(solidHeader = TRUE,
+                    width = 12,
+                    title = "Business & Trade institutions",
+                    plotlyOutput("Trade",
+                                 width = "85%"),
+                    h5("About the data and indicators"),
+                    p("Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                                      sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+                                      quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                                      Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+                                      Excepteur sint occaecat cupidatat non proident,
+                                      sunt in culpa qui officia deserunt mollit anim id est laborum.")
+                )
+        ),
+
+        # Public sector institutions tab --------------------------------------------------------------
+        tabItem(tabName = "public",
+                box(solidHeader = TRUE,
+                    width = 12,
+                    title = "Public sector institutions",
+                    plotlyOutput("Public",
+                                 width = "85%"),
+                    h5("About the data and indicators"),
+                    p("Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                                      sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+                                      quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                                      Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+                                      Excepteur sint occaecat cupidatat non proident,
+                                      sunt in culpa qui officia deserunt mollit anim id est laborum.")
+                )
+        ),
+
+        # Governance of SOEs tab --------------------------------------------------------------
+        tabItem(tabName = "governance",
+                box(solidHeader = TRUE,
+                    width = 12,
+                    title = "Governance of SOEs",
+                    plotlyOutput("Governance",
+                                 width = "85%"),
+                    h5("About the data and indicators"),
+                    p("Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                                      sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+                                      quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                                      Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+                                      Excepteur sint occaecat cupidatat non proident,
+                                      sunt in culpa qui officia deserunt mollit anim id est laborum.")
+                )
+        ),
+
+        # Accountability institutions tab --------------------------------------------------------------
+        tabItem(tabName = "account",
+                box(solidHeader = TRUE,
+                    width = 12,
+                    title = "Accountability institutions",
+                    plotlyOutput("Account",
+                                 width = "85%"),
+                    h5("About the data and indicators"),
+                    p("Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                                      sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+                                      quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                                      Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+                                      Excepteur sint occaecat cupidatat non proident,
+                                      sunt in culpa qui officia deserunt mollit anim id est laborum.")
+                )
+        ),
+
+        # World map tab --------------------------------------------------------------
+        tabItem(tabName = "map",
+
+                box(solidHeader = TRUE,
+                    width = 12,
+                    title = "Select indicator to display",
+                    collapsible = TRUE,
+                    collapsed = TRUE,
+                    selectInput(
+                      "vars_map",
+                      label = NULL,
+                      choices = c("",sort(variable_names$var_name)),
+                      width = "100%"
+                    )
+                ),
+
+                box(solidHeader = TRUE,
+                    width = 12,
+                    title = "Map",
+                    leafletOutput("map_plot", height="600")
+                    #h5("About the data and indicators"),
+                    #p("Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                    #                        sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+                    #                        quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                    #                        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+                    #                        Excepteur sint occaecat cupidatat non proident,
+                    #                        sunt in culpa qui officia deserunt mollit anim id est laborum.")
+                )
+        ),
+
+       # Data tab ----------------------------------------------------------------------------------
       tabItem(tabName = "data",
 
               box(solidHeader = TRUE,
