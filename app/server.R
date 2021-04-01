@@ -179,6 +179,9 @@
           geom_point(
             aes(x = reorder(var_name,-dtf),
                 y = dtf,
+                text = map(paste(' <b>Country:</b>', country_name, '<br>',
+                                 '<b>Distance to frontier:</b>', round(dtf, digits = 3), '<br>',
+                                 '<b>Classification:</b>', classification), HTML),
                 color = classification),
             size = 3)  +
           coord_flip() +
@@ -202,7 +205,8 @@
           ylab("Distance to frontier") +
           xlab("")
 
-        ggplotly(plot)
+        ggplotly(plot,
+                 tooltip="text")
 
       })
 
