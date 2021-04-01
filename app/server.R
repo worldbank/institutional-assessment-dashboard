@@ -8,13 +8,19 @@
   library(hrbrthemes)
   library(DT)
   library(plotly)
+  library(sf)
+  library(BAMMtools)
+  library(viridis)
 
 
 # Load data sets --------------------------------------------------------------------------------
 
-  country_data <-
-    read_csv(file.path("data",
-                       "mock_country.csv"))
+  source(file.path("auxiliary",
+                   "vars-by-family.R"))
+
+  # Function that defines quantiles based on country, comparison and variables
+  source(file.path("auxiliary",
+                   "fun_quantiles.R"))
 
   country_groups <-
     read_rds(file.path("data",
@@ -23,23 +29,38 @@
   global_data <-
     read_rds(file.path("data",
                        "country_dtf.rds"))
+
+  family_level_data <-
+    read_rds(file.path("data",
+                       "dtf_family_level.rds"))
+
+  variable_names <-
+    read_rds(file.path("data",
+                       "variable_names.rds"))
+
   country_list <-
     read_rds(file.path("data",
                        "wb_country_list.rds"))
 
   data_table <-
     global_data %>%
-    select(-c("lac", "lac6", "structural", "oecd")) %>%
+    ungroup() %>%
+    select(-c("lac", "lac6", "structural", "oecd","country_code")) %>%
     mutate(across(where(is.numeric), round, 3))
 
-  source(file.path("auxiliary",
-                   "vars-by-family.R"))
+  wb_country_geom <-
+    read_rds(file.path("data",
+                       "wb_country_geom.rds"))
 
 # Server ---------------------------------------------------------------------------------------------
 
   server <- function(input, output, session) {
 
     observe({
+
+      #selected_country <- "Uruguay"
+      #selected_groups <- "OED"
+
       selected_groups  <- input$groups
       selected_country <- input$country
 
@@ -65,7 +86,6 @@
 
       }
 
-
       # Can also set the label and select items
       updateCheckboxGroupInput(session,
                                "countries",
@@ -73,15 +93,61 @@
                                choices = global_data$country_name %>% unique,
                                selected = selected
       )
-    })
 
-    output$dataset <-
-      renderDataTable(server = FALSE, {
+      req(input$select)
 
-        vars <-
-          input$vars %>%
-          map(get) %>%
-          unlist
+      # OVERVIEW PLOT ----
+      output$Overview <- renderPlotly({
+        plot <-
+          ggplot(
+            data =
+              family_level_data %>%
+                def_quantiles(
+                  selected_country,
+                  selected,
+                  family_names
+                ) %>%
+                left_join(
+                  variable_names %>%
+                    select(family_var,family_name) %>%
+                    unique,
+                  by=c("variable"="family_var")
+                )
+          ) +
+          geom_segment(
+            aes(x = reorder(family_name,-dtf),
+                xend = reorder(family_name,-dtf),
+                y = 0,
+                yend = dtf,
+                color = classification),
+            size = 1) +
+          geom_point(
+            aes(x = reorder(family_name,-dtf),
+                y = dtf,
+                color = classification),
+            size = 3)  +
+          coord_flip() +
+          scale_color_manual(
+            values =
+              c("Advanced"="#009E73",
+                "Emerging"="#E69F00",
+                "Weak"="#D55E00"
+              )) +
+          scale_y_continuous(
+            limits = c(0,1)#,
+            #breaks = seq(0,1,0.2))
+          )  +
+          theme_ipsum() +
+          theme(
+            panel.grid.minor.y = element_blank(),
+            panel.grid.major.y = element_blank(),
+            legend.position = "bottom",
+            legend.title = element_blank()
+          ) +
+          ylab("Distance to frontier") +
+          xlab("")
+
+        ggplotly(plot)
 
         datatable(data_table %>%
                     select(country_name,
@@ -97,30 +163,47 @@
                                  buttons = c('copy', 'csv', 'excel')))
       })
 
-    output$Overview <- renderPlotly({
-      plot <-
-        ggplot(data = country_data %>%
-                 filter(tab == "Overview")) +
+      # LABOR PLOT ----
+      output$Labor <- renderPlotly({
+        plot <-
+          ggplot(
+            data =
+              global_data %>%
+                def_quantiles(
+                  selected_country,
+                  selected,
+                  vars_lab
+                ) %>%
+                left_join(
+                  variable_names %>%
+                    select(variable,var_name) %>%
+                    unique,
+                  by="variable"
+                )
+          ) +
           geom_segment(
-            aes(x = reorder(indicator,
-                            -value,
-                            sum),
-                xend = reorder(indicator,
-                               -value,
-                               sum),
+            aes(x = reorder(var_name,-dtf),
+                xend = reorder(var_name,-dtf),
                 y = 0,
-                yend = value,
-                color = category),
+                yend = dtf,
+                color = classification),
             size = 1) +
           geom_point(
-            aes(x = reorder(indicator,
-                            -value,
-                            sum),
-                y = value,
-                color = category),
+            aes(x = reorder(var_name,-dtf),
+                y = dtf,
+                color = classification),
             size = 3)  +
           coord_flip() +
-          scale_color_manual(values = c("#009E73", "#E69F00", "#D55E00")) +
+          scale_color_manual(
+            values =
+              c("Advanced"="#009E73",
+                "Emerging"="#E69F00",
+                "Weak"="#D55E00"
+              )) +
+          scale_y_continuous(
+            limits = c(0,1)#,
+            #breaks = seq(0,1,0.2))
+          )  +
           theme_ipsum() +
           theme(
             panel.grid.minor.y = element_blank(),
@@ -131,34 +214,51 @@
           ylab("Distance to frontier") +
           xlab("")
 
-      ggplotly(plot)
+        ggplotly(plot)
 
-    })
+      })
 
-    output$Labor <- renderPlotly({
-      plot <-
-        ggplot(data = country_data %>%
-                 filter(tab == "Labor")) +
+      # FINANCIAL PLOT ----
+      output$Financial <- renderPlotly({
+        plot <-
+          ggplot(
+            data =
+              global_data %>%
+              def_quantiles(
+                selected_country,
+                selected,
+                vars_fin
+              ) %>%
+              left_join(
+                variable_names %>%
+                  select(variable,var_name) %>%
+                  unique,
+                by="variable"
+              )
+          ) +
           geom_segment(
-            aes(x = reorder(indicator,
-                            -value,
-                            sum),
-                xend = reorder(indicator,
-                               -value,
-                               sum),
+            aes(x = reorder(var_name,-dtf),
+                xend = reorder(var_name,-dtf),
                 y = 0,
-                yend = value,
-                color = category),
+                yend = dtf,
+                color = classification),
             size = 1) +
           geom_point(
-            aes(x = reorder(indicator,
-                            -value,
-                            sum),
-                y = value,
-                color = category),
+            aes(x = reorder(var_name,-dtf),
+                y = dtf,
+                color = classification),
             size = 3)  +
           coord_flip() +
-          scale_color_manual(values = c("#009E73", "#E69F00", "#D55E00")) +
+          scale_color_manual(
+            values =
+              c("Advanced"="#009E73",
+                "Emerging"="#E69F00",
+                "Weak"="#D55E00"
+              )) +
+          scale_y_continuous(
+            limits = c(0,1)#,
+            #breaks = seq(0,1,0.2))
+          )  +
           theme_ipsum() +
           theme(
             panel.grid.minor.y = element_blank(),
@@ -169,9 +269,528 @@
           ylab("Distance to frontier") +
           xlab("")
 
-      ggplotly(plot)
+        ggplotly(plot)
+
+      })
+
+      # LEGAL PLOT ----
+      output$Legal <- renderPlotly({
+        plot <-
+          ggplot(
+            data =
+              global_data %>%
+              def_quantiles(
+                selected_country,
+                selected,
+                vars_leg
+              ) %>%
+              left_join(
+                variable_names %>%
+                  select(variable,var_name) %>%
+                  unique,
+                by="variable"
+              )
+          ) +
+          geom_segment(
+            aes(x = reorder(var_name,-dtf),
+                xend = reorder(var_name,-dtf),
+                y = 0,
+                yend = dtf,
+                color = classification),
+            size = 1) +
+          geom_point(
+            aes(x = reorder(var_name,-dtf),
+                y = dtf,
+                color = classification),
+            size = 3)  +
+          coord_flip() +
+          scale_color_manual(
+            values =
+              c("Advanced"="#009E73",
+                "Emerging"="#E69F00",
+                "Weak"="#D55E00"
+              )) +
+          scale_y_continuous(
+            limits = c(0,1)#,
+            #breaks = seq(0,1,0.2))
+          )  +
+          theme_ipsum() +
+          theme(
+            panel.grid.minor.y = element_blank(),
+            panel.grid.major.y = element_blank(),
+            legend.position = "bottom",
+            legend.title = element_blank()
+          ) +
+          ylab("Distance to frontier") +
+          xlab("")
+
+        ggplotly(plot)
+
+      })
+
+      # POLITICAL PLOT ----
+      output$Political <- renderPlotly({
+        plot <-
+          ggplot(
+            data =
+              global_data %>%
+              def_quantiles(
+                selected_country,
+                selected,
+                vars_pol
+              ) %>%
+              left_join(
+                variable_names %>%
+                  select(variable,var_name) %>%
+                  unique,
+                by="variable"
+              )
+          ) +
+          geom_segment(
+            aes(x = reorder(var_name,-dtf),
+                xend = reorder(var_name,-dtf),
+                y = 0,
+                yend = dtf,
+                color = classification),
+            size = 1) +
+          geom_point(
+            aes(x = reorder(var_name,-dtf),
+                y = dtf,
+                color = classification),
+            size = 3)  +
+          coord_flip() +
+          scale_color_manual(
+            values =
+              c("Advanced"="#009E73",
+                "Emerging"="#E69F00",
+                "Weak"="#D55E00"
+              )) +
+          scale_y_continuous(
+            limits = c(0,1)#,
+            #breaks = seq(0,1,0.2))
+          )  +
+          theme_ipsum() +
+          theme(
+            panel.grid.minor.y = element_blank(),
+            panel.grid.major.y = element_blank(),
+            legend.position = "bottom",
+            legend.title = element_blank()
+          ) +
+          ylab("Distance to frontier") +
+          xlab("")
+
+        ggplotly(plot)
+
+      })
+
+      # SOCIAL PLOT ----
+      output$Social <- renderPlotly({
+        plot <-
+          ggplot(
+            data =
+              global_data %>%
+              def_quantiles(
+                selected_country,
+                selected,
+                vars_social
+              ) %>%
+              left_join(
+                variable_names %>%
+                  select(variable,var_name) %>%
+                  unique,
+                by="variable"
+              )
+          ) +
+          geom_segment(
+            aes(x = reorder(var_name,-dtf),
+                xend = reorder(var_name,-dtf),
+                y = 0,
+                yend = dtf,
+                color = classification),
+            size = 1) +
+          geom_point(
+            aes(x = reorder(var_name,-dtf),
+                y = dtf,
+                color = classification),
+            size = 3)  +
+          coord_flip() +
+          scale_color_manual(
+            values =
+              c("Advanced"="#009E73",
+                "Emerging"="#E69F00",
+                "Weak"="#D55E00"
+              )) +
+          scale_y_continuous(
+            limits = c(0,1)#,
+            #breaks = seq(0,1,0.2))
+          )  +
+          theme_ipsum() +
+          theme(
+            panel.grid.minor.y = element_blank(),
+            panel.grid.major.y = element_blank(),
+            legend.position = "bottom",
+            legend.title = element_blank()
+          ) +
+          ylab("Distance to frontier") +
+          xlab("")
+
+        ggplotly(plot)
+
+      })
+
+      # BUSINESS AND TRADE PLOT ----
+      output$Trade <- renderPlotly({
+        plot <-
+          ggplot(
+            data =
+              global_data %>%
+              def_quantiles(
+                selected_country,
+                selected,
+                vars_mkt
+              ) %>%
+              left_join(
+                variable_names %>%
+                  select(variable,var_name) %>%
+                  unique,
+                by="variable"
+              )
+          ) +
+          geom_segment(
+            aes(x = reorder(var_name,-dtf),
+                xend = reorder(var_name,-dtf),
+                y = 0,
+                yend = dtf,
+                color = classification),
+            size = 1) +
+          geom_point(
+            aes(x = reorder(var_name,-dtf),
+                y = dtf,
+                color = classification),
+            size = 3)  +
+          coord_flip() +
+          scale_color_manual(
+            values =
+              c("Advanced"="#009E73",
+                "Emerging"="#E69F00",
+                "Weak"="#D55E00"
+              )) +
+          scale_y_continuous(
+            limits = c(0,1)#,
+            #breaks = seq(0,1,0.2))
+          )  +
+          theme_ipsum() +
+          theme(
+            panel.grid.minor.y = element_blank(),
+            panel.grid.major.y = element_blank(),
+            legend.position = "bottom",
+            legend.title = element_blank()
+          ) +
+          ylab("Distance to frontier") +
+          xlab("")
+
+        ggplotly(plot)
+
+      })
+
+      # PUBLIC SECTOR PLOT ----
+      output$Public <- renderPlotly({
+        plot <-
+          ggplot(
+            data =
+              global_data %>%
+              def_quantiles(
+                selected_country,
+                selected,
+                vars_publ
+              ) %>%
+              left_join(
+                variable_names %>%
+                  select(variable,var_name) %>%
+                  unique,
+                by="variable"
+              )
+          ) +
+          geom_segment(
+            aes(x = reorder(var_name,-dtf),
+                xend = reorder(var_name,-dtf),
+                y = 0,
+                yend = dtf,
+                color = classification),
+            size = 1) +
+          geom_point(
+            aes(x = reorder(var_name,-dtf),
+                y = dtf,
+                color = classification),
+            size = 3)  +
+          coord_flip() +
+          scale_color_manual(
+            values =
+              c("Advanced"="#009E73",
+                "Emerging"="#E69F00",
+                "Weak"="#D55E00"
+              )) +
+          scale_y_continuous(
+            limits = c(0,1)#,
+            #breaks = seq(0,1,0.2))
+          )  +
+          theme_ipsum() +
+          theme(
+            panel.grid.minor.y = element_blank(),
+            panel.grid.major.y = element_blank(),
+            legend.position = "bottom",
+            legend.title = element_blank()
+          ) +
+          ylab("Distance to frontier") +
+          xlab("")
+
+        ggplotly(plot)
+
+      })
+
+      # GOVERNANCE OF SOEs
+      output$Governance <- renderPlotly({
+        plot <-
+          ggplot(
+            data =
+              global_data %>%
+              def_quantiles(
+                selected_country,
+                selected,
+                vars_service_del
+              ) %>%
+              left_join(
+                variable_names %>%
+                  select(variable,var_name) %>%
+                  unique,
+                by="variable"
+              )
+          ) +
+          geom_segment(
+            aes(x = reorder(var_name,-dtf),
+                xend = reorder(var_name,-dtf),
+                y = 0,
+                yend = dtf,
+                color = classification),
+            size = 1) +
+          geom_point(
+            aes(x = reorder(var_name,-dtf),
+                y = dtf,
+                color = classification),
+            size = 3)  +
+          coord_flip() +
+          scale_color_manual(
+            values =
+              c("Advanced"="#009E73",
+                "Emerging"="#E69F00",
+                "Weak"="#D55E00"
+              )) +
+          scale_y_continuous(
+            limits = c(0,1)#,
+            #breaks = seq(0,1,0.2))
+          )  +
+          theme_ipsum() +
+          theme(
+            panel.grid.minor.y = element_blank(),
+            panel.grid.major.y = element_blank(),
+            legend.position = "bottom",
+            legend.title = element_blank()
+          ) +
+          ylab("Distance to frontier") +
+          xlab("")
+
+        ggplotly(plot)
+
+      })
+
+      # ACCOUNTABILITY PLOT
+      output$Account <- renderPlotly({
+        plot <-
+          ggplot(
+            data =
+              global_data %>%
+              def_quantiles(
+                selected_country,
+                selected,
+                vars_transp
+              ) %>%
+              left_join(
+                variable_names %>%
+                  select(variable,var_name) %>%
+                  unique,
+                by="variable"
+              )
+          ) +
+          geom_segment(
+            aes(x = reorder(var_name,-dtf),
+                xend = reorder(var_name,-dtf),
+                y = 0,
+                yend = dtf,
+                color = classification),
+            size = 1) +
+          geom_point(
+            aes(x = reorder(var_name,-dtf),
+                y = dtf,
+                color = classification),
+            size = 3)  +
+          coord_flip() +
+          scale_color_manual(
+            values =
+              c("Advanced"="#009E73",
+                "Emerging"="#E69F00",
+                "Weak"="#D55E00"
+              )) +
+          scale_y_continuous(
+            limits = c(0,1)#,
+            #breaks = seq(0,1,0.2))
+          )  +
+          theme_ipsum() +
+          theme(
+            panel.grid.minor.y = element_blank(),
+            panel.grid.major.y = element_blank(),
+            legend.position = "bottom",
+            legend.title = element_blank()
+          ) +
+          ylab("Distance to frontier") +
+          xlab("")
+
+        ggplotly(plot)
+
+      })
+
+
+
+
+    }) # Close observer
+
+    # MAP ----
+
+    observe({
+
+      output$map_plot <- renderLeaflet({
+
+        leaflet(data=wb_country_geom) %>%
+          addProviderTiles(providers$CartoDB.Positron, options = providerTileOptions(opacity = 1), group = "CartoDB.Positron") %>%
+          #addProviderTiles(providers$Esri.WorldImagery, options = providerTileOptions(opacity = 1), group = "Esri.WorldImagery") %>%
+          setView(24.894344, 35.196849, zoom = 2) %>%
+          #addLayersControl(baseGroups = c("CartoDB.Positron","Esri.WorldImagery"),
+          #                 position = "topleft",
+          #                 options = layersControlOptions(collapsed = T)) %>%
+          addPolygons(
+            fillColor = "white",
+            weight = 0.2,
+            opacity = 1,
+            color = "black",
+            dashArray = "1",
+            fillOpacity = 0.25,
+            #group = "Selected",
+            #layerId = as.character(wb_country_geom$ISO_A3),
+            highlight = highlightOptions(weight = 2.5, color = "#0066ff", dashArray = "", fillOpacity = 0.25, bringToFront = T),
+            label = paste0(
+              "<b>", wb_country_geom$WB_NAME,
+              "</b><br/>Labor Average DTF: ",formatC(wb_country_geom$vars_lab, digits = 3, format = "f"),
+              "</b><br/>Financial Average DTF: ",formatC(wb_country_geom$vars_fin, digits = 3, format = "f"),
+              "</b><br/>Legal Average DTF: ",formatC(wb_country_geom$vars_leg, digits = 3, format = "f"),
+              "</b><br/>Political Average DTF: ",formatC(wb_country_geom$vars_pol, digits = 3, format = "f"),
+              "</b><br/>Social Average DTF: ",formatC(wb_country_geom$vars_social, digits = 3, format = "f"),
+              "</b><br/>Business and Trade Average DTF: ",formatC(wb_country_geom$vars_mkt, digits = 3, format = "f"),
+              "</b><br/>Public Sector Average DTF: ",formatC(wb_country_geom$vars_publ, digits = 3, format = "f"),
+              "</b><br/>Governance of SOEs Average DTF: ",formatC(wb_country_geom$vars_service_del, digits = 3, format = "f"),
+              "</b><br/>Accountability Average DTF: ",formatC(wb_country_geom$vars_transp, digits = 3, format = "f")
+            ) %>%
+              lapply(htmltools::HTML),
+            labelOptions = labelOptions(style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "10px", direction = "auto")
+          )
+
+      })
+
+      vars_map <- input$vars_map
+
+      if(vars_map!=""){
+
+        var_selected <-
+          variable_names %>%
+          filter(var_name == sym(vars_map)) %>%
+          .$variable
+
+        data_selected <- global_data %>%
+          ungroup() %>%
+          select(country_code,(sym(var_selected)))
+
+        bins <- getJenksBreaks(data_selected[[var_selected]], k = 6)
+        pal <- colorBin(plasma(n=6, alpha=0.75, begin=0, end=1, direction = 1), domain = data_selected[[var_selected]], bins = bins)
+
+        wb_country_geom_selected <-
+          wb_country_geom %>%
+            left_join(
+              data_selected,
+              by=c("WB_A3"="country_code")
+            )
+
+        leafletProxy("map_plot",
+                     data=wb_country_geom_selected) %>%
+          clearShapes() %>%
+          addPolygons(fillColor = ~pal(wb_country_geom_selected[[var_selected]]),
+                      weight = 0.2,
+                      opacity = 1,
+                      color = "black",
+                      dashArray = "1",
+                      fillOpacity = 0.75,
+                      #group = "Selected",
+                      #layerId = as.character(wb_country_geom$ISO_A3),
+                      highlight = highlightOptions(weight = 2.5, color = "#0066ff", dashArray = "", fillOpacity = 0.25, bringToFront = T),
+                      label = paste0(
+                        "<b>", wb_country_geom_selected$WB_NAME,
+                        "</b><br/>Labor Average DTF: ",formatC(wb_country_geom_selected$vars_lab, digits = 3, format = "f"),
+                        "</b><br/>Financial Average DTF: ",formatC(wb_country_geom_selected$vars_fin, digits = 3, format = "f"),
+                        "</b><br/>Legal Average DTF: ",formatC(wb_country_geom_selected$vars_leg, digits = 3, format = "f"),
+                        "</b><br/>Political Average DTF: ",formatC(wb_country_geom_selected$vars_pol, digits = 3, format = "f"),
+                        "</b><br/>Social Average DTF: ",formatC(wb_country_geom_selected$vars_social, digits = 3, format = "f"),
+                        "</b><br/>Business and Trade Average DTF: ",formatC(wb_country_geom_selected$vars_mkt, digits = 3, format = "f"),
+                        "</b><br/>Public Sector Average DTF: ",formatC(wb_country_geom_selected$vars_publ, digits = 3, format = "f"),
+                        "</b><br/>Governance of SOEs Average DTF: ",formatC(wb_country_geom_selected$vars_service_del, digits = 3, format = "f"),
+                        "</b><br/>Accountability Average DTF: ",formatC(wb_country_geom_selected$vars_transp, digits = 3, format = "f")
+                      ) %>%
+                        lapply(htmltools::HTML),
+                      labelOptions = labelOptions(style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "10px", direction = "auto")
+          ) %>%
+          addLegend(pal = pal,
+                    values = ~wb_country_geom_selected[[var_selected]],
+                    opacity = 0.7,
+                    title = paste(vars_map," DTF"),
+                    position = "topright",
+                    labFormat = labelFormat(digits = 3),
+                    na.label = "Not available",
+                    layerId = "legenda")
+
+      }
+
 
     })
+
+    # COMPLETE DATASET ----
+    output$dataset <-
+      renderDataTable(server = FALSE, {
+
+        vars <-
+          input$vars %>%
+          map(get) %>%
+          unlist
+
+        datatable(data_table %>%
+                    select(country_name,
+                           all_of(vars)),
+                  rownames = FALSE,
+                  extensions = 'Buttons',
+                  filter = 'top',
+                  options = list(scrollX = TRUE,
+                                 pageLength = 15,
+                                 fixedColumns = TRUE,
+                                 autoWidth = TRUE,
+                                 dom = "lBtipr",
+                                 buttons = c('copy', 'csv', 'excel')))
+      })
+
 
 
 
