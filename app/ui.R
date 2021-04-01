@@ -371,49 +371,53 @@
        # Data tab ----------------------------------------------------------------------------------
       tabItem(tabName = "data",
 
-              box(solidHeader = TRUE,
-                  width = 12,
-                  title = "Browse the data",
-                  dataTableOutput("dataset")
-              ),
+              fluidRow(
 
-              box(solidHeader = TRUE,
-                  width = 3,
-                  title = "Select countries to display",
-                  collapsible = TRUE,
-                  selectInput(
-                    "vars",
-                    label = NULL,
-                    choices = c("All",
-                                "Current comparison"
-                    ),
-                    selected = 1,
-                    width = "100%"
-                  )
-              ),
+                box(solidHeader = TRUE,
+                    width = 12,
+                    title = "Browse the data",
+                    dataTableOutput("dataset")
+                ),
 
-              box(solidHeader = TRUE,
-                  width = 9,
-                  title = "Select indicators to display",
-                  collapsible = TRUE,
-                  class = "multicol-5",
-                  checkboxGroupInput(
-                    "vars",
-                    label = NULL,
-                    choiceNames = c("Governance of SOEs",
-                                    "Accountability institutions",
-                                    "Business & trade institutions",
-                                    "Financial institutions",
-                                    "Labor market institutions",
-                                    "Legal institutions",
-                                    "Political institutions",
-                                    "Public sector institutions  ",
-                                    "Social institutions"
-                    ),
-                    choiceValues = family_names,
-                    selected = family_names,
-                    width = "100%"
-                  )
+                box(solidHeader = TRUE,
+                    width = 3,
+                    title = "Select countries to display",
+                    collapsible = TRUE,
+                    selectInput(
+                      "vars",
+                      label = NULL,
+                      choices = c("All",
+                                  "Current comparison"
+                      ),
+                      selected = 1,
+                      width = "100%"
+                    )
+                ),
+
+                box(solidHeader = TRUE,
+                    width = 9,
+                    title = "Select indicators to display",
+                    collapsible = TRUE,
+                    class = "multicol-5",
+                    checkboxGroupInput(
+                      "vars",
+                      label = NULL,
+                      choiceNames = c("Governance of SOEs",
+                                      "Accountability institutions",
+                                      "Business & trade institutions",
+                                      "Financial institutions",
+                                      "Labor market institutions",
+                                      "Legal institutions",
+                                      "Political institutions",
+                                      "Public sector institutions  ",
+                                      "Social institutions"
+                      ),
+                      choiceValues = family_names,
+                      selected = family_names,
+                      width = "100%"
+                    )
+                )
+
               )
         ),
 
