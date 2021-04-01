@@ -22,6 +22,10 @@
   source(file.path("auxiliary",
                    "fun_quantiles.R"))
 
+  definitions <-
+    read_csv(file.path("data",
+                       "indicator_definitions.csv"))
+
   country_groups <-
     read_rds(file.path("data",
                        "wb_country_groups.rds"))
@@ -57,9 +61,6 @@
   server <- function(input, output, session) {
 
     observe({
-
-      #selected_country <- "Uruguay"
-      #selected_groups <- "OED"
 
       selected_groups  <- input$groups
       selected_country <- input$country
@@ -97,7 +98,7 @@
       req(input$select)
 
       # OVERVIEW PLOT ----
-      output$Overview <- renderPlotly({
+      output$overview <- renderPlotly({
         plot <-
           ggplot(
             data =
@@ -124,6 +125,9 @@
           geom_point(
             aes(x = reorder(family_name,-dtf),
                 y = dtf,
+                text = map(paste(' <b>Country:</b>', country_name, '<br>',
+                                 '<b>Distance to frontier:</b>', round(dtf, digits = 3), '<br>',
+                                 '<b>Classification:</b>', classification), HTML),
                 color = classification),
             size = 3)  +
           coord_flip() +
@@ -146,8 +150,8 @@
           ) +
           ylab("Distance to frontier") +
           xlab("")
-
-        ggplotly(plot)
+        ggplotly(plot,
+                 tooltip = "text")
 
       })
 
@@ -179,6 +183,9 @@
           geom_point(
             aes(x = reorder(var_name,-dtf),
                 y = dtf,
+                text = map(paste(' <b>Country:</b>', country_name, '<br>',
+                                 '<b>Distance to frontier:</b>', round(dtf, digits = 3), '<br>',
+                                 '<b>Classification:</b>', classification), HTML),
                 color = classification),
             size = 3)  +
           coord_flip() +
@@ -202,7 +209,8 @@
           ylab("Distance to frontier") +
           xlab("")
 
-        ggplotly(plot)
+        ggplotly(plot,
+                 tooltip = "text")
 
       })
 
@@ -234,6 +242,9 @@
           geom_point(
             aes(x = reorder(var_name,-dtf),
                 y = dtf,
+                text = map(paste(' <b>Country:</b>', country_name, '<br>',
+                                 '<b>Distance to frontier:</b>', round(dtf, digits = 3), '<br>',
+                                 '<b>Classification:</b>', classification), HTML),
                 color = classification),
             size = 3)  +
           coord_flip() +
@@ -257,7 +268,8 @@
           ylab("Distance to frontier") +
           xlab("")
 
-        ggplotly(plot)
+        ggplotly(plot,
+                 tooltip = "text")
 
       })
 
@@ -289,6 +301,9 @@
           geom_point(
             aes(x = reorder(var_name,-dtf),
                 y = dtf,
+                text = map(paste(' <b>Country:</b>', country_name, '<br>',
+                                 '<b>Distance to frontier:</b>', round(dtf, digits = 3), '<br>',
+                                 '<b>Classification:</b>', classification), HTML),
                 color = classification),
             size = 3)  +
           coord_flip() +
@@ -312,7 +327,9 @@
           ylab("Distance to frontier") +
           xlab("")
 
-        ggplotly(plot)
+        ggplotly(plot,
+                 tooltip = "text")
+
 
       })
 
@@ -344,6 +361,9 @@
           geom_point(
             aes(x = reorder(var_name,-dtf),
                 y = dtf,
+                text = map(paste(' <b>Country:</b>', country_name, '<br>',
+                                 '<b>Distance to frontier:</b>', round(dtf, digits = 3), '<br>',
+                                 '<b>Classification:</b>', classification), HTML),
                 color = classification),
             size = 3)  +
           coord_flip() +
@@ -367,7 +387,9 @@
           ylab("Distance to frontier") +
           xlab("")
 
-        ggplotly(plot)
+        ggplotly(plot,
+                 tooltip = "text")
+
 
       })
 
@@ -399,6 +421,9 @@
           geom_point(
             aes(x = reorder(var_name,-dtf),
                 y = dtf,
+                text = map(paste(' <b>Country:</b>', country_name, '<br>',
+                                 '<b>Distance to frontier:</b>', round(dtf, digits = 3), '<br>',
+                                 '<b>Classification:</b>', classification), HTML),
                 color = classification),
             size = 3)  +
           coord_flip() +
@@ -422,7 +447,9 @@
           ylab("Distance to frontier") +
           xlab("")
 
-        ggplotly(plot)
+        ggplotly(plot,
+                 tooltip = "text")
+
 
       })
 
@@ -454,6 +481,9 @@
           geom_point(
             aes(x = reorder(var_name,-dtf),
                 y = dtf,
+                text = map(paste(' <b>Country:</b>', country_name, '<br>',
+                                 '<b>Distance to frontier:</b>', round(dtf, digits = 3), '<br>',
+                                 '<b>Classification:</b>', classification), HTML),
                 color = classification),
             size = 3)  +
           coord_flip() +
@@ -477,7 +507,9 @@
           ylab("Distance to frontier") +
           xlab("")
 
-        ggplotly(plot)
+        ggplotly(plot,
+                 tooltip = "text")
+
 
       })
 
@@ -509,6 +541,9 @@
           geom_point(
             aes(x = reorder(var_name,-dtf),
                 y = dtf,
+                text = map(paste(' <b>Country:</b>', country_name, '<br>',
+                                 '<b>Distance to frontier:</b>', round(dtf, digits = 3), '<br>',
+                                 '<b>Classification:</b>', classification), HTML),
                 color = classification),
             size = 3)  +
           coord_flip() +
@@ -532,7 +567,8 @@
           ylab("Distance to frontier") +
           xlab("")
 
-        ggplotly(plot)
+        ggplotly(plot,
+                 tooltip = "text")
 
       })
 
@@ -564,6 +600,9 @@
           geom_point(
             aes(x = reorder(var_name,-dtf),
                 y = dtf,
+                text = map(paste(' <b>Country:</b>', country_name, '<br>',
+                                 '<b>Distance to frontier:</b>', round(dtf, digits = 3), '<br>',
+                                 '<b>Classification:</b>', classification), HTML),
                 color = classification),
             size = 3)  +
           coord_flip() +
@@ -587,7 +626,9 @@
           ylab("Distance to frontier") +
           xlab("")
 
-        ggplotly(plot)
+        ggplotly(plot,
+                 tooltip = "text")
+
 
       })
 
@@ -619,6 +660,9 @@
           geom_point(
             aes(x = reorder(var_name,-dtf),
                 y = dtf,
+                text = map(paste(' <b>Country:</b>', country_name, '<br>',
+                                 '<b>Distance to frontier:</b>', round(dtf, digits = 3), '<br>',
+                                 '<b>Classification:</b>', classification), HTML),
                 color = classification),
             size = 3)  +
           coord_flip() +
@@ -642,7 +686,8 @@
           ylab("Distance to frontier") +
           xlab("")
 
-        ggplotly(plot)
+        ggplotly(plot,
+                 tooltip = "text")
 
       })
 
@@ -756,7 +801,7 @@
 
     })
 
-    # COMPLETE DATASET ----
+    # Data table ---------------------------------------------------------------
     output$dataset <-
       renderDataTable(server = FALSE, {
 
@@ -780,6 +825,41 @@
       })
 
 
+   # Definitions ------------------------------------------------------------
+
+    families <- definitions$family
+
+    definitions <-
+      definitions %>%
+      select(-family) %>%
+      split(families)
+
+    output$account_def <-
+      renderTable(definitions[["Accountability institutions"]])
+
+    output$business_def <-
+      renderTable(definitions[["Business environment and trade institutions"]])
+
+    output$fin_def <-
+      renderTable(definitions[["Financial market institutions"]])
+
+    output$serv_def <-
+      renderTable(definitions[["Institutions for service delivery"]])
+
+    output$labor_def <-
+      renderTable(definitions[["Labor market institutions"]])
+
+    output$legal_def <-
+      renderTable(definitions[["Legal Institutions"]])
+
+    output$political_def <-
+      renderTable(definitions[["Political Institutions"]])
+
+    output$perf_def <-
+      renderTable(definitions[["Public sector performance Institutions"]])
+
+    output$social_def <-
+      renderTable(definitions[["Social Institutions"]])
 
 
   }
