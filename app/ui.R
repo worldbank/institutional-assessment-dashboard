@@ -42,7 +42,10 @@
                            icon = icon("building")),
                   menuItem("Browse the data",
                            tabName = "data",
-                           icon = icon("database"))
+                           icon = icon("database")),
+                  menuItem("Methodological notes",
+                           tabName = "methodology",
+                           icon = icon("sticky-note"))
                   )
     ),
 
@@ -157,10 +160,15 @@
       tabItem(tabName = "data",
 
               box(solidHeader = TRUE,
+                  width = 12,
+                  title = "Browse the data",
+                  dataTableOutput("dataset")
+              ),
+
+              box(solidHeader = TRUE,
                   width = 3,
                   title = "Select countries to display",
                   collapsible = TRUE,
-                  collapsed = TRUE,
                   selectInput(
                     "vars",
                     label = NULL,
@@ -176,7 +184,7 @@
                   width = 9,
                   title = "Select indicators to display",
                   collapsible = TRUE,
-                  collapsed = TRUE,
+                  class = "multicol-5",
                   checkboxGroupInput(
                     "vars",
                     label = NULL,
@@ -189,33 +197,23 @@
                                     "Political institutions",
                                     "Public sector institutions  ",
                                     "Social institutions"
-                                    ),
+                    ),
                     choiceValues = family_names,
-                    inline = TRUE,
                     selected = family_names,
                     width = "100%"
                   )
-              ),
-
-
-
-              box(solidHeader = TRUE,
-                  width = 12,
-                  title = "Browse the data",
-                  dataTableOutput("dataset")
               )
         ),
 
       # Methodology tab ---------------------------------------------------------------------------
-      tabItem(tabName = "methodology",
+        tabItem(tabName = "methodology",
 
-              box(solidHeader = TRUE,
-                  width = 9,
-                  title = "Country group definitions",
-                  collapsible = TRUE,
-                  collapsed = TRUE,
-                  p(
-                    paste(
+                box(solidHeader = TRUE,
+                    width = 4,
+                    title = "Country group definitions",
+                    collapsible = TRUE,
+                    collapsed = TRUE,
+                    p(
                       "Country group definitions are extracted from the",
                       a(
                         "World Bank Country and Lending Groups.",
@@ -224,25 +222,26 @@
                       "It classifies all 189 World Bank member countries, and all other economies with populations of more than 30,000.",
                       "Economies are divided among income groups according to 2019 gross national income (GNI) per capita,",
                       "calculated using the World Bank Atlas method."
+                    ),
+                    p(
+                      "The groups are:",
+                      tags$ul(
+                        tags$li(HTML("<b>Low income:</b> $1,035 or less")),
+                        tags$li(HTML("<b>Lower middle income:</b> $1,036 - 4,045")),
+                        tags$li(HTML("<b>Upper middle income:</b> $4,046 - 12,535")),
+                        tags$li(HTML("<b>High income:</b> $12,536 or more"))
+                      )
+                    ),
+                    p(
+                      HTML("The term <i>country</i>, used interchangeably with <i>economy,</i>"),
+                      "does not imply political independence but refers to any territory for
+                      which authorities report separate social or economic statistics.",
+                      "Income classifications set on 1 July 2020 remain in effect until 1 July 2021.",
+                      "Argentina, which was temporarily unclassified in July 2016 pending release of revised national accounts statistics,",
+                      "was classified as upper middle income for FY17 as of 29 September 2016 based on alternative conversion factors."
                     )
-                  )
-                  # ),
-                  #         "The groups are:"
-                  #         tags$ul(
-                  #           tags$li("<b>Low income:</b> $1,035 or less"),
-                  #           tags$li("<b>Lower middle income:</b> $1,036 - 4,045"),
-                  #           tags$li("<b>Upper middle income:</b> $4,046 - 12,535"),
-                  #           tags$li("<b>High income:</b> $12,536 or more")
-                  #         ),
-                  #         "The term <i>country</i>, used interchangeably with <i>economy,</i>",
-                  #         "does not imply political independence but refers to any territory for
-                  #         which authorities report separate social or economic statistics.",
-                  #         "Income classifications set on 1 July 2020 remain in effect until 1 July 2021.",
-                  #         "Argentina, which was temporarily unclassified in July 2016 pending release of revised national accounts statistics,",
-                  #         "was classified as upper middle income for FY17 as of 29 September 2016 based on alternative conversion factors.")
-                  # )
-              )
-      )
+                )
+        )
 
 
     # Closing parenthesis -------------------------------------------------------------------------

@@ -24,10 +24,8 @@
     read_rds(file.path("data",
                        "country_dtf.rds"))
   country_list <-
-    read_csv(here("data",
-                  "data_raw",
-                  "wb_country_list.csv")) %>%
-    rename(country_name = country)
+    read_rds(file.path("data",
+                       "wb_country_list.rds"))
 
   data_table <-
     global_data %>%
@@ -92,7 +90,7 @@
                   extensions = 'Buttons',
                   filter = 'top',
                   options = list(scrollX = TRUE,
-                                 pageLength = 15,
+                                 pageLength = 13,
                                  fixedColumns = TRUE,
                                  autoWidth = TRUE,
                                  dom = "lBtipr",

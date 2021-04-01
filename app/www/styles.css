@@ -12,6 +12,15 @@
   -column-fill: auto;
 }
 
+.multicol-5 {
+  height: 75px;
+  -webkit-column-count: 5; /* Chrome, Safari, Opera */
+  -moz-column-count: 5;    /* Firefox */
+  column-count: 5;
+  -moz-column-fill: auto;
+  -column-fill: auto;
+}
+
 .multicol-3 {
   height: 75px;
   -webkit-column-count: 4; /* Chrome, Safari, Opera */
