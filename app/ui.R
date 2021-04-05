@@ -185,15 +185,16 @@
                   title = "Labor market institutions",
                   plotlyOutput("Labor",
                                width = graph_width,
-                               height = graph_height),
-                  h5("About the data and indicators"),
-                  p("Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                        sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-                        quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-                        Excepteur sint occaecat cupidatat non proident,
-                        sunt in culpa qui officia deserunt mollit anim id est laborum.")
-              )
+                               height = graph_height)
+              ),
+
+              box(solidHeader = TRUE,
+                  width = box_width,
+                  title = "Indicator definitions",
+                  collapsible = TRUE,
+                  collapsed = TRUE,
+                  tableOutput('labor_def')
+              ),
       ),
         # Financial institutions tab --------------------------------------------------------------
         tabItem(tabName = "financial",
@@ -202,15 +203,16 @@
                     title = "Financial institutions",
                     plotlyOutput("Financial",
                                  width = graph_width,
-                                 height = graph_height),
-                    h5("About the data and indicators"),
-                    p("Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                                sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-                                quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                                Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-                                Excepteur sint occaecat cupidatat non proident,
-                                sunt in culpa qui officia deserunt mollit anim id est laborum.")
-                )
+                                 height = graph_height)
+                ),
+
+                box(solidHeader = TRUE,
+                    width = box_width,
+                    title = "Indicator definitions",
+                    collapsible = TRUE,
+                    collapsed = TRUE,
+                    tableOutput('fin_def')
+                ),
         ),
 
         # Legal institutions tab --------------------------------------------------------------
@@ -220,14 +222,14 @@
                     title = "Legal institutions",
                     plotlyOutput("Legal",
                                  width = graph_width,
-                                 height = graph_height),
-                    h5("About the data and indicators"),
-                    p("Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                                      sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-                                      quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                                      Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-                                      Excepteur sint occaecat cupidatat non proident,
-                                      sunt in culpa qui officia deserunt mollit anim id est laborum.")
+                                 height = graph_height)
+                ),
+                box(solidHeader = TRUE,
+                    width = box_width,
+                    title = "Indicator definitions",
+                    collapsible = TRUE,
+                    collapsed = TRUE,
+                    tableOutput('legal_def')
                 )
         ),
 
@@ -238,14 +240,14 @@
                     title = "Political institutions",
                     plotlyOutput("Political",
                                  width = graph_width,
-                                 height = graph_height),
-                    h5("About the data and indicators"),
-                    p("Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                                      sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-                                      quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                                      Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-                                      Excepteur sint occaecat cupidatat non proident,
-                                      sunt in culpa qui officia deserunt mollit anim id est laborum.")
+                                 height = graph_height)
+                ),
+                box(solidHeader = TRUE,
+                    width = box_width,
+                    title = "Indicator definitions",
+                    collapsible = TRUE,
+                    collapsed = TRUE,
+                    tableOutput('political_def')
                 )
         ),
 
@@ -256,14 +258,14 @@
                     title = "Social institutions",
                     plotlyOutput("Social",
                                  width = graph_width,
-                                 height = graph_height),
-                    h5("About the data and indicators"),
-                    p("Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                                      sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-                                      quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                                      Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-                                      Excepteur sint occaecat cupidatat non proident,
-                                      sunt in culpa qui officia deserunt mollit anim id est laborum.")
+                                 height = graph_height)
+                ),
+                box(solidHeader = TRUE,
+                    width = box_width,
+                    title = "Indicator definitions",
+                    collapsible = TRUE,
+                    collapsed = TRUE,
+                    tableOutput('social_def')
                 )
         ),
 
@@ -274,14 +276,14 @@
                     title = "Business & Trade institutions",
                     plotlyOutput("Trade",
                                  width = graph_width,
-                                 height = "600px"),
-                    h5("About the data and indicators"),
-                    p("Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                                      sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-                                      quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                                      Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-                                      Excepteur sint occaecat cupidatat non proident,
-                                      sunt in culpa qui officia deserunt mollit anim id est laborum.")
+                                 height = "600px")
+                ),
+                box(solidHeader = TRUE,
+                    width = box_width,
+                    title = "Indicator definitions",
+                    collapsible = TRUE,
+                    collapsed = TRUE,
+                    tableOutput('business_def')
                 )
         ),
 
@@ -292,14 +294,14 @@
                     title = "Public sector institutions",
                     plotlyOutput("Public",
                                  width = graph_width,
-                                 height = graph_height),
-                    h5("About the data and indicators"),
-                    p("Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                                      sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-                                      quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                                      Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-                                      Excepteur sint occaecat cupidatat non proident,
-                                      sunt in culpa qui officia deserunt mollit anim id est laborum.")
+                                 height = graph_height)
+                ),
+                box(solidHeader = TRUE,
+                    width = box_width,
+                    title = "Indicator definitions",
+                    collapsible = TRUE,
+                    collapsed = TRUE,
+                    tableOutput('perf_def')
                 )
         ),
 
@@ -310,14 +312,15 @@
                     title = "Governance of SOEs",
                     plotlyOutput("Governance",
                                  width = graph_width,
-                                 height = graph_height),
-                    h5("About the data and indicators"),
-                    p("Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                                      sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-                                      quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                                      Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-                                      Excepteur sint occaecat cupidatat non proident,
-                                      sunt in culpa qui officia deserunt mollit anim id est laborum.")
+                                 height = graph_height)
+                ),
+
+                box(solidHeader = TRUE,
+                    width = box_width,
+                    title = "Indicator definitions",
+                    collapsible = TRUE,
+                    collapsed = TRUE,
+                    tableOutput('serv_def')
                 )
         ),
 
@@ -328,15 +331,16 @@
                     title = "Accountability institutions",
                     plotlyOutput("Account",
                                  width = graph_width,
-                                 height = graph_height),
-                    h5("About the data and indicators"),
-                    p("Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                                      sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-                                      quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                                      Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-                                      Excepteur sint occaecat cupidatat non proident,
-                                      sunt in culpa qui officia deserunt mollit anim id est laborum.")
-                )
+                                 height = graph_height)
+                ),
+                box(solidHeader = TRUE,
+                    width = box_width,
+                    title = "Indicator definitions",
+                    collapsible = TRUE,
+                    collapsed = TRUE,
+                    tableOutput('account_def')
+                ),
+
         ),
 
         # World map tab --------------------------------------------------------------
@@ -456,81 +460,7 @@
                       "Argentina, which was temporarily unclassified in July 2016 pending release of revised national accounts statistics,",
                       "was classified as upper middle income for FY17 as of 29 September 2016 based on alternative conversion factors."
                     )
-                ),
-
-                box(solidHeader = TRUE,
-                    width = 12,
-                    title = "Accountability institutions",
-                    collapsible = TRUE,
-                    collapsed = TRUE,
-                    tableOutput('account_def')
-                ),
-
-                box(solidHeader = TRUE,
-                    width = 12,
-                    title = "Business environemt and trade institutions",
-                    collapsible = TRUE,
-                    collapsed = TRUE,
-                    tableOutput('business_def')
-                ),
-
-                box(solidHeader = TRUE,
-                    width = 12,
-                    title = "Financial institutions",
-                    collapsible = TRUE,
-                    collapsed = TRUE,
-                    tableOutput('fin_def')
-                ),
-
-                box(solidHeader = TRUE,
-                    width = 12,
-                    title = "Sevices delivery institutions",
-                    collapsible = TRUE,
-                    collapsed = TRUE,
-                    tableOutput('serv_def')
-                ),
-
-                box(solidHeader = TRUE,
-                    width = 12,
-                    title = "Labor market institutions",
-                    collapsible = TRUE,
-                    collapsed = TRUE,
-                    tableOutput('labor_def')
-                ),
-
-                box(solidHeader = TRUE,
-                    width = 12,
-                    title = "Legal institutions",
-                    collapsible = TRUE,
-                    collapsed = TRUE,
-                    tableOutput('legal_def')
-                ),
-
-                box(solidHeader = TRUE,
-                    width = 12,
-                    title = "Political institutions",
-                    collapsible = TRUE,
-                    collapsed = TRUE,
-                    tableOutput('political_def')
-                ),
-
-                box(solidHeader = TRUE,
-                    width = 12,
-                    title = "Public sector performance institutions",
-                    collapsible = TRUE,
-                    collapsed = TRUE,
-                    tableOutput('perf_def')
-                ),
-
-                box(solidHeader = TRUE,
-                    width = 12,
-                    title = "Social institutions",
-                    collapsible = TRUE,
-                    collapsed = TRUE,
-                    tableOutput('social_def')
                 )
-
-
         )
 
 

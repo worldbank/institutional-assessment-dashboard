@@ -831,7 +831,7 @@
 
     definitions <-
       definitions %>%
-      select(-family) %>%
+      select(-c(family, var_name)) %>%
       split(families)
 
     output$account_def <-
