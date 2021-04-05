@@ -138,10 +138,10 @@
                 box(
                   solidHeader = TRUE,
                   title = "All countries",
+                  width = "10%",
                   collapsible = TRUE,
                   collapsed = TRUE,
-                  class = "multicol-8",
-                  width = "100%",
+                  class = "multicol-7",
                   selected = "NULL",
                   checkboxGroupInput(
                     "countries",
