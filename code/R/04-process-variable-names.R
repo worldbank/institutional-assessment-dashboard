@@ -121,7 +121,7 @@ variable_names <-
         variable == "eparticipationindex" ~ "E-participation Index",
         variable == "es_court_constraint" ~ "Courts as major constraint",
         variable == "favoritism" ~ "Favoritism in decisions of government officials",
-        variable == "gci_overall" ~ "Global Competitiveness Index overall", # Check this var name
+        variable == "gci_overall" ~ "Global Competitiveness Index",
         variable == "governance_soe" ~ "Regulatory Governance score",
         variable == "lpi_clearance_eff" ~ "Efficiency of the clearance process",
         variable == "mkt_dominance" ~ "Extent of market dominance",
