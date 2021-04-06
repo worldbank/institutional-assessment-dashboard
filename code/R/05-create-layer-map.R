@@ -25,7 +25,7 @@ dtf_family_level <-
 wb_country_geom <-
   read_sf(here("data",
                "layer",
-               "WB_countries_Admin0_10m.shp"))
+               "WB_countries_Admin0_lowres.geojson"))
 
 # 2 Operations ============================================================================================
 
@@ -33,17 +33,11 @@ wb_country_geom <-
   wb_country_geom %>%
   filter(TYPE=="Sovereign country" | TYPE=="Country") %>%
   select(WB_A3,WB_NAME,geometry) %>%
-  inner_join(
+  left_join(
     dtf_family_level %>%
       select(-country_name),
     by=c("WB_A3"="country_code")
-  ) #%>%
-  #inner_join(
-  #  dtf_vars_global %>%
-  #    ungroup() %>%
-  #    select(-c(country_name,lac,lac6,oecd,structural)),
-  #  by=c("WB_A3"="country_code")
-  #)
+  )
 
 # 3 Save datasets =========================================================================================
 
