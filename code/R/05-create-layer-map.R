@@ -12,10 +12,10 @@ pacman::p_load(packages,
 
 # 1.2 Load Inputs ==========================================================================================
 
-#dtf_vars_global <-
-#  read_rds(here("data",
-#                "data_cleaned",
-#                "dtf_vars_global.rds"))
+dtf_vars_global <-
+  read_rds(here("data",
+                "data_cleaned",
+                "dtf_vars_global.rds"))
 
 dtf_family_level <-
   read_rds(here("data",
@@ -36,6 +36,12 @@ wb_country_geom <-
   left_join(
     dtf_family_level %>%
       select(-country_name),
+    by=c("WB_A3"="country_code")
+  ) %>%
+  left_join(
+    dtf_vars_global %>%
+      ungroup() %>%
+      select(-c(country_name,lac,lac6,oecd,structural)),
     by=c("WB_A3"="country_code")
   )
 

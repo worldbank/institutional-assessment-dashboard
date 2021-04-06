@@ -721,15 +721,15 @@
             highlight = highlightOptions(weight = 2.5, color = "#0066ff", dashArray = "", fillOpacity = 0.25, bringToFront = T),
             label = paste0(
               "<b>", wb_country_geom$WB_NAME,
-              "</b><br/>Labor Average DTF: ",formatC(wb_country_geom$vars_lab, digits = 3, format = "f"),
-              "</b><br/>Financial Average DTF: ",formatC(wb_country_geom$vars_fin, digits = 3, format = "f"),
-              "</b><br/>Legal Average DTF: ",formatC(wb_country_geom$vars_leg, digits = 3, format = "f"),
-              "</b><br/>Political Average DTF: ",formatC(wb_country_geom$vars_pol, digits = 3, format = "f"),
-              "</b><br/>Social Average DTF: ",formatC(wb_country_geom$vars_social, digits = 3, format = "f"),
-              "</b><br/>Business and Trade Average DTF: ",formatC(wb_country_geom$vars_mkt, digits = 3, format = "f"),
-              "</b><br/>Public Sector Average DTF: ",formatC(wb_country_geom$vars_publ, digits = 3, format = "f"),
-              "</b><br/>Governance of SOEs Average DTF: ",formatC(wb_country_geom$vars_service_del, digits = 3, format = "f"),
-              "</b><br/>Accountability Average DTF: ",formatC(wb_country_geom$vars_transp, digits = 3, format = "f")
+              "</b><br/>Labor Average CTF: ",formatC(wb_country_geom$vars_lab, digits = 3, format = "f"),
+              "</b><br/>Financial Average CTF: ",formatC(wb_country_geom$vars_fin, digits = 3, format = "f"),
+              "</b><br/>Legal Average CTF: ",formatC(wb_country_geom$vars_leg, digits = 3, format = "f"),
+              "</b><br/>Political Average CTF: ",formatC(wb_country_geom$vars_pol, digits = 3, format = "f"),
+              "</b><br/>Social Average CTF: ",formatC(wb_country_geom$vars_social, digits = 3, format = "f"),
+              "</b><br/>Business and Trade Average CTF: ",formatC(wb_country_geom$vars_mkt, digits = 3, format = "f"),
+              "</b><br/>Public Sector Average CTF: ",formatC(wb_country_geom$vars_publ, digits = 3, format = "f"),
+              "</b><br/>Governance of SOEs Average CTF: ",formatC(wb_country_geom$vars_service_del, digits = 3, format = "f"),
+              "</b><br/>Accountability Average CTF: ",formatC(wb_country_geom$vars_transp, digits = 3, format = "f")
             ) %>%
               lapply(htmltools::HTML),
             labelOptions = labelOptions(style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "10px", direction = "auto")
@@ -746,24 +746,31 @@
           filter(var_name == sym(vars_map)) %>%
           .$variable
 
-        data_selected <- global_data %>%
-          ungroup() %>%
-          select(country_code,(sym(var_selected)))
+        quantiles_breaks <- quantile(wb_country_geom[[var_selected]],probs = c(0.25,0.5) , na.rm = T, names = F)
 
-        bins <- getJenksBreaks(data_selected[[var_selected]], k = 6)
-        pal <- colorBin(plasma(n=6, alpha=0.75, begin=0, end=1, direction = 1), domain = data_selected[[var_selected]], bins = bins)
-
-        wb_country_geom_selected <-
-          wb_country_geom %>%
-            left_join(
-              data_selected,
-              by=c("WB_A3"="country_code")
-            )
+        pal <-
+          colorFactor(
+            palette = c("#D55E00",
+                        "#E69F00",
+                        "#009E73"),
+            levels = c("Weak","Emerging","Advanced"),
+            #bins = quantiles_breaks,
+            na.color = "#808080"
+          )
 
         leafletProxy("map_plot",
-                     data=wb_country_geom_selected) %>%
+                     data = wb_country_geom %>%
+                       mutate(
+                         classification = case_when(
+                           wb_country_geom[[var_selected]] <= quantiles_breaks[1] ~ "Weak",
+                           wb_country_geom[[var_selected]] > quantiles_breaks[1] &
+                             wb_country_geom[[var_selected]] <= quantiles_breaks[2] ~ "Emerging",
+                           wb_country_geom[[var_selected]] > quantiles_breaks[2] ~ "Advanced"
+                         )
+                       )
+                    ) %>%
           clearShapes() %>%
-          addPolygons(fillColor = ~pal(wb_country_geom_selected[[var_selected]]),
+          addPolygons(fillColor = ~pal(classification),
                       weight = 0.2,
                       opacity = 1,
                       color = "black",
@@ -773,24 +780,24 @@
                       #layerId = as.character(wb_country_geom$ISO_A3),
                       highlight = highlightOptions(weight = 2.5, color = "#0066ff", dashArray = "", fillOpacity = 0.25, bringToFront = T),
                       label = paste0(
-                        "<b>", wb_country_geom_selected$WB_NAME,
-                        "</b><br/>Labor Average DTF: ",formatC(wb_country_geom_selected$vars_lab, digits = 3, format = "f"),
-                        "</b><br/>Financial Average DTF: ",formatC(wb_country_geom_selected$vars_fin, digits = 3, format = "f"),
-                        "</b><br/>Legal Average DTF: ",formatC(wb_country_geom_selected$vars_leg, digits = 3, format = "f"),
-                        "</b><br/>Political Average DTF: ",formatC(wb_country_geom_selected$vars_pol, digits = 3, format = "f"),
-                        "</b><br/>Social Average DTF: ",formatC(wb_country_geom_selected$vars_social, digits = 3, format = "f"),
-                        "</b><br/>Business and Trade Average DTF: ",formatC(wb_country_geom_selected$vars_mkt, digits = 3, format = "f"),
-                        "</b><br/>Public Sector Average DTF: ",formatC(wb_country_geom_selected$vars_publ, digits = 3, format = "f"),
-                        "</b><br/>Governance of SOEs Average DTF: ",formatC(wb_country_geom_selected$vars_service_del, digits = 3, format = "f"),
-                        "</b><br/>Accountability Average DTF: ",formatC(wb_country_geom_selected$vars_transp, digits = 3, format = "f")
+                        "<b>", wb_country_geom$WB_NAME,
+                        "</b><br/>Labor Average CTF: ",formatC(wb_country_geom$vars_lab, digits = 3, format = "f"),
+                        "</b><br/>Financial Average CTF: ",formatC(wb_country_geom$vars_fin, digits = 3, format = "f"),
+                        "</b><br/>Legal Average CTF: ",formatC(wb_country_geom$vars_leg, digits = 3, format = "f"),
+                        "</b><br/>Political Average CTF: ",formatC(wb_country_geom$vars_pol, digits = 3, format = "f"),
+                        "</b><br/>Social Average CTF: ",formatC(wb_country_geom$vars_social, digits = 3, format = "f"),
+                        "</b><br/>Business and Trade Average CTF: ",formatC(wb_country_geom$vars_mkt, digits = 3, format = "f"),
+                        "</b><br/>Public Sector Average CTF: ",formatC(wb_country_geom$vars_publ, digits = 3, format = "f"),
+                        "</b><br/>Governance of SOEs Average CTF: ",formatC(wb_country_geom$vars_service_del, digits = 3, format = "f"),
+                        "</b><br/>Accountability Average CTF: ",formatC(wb_country_geom$vars_transp, digits = 3, format = "f")
                       ) %>%
                         lapply(htmltools::HTML),
                       labelOptions = labelOptions(style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "10px", direction = "auto")
           ) %>%
           addLegend(pal = pal,
-                    values = ~wb_country_geom_selected[[var_selected]],
+                    values = ~classification,
                     opacity = 0.7,
-                    title = paste(vars_map," DTF"),
+                    title = paste(vars_map," CTF"),
                     position = "topright",
                     labFormat = labelFormat(digits = 3),
                     na.label = "Not available",
