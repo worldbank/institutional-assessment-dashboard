@@ -126,7 +126,7 @@
             aes(x = reorder(family_name,-dtf),
                 y = dtf,
                 text = map(paste(' <b>Country:</b>', country_name, '<br>',
-                                 '<b>Distance to frontier:</b>', round(dtf, digits = 3), '<br>',
+                                 '<b>Closeness to frontier:</b>', round(dtf, digits = 3), '<br>',
                                  '<b>Classification:</b>', classification), HTML),
                 color = classification),
             size = 3)  +
@@ -148,8 +148,9 @@
             legend.position = "bottom",
             legend.title = element_blank()
           ) +
-          ylab("Distance to frontier") +
+          ylab("Closeness to frontier") +
           xlab("")
+
         ggplotly(plot,
                  tooltip = "text") %>%
           config(modeBarButtonsToRemove = c("zoomIn2d",
@@ -193,7 +194,7 @@
             aes(x = reorder(var_name,-dtf),
                 y = dtf,
                 text = map(paste(' <b>Country:</b>', country_name, '<br>',
-                                 '<b>Distance to frontier:</b>', round(dtf, digits = 3), '<br>',
+                                 '<b>Closeness to frontier:</b>', round(dtf, digits = 3), '<br>',
                                  '<b>Classification:</b>', classification), HTML),
                 color = classification),
             size = 3)  +
@@ -215,7 +216,7 @@
             legend.position = "bottom",
             legend.title = element_blank()
           ) +
-          ylab("Distance to frontier") +
+          ylab("Closeness to frontier") +
           xlab("")
 
         ggplotly(plot,
@@ -252,7 +253,7 @@
             aes(x = reorder(var_name,-dtf),
                 y = dtf,
                 text = map(paste(' <b>Country:</b>', country_name, '<br>',
-                                 '<b>Distance to frontier:</b>', round(dtf, digits = 3), '<br>',
+                                 '<b>Closeness to frontier:</b>', round(dtf, digits = 3), '<br>',
                                  '<b>Classification:</b>', classification), HTML),
                 color = classification),
             size = 3)  +
@@ -274,7 +275,7 @@
             legend.position = "bottom",
             legend.title = element_blank()
           ) +
-          ylab("Distance to frontier") +
+          ylab("Closeness to frontier") +
           xlab("")
 
         ggplotly(plot,
@@ -311,7 +312,7 @@
             aes(x = reorder(var_name,-dtf),
                 y = dtf,
                 text = map(paste(' <b>Country:</b>', country_name, '<br>',
-                                 '<b>Distance to frontier:</b>', round(dtf, digits = 3), '<br>',
+                                 '<b>Closeness to frontier:</b>', round(dtf, digits = 3), '<br>',
                                  '<b>Classification:</b>', classification), HTML),
                 color = classification),
             size = 3)  +
@@ -333,7 +334,7 @@
             legend.position = "bottom",
             legend.title = element_blank()
           ) +
-          ylab("Distance to frontier") +
+          ylab("Closeness to frontier") +
           xlab("")
 
         ggplotly(plot,
@@ -371,7 +372,7 @@
             aes(x = reorder(var_name,-dtf),
                 y = dtf,
                 text = map(paste(' <b>Country:</b>', country_name, '<br>',
-                                 '<b>Distance to frontier:</b>', round(dtf, digits = 3), '<br>',
+                                 '<b>Closeness to frontier:</b>', round(dtf, digits = 3), '<br>',
                                  '<b>Classification:</b>', classification), HTML),
                 color = classification),
             size = 3)  +
@@ -393,7 +394,7 @@
             legend.position = "bottom",
             legend.title = element_blank()
           ) +
-          ylab("Distance to frontier") +
+          ylab("Closeness to frontier") +
           xlab("")
 
         ggplotly(plot,
@@ -431,7 +432,7 @@
             aes(x = reorder(var_name,-dtf),
                 y = dtf,
                 text = map(paste(' <b>Country:</b>', country_name, '<br>',
-                                 '<b>Distance to frontier:</b>', round(dtf, digits = 3), '<br>',
+                                 '<b>Closeness to frontier:</b>', round(dtf, digits = 3), '<br>',
                                  '<b>Classification:</b>', classification), HTML),
                 color = classification),
             size = 3)  +
@@ -453,7 +454,7 @@
             legend.position = "bottom",
             legend.title = element_blank()
           ) +
-          ylab("Distance to frontier") +
+          ylab("Closeness to frontier") +
           xlab("")
 
         ggplotly(plot,
@@ -491,7 +492,7 @@
             aes(x = reorder(var_name,-dtf),
                 y = dtf,
                 text = map(paste(' <b>Country:</b>', country_name, '<br>',
-                                 '<b>Distance to frontier:</b>', round(dtf, digits = 3), '<br>',
+                                 '<b>Closeness to frontier:</b>', round(dtf, digits = 3), '<br>',
                                  '<b>Classification:</b>', classification), HTML),
                 color = classification),
             size = 3)  +
@@ -513,7 +514,7 @@
             legend.position = "bottom",
             legend.title = element_blank()
           ) +
-          ylab("Distance to frontier") +
+          ylab("Closeness to frontier") +
           xlab("")
 
         ggplotly(plot,
@@ -551,7 +552,7 @@
             aes(x = reorder(var_name,-dtf),
                 y = dtf,
                 text = map(paste(' <b>Country:</b>', country_name, '<br>',
-                                 '<b>Distance to frontier:</b>', round(dtf, digits = 3), '<br>',
+                                 '<b>Closeness to frontier:</b>', round(dtf, digits = 3), '<br>',
                                  '<b>Classification:</b>', classification), HTML),
                 color = classification),
             size = 3)  +
@@ -573,7 +574,7 @@
             legend.position = "bottom",
             legend.title = element_blank()
           ) +
-          ylab("Distance to frontier") +
+          ylab("Closeness to frontier") +
           xlab("")
 
         ggplotly(plot,
@@ -610,7 +611,7 @@
             aes(x = reorder(var_name,-dtf),
                 y = dtf,
                 text = map(paste(' <b>Country:</b>', country_name, '<br>',
-                                 '<b>Distance to frontier:</b>', round(dtf, digits = 3), '<br>',
+                                 '<b>Closeness to frontier:</b>', round(dtf, digits = 3), '<br>',
                                  '<b>Classification:</b>', classification), HTML),
                 color = classification),
             size = 3)  +
@@ -632,7 +633,7 @@
             legend.position = "bottom",
             legend.title = element_blank()
           ) +
-          ylab("Distance to frontier") +
+          ylab("Closeness to frontier") +
           xlab("")
 
         ggplotly(plot,
@@ -670,7 +671,7 @@
             aes(x = reorder(var_name,-dtf),
                 y = dtf,
                 text = map(paste(' <b>Country:</b>', country_name, '<br>',
-                                 '<b>Distance to frontier:</b>', round(dtf, digits = 3), '<br>',
+                                 '<b>Closeness to frontier:</b>', round(dtf, digits = 3), '<br>',
                                  '<b>Classification:</b>', classification), HTML),
                 color = classification),
             size = 3)  +
@@ -692,7 +693,7 @@
             legend.position = "bottom",
             legend.title = element_blank()
           ) +
-          ylab("Distance to frontier") +
+          ylab("Closeness to frontier") +
           xlab("")
 
         ggplotly(plot,
@@ -826,7 +827,7 @@
                   extensions = 'Buttons',
                   filter = 'top',
                   options = list(scrollX = TRUE,
-                                 pageLength = 15,
+                                 pageLength = 13,
                                  fixedColumns = TRUE,
                                  autoWidth = TRUE,
                                  dom = "lBtipr",
