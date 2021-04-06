@@ -95,6 +95,9 @@
                                selected = selected
       )
 
+      toggleState(id = "select",
+                  condition = length(selected) >= 10)
+
       req(input$select)
 
       # OVERVIEW PLOT ----

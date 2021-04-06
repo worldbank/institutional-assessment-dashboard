@@ -27,7 +27,6 @@
 
   ui <- dashboardPage(
 
-   # Header ------------------------------------------------------------------------------------
     dashboardHeader(title = h3("Global Institutional Assessment"),
                     titleWidth = 1800),
 
@@ -91,6 +90,8 @@
 
       # Home tab ----------------------------------------------------------------------------------
         tabItem(tabName = "home",
+                useShinyjs(),
+
 
                 fluidRow(
                   box(
