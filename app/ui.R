@@ -380,20 +380,20 @@
                     dataTableOutput("dataset")
                 ),
 
-                box(solidHeader = TRUE,
-                    width = 3,
-                    title = "Select countries to display",
-                    collapsible = TRUE,
-                    selectInput(
-                      "vars",
-                      label = NULL,
-                      choices = c("All",
-                                  "Current comparison"
-                      ),
-                      selected = 1,
-                      width = "100%"
-                    )
-                ),
+                # box(solidHeader = TRUE,
+                #     width = 3,
+                #     title = "Select countries to display",
+                #     collapsible = TRUE,
+                #     selectInput(
+                #       "vars",
+                #       label = NULL,
+                #       choices = c("All",
+                #                   "Current comparison"
+                #       ),
+                #       selected = 1,
+                #       width = "100%"
+                #     )
+                # ),
 
                 box(solidHeader = TRUE,
                     width = 9,
