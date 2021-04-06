@@ -34,7 +34,8 @@
     dashboardSidebar(
       width = "18%",
 
-      sidebarMenu(menuItem("Home",
+      sidebarMenu(id = "tab",
+                  menuItem("Home",
                            tabName = "home",
                            icon = icon("home")),
                   menuItem("Methodology",
@@ -425,6 +426,8 @@
       # Methodology tab ---------------------------------------------------------------------------
         tabItem(tabName = "methodology",
 
+              fluidRow(
+
                 box(solidHeader = TRUE,
                     width = 12,
                     title = "Institutional families",
@@ -503,6 +506,7 @@
                       "was classified as upper middle income for FY17 as of 29 September 2016 based on alternative conversion factors."
                     )
                 )
+          )
         )
 
 
