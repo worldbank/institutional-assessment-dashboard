@@ -15,14 +15,12 @@ def_quantiles <- function(data, selected_country, selected, vars) {
     rownames_to_column(var="quantile_break") %>%
     pivot_longer(all_of(vars)) %>%
     rename(variable=name,dtf_q=value) %>%
-    arrange(variable,quantile_break) %>%
     mutate(
-      q = case_when(
+      quantile_break = case_when(
         quantile_break == "25%" ~ "q25_group",
         quantile_break == "50%" ~ "q50_group"
       )
-    ) %>%
-    select(variable,q,dtf_q)
+    )
 
   data <- data %>%
     filter(country_name==selected_country) %>%
@@ -30,7 +28,7 @@ def_quantiles <- function(data, selected_country, selected, vars) {
     rename(variable=name,dtf=value) %>%
     left_join(quantiles_group,by="variable") %>%
     pivot_wider(
-      names_from = q,
+      names_from = quantile_break,
       values_from = dtf_q
     ) %>%
     mutate(
