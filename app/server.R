@@ -314,45 +314,42 @@
     }) # Close observer
 
     # MAP ----
+    output$map_plot <- renderLeaflet({
+      leaflet(data=wb_country_geom) %>%
+        addProviderTiles(providers$CartoDB.Positron, options = providerTileOptions(opacity = 1), group = "CartoDB.Positron") %>%
+        #addProviderTiles(providers$Esri.WorldImagery, options = providerTileOptions(opacity = 1), group = "Esri.WorldImagery") %>%
+        setView(24.894344, 35.196849, zoom = 2) %>%
+        #addLayersControl(baseGroups = c("CartoDB.Positron","Esri.WorldImagery"),
+        #                 position = "topleft",
+        #                 options = layersControlOptions(collapsed = T)) %>%
+        addPolygons(
+          fillColor = "white",
+          weight = 0.2,
+          opacity = 1,
+          color = "black",
+          dashArray = "1",
+          fillOpacity = 0.25,
+          #group = "Selected",
+          #layerId = as.character(wb_country_geom$ISO_A3),
+          highlight = highlightOptions(weight = 2.5, color = "#0066ff", dashArray = "", fillOpacity = 0.25, bringToFront = T),
+          label = paste0(
+            "<b>", wb_country_geom$WB_NAME,
+            "</b><br/>Labor Average CTF: ",formatC(wb_country_geom$vars_lab, digits = 3, format = "f"),
+            "</b><br/>Financial Average CTF: ",formatC(wb_country_geom$vars_fin, digits = 3, format = "f"),
+            "</b><br/>Legal Average CTF: ",formatC(wb_country_geom$vars_leg, digits = 3, format = "f"),
+            "</b><br/>Political Average CTF: ",formatC(wb_country_geom$vars_pol, digits = 3, format = "f"),
+            "</b><br/>Social Average CTF: ",formatC(wb_country_geom$vars_social, digits = 3, format = "f"),
+            "</b><br/>Business and Trade Average CTF: ",formatC(wb_country_geom$vars_mkt, digits = 3, format = "f"),
+            "</b><br/>Public Sector Average CTF: ",formatC(wb_country_geom$vars_publ, digits = 3, format = "f"),
+            "</b><br/>Governance of SOEs Average CTF: ",formatC(wb_country_geom$vars_service_del, digits = 3, format = "f"),
+            "</b><br/>Accountability Average CTF: ",formatC(wb_country_geom$vars_transp, digits = 3, format = "f")
+          ) %>%
+            lapply(htmltools::HTML),
+          labelOptions = labelOptions(style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "10px", direction = "auto")
+        )
+    })
 
     observe({
-
-      output$map_plot <- renderLeaflet({
-
-        leaflet(data=wb_country_geom) %>%
-          addProviderTiles(providers$CartoDB.Positron, options = providerTileOptions(opacity = 1), group = "CartoDB.Positron") %>%
-          #addProviderTiles(providers$Esri.WorldImagery, options = providerTileOptions(opacity = 1), group = "Esri.WorldImagery") %>%
-          setView(24.894344, 35.196849, zoom = 2) %>%
-          #addLayersControl(baseGroups = c("CartoDB.Positron","Esri.WorldImagery"),
-          #                 position = "topleft",
-          #                 options = layersControlOptions(collapsed = T)) %>%
-          addPolygons(
-            fillColor = "white",
-            weight = 0.2,
-            opacity = 1,
-            color = "black",
-            dashArray = "1",
-            fillOpacity = 0.25,
-            #group = "Selected",
-            #layerId = as.character(wb_country_geom$ISO_A3),
-            highlight = highlightOptions(weight = 2.5, color = "#0066ff", dashArray = "", fillOpacity = 0.25, bringToFront = T),
-            label = paste0(
-              "<b>", wb_country_geom$WB_NAME,
-              "</b><br/>Labor Average CTF: ",formatC(wb_country_geom$vars_lab, digits = 3, format = "f"),
-              "</b><br/>Financial Average CTF: ",formatC(wb_country_geom$vars_fin, digits = 3, format = "f"),
-              "</b><br/>Legal Average CTF: ",formatC(wb_country_geom$vars_leg, digits = 3, format = "f"),
-              "</b><br/>Political Average CTF: ",formatC(wb_country_geom$vars_pol, digits = 3, format = "f"),
-              "</b><br/>Social Average CTF: ",formatC(wb_country_geom$vars_social, digits = 3, format = "f"),
-              "</b><br/>Business and Trade Average CTF: ",formatC(wb_country_geom$vars_mkt, digits = 3, format = "f"),
-              "</b><br/>Public Sector Average CTF: ",formatC(wb_country_geom$vars_publ, digits = 3, format = "f"),
-              "</b><br/>Governance of SOEs Average CTF: ",formatC(wb_country_geom$vars_service_del, digits = 3, format = "f"),
-              "</b><br/>Accountability Average CTF: ",formatC(wb_country_geom$vars_transp, digits = 3, format = "f")
-            ) %>%
-              lapply(htmltools::HTML),
-            labelOptions = labelOptions(style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "10px", direction = "auto")
-          )
-
-      })
 
       vars_map <- input$vars_map
 
@@ -426,7 +423,8 @@
 
         datatable(data_table %>%
                     select(country_name,
-                           all_of(vars)),
+                           all_of(vars)) %>%
+                    data.table::setnames(., as.character(variable_names$variable), as.character(variable_names$var_name), skip_absent = TRUE),
                   rownames = FALSE,
                   extensions = 'Buttons',
                   filter = 'top',
