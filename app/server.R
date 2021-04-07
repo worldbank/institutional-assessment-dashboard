@@ -147,7 +147,7 @@
               geom_point(
                 aes(x = reorder(family_name,-dtf),
                     y = dtf,
-                    text = map(paste(' <b>Country:</b>', country_name, '<br>',
+                    text = map(paste('<b>Country:</b>', country_name, '<br>',
                                      '<b>Closeness to frontier:</b>', round(dtf, digits = 3), '<br>',
                                      '<b>Classification:</b>', classification), HTML),
                     color = classification),
@@ -173,7 +173,19 @@
               ylab("Closeness to frontier") +
               xlab(""),
             tooltip = "text") %>%
-          config(modeBarButtonsToRemove = c("zoomIn2d",
+            layout(
+              margin = list(b = -1.5),
+              annotations =
+                   list(x = 0, y = -0.25,
+                        text = map(paste0("Note: ",selected_country,", ",selected_groups,".",
+                                         "<br>Closeness to frontier is calculated as (worst-y)/(worst-frontier).",
+                                         "<br>1 identifies the best performer and 0 the worst performer",
+                                         "<br>Weak = bottom 25%; Emerging = 25%-50%; Advanced = top 50%."), HTML),
+                        showarrow = F, xref='paper', yref='paper',
+                        align='left',
+                        font=list(size=9))
+            ) %>%
+            config(modeBarButtonsToRemove = c("zoomIn2d",
                                             "zoomOut2d",
                                             "pan2d",
                                             "autoScale2d",
@@ -231,7 +243,7 @@
               geom_point(
                 aes(x = reorder(var_name,-dtf),
                     y = dtf,
-                    text = map(paste(' <b>Country:</b>', country_name, '<br>',
+                    text = map(paste('<b>Country:</b>', country_name, '<br>',
                                      '<b>Closeness to frontier:</b>', round(dtf, digits = 3), '<br>',
                                      '<b>Classification:</b>', classification), HTML),
                     color = classification),
@@ -257,6 +269,18 @@
               ylab("Closeness to frontier") +
               xlab(""),
             tooltip = "text") %>%
+          layout(
+            margin = list(b = -1.5),
+            annotations =
+              list(x = 0, y = -0.25,
+                   text = map(paste0("Note: ",selected_country,", ",selected_groups,".",
+                                     "<br>Closeness to frontier is calculated as (worst-y)/(worst-frontier).",
+                                     "<br>1 identifies the best performer and 0 the worst performer",
+                                     "<br>Weak = bottom 25%; Emerging = 25%-50%; Advanced = top 50%."), HTML),
+                   showarrow = F, xref='paper', yref='paper',
+                   align='left',
+                   font=list(size=9))
+          ) %>%
           config(modeBarButtonsToRemove = c("zoomIn2d",
                                             "zoomOut2d",
                                             "pan2d",
