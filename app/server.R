@@ -56,6 +56,17 @@
     read_rds(file.path("data",
                        "wb_country_geom.rds"))
 
+  pal <-
+    colorFactor(
+      palette = c("#D55E00",
+                  "#DD7C00",
+                  "#E69F00",
+                  "#579E47",
+                  "#009E73"),
+      levels = c("0.0 - 0.2","0.2 - 0.4","0.4 - 0.6","0.6 - 0.8","0.8 - 1.0"),
+      na.color = "#808080"
+    )
+
 # Server ---------------------------------------------------------------------------------------------
 
   server <- function(input, output, session) {
@@ -352,25 +363,15 @@
           filter(var_name == sym(vars_map)) %>%
           .$variable
 
-        quantiles_breaks <- quantile(wb_country_geom[[var_selected]],probs = c(0.25,0.5) , na.rm = T, names = F)
-
-        pal <-
-          colorFactor(
-            palette = c("#D55E00",
-                        "#E69F00",
-                        "#009E73"),
-            levels = c("Weak","Emerging","Advanced"),
-            na.color = "#808080"
-          )
-
         leafletProxy("map_plot",
                      data = wb_country_geom %>%
                        mutate(
                          classification = case_when(
-                           wb_country_geom[[var_selected]] <= quantiles_breaks[1] ~ "Weak",
-                           wb_country_geom[[var_selected]] > quantiles_breaks[1] &
-                             wb_country_geom[[var_selected]] <= quantiles_breaks[2] ~ "Emerging",
-                           wb_country_geom[[var_selected]] > quantiles_breaks[2] ~ "Advanced"
+                           wb_country_geom[[var_selected]] <= 0.2 ~ "0.0 - 0.2",
+                           wb_country_geom[[var_selected]] > 0.2 & wb_country_geom[[var_selected]] <= 0.4 ~ "0.2 - 0.4",
+                           wb_country_geom[[var_selected]] > 0.4 & wb_country_geom[[var_selected]] <= 0.6 ~ "0.4 - 0.6",
+                           wb_country_geom[[var_selected]] > 0.6 & wb_country_geom[[var_selected]] <= 0.8 ~ "0.6 - 0.8",
+                           wb_country_geom[[var_selected]] > 0.8 ~ "0.8 - 1.0"
                          )
                        )
                     ) %>%
@@ -386,7 +387,8 @@
                       highlight = highlightOptions(weight = 2.5, color = "#0066ff", dashArray = "", fillOpacity = 0.25, bringToFront = T),
                       label = paste0(
                         "<b>", wb_country_geom$WB_NAME,
-                        "</b><br/>Labor Average CTF: ",formatC(wb_country_geom$vars_lab, digits = 3, format = "f"),
+                        "<br><br>",vars_map, " CTF: ",formatC(wb_country_geom[[var_selected]], digits = 3, format = "f"),
+                        "</b><br><br/>Labor Average CTF: ",formatC(wb_country_geom$vars_lab, digits = 3, format = "f"),
                         "</b><br/>Financial Average CTF: ",formatC(wb_country_geom$vars_fin, digits = 3, format = "f"),
                         "</b><br/>Legal Average CTF: ",formatC(wb_country_geom$vars_leg, digits = 3, format = "f"),
                         "</b><br/>Political Average CTF: ",formatC(wb_country_geom$vars_pol, digits = 3, format = "f"),
