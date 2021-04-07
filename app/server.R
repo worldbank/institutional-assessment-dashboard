@@ -72,10 +72,8 @@
   server <- function(input, output, session) {
 
     selected_tab <- reactive({
-
       selected_tab <- input$tab
       selected_tab
-
     })
 
     observe({
@@ -118,27 +116,15 @@
 
       req(input$select)
 
-      data_tab <- global_data
-
       if(selected_tab()=="overview"){
-        vars_tab <- family_names
-        data_tab <- family_level_data
-      }
-      if(selected_tab()=="labor"){vars_tab <- vars_lab}
-      if(selected_tab()=="financial"){vars_tab <- vars_fin}
-      if(selected_tab()=="legal"){vars_tab <- vars_leg}
-      if(selected_tab()=="political"){vars_tab <- vars_pol}
-      if(selected_tab()=="social"){vars_tab <- vars_social}
-      if(selected_tab()=="trade"){vars_tab <- vars_mkt}
-      if(selected_tab()=="public"){vars_tab <- vars_publ}
-      if(selected_tab()=="governance"){vars_tab <- vars_lab}
-      if(selected_tab()=="account"){vars_tab <- vars_transp}
 
-      plot_family <-
+        vars_tab <- family_names
+
+        plot_family <-
           ggplotly(
             ggplot(
               data =
-                data_tab %>%
+                family_level_data %>%
                 def_quantiles(
                   selected_country,
                   selected,
@@ -151,164 +137,182 @@
                   by=c("variable"="family_var")
                 )
             ) +
-            geom_segment(
-              aes(x = reorder(family_name,-dtf),
-                  xend = reorder(family_name,-dtf),
-                  y = 0,
-                  yend = dtf,
-                  color = classification),
-              size = 1) +
-            geom_point(
-              aes(x = reorder(family_name,-dtf),
-                  y = dtf,
-                  text = map(paste(' <b>Country:</b>', country_name, '<br>',
-                                   '<b>Closeness to frontier:</b>', round(dtf, digits = 3), '<br>',
-                                   '<b>Classification:</b>', classification), HTML),
-                  color = classification),
-              size = 3)  +
-            coord_flip() +
-            scale_color_manual(
-              values =
-                c("Advanced"="#009E73",
-                  "Emerging"="#E69F00",
-                  "Weak"="#D55E00"
-                )) +
-            scale_y_continuous(
-              limits = c(0,1)#,
-              #breaks = seq(0,1,0.2))
-            )  +
-            theme_ipsum() +
-            theme(
-              panel.grid.minor.y = element_blank(),
-              panel.grid.major.y = element_blank(),
-              legend.position = "bottom",
-              legend.title = element_blank()
+              geom_segment(
+                aes(x = reorder(family_name,-dtf),
+                    xend = reorder(family_name,-dtf),
+                    y = 0,
+                    yend = dtf,
+                    color = classification),
+                size = 1) +
+              geom_point(
+                aes(x = reorder(family_name,-dtf),
+                    y = dtf,
+                    text = map(paste(' <b>Country:</b>', country_name, '<br>',
+                                     '<b>Closeness to frontier:</b>', round(dtf, digits = 3), '<br>',
+                                     '<b>Classification:</b>', classification), HTML),
+                    color = classification),
+                size = 3)  +
+              coord_flip() +
+              scale_color_manual(
+                values =
+                  c("Advanced"="#009E73",
+                    "Emerging"="#E69F00",
+                    "Weak"="#D55E00"
+                  )) +
+              scale_y_continuous(
+                limits = c(0,1)#,
+                #breaks = seq(0,1,0.2))
+              )  +
+              theme_ipsum() +
+              theme(
+                panel.grid.minor.y = element_blank(),
+                panel.grid.major.y = element_blank(),
+                legend.position = "bottom",
+                legend.title = element_blank()
+              ) +
+              ylab("Closeness to frontier") +
+              xlab(""),
+            tooltip = "text") %>%
+          config(modeBarButtonsToRemove = c("zoomIn2d",
+                                            "zoomOut2d",
+                                            "pan2d",
+                                            "autoScale2d",
+                                            "lasso2d",
+                                            "select2d",
+                                            "toggleSpikelines",
+                                            "hoverClosest3d",
+                                            "hoverCompareCartesian"))
+
+        # OVERVIEW PLOT ----
+        output$overview <- renderPlotly({
+          plot_family
+        })
+
+      }
+
+      vars_tab <- NULL
+
+      if(selected_tab()=="labor"){vars_tab <- vars_lab}
+      if(selected_tab()=="financial"){vars_tab <- vars_fin}
+      if(selected_tab()=="legal"){vars_tab <- vars_leg}
+      if(selected_tab()=="political"){vars_tab <- vars_pol}
+      if(selected_tab()=="social"){vars_tab <- vars_social}
+      if(selected_tab()=="trade"){vars_tab <- vars_mkt}
+      if(selected_tab()=="public"){vars_tab <- vars_publ}
+      if(selected_tab()=="governance"){vars_tab <- vars_lab}
+      if(selected_tab()=="account"){vars_tab <- vars_transp}
+
+      if(!is.null(vars_tab)){
+
+        plot_global <-
+          ggplotly(
+            ggplot(
+              data =
+                global_data %>%
+                def_quantiles(
+                  selected_country,
+                  selected,
+                  vars_tab
+                ) %>%
+                left_join(
+                  variable_names %>%
+                    select(variable,var_name) %>%
+                    unique,
+                  by="variable"
+                )
             ) +
-            ylab("Closeness to frontier") +
-            xlab(""),
-          tooltip = "text") %>%
-        config(modeBarButtonsToRemove = c("zoomIn2d",
-                                          "zoomOut2d",
-                                          "pan2d",
-                                          "autoScale2d",
-                                          "lasso2d",
-                                          "select2d",
-                                          "toggleSpikelines",
-                                          "hoverClosest3d",
-                                          "hoverCompareCartesian"))
+              geom_segment(
+                aes(x = reorder(var_name,-dtf),
+                    xend = reorder(var_name,-dtf),
+                    y = 0,
+                    yend = dtf,
+                    color = classification),
+                size = 1) +
+              geom_point(
+                aes(x = reorder(var_name,-dtf),
+                    y = dtf,
+                    text = map(paste(' <b>Country:</b>', country_name, '<br>',
+                                     '<b>Closeness to frontier:</b>', round(dtf, digits = 3), '<br>',
+                                     '<b>Classification:</b>', classification), HTML),
+                    color = classification),
+                size = 3)  +
+              coord_flip() +
+              scale_color_manual(
+                values =
+                  c("Advanced"="#009E73",
+                    "Emerging"="#E69F00",
+                    "Weak"="#D55E00"
+                  )) +
+              scale_y_continuous(
+                limits = c(0,1)#,
+                #breaks = seq(0,1,0.2))
+              )  +
+              theme_ipsum() +
+              theme(
+                panel.grid.minor.y = element_blank(),
+                panel.grid.major.y = element_blank(),
+                legend.position = "bottom",
+                legend.title = element_blank()
+              ) +
+              ylab("Closeness to frontier") +
+              xlab(""),
+            tooltip = "text") %>%
+          config(modeBarButtonsToRemove = c("zoomIn2d",
+                                            "zoomOut2d",
+                                            "pan2d",
+                                            "autoScale2d",
+                                            "lasso2d",
+                                            "select2d",
+                                            "toggleSpikelines",
+                                            "hoverClosest3d",
+                                            "hoverCompareCartesian"))
 
-      plot_global <-
-        ggplotly(
-          ggplot(
-            data =
-              data_tab %>%
-              def_quantiles(
-                selected_country,
-                selected,
-                vars_tab
-              ) %>%
-              left_join(
-                variable_names %>%
-                  select(variable,var_name) %>%
-                  unique,
-                by="variable"
-              )
-          ) +
-            geom_segment(
-              aes(x = reorder(var_name,-dtf),
-                  xend = reorder(var_name,-dtf),
-                  y = 0,
-                  yend = dtf,
-                  color = classification),
-              size = 1) +
-            geom_point(
-              aes(x = reorder(var_name,-dtf),
-                  y = dtf,
-                  text = map(paste(' <b>Country:</b>', country_name, '<br>',
-                                   '<b>Closeness to frontier:</b>', round(dtf, digits = 3), '<br>',
-                                   '<b>Classification:</b>', classification), HTML),
-                  color = classification),
-              size = 3)  +
-            coord_flip() +
-            scale_color_manual(
-              values =
-                c("Advanced"="#009E73",
-                  "Emerging"="#E69F00",
-                  "Weak"="#D55E00"
-                )) +
-            scale_y_continuous(
-              limits = c(0,1)#,
-              #breaks = seq(0,1,0.2))
-            )  +
-            theme_ipsum() +
-            theme(
-              panel.grid.minor.y = element_blank(),
-              panel.grid.major.y = element_blank(),
-              legend.position = "bottom",
-              legend.title = element_blank()
-            ) +
-            ylab("Closeness to frontier") +
-            xlab(""),
-          tooltip = "text") %>%
-        config(modeBarButtonsToRemove = c("zoomIn2d",
-                                          "zoomOut2d",
-                                          "pan2d",
-                                          "autoScale2d",
-                                          "lasso2d",
-                                          "select2d",
-                                          "toggleSpikelines",
-                                          "hoverClosest3d",
-                                          "hoverCompareCartesian"))
+        # LABOR PLOT ----
+        output$Labor <- renderPlotly({
+          plot_global
+        })
 
-      # OVERVIEW PLOT ----
-      output$overview <- renderPlotly({
-        plot_family
-      })
+        # FINANCIAL PLOT ----
+        output$Financial <- renderPlotly({
+          plot_global
+        })
 
-      # LABOR PLOT ----
-      output$Labor <- renderPlotly({
-        plot_global
-      })
+        # LEGAL PLOT ----
+        output$Legal <- renderPlotly({
+          plot_global
+        })
 
-      # FINANCIAL PLOT ----
-      output$Financial <- renderPlotly({
-        plot_global
-      })
+        # POLITICAL PLOT ----
+        output$Political <- renderPlotly({
+          plot_global
+        })
 
-      # LEGAL PLOT ----
-      output$Legal <- renderPlotly({
-        plot_global
-      })
+        # SOCIAL PLOT ----
+        output$Social <- renderPlotly({
+          plot_global
+        })
 
-      # POLITICAL PLOT ----
-      output$Political <- renderPlotly({
-        plot_global
-      })
+        # BUSINESS AND TRADE PLOT ----
+        output$Trade <- renderPlotly({
+          plot_global
+        })
 
-      # SOCIAL PLOT ----
-      output$Social <- renderPlotly({
-        plot_global
-      })
+        # PUBLIC SECTOR PLOT ----
+        output$Public <- renderPlotly({
+          plot_global
+        })
 
-      # BUSINESS AND TRADE PLOT ----
-      output$Trade <- renderPlotly({
-        plot_global
-      })
+        # GOVERNANCE OF SOEs PLOT ----
+        output$Governance <- renderPlotly({
+          plot_global
+        })
 
-      # PUBLIC SECTOR PLOT ----
-      output$Public <- renderPlotly({
-        plot_global
-      })
+        # ACCOUNTABILITY PLOT ----
+        output$Account <- renderPlotly({
+          plot_global
+        })
 
-      # GOVERNANCE OF SOEs PLOT ----
-      output$Governance <- renderPlotly({
-        plot_global
-      })
-
-      # ACCOUNTABILITY PLOT ----
-      output$Account <- renderPlotly({
-        plot_global
-      })
+      }
 
 
     }) # Close observer
