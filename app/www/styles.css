@@ -3,11 +3,11 @@
   text-align:right;
 }
 
-.multicol-8 {
+.multicol-7 {
   height: 650x;
-  -webkit-column-count: 8; /* Chrome, Safari, Opera */
-  -moz-column-count: 8;    /* Firefox */
-  column-count: 8;
+  -webkit-column-count: 7; /* Chrome, Safari, Opera */
+  -moz-column-count: 7;    /* Firefox */
+  column-count: 7;
   -moz-column-fill: auto;
   -column-fill: auto;
 }

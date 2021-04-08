@@ -31,14 +31,12 @@ source(file.path("app/auxiliary",
 # Get min and max for each variable
 vars_minmax <-
   data_selected %>%
-  #filter(year >= as.numeric(format(Sys.Date(), "%Y"))-8) %>% # Enable eventually to filter for the last 7 years and disable next line
-  filter(year >= 2013) %>%
   summarise(
     across(
       all_of(vars_all),
       list(
-        min = ~ min(.x, na.rm = T),
-        max = ~ max(.x, na.rm = T)
+        min = ~ min(.x[year >= 2013], na.rm = T), # year >= as.numeric(format(Sys.Date(), "%Y"))-8): Change eventually to filter for the last 7 years and disable next line
+        max = ~ max(.x[year >= 2013], na.rm = T)  # year >= as.numeric(format(Sys.Date(), "%Y"))-8): Change eventually to filter for the last 7 years and disable next line
       ),
       .names="{.col}-{.fn}"
     )
@@ -79,8 +77,6 @@ vars_minmax <-
 # SC: in the long term, this step should be flexibly adjusted in the dashboard (keep last 7 years, given the present time)
 data_country <-
   data_selected %>%
-  #filter(year >= as.numeric(format(Sys.Date(), "%Y"))-8) %>% # Enable eventually to filter for the last 7 years and disable next line
-  filter(year >= 2013) %>%
   group_by(country_name,
            country_code,
            lac,lac6,oecd,
@@ -88,7 +84,7 @@ data_country <-
   summarise(
     across(
       all_of(vars_all),
-      ~mean(.x, na.rm = T)
+      ~mean(.x[year>=2013], na.rm = T)  # year >= as.numeric(format(Sys.Date(), "%Y"))-8): Change eventually to filter for the last 7 years and disable next line
     )
   ) %>%
   mutate(
@@ -203,7 +199,8 @@ write_rds(dtf_vars_global,
                "data_cleaned",
                "dtf_vars_global.rds"))
 
-write_rds(dtf_vars_global,
-          here("app",
+dtf_vars_global %>%
+  ungroup %>%
+  write_rds(here("app",
                "data",
                "country_dtf.rds"))
