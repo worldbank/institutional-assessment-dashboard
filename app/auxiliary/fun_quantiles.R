@@ -2,36 +2,40 @@
 # FUNCTION THAT DEFINES THE QUANTILES BASED ON SELECTED COUNTRY AND COMPARISON GROUP -----------------------
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-def_quantiles <- function(data, selected_country, selected) {
+def_quantiles <- function(data, selected_country, selected, vars) {
 
-    quantiles <-
-      global_data %>%
-      filter(
-        country_name %in% selected
-      ) %>%
-      select(country_name,all_of(vars_all)) %>%
-      summarise_at(vars(vars_all),
-                   ~ quantile(., c(0.25, 0.5), na.rm = TRUE)) %>%
-    t %>%
-    as.data.frame() %>%
-    mutate(variable = row.names(.)) %>%
-    rename(q25 = V1,
-           q50 = V2)
+  data <- data %>%
+    filter(
+      country_name == selected_country | country_name %in% selected
+    ) %>%
+    ungroup() %>%
+    select(country_name,all_of(vars))
 
+  quantiles_group <- as.data.frame(apply(data[all_of(vars)], 2, quantile, probs = c(0.25,0.5) , na.rm = T)) %>%
+    rownames_to_column(var="quantile_break") %>%
+    pivot_longer(all_of(vars)) %>%
+    rename(variable=name,dtf_q=value) %>%
+    mutate(
+      quantile_break = case_when(
+        quantile_break == "25%" ~ "q25_group",
+        quantile_break == "50%" ~ "q50_group"
+      )
+    )
 
-  data <-
-    global_data %>%
-    filter(country_name == selected_country) %>%
-    select(all_of(vars_all)) %>%
-    pivot_longer(all_of(vars_all)) %>%
-    rename(variable = name,
-           dtf = value) %>%
-    left_join(quantiles) %>%
+  data <- data %>%
+    filter(country_name==selected_country) %>%
+    pivot_longer(all_of(vars)) %>%
+    rename(variable=name,dtf=value) %>%
+    left_join(quantiles_group,by="variable") %>%
+    pivot_wider(
+      names_from = quantile_break,
+      values_from = dtf_q
+    ) %>%
     mutate(
       classification = case_when(
-        dtf <= q25 ~ "Weak",
-        dtf > q25 & dtf <= q50 ~ "Emerging",
-        dtf > q50 ~ "Advanced"
+        dtf <= q25_group ~ "Weak",
+        dtf > q25_group & dtf <= q50_group ~ "Emerging",
+        dtf > q50_group ~ "Advanced"
       )
     ) %>%
     filter(!is.na(dtf))
