@@ -4,13 +4,14 @@
   library(shinydashboard)
   library(shiny)
   library(shinyjs)
-  library(tidyverse)
   library(hrbrthemes)
   library(DT)
   library(plotly)
   library(sf)
   library(BAMMtools)
   library(viridis)
+  library(tidyverse)
+
 
 
 # Load data sets --------------------------------------------------------------------------------
@@ -21,6 +22,9 @@
   # Function that defines quantiles based on country, comparison and variables
   source(file.path("auxiliary",
                    "fun_quantiles.R"))
+
+source(file.path("auxiliary",
+                 "plots.R"))
 
   definitions <-
     read_csv(file.path("data",
@@ -76,6 +80,20 @@
       selected_tab
     })
 
+    data <-
+      eventReactive(
+        input$select,
+
+        {
+          global_data %>%
+            def_quantiles(
+              selected_country,
+              selected
+            ) %>%
+            left_join(variable_names)
+        }
+      )
+
     observe({
 
       selected_groups  <- input$groups
@@ -114,7 +132,6 @@
       toggleState(id = "select",
                   condition = length(selected) >= 10)
 
-      req(input$select)
 
       if(selected_tab()=="overview"){
 
@@ -216,80 +233,20 @@
 
       if(!is.null(vars_tab)){
 
+        selected_country <- input$country
+
+        data_subset <-
+          data() %>%
+          filter(variable %in% vars_tab)
+
+        static_plot <-
+          data_subset %>%
+          static_plot
+
         plot_global <-
-          ggplotly(
-            ggplot(
-              data =
-                global_data %>%
-                def_quantiles(
-                  selected_country,
-                  selected,
-                  vars_tab
-                ) %>%
-                left_join(
-                  variable_names %>%
-                    select(variable,var_name) %>%
-                    unique,
-                  by="variable"
-                )
-            ) +
-              geom_segment(
-                aes(x = reorder(var_name,-dtf),
-                    xend = reorder(var_name,-dtf),
-                    y = 0,
-                    yend = dtf,
-                    color = classification),
-                size = 1) +
-              geom_point(
-                aes(x = reorder(var_name,-dtf),
-                    y = dtf,
-                    text = map(paste('<b>Country:</b>', country_name, '<br>',
-                                     '<b>Closeness to frontier:</b>', round(dtf, digits = 3), '<br>',
-                                     '<b>Classification:</b>', classification), HTML),
-                    color = classification),
-                size = 3)  +
-              coord_flip() +
-              scale_color_manual(
-                values =
-                  c("Advanced"="#009E73",
-                    "Emerging"="#E69F00",
-                    "Weak"="#D55E00"
-                  )) +
-              scale_y_continuous(
-                limits = c(0,1)#,
-                #breaks = seq(0,1,0.2))
-              )  +
-              theme_ipsum() +
-              theme(
-                panel.grid.minor.y = element_blank(),
-                panel.grid.major.y = element_blank(),
-                legend.position = "bottom",
-                legend.title = element_blank()
-              ) +
-              ylab("Closeness to frontier") +
-              xlab(""),
-            tooltip = "text") %>%
-          layout(
-            margin = list(b = -1.5),
-            annotations =
-              list(x = 0, y = -0.25,
-                   text = map(paste0("Note: ",selected_country,", ",selected_groups,".",
-                                     "<br>Closeness to frontier is calculated as (worst-y)/(worst-frontier).",
-                                     "<br>1 identifies the best performer and 0 the worst performer",
-                                     "<br>Weak = bottom 25%; Emerging = 25%-50%; Advanced = top 50%."), HTML),
-                   showarrow = F, xref='paper', yref='paper',
-                   align='left',
-                   font=list(size=9))
-          ) %>%
-          config(modeBarButtonsToRemove = c("zoomIn2d",
-                                            "zoomOut2d",
-                                            "pan2d",
-                                            "autoScale2d",
-                                            "lasso2d",
-                                            "select2d",
-                                            "toggleSpikelines",
-                                            "hoverClosest3d",
-                                            "hoverCompareCartesian"))
+          interactive_plot(static_plot,
+                           selected_country,
+                           selected_groups)
 
         # LABOR PLOT ----
         output$Labor <- renderPlotly({
@@ -343,13 +300,11 @@
 
     # MAP ----
     output$map_plot <- renderLeaflet({
-      leaflet(data=wb_country_geom) %>%
-        addProviderTiles(providers$CartoDB.Positron, options = providerTileOptions(opacity = 1), group = "CartoDB.Positron") %>%
-        #addProviderTiles(providers$Esri.WorldImagery, options = providerTileOptions(opacity = 1), group = "Esri.WorldImagery") %>%
+      leaflet(data = wb_country_geom) %>%
+        # addProviderTiles(providers$CartoDB.Positron,
+        #                  options = providerTileOptions(opacity = 1),
+        #                  group = "CartoDB.Positron") %>%
         setView(24.894344, 35.196849, zoom = 2) %>%
-        #addLayersControl(baseGroups = c("CartoDB.Positron","Esri.WorldImagery"),
-        #                 position = "topleft",
-        #                 options = layersControlOptions(collapsed = T)) %>%
         addPolygons(
           fillColor = "white",
           weight = 0.2,
@@ -357,23 +312,26 @@
           color = "black",
           dashArray = "1",
           fillOpacity = 0.25,
-          #group = "Selected",
-          #layerId = as.character(wb_country_geom$ISO_A3),
-          highlight = highlightOptions(weight = 2.5, color = "#0066ff", dashArray = "", fillOpacity = 0.25, bringToFront = T),
-          label = paste0(
-            "<b>", wb_country_geom$WB_NAME,
-            "</b><br/>Labor Average CTF: ",formatC(wb_country_geom$vars_lab, digits = 3, format = "f"),
-            "</b><br/>Financial Average CTF: ",formatC(wb_country_geom$vars_fin, digits = 3, format = "f"),
-            "</b><br/>Legal Average CTF: ",formatC(wb_country_geom$vars_leg, digits = 3, format = "f"),
-            "</b><br/>Political Average CTF: ",formatC(wb_country_geom$vars_pol, digits = 3, format = "f"),
-            "</b><br/>Social Average CTF: ",formatC(wb_country_geom$vars_social, digits = 3, format = "f"),
-            "</b><br/>Business and Trade Average CTF: ",formatC(wb_country_geom$vars_mkt, digits = 3, format = "f"),
-            "</b><br/>Public Sector Average CTF: ",formatC(wb_country_geom$vars_publ, digits = 3, format = "f"),
-            "</b><br/>Governance of SOEs Average CTF: ",formatC(wb_country_geom$vars_service_del, digits = 3, format = "f"),
-            "</b><br/>Accountability Average CTF: ",formatC(wb_country_geom$vars_transp, digits = 3, format = "f")
-          ) %>%
-            lapply(htmltools::HTML),
-          labelOptions = labelOptions(style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "10px", direction = "auto")
+          highlight = highlightOptions(weight = 2.5,
+                                       color = "#0066ff",
+                                       dashArray = "",
+                                       fillOpacity = 0.25,
+                                       bringToFront = T)
+          # ,
+          # label = paste0(
+          #   "<b>", wb_country_geom$WB_NAME,
+          #   "</b><br/>Labor Average CTF: ",formatC(wb_country_geom$vars_lab, digits = 3, format = "f"),
+          #   "</b><br/>Financial Average CTF: ",formatC(wb_country_geom$vars_fin, digits = 3, format = "f"),
+          #   "</b><br/>Legal Average CTF: ",formatC(wb_country_geom$vars_leg, digits = 3, format = "f"),
+          #   "</b><br/>Political Average CTF: ",formatC(wb_country_geom$vars_pol, digits = 3, format = "f"),
+          #   "</b><br/>Social Average CTF: ",formatC(wb_country_geom$vars_social, digits = 3, format = "f"),
+          #   "</b><br/>Business and Trade Average CTF: ",formatC(wb_country_geom$vars_mkt, digits = 3, format = "f"),
+          #   "</b><br/>Public Sector Average CTF: ",formatC(wb_country_geom$vars_publ, digits = 3, format = "f"),
+          #   "</b><br/>Governance of SOEs Average CTF: ",formatC(wb_country_geom$vars_service_del, digits = 3, format = "f"),
+          #   "</b><br/>Accountability Average CTF: ",formatC(wb_country_geom$vars_transp, digits = 3, format = "f")
+          # ) %>%
+          #   lapply(htmltools::HTML),
+          # labelOptions = labelOptions(style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "10px", direction = "auto")
         )
     })
 
