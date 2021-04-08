@@ -199,7 +199,8 @@ write_rds(dtf_vars_global,
                "data_cleaned",
                "dtf_vars_global.rds"))
 
-write_rds(dtf_vars_global,
-          here("app",
+dtf_vars_global %>%
+  ungroup %>%
+  write_rds(here("app",
                "data",
                "country_dtf.rds"))

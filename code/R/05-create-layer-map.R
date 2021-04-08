@@ -43,7 +43,22 @@ wb_country_geom <-
       ungroup() %>%
       select(-c(country_name,lac,lac6,oecd,structural)),
     by=c("WB_A3"="country_code")
+  ) %>%
+  mutate(
+    label = paste0(
+      "<b>", wb_country_geom$WB_NAME,
+      "</b><br/>Labor Average CTF: ",formatC(wb_country_geom$vars_lab, digits = 3, format = "f"),
+      "</b><br/>Financial Average CTF: ",formatC(wb_country_geom$vars_fin, digits = 3, format = "f"),
+      "</b><br/>Legal Average CTF: ",formatC(wb_country_geom$vars_leg, digits = 3, format = "f"),
+      "</b><br/>Political Average CTF: ",formatC(wb_country_geom$vars_pol, digits = 3, format = "f"),
+      "</b><br/>Social Average CTF: ",formatC(wb_country_geom$vars_social, digits = 3, format = "f"),
+      "</b><br/>Business and Trade Average CTF: ",formatC(wb_country_geom$vars_mkt, digits = 3, format = "f"),
+      "</b><br/>Public Sector Average CTF: ",formatC(wb_country_geom$vars_publ, digits = 3, format = "f"),
+      "</b><br/>Governance of SOEs Average CTF: ",formatC(wb_country_geom$vars_service_del, digits = 3, format = "f"),
+      "</b><br/>Accountability Average CTF: ",formatC(wb_country_geom$vars_transp, digits = 3, format = "f")
+    )
   )
+
 
 # 3 Save datasets =========================================================================================
 
