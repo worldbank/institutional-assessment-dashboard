@@ -80,58 +80,83 @@ source(file.path("auxiliary",
       selected_tab
     })
 
+    selected <-
+      eventReactive(
+        input$groups,
+
+        {
+          selected_groups  <- input$groups
+          selected_country <- input$country
+
+          # Can use character(0) to remove all choices
+          if (is.null(selected_groups)) {
+            selected <- NULL
+          } else {
+            selected <-
+              country_list %>%
+              filter(group_code %in% selected_groups) %>%
+              select(country_name) %>%
+              unique
+
+            if (!is.null(selected_country)) {
+              selected <-
+                selected %>%
+                filter(country_name != selected_country)
+            }
+
+            selected <-
+              selected %>%
+              pluck(1)
+
+          }
+        },
+
+        ignoreNULL = FALSE
+      )
+
+    observeEvent(
+      selected(),
+
+      {
+        # Can also set the label and select items
+        updateCheckboxGroupInput(session,
+                                 "countries",
+                                 label = NULL,
+                                 choices = global_data$country_name %>% unique,
+                                 selected = selected()
+          )
+
+          toggleState(id = "select",
+                    condition = length(selected()) >= 10)
+      },
+
+      ignoreNULL = FALSE
+    )
+
     data <-
       eventReactive(
         input$select,
 
         {
+          data <-
           global_data %>%
             def_quantiles(
-              selected_country,
-              selected
+              input$country,
+              selected(),
+              vars_all
             ) %>%
             left_join(variable_names)
+
+          print(data)
+          return(data)
         }
       )
+
+
 
     observe({
 
-      selected_groups  <- input$groups
       selected_country <- input$country
-
-      # Can use character(0) to remove all choices
-      if (is.null(selected_groups)) {
-        selected <- NULL
-      } else {
-        selected <-
-          country_list %>%
-          filter(group_code %in% selected_groups) %>%
-          select(country_name) %>%
-          unique
-
-        if (!is.null(selected_country)) {
-          selected <-
-            selected %>%
-            filter(country_name != selected_country)
-        }
-
-        selected <-
-          selected %>%
-          pluck(1)
-
-      }
-
-      # Can also set the label and select items
-      updateCheckboxGroupInput(session,
-                               "countries",
-                               label = NULL,
-                               choices = global_data$country_name %>% unique,
-                               selected = selected
-      )
-
-      toggleState(id = "select",
-                  condition = length(selected) >= 10)
-
 
       if(selected_tab()=="overview"){
 
@@ -144,7 +169,7 @@ source(file.path("auxiliary",
                 family_level_data %>%
                 def_quantiles(
                   selected_country,
-                  selected,
+                  selected(),
                   vars_tab
                 ) %>%
                 left_join(
@@ -194,7 +219,7 @@ source(file.path("auxiliary",
               margin = list(b = -1.5),
               annotations =
                    list(x = 0, y = -0.25,
-                        text = map(paste0("Note: ",selected_country,", ",selected_groups,".",
+                        text = map(paste0("Note: ",selected_country,", ",input$groups,".",
                                          "<br>Closeness to frontier is calculated as (worst-y)/(worst-frontier).",
                                          "<br>1 identifies the best performer and 0 the worst performer",
                                          "<br>Weak = bottom 25%; Emerging = 25%-50%; Advanced = top 50%."), HTML),
@@ -246,7 +271,7 @@ source(file.path("auxiliary",
         plot_global <-
           interactive_plot(static_plot,
                            selected_country,
-                           selected_groups)
+                           input$groups)
 
         # LABOR PLOT ----
         output$Labor <- renderPlotly({
