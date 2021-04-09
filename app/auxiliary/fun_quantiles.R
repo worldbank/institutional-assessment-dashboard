@@ -19,6 +19,16 @@ def_quantiles <- function(data, base_country, comparison_countries, vars) {
     rename(q25 = V1,
            q50 = V2)
 
+  quantiles_group <- as.data.frame(apply(data[all_of(vars)], 2, quantile, probs = c(0.25,0.5) , na.rm = T)) %>%
+    rownames_to_column(var="quantile_break") %>%
+    pivot_longer(all_of(vars)) %>%
+    rename(variable=name,dtf_q=value) %>%
+    mutate(
+      quantile_break = case_when(
+        quantile_break == "25%" ~ "q25_group",
+        quantile_break == "50%" ~ "q50_group"
+      )
+    )
 
   data <-
     data %>%
