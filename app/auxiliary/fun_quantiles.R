@@ -2,15 +2,15 @@
 # FUNCTION THAT DEFINES THE QUANTILES BASED ON SELECTED COUNTRY AND COMPARISON GROUP -----------------------
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-def_quantiles <- function(data, selected_country, selected) {
+def_quantiles <- function(data, selected_country, selected, vars) {
 
     quantiles <-
-      global_data %>%
+      data %>%
       filter(
         country_name %in% selected
       ) %>%
-      select(country_name,all_of(vars_all)) %>%
-      summarise_at(vars(vars_all),
+      select(country_name,all_of(vars)) %>%
+      summarise_at(vars(vars),
                    ~ quantile(., c(0.25, 0.5), na.rm = TRUE)) %>%
     t %>%
     as.data.frame() %>%
@@ -20,10 +20,10 @@ def_quantiles <- function(data, selected_country, selected) {
 
 
   data <-
-    global_data %>%
+    data %>%
     filter(country_name == selected_country) %>%
-    select(all_of(vars_all)) %>%
-    pivot_longer(all_of(vars_all)) %>%
+    select(all_of(vars)) %>%
+    pivot_longer(all_of(vars)) %>%
     rename(variable = name,
            dtf = value) %>%
     left_join(quantiles) %>%
