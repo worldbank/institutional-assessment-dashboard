@@ -175,7 +175,7 @@
           left_join(variable_names)
 
         data %>%
-          static_plot %>%
+          static_plot(base_country()) %>%
           interactive_plot(base_country(),
                            comparison_countries())
 
@@ -185,7 +185,7 @@
     output$Labor <- renderPlotly({
       data() %>%
         filter(variable %in% vars_lab)  %>%
-        static_plot %>%
+        static_plot(base_country()) %>%
         interactive_plot(base_country(),
                          comparison_countries())
     })
@@ -194,7 +194,7 @@
     output$Financial <- renderPlotly({
       data() %>%
         filter(variable %in% vars_fin)  %>%
-        static_plot %>%
+        static_plot(base_country()) %>%
         interactive_plot(base_country(),
                          comparison_countries())
     })
@@ -203,7 +203,7 @@
     output$Legal <- renderPlotly({
       data() %>%
         filter(variable %in% vars_leg)  %>%
-        static_plot %>%
+        static_plot(base_country()) %>%
         interactive_plot(base_country(),
                          comparison_countries())
     })
@@ -212,7 +212,7 @@
     output$Political <- renderPlotly({
       data() %>%
         filter(variable %in% vars_pol)  %>%
-        static_plot %>%
+        static_plot(base_country()) %>%
         interactive_plot(base_country(),
                          comparison_countries())
     })
@@ -221,7 +221,7 @@
     output$Social <- renderPlotly({
       data() %>%
         filter(variable %in% vars_social)  %>%
-        static_plot %>%
+        static_plot(base_country()) %>%
         interactive_plot(base_country(),
                          comparison_countries())
     })
@@ -230,7 +230,7 @@
     output$Trade <- renderPlotly({
       data() %>%
         filter(variable %in% vars_mkt)  %>%
-        static_plot %>%
+        static_plot(base_country()) %>%
         interactive_plot(base_country(),
                          comparison_countries())
     })
@@ -239,7 +239,7 @@
     output$Public <- renderPlotly({
       data() %>%
         filter(variable %in% vars_publ)  %>%
-        static_plot %>%
+        static_plot(base_country()) %>%
         interactive_plot(base_country(),
                          comparison_countries())
     })
@@ -248,7 +248,7 @@
     output$Governance <- renderPlotly({
       data() %>%
         filter(variable %in% vars_service_del)  %>%
-        static_plot %>%
+        static_plot(base_country()) %>%
         interactive_plot(base_country(),
                          comparison_countries())
     })
@@ -257,7 +257,7 @@
     output$Account <- renderPlotly({
       data() %>%
         filter(variable %in% vars_transp)  %>%
-        static_plot %>%
+        static_plot(base_country()) %>%
         interactive_plot(base_country(),
                          comparison_countries())
     })

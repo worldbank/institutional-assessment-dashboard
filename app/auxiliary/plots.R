@@ -1,9 +1,10 @@
 
 
   static_plot <-
-    function(x) {
+    function(data,
+             selected_country) {
 
-      ggplot(x) +
+      ggplot(data) +
         geom_segment(
           aes(x = reorder(var_name,
                           -dtf),
@@ -17,9 +18,10 @@
           aes(x = reorder(var_name,
                           -dtf),
               y = dtf,
-              text = map(paste('<b>Country:</b>', selected_country, '<br>',
-                               '<b>Closeness to frontier:</b>', round(dtf, digits = 3), '<br>',
-                               '<b>Classification:</b>', classification), HTML),
+              text = map(paste(
+                '<b>Country:</b>', selected_country, '<br>',
+                '<b>Closeness to frontier:</b>', round(dtf, digits = 3), '<br>',
+                '<b>Classification:</b>', classification), HTML),
               color = classification),
           size = 3)  +
         coord_flip() +
