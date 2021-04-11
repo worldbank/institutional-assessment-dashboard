@@ -371,7 +371,7 @@
           unlist
 
         datatable(global_data %>%
-                    select(country_name,
+                    select(Country=country_name,
                            all_of(vars)) %>%
                     mutate(across(where(is.numeric), round, 3)) %>%
                     data.table::setnames(.,
