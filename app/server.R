@@ -1,5 +1,5 @@
 
-# Load packages --------------------------------------------------------------------------------
+# Load packages ################################################################################
 
   library(shinydashboard)
   library(shiny)
@@ -13,7 +13,9 @@
   library(viridis)
 
 
-# Load data sets --------------------------------------------------------------------------------
+# Inputs ################################################################################
+
+  # Auxiliary functions -----------------------------------------------------------------
 
   source(file.path("auxiliary",
                    "vars-by-family.R"))
@@ -22,13 +24,14 @@
   source(file.path("auxiliary",
                    "fun_quantiles.R"))
 
-  definitions <-
-    read_csv(file.path("data",
-                       "indicator_definitions.csv"))
+  source(file.path("auxiliary",
+                   "plots.R"))
 
-  country_groups <-
+  # Data sets ---------------------------------------------------------------------------
+
+  definitions <-
     read_rds(file.path("data",
-                       "wb_country_groups.rds"))
+                       "indicator_definitions.rds"))
 
   global_data <-
     read_rds(file.path("data",
@@ -46,12 +49,6 @@
     read_rds(file.path("data",
                        "wb_country_list.rds"))
 
-  data_table <-
-    global_data %>%
-    ungroup() %>%
-    select(-c("lac", "lac6", "structural", "oecd","country_code")) %>%
-    mutate(across(where(is.numeric), round, 3))
-
   wb_country_geom <-
     read_rds(file.path("data",
                        "wb_country_geom.rds"))
@@ -67,281 +64,205 @@
       na.color = "#808080"
     )
 
-# Server ---------------------------------------------------------------------------------------------
+# Server ################################################################################
 
   server <- function(input, output, session) {
 
-    selected_tab <- reactive({
-      selected_tab <- input$tab
-      selected_tab
-    })
 
-    observe({
+   # Handle inputs ----------------------------------------------------------------------
 
-      selected_groups  <- input$groups
-      selected_country <- input$country
-
-      # Can use character(0) to remove all choices
-      if (is.null(selected_groups)) {
-        selected <- NULL
-      } else {
-        selected <-
-          country_list %>%
-          filter(group_code %in% selected_groups) %>%
-          select(country_name) %>%
-          unique
-
-        if (!is.null(selected_country)) {
-          selected <-
-            selected %>%
-            filter(country_name != selected_country)
-        }
-
-        selected <-
-          selected %>%
-          pluck(1)
-
-      }
-
-      # Can also set the label and select items
-      updateCheckboxGroupInput(session,
-                               "countries",
-                               label = NULL,
-                               choices = global_data$country_name %>% unique,
-                               selected = selected
+    # Base country
+    base_country <-
+      eventReactive(
+        input$select,
+        input$country
       )
 
-      toggleState(id = "select",
-                  condition = length(selected) >= 10)
+    # Comparison countries
+    comparison_countries <-
+      eventReactive(
+        input$groups,
 
-      req(input$select)
+        {
+          selected_groups  <- input$groups
+          selected_country <- input$country
 
-      if(selected_tab()=="overview"){
+          # Can use character(0) to remove all choices
+          if (is.null(selected_groups)) {
+            selected <- NULL
+          } else {
+            selected <-
+              country_list %>%
+              filter(group_code %in% selected_groups) %>%
+              select(country_name) %>%
+              unique
 
-        vars_tab <- family_names
+            if (!is.null(selected_country)) {
+              selected <-
+                selected %>%
+                filter(country_name != selected_country)
+            }
 
-        plot_family <-
-          ggplotly(
-            ggplot(
-              data =
-                family_level_data %>%
-                def_quantiles(
-                  selected_country,
-                  selected,
-                  vars_tab
-                ) %>%
-                left_join(
-                  variable_names %>%
-                    select(family_var,family_name) %>%
-                    unique,
-                  by=c("variable"="family_var")
-                )
-            ) +
-              geom_segment(
-                aes(x = reorder(family_name,-dtf),
-                    xend = reorder(family_name,-dtf),
-                    y = 0,
-                    yend = dtf,
-                    color = classification),
-                size = 1) +
-              geom_point(
-                aes(x = reorder(family_name,-dtf),
-                    y = dtf,
-                    text = map(paste('<b>Country:</b>', country_name, '<br>',
-                                     '<b>Closeness to frontier:</b>', round(dtf, digits = 3), '<br>',
-                                     '<b>Classification:</b>', classification), HTML),
-                    color = classification),
-                size = 3)  +
-              coord_flip() +
-              scale_color_manual(
-                values =
-                  c("Advanced"="#009E73",
-                    "Emerging"="#E69F00",
-                    "Weak"="#D55E00"
-                  )) +
-              scale_y_continuous(
-                limits = c(0,1)#,
-                #breaks = seq(0,1,0.2))
-              )  +
-              theme_ipsum() +
-              theme(
-                panel.grid.minor.y = element_blank(),
-                panel.grid.major.y = element_blank(),
-                legend.position = "bottom",
-                legend.title = element_blank()
-              ) +
-              ylab("Closeness to frontier") +
-              xlab(""),
-            tooltip = "text") %>%
-            layout(
-              margin = list(b = -1.5),
-              annotations =
-                   list(x = 0, y = -0.25,
-                        text = map(paste0("Note: ",selected_country,", ",selected_groups,".",
-                                         "<br>Closeness to frontier is calculated as (worst-y)/(worst-frontier).",
-                                         "<br>1 identifies the best performer and 0 the worst performer",
-                                         "<br>Weak = bottom 25%; Emerging = 25%-50%; Advanced = top 50%."), HTML),
-                        showarrow = F, xref='paper', yref='paper',
-                        align='left',
-                        font=list(size=9))
+            selected <-
+              selected %>%
+              pluck(1)
+
+          }
+        },
+
+        ignoreNULL = FALSE
+      )
+
+    # Triggered by comparison countries: names of countries selected and action button
+    observeEvent(
+      comparison_countries(),
+
+      {
+        # Can also set the label and select items
+        updateCheckboxGroupInput(session,
+                                 "countries",
+                                 label = NULL,
+                                 choices = global_data$country_name %>% unique,
+                                 selected = comparison_countries()
+          )
+
+          toggleState(id = "select",
+                    condition = length(comparison_countries()) >= 10)
+      },
+
+      ignoreNULL = FALSE
+    )
+
+    # Benchmark data
+    data <-
+      eventReactive(
+        input$select,
+
+        {
+          data <-
+            global_data %>%
+            def_quantiles(
+              base_country(),
+              comparison_countries(),
+              vars_all
             ) %>%
-            config(modeBarButtonsToRemove = c("zoomIn2d",
-                                            "zoomOut2d",
-                                            "pan2d",
-                                            "autoScale2d",
-                                            "lasso2d",
-                                            "select2d",
-                                            "toggleSpikelines",
-                                            "hoverClosest3d",
-                                            "hoverCompareCartesian"))
+            left_join(variable_names)
 
-        # OVERVIEW PLOT ----
-        output$overview <- renderPlotly({
-          plot_family
-        })
+        }
+      )
 
-      }
+   # Plots ---------------------------------------------------------------
 
-      vars_tab <- NULL
+    # Overview
+    output$overview <- renderPlotly({
 
-      if(selected_tab()=="labor"){vars_tab <- vars_lab}
-      if(selected_tab()=="financial"){vars_tab <- vars_fin}
-      if(selected_tab()=="legal"){vars_tab <- vars_leg}
-      if(selected_tab()=="political"){vars_tab <- vars_pol}
-      if(selected_tab()=="social"){vars_tab <- vars_social}
-      if(selected_tab()=="trade"){vars_tab <- vars_mkt}
-      if(selected_tab()=="public"){vars_tab <- vars_publ}
-      if(selected_tab()=="governance"){vars_tab <- vars_lab}
-      if(selected_tab()=="account"){vars_tab <- vars_transp}
+        variable_names <-
+          variable_names %>%
+          select(family_var,
+                 family_name) %>%
+          rename(var_name = family_name,
+                 variable = family_var) %>%
+          unique
 
-      if(!is.null(vars_tab)){
+        data <-
+          family_level_data %>%
+          def_quantiles(
+            base_country(),
+            comparison_countries(),
+            variable_names$variable
+          )  %>%
+          left_join(variable_names)
 
-        plot_global <-
-          ggplotly(
-            ggplot(
-              data =
-                global_data %>%
-                def_quantiles(
-                  selected_country,
-                  selected,
-                  vars_tab
-                ) %>%
-                left_join(
-                  variable_names %>%
-                    select(variable,var_name) %>%
-                    unique,
-                  by="variable"
-                )
-            ) +
-              geom_segment(
-                aes(x = reorder(var_name,-dtf),
-                    xend = reorder(var_name,-dtf),
-                    y = 0,
-                    yend = dtf,
-                    color = classification),
-                size = 1) +
-              geom_point(
-                aes(x = reorder(var_name,-dtf),
-                    y = dtf,
-                    text = map(paste('<b>Country:</b>', country_name, '<br>',
-                                     '<b>Closeness to frontier:</b>', round(dtf, digits = 3), '<br>',
-                                     '<b>Classification:</b>', classification), HTML),
-                    color = classification),
-                size = 3)  +
-              coord_flip() +
-              scale_color_manual(
-                values =
-                  c("Advanced"="#009E73",
-                    "Emerging"="#E69F00",
-                    "Weak"="#D55E00"
-                  )) +
-              scale_y_continuous(
-                limits = c(0,1)#,
-                #breaks = seq(0,1,0.2))
-              )  +
-              theme_ipsum() +
-              theme(
-                panel.grid.minor.y = element_blank(),
-                panel.grid.major.y = element_blank(),
-                legend.position = "bottom",
-                legend.title = element_blank()
-              ) +
-              ylab("Closeness to frontier") +
-              xlab(""),
-            tooltip = "text") %>%
-          layout(
-            margin = list(b = -1.5),
-            annotations =
-              list(x = 0, y = -0.25,
-                   text = map(paste0("Note: ",selected_country,", ",selected_groups,".",
-                                     "<br>Closeness to frontier is calculated as (worst-y)/(worst-frontier).",
-                                     "<br>1 identifies the best performer and 0 the worst performer",
-                                     "<br>Weak = bottom 25%; Emerging = 25%-50%; Advanced = top 50%."), HTML),
-                   showarrow = F, xref='paper', yref='paper',
-                   align='left',
-                   font=list(size=9))
-          ) %>%
-          config(modeBarButtonsToRemove = c("zoomIn2d",
-                                            "zoomOut2d",
-                                            "pan2d",
-                                            "autoScale2d",
-                                            "lasso2d",
-                                            "select2d",
-                                            "toggleSpikelines",
-                                            "hoverClosest3d",
-                                            "hoverCompareCartesian"))
+        data %>%
+          static_plot(base_country()) %>%
+          interactive_plot(base_country(),
+                           comparison_countries())
 
-        # LABOR PLOT ----
-        output$Labor <- renderPlotly({
-          plot_global
-        })
+    })
 
-        # FINANCIAL PLOT ----
-        output$Financial <- renderPlotly({
-          plot_global
-        })
+    # Labor
+    output$Labor <- renderPlotly({
+      data() %>%
+        filter(variable %in% vars_lab)  %>%
+        static_plot(base_country()) %>%
+        interactive_plot(base_country(),
+                         comparison_countries())
+    })
 
-        # LEGAL PLOT ----
-        output$Legal <- renderPlotly({
-          plot_global
-        })
+    # Financial
+    output$Financial <- renderPlotly({
+      data() %>%
+        filter(variable %in% vars_fin)  %>%
+        static_plot(base_country()) %>%
+        interactive_plot(base_country(),
+                         comparison_countries())
+    })
 
-        # POLITICAL PLOT ----
-        output$Political <- renderPlotly({
-          plot_global
-        })
+    # Legal
+    output$Legal <- renderPlotly({
+      data() %>%
+        filter(variable %in% vars_leg)  %>%
+        static_plot(base_country()) %>%
+        interactive_plot(base_country(),
+                         comparison_countries())
+    })
 
-        # SOCIAL PLOT ----
-        output$Social <- renderPlotly({
-          plot_global
-        })
+    # Political
+    output$Political <- renderPlotly({
+      data() %>%
+        filter(variable %in% vars_pol)  %>%
+        static_plot(base_country()) %>%
+        interactive_plot(base_country(),
+                         comparison_countries())
+    })
 
-        # BUSINESS AND TRADE PLOT ----
-        output$Trade <- renderPlotly({
-          plot_global
-        })
+    # Social
+    output$Social <- renderPlotly({
+      data() %>%
+        filter(variable %in% vars_social)  %>%
+        static_plot(base_country()) %>%
+        interactive_plot(base_country(),
+                         comparison_countries())
+    })
 
-        # PUBLIC SECTOR PLOT ----
-        output$Public <- renderPlotly({
-          plot_global
-        })
+    # Business
+    output$Trade <- renderPlotly({
+      data() %>%
+        filter(variable %in% vars_mkt)  %>%
+        static_plot(base_country()) %>%
+        interactive_plot(base_country(),
+                         comparison_countries())
+    })
 
-        # GOVERNANCE OF SOEs PLOT ----
-        output$Governance <- renderPlotly({
-          plot_global
-        })
+    # Public sector
+    output$Public <- renderPlotly({
+      data() %>%
+        filter(variable %in% vars_publ)  %>%
+        static_plot(base_country()) %>%
+        interactive_plot(base_country(),
+                         comparison_countries())
+    })
 
-        # ACCOUNTABILITY PLOT ----
-        output$Account <- renderPlotly({
-          plot_global
-        })
+    # Governance of SOEs
+    output$Governance <- renderPlotly({
+      data() %>%
+        filter(variable %in% vars_service_del)  %>%
+        static_plot(base_country()) %>%
+        interactive_plot(base_country(),
+                         comparison_countries())
+    })
 
-      }
+    # Accountability
+    output$Account <- renderPlotly({
+      data() %>%
+        filter(variable %in% vars_transp)  %>%
+        static_plot(base_country()) %>%
+        interactive_plot(base_country(),
+                         comparison_countries())
+    })
 
+   # Map -----------------------------------------------------------------------------------
 
-    }) # Close observer
-
-    # MAP ----
     output$map_plot <- renderLeaflet({
       leaflet(data=wb_country_geom) %>%
         addProviderTiles(providers$CartoDB.Positron, options = providerTileOptions(opacity = 1), group = "CartoDB.Positron") %>%
@@ -440,7 +361,7 @@
 
     })
 
-    # Data table ---------------------------------------------------------------
+   # Data table ---------------------------------------------------------------
     output$dataset <-
       renderDataTable(server = FALSE, {
 
@@ -449,10 +370,14 @@
           map(get) %>%
           unlist
 
-        datatable(data_table %>%
-                    select(country_name,
+        datatable(global_data %>%
+                    select(Country=country_name,
                            all_of(vars)) %>%
-                    data.table::setnames(., as.character(variable_names$variable), as.character(variable_names$var_name), skip_absent = TRUE),
+                    mutate(across(where(is.numeric), round, 3)) %>%
+                    data.table::setnames(.,
+                                         as.character(variable_names$variable),
+                                         as.character(variable_names$var_name),
+                                         skip_absent = TRUE),
                   rownames = FALSE,
                   extensions = 'Buttons',
                   filter = 'top',
@@ -466,13 +391,6 @@
 
 
    # Definitions ------------------------------------------------------------
-
-    families <- definitions$family
-
-    definitions <-
-      definitions %>%
-      select(-c(family, var_name)) %>%
-      split(families)
 
     output$account_def <-
       renderTable(definitions[["Accountability institutions"]])
@@ -500,7 +418,6 @@
 
     output$social_def <-
       renderTable(definitions[["Social Institutions"]])
-
 
   }
 
