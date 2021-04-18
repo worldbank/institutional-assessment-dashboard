@@ -5,6 +5,7 @@
   library(bslib)
   library(DT)
   library(shinyjs)
+  library(plotly)
 
 # Inputs ################################################################################
 
