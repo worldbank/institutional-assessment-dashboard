@@ -55,7 +55,7 @@
           margin = list(b = -1.5),
           annotations =
             list(x = 0, y = -0.25,
-                 text = map(paste0("Note: ",y,", ",z,".",
+                 text = map(paste0("Note: ",y,",",paste(z, collapse = ","),".",
                                    "<br>Closeness to frontier is calculated as (worst-y)/(worst-frontier).",
                                    "<br>1 identifies the best performer and 0 the worst performer",
                                    "<br>Weak = bottom 25%; Emerging = 25%-50%; Advanced = top 50%."), HTML),
@@ -73,6 +73,7 @@
                                           "select2d",
                                           "toggleSpikelines",
                                           "hoverClosest3d",
+                                          "hoverClosestCartesian",
                                           "hoverCompareCartesian"))
 
     }
