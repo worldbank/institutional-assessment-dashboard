@@ -83,17 +83,24 @@
       x %>%
         ggplotly(tooltip = "text") %>%
         layout(
-          margin = list(b = -1.5)
-        ) %>%
-        config(modeBarButtonsToRemove = c("zoomIn2d",
-                                          "zoomOut2d",
-                                          "pan2d",
-                                          "autoScale2d",
-                                          "lasso2d",
-                                          "select2d",
-                                          "toggleSpikelines",
-                                          "hoverClosest3d",
-                                          "hoverCompareCartesian"))
+          margin = list(b = -1.5),
+          legend = list(orientation = 'h',
+                            y=0.1,
+                            x=0.5,
+                            xanchor = "center",
+                            bordercolor = "#00000",
+                            borderwidth = 1
+          )
+        ) #%>%
+        #config(modeBarButtonsToRemove = c(#"zoomIn2d",
+                                          #"zoomOut2d",
+                                          #"pan2d",
+                                          #"autoScale2d",
+                                          #"lasso2d",
+                                          #"select2d",
+                                          #"toggleSpikelines",
+                                          #"hoverClosest3d",
+                                          #"hoverCompareCartesian"))
 
     }
 
