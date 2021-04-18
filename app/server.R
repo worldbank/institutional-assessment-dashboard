@@ -294,6 +294,42 @@
                          dom = "lBtipr"))
       })
 
+    # Downloadable rds of selected dataset
+
+    output$download_global_rds <-
+      downloadHandler(
+        filename = "data.rds",
+
+        content = function(file) {
+          write_rds(global_data,
+                    file)
+        }
+      )
+
+    # Downloadable csv of selected dataset
+
+    output$download_global_csv <-
+      downloadHandler(
+        filename = "data.csv",
+
+        content = function(file) {
+          write_csv(global_data,
+                    file)
+        }
+      )
+
+    # Downloadable dta of selected dataset
+
+    output$download_global_dta <-
+      downloadHandler(
+        filename = "data.dta",
+
+        content = function(file) {
+          write_dta(global_data,
+                    file)
+        }
+      )
+
 
    # Definitions ===========================================================================
 
