@@ -60,7 +60,57 @@
     ),
 
     # Benchmarking tab ===================================================================================================
-    tabPanel("Country benchmarking"
+    tabPanel("Country benchmarking",
+
+             fluidRow(
+               column(width = 1),
+
+               column(width = 10,
+
+                      sidebarLayout(
+                        sidebarPanel(width = 3,
+                                     selectInput("country",
+                                                 label = "Select a based country",
+                                                 choices = c("", country_list$country_name %>% unique %>% sort),
+                                                 selected = "Uruguay",
+                                                 multiple = FALSE),
+
+
+                                     checkboxGroupInput("groups",
+                                                        label = "Select a comparison group",
+                                                        choiceNames = country_groups$group_name,
+                                                        choiceValues = country_groups$group_code,
+                                                        selected = "OED"),
+
+                                     actionButton(
+                                       "select",
+                                       "Apply selection",
+                                       icon = icon("check"),
+                                       class = "btn-success",
+                                       style="color: #fff"
+                                     )
+                        ),
+
+                        mainPanel(width = 8,
+                                  tabsetPanel(
+                                    tabPanel("Overview",
+                                             conditionalPanel("input.select !== 0",
+                                                              plotlyOutput("overview")
+                                             )
+                                    ),
+
+                                    tabPanel("Labor market institutions",
+                                             conditionalPanel("input.select !== 0",
+                                                              plotlyOutput("Labor")
+                                             ),
+                                             bsCollapsePanel("See indicator definitions",
+                                                             tableOutput('labor_def'))
+                                    )
+                        )
+                      )
+               )
+             )
+             )
     ),
 
     # Map tab ===============================================================================================================

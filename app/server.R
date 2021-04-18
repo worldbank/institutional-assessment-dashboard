@@ -8,6 +8,7 @@
   library(data.table)
   library(plotly)
   library(sf)
+  library(hrbrthemes)
 
 
 # Inputs ################################################################################
@@ -152,30 +153,29 @@
     # Overview
     output$overview <- renderPlotly({
 
-        variable_names <-
-          variable_names %>%
-          select(family_var,
-                 family_name) %>%
-          rename(var_name = family_name,
-                 variable = family_var) %>%
-          unique
+      variable_names <-
+        variable_names %>%
+        select(family_var,
+               family_name) %>%
+        rename(var_name = family_name,
+               variable = family_var) %>%
+        unique
 
-        data <-
-          family_level_data %>%
-          def_quantiles(
-            base_country(),
-            comparison_countries(),
-            variable_names$variable
-          )  %>%
-          left_join(variable_names)
+      data <-
+        family_level_data %>%
+        def_quantiles(
+          base_country(),
+          comparison_countries(),
+          variable_names$variable
+        )  %>%
+        left_join(variable_names)
 
-        data %>%
-          static_plot(base_country()) %>%
-          interactive_plot(base_country(),
-                           comparison_countries())
+      data %>%
+        static_plot(base_country()) %>%
+        interactive_plot(base_country(),
+                         comparison_countries())
 
     })
-
     # Labor
     output$Labor <- renderPlotly({
       data() %>%
