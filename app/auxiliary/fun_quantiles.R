@@ -37,7 +37,7 @@ def_quantiles <- function(data, base_country, comparison_countries, vars) {
     pivot_longer(all_of(vars)) %>%
     rename(variable = name,
            dtf = value) %>%
-    left_join(quantiles, by="variable") %>%
+    left_join(quantiles) %>%
     mutate(
       classification = case_when(
         dtf >= q50 ~ "Advanced",
@@ -45,8 +45,7 @@ def_quantiles <- function(data, base_country, comparison_countries, vars) {
         dtf > q25 & dtf < q50 ~ "Emerging"
       )
     ) %>%
-    filter(!is.na(dtf)) %>%
-    left_join(variable_names, by="variable")
+    filter(!is.na(dtf))
 
   return(data)
 
