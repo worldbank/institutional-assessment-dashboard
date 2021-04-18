@@ -5,6 +5,7 @@
   library(shinyjs)
   library(tidyverse)
   library(DT)
+  library(data.table)
   library(plotly)
   library(sf)
 
@@ -261,7 +262,8 @@
 
 
    # Data table =================================================================================
-    output$dataset <-
+
+    output$benchmark_datatable <-
       renderDataTable(server = FALSE, {
 
         vars <-
@@ -269,23 +271,27 @@
           map(get) %>%
           unlist
 
-        datatable(global_data %>%
-                    select(country_name,
-                           all_of(vars)) %>%
-                    mutate(across(where(is.numeric), round, 3)) %>%
-                    data.table::setnames(.,
-                                         as.character(variable_names$variable),
-                                         as.character(variable_names$var_name),
-                                         skip_absent = TRUE),
-                  rownames = FALSE,
-                  extensions = 'Buttons',
-                  filter = 'top',
-                  options = list(scrollX = TRUE,
-                                 pageLength = 13,
-                                 fixedColumns = TRUE,
-                                 autoWidth = TRUE,
-                                 dom = "lBtipr",
-                                 buttons = c('copy', 'csv', 'excel')))
+        data <-
+          global_data %>%
+          select(country_name,
+                 all_of(vars)) %>%
+          rename(Country = country_name) %>%
+          mutate(across(where(is.numeric),
+                        round, 3))
+
+        datatable(
+          data %>%
+            setnames(.,
+                     as.character(variable_names$variable),
+                     as.character(variable_names$var_name),
+                     skip_absent = TRUE),
+          rownames = FALSE,
+          filter = 'top',
+          options = list(scrollX = TRUE,
+                         pageLength = 13,
+                         fixedColumns = TRUE,
+                         autoWidth = TRUE,
+                         dom = "lBtipr"))
       })
 
 

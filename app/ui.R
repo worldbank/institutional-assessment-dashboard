@@ -70,7 +70,56 @@
 
     # Data tab ===============================================================================================================
 
-    tabPanel("Browse the data"
+    tabPanel("Browse the data",
+
+             fluidRow(
+               column(width = 1),
+
+               column(width = 10,
+
+                      sidebarLayout(
+
+                        sidebarPanel(id = "met_sidebar",
+                                     width = 3,
+
+                                     selectInput("data",
+                                                 label = HTML("<b>Select a dataset</b>"),
+                                                 choices = c("Closeness to frontier",
+                                                             "Compiled indicators"),
+                                                 multiple = FALSE),
+
+                                     checkboxGroupInput("vars",
+                                                        label = HTML("<b>Select institutional families</b>"),
+                                                        choiceNames = c("Governance of SOEs",
+                                                                        "Accountability institutions",
+                                                                        "Business & trade institutions",
+                                                                        "Financial institutions",
+                                                                        "Labor market institutions",
+                                                                        "Legal institutions",
+                                                                        "Political institutions",
+                                                                        "Public sector institutions  ",
+                                                                        "Social institutions"
+                                                        ),
+                                                        choiceValues = family_names,
+                                                        selected = family_names,
+                                                        width = "100%"
+
+                                     ),
+
+                                     downloadButton("download_global_rds", "Download .rds"),
+                                     br(),
+                                     downloadButton("download_global_csv", "Download .csv"),
+                                     br(),
+                                     downloadButton("download_global_dta", "Download .dta")
+                        ),
+
+                        mainPanel(width = 9,
+                                  dataTableOutput("benchmark_datatable")
+
+                        )
+                      )
+               )
+             )
     ),
 
     # Methodology tab ===============================================================================================================
