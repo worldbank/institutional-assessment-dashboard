@@ -329,6 +329,7 @@
                          fixedColumns = TRUE,
                          autoWidth = TRUE,
                          dom = "lBtipr"))
+
       })
 
     # Downloadable rds of selected dataset
