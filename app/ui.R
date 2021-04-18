@@ -137,7 +137,7 @@
                             options = list(
                               `live-search` = TRUE,
                               size = 15,
-                              title = "Selected one indicator"
+                              title = "Select indicator"
                             ),
                             width = "100%"
                           )
