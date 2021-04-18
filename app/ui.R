@@ -6,6 +6,7 @@
   library(DT)
   library(shinyjs)
   library(plotly)
+  library(tidyverse)
 
 # Inputs ################################################################################
 
