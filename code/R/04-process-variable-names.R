@@ -29,7 +29,11 @@ variable_names <-
   select(variable=name,-value) %>%
   unique %>%
   arrange(variable) %>%
+  add_row(
+    variable = family_names
+  ) %>%
   mutate(
+    var_level = ifelse(variable %in% family_names,"family","indicator"),
     var_name =
       case_when(
         variable == "centregov_mean" ~ "Centre of Government, influence",
