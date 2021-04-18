@@ -1,12 +1,10 @@
 # Load packages ###########################################################################
 
-  library(shinydashboard)
   library(shiny)
-  library(shinyjs)
-  library(tidyverse)
+  library(shinyBS)
+  library(bslib)
   library(DT)
-  library(plotly)
-  library(leaflet)
+  library(shinyjs)
 
 # Inputs ################################################################################
 
