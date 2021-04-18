@@ -98,6 +98,7 @@
                                           #"autoScale2d",
                                           #"lasso2d",
                                           #"select2d",
+                                          "hoverClosestCartesian",
                                           "toggleSpikelines",
                                           "hoverClosest3d",
                                           "hoverCompareCartesian"))
