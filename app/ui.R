@@ -65,7 +65,30 @@
 
     # Map tab ===============================================================================================================
 
-    tabPanel("World map"
+    tabPanel("World map",
+
+             fluidRow(
+               column(width = 1),
+
+               column(width = 10,
+
+                      sidebarLayout(
+                        sidebarPanel(
+                          width = 2,
+                          selectInput("vars_map",
+                                      label = "Select indicator to display",
+                                      choice = c("", sort(variable_names$var_name)),
+                                      width = "100%")
+                        ),
+
+                        mainPanel(
+                          width = 10,
+                          plotlyOutput("map",
+                                       height = "600px")
+                        )
+                      )
+               )
+             )
     ),
 
     # Data tab ===============================================================================================================

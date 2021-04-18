@@ -45,9 +45,9 @@
     read_rds(file.path("data",
                        "dtf_family_level.rds"))
 
-  wb_country_geom <-
+  wb_country_geom_fact <-
     read_rds(file.path("data",
-                       "wb_country_geom.rds"))
+                       "wb_country_geom_fact.rds"))
 
   # Metadata
   variable_names <-
@@ -259,7 +259,44 @@
 
    # Map =======================================================================================
 
+    output$map <-
+      renderPlotly({
 
+        if (input$vars_map == "") {
+
+          map <-
+            ggplot(wb_country_geom_fact) +
+            geom_sf(aes(text = paste0(WB_NAME))) +
+            theme_void()
+
+          interactive_map(map)
+
+        } else {
+
+          var_selected <-
+            variable_names %>%
+            filter(var_name == input$vars_map) %>%
+            .$variable
+
+          map <-
+            ggplot(wb_country_geom_fact) +
+            geom_sf(aes(fill = get(var_selected),
+                        text = paste0(WB_NAME, ":",
+                                      get(paste0(var_selected, "_value"))))) +
+            scale_fill_manual(values = c("#D55E00",
+                                         "#DD7C00",
+                                         "#E69F00",
+                                         "#579E47",
+                                         "#009E73"),
+                              na.value = "#808080") +
+            labs(title = input$vars_map,
+                 fill = "Closeness to \n frontier") +
+            theme_void()
+
+          interactive_map(map)
+        }
+
+      })
 
    # Data table =================================================================================
 

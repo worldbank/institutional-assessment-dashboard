@@ -77,3 +77,22 @@
 
     }
 
+  interactive_map <-
+    function(x) {
+      x %>%
+        ggplotly(tooltip = "text") %>%
+        layout(
+          margin = list(b = -1.5)
+        ) %>%
+        config(modeBarButtonsToRemove = c("zoomIn2d",
+                                          "zoomOut2d",
+                                          "pan2d",
+                                          "autoScale2d",
+                                          "lasso2d",
+                                          "select2d",
+                                          "toggleSpikelines",
+                                          "hoverClosest3d",
+                                          "hoverCompareCartesian"))
+
+    }
+
