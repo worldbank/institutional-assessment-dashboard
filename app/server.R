@@ -147,7 +147,6 @@
                     }
       )
 
-
    # Plots =============================================================================
 
     # Overview
@@ -173,7 +172,7 @@
       data %>%
         static_plot(base_country()) %>%
         interactive_plot(base_country(),
-                         comparison_countries())
+                         input$groups)
 
     })
     # Labor
@@ -182,7 +181,7 @@
         filter(variable %in% vars_lab)  %>%
         static_plot(base_country()) %>%
         interactive_plot(base_country(),
-                         comparison_countries())
+                         input$groups)
     })
 
     # Financial
@@ -191,7 +190,7 @@
         filter(variable %in% vars_fin)  %>%
         static_plot(base_country()) %>%
         interactive_plot(base_country(),
-                         comparison_countries())
+                         input$groups)
     })
 
     # Legal
@@ -200,7 +199,7 @@
         filter(variable %in% vars_leg)  %>%
         static_plot(base_country()) %>%
         interactive_plot(base_country(),
-                         comparison_countries())
+                         input$groups)
     })
 
     # Political
@@ -209,7 +208,7 @@
         filter(variable %in% vars_pol)  %>%
         static_plot(base_country()) %>%
         interactive_plot(base_country(),
-                         comparison_countries())
+                         input$groups)
     })
 
     # Social
@@ -218,7 +217,7 @@
         filter(variable %in% vars_social)  %>%
         static_plot(base_country()) %>%
         interactive_plot(base_country(),
-                         comparison_countries())
+                         input$groups)
     })
 
     # Business
@@ -227,7 +226,7 @@
         filter(variable %in% vars_mkt)  %>%
         static_plot(base_country()) %>%
         interactive_plot(base_country(),
-                         comparison_countries())
+                         input$groups)
     })
 
     # Public sector
@@ -236,7 +235,7 @@
         filter(variable %in% vars_publ)  %>%
         static_plot(base_country()) %>%
         interactive_plot(base_country(),
-                         comparison_countries())
+                         input$groups)
     })
 
     # Governance of SOEs
@@ -245,7 +244,7 @@
         filter(variable %in% vars_service_del)  %>%
         static_plot(base_country()) %>%
         interactive_plot(base_country(),
-                         comparison_countries())
+                         input$groups)
     })
 
     # Accountability
@@ -254,7 +253,7 @@
         filter(variable %in% vars_transp)  %>%
         static_plot(base_country()) %>%
         interactive_plot(base_country(),
-                         comparison_countries())
+                         input$groups)
     })
 
    # Map =======================================================================================
