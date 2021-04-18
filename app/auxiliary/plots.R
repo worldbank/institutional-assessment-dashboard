@@ -91,16 +91,16 @@
                             bordercolor = "#00000",
                             borderwidth = 1
           )
-        ) #%>%
-        #config(modeBarButtonsToRemove = c(#"zoomIn2d",
+        ) %>%
+        config(modeBarButtonsToRemove = c(#"zoomIn2d",
                                           #"zoomOut2d",
                                           #"pan2d",
                                           #"autoScale2d",
                                           #"lasso2d",
                                           #"select2d",
-                                          #"toggleSpikelines",
-                                          #"hoverClosest3d",
-                                          #"hoverCompareCartesian"))
+                                          "toggleSpikelines",
+                                          "hoverClosest3d",
+                                          "hoverCompareCartesian"))
 
     }
 
