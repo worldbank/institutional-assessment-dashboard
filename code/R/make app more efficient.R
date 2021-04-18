@@ -28,12 +28,14 @@ wb_country_geom_fact <-
 
 wb_country_geom <-
   wb_country_geom %>%
-  rename_at(vars(vars_pol:trust_pol),
-            ~ (paste0(., "_value"))) %>%
+  st_drop_geometry() %>%
+  rename_with(
+    ~ paste0(., "_value"),
+    where(is.numeric),
+  ) %>%
   mutate_at(vars(ends_with("_value")),
             ~ round(., 3) %>% as.character()) %>%
-  as_tibble() %>%
-  dplyr::select(-geometry)
+  as_tibble()
 
 wb_country_geom_fact <-
   wb_country_geom_fact %>%
