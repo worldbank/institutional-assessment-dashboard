@@ -261,16 +261,7 @@
     output$map <-
       renderPlotly({
 
-        if (input$vars_map == "") {
-
-          map <-
-            ggplot(wb_country_geom_fact) +
-            geom_sf(aes(text = paste0(WB_NAME))) +
-            theme_void()
-
-          interactive_map(map)
-
-        } else {
+        if (input$vars_map != "") {
 
           var_selected <-
             variable_names %>%
@@ -281,16 +272,21 @@
             ggplot(wb_country_geom_fact) +
             geom_sf(aes(fill = get(var_selected),
                         text = paste0(WB_NAME, ":",
-                                      get(paste0(var_selected, "_value"))))) +
-            scale_fill_manual(values = c("#D55E00",
-                                         "#DD7C00",
-                                         "#E69F00",
-                                         "#579E47",
-                                         "#009E73"),
-                              na.value = "#808080") +
+                                      get(paste0(var_selected, "_value")))),
+                    color="black",
+                    size=0.1
+                    ) +
+            scale_fill_manual(values = c("0.0 - 0.2" = "#D55E00",
+                                         "0.2 - 0.4" = "#DD7C00",
+                                         "0.4 - 0.6" = "#E69F00",
+                                         "0.6 - 0.8" = "#579E47",
+                                         "0.8 - 1.0" = "#009E73",
+                                         "Not avaiable" = "#808080"),
+                              na.value = "#808080",
+                              drop=F) +
             labs(title = input$vars_map,
                  fill = "Closeness to \n frontier") +
-            theme_void()
+            theme_bw()
 
           interactive_map(map)
         }
