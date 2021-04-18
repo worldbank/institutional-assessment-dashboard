@@ -7,7 +7,7 @@ def_quantiles <- function(data, base_country, comparison_countries, vars) {
     quantiles <-
       data %>%
       filter(
-        country_name %in% comparison_countries
+        country_name == base_country | country_name %in% comparison_countries
       ) %>%
       select(country_name,
              all_of(vars)) %>%

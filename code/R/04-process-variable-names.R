@@ -29,7 +29,11 @@ variable_names <-
   select(variable=name,-value) %>%
   unique %>%
   arrange(variable) %>%
+  add_row(
+    variable = family_names
+  ) %>%
   mutate(
+    var_level = ifelse(variable %in% family_names,"family","indicator"),
     var_name =
       case_when(
         variable == "centregov_mean" ~ "Centre of Government, influence",
@@ -136,31 +140,40 @@ variable_names <-
         variable == "v2juaccnt" ~ "Judicial accountability",
         variable == "v2lgfemleg" ~ "Lower chamber female legislator",
         variable == "v2xcs_ccsi" ~ "Core civil society index",
-        variable == "wef_border_admin" ~ "Efficiency and transparency of boarder administration"
+        variable == "wef_border_admin" ~ "Efficiency and transparency of boarder administration",
+        variable == "vars_leg" ~ "Legal institutions",
+        variable == "vars_pol" ~ "Political institutions",
+        variable == "vars_publ" ~ "Public sector institutions",
+        variable == "vars_social" ~ "Social institutions",
+        variable == "vars_transp" ~ "Accountability institutions",
+        variable == "vars_mkt" ~ "Business & trade institutions",
+        variable == "vars_lab" ~ "Labor market institutions",
+        variable == "vars_fin" ~ "Financial institutions",
+        variable == "vars_service_del" ~ "Governance of SOEs"
       ),
     family_var =
       case_when(
-        variable %in% vars_leg ~ "vars_leg",
-        variable %in% vars_pol ~ "vars_pol",
-        variable %in% vars_publ ~ "vars_publ",
-        variable %in% vars_social ~ "vars_social",
-        variable %in% vars_transp ~ "vars_transp",
-        variable %in% vars_mkt ~ "vars_mkt",
-        variable %in% vars_lab ~ "vars_lab",
-        variable %in% vars_fin ~ "vars_fin",
-        variable %in% vars_service_del ~ "vars_service_del"
+        variable %in% vars_leg | variable == "vars_leg" ~ "vars_leg",
+        variable %in% vars_pol | variable == "vars_pol" ~ "vars_pol",
+        variable %in% vars_publ | variable == "vars_publ" ~ "vars_publ",
+        variable %in% vars_social | variable == "vars_social" ~ "vars_social",
+        variable %in% vars_transp | variable == "vars_transp" ~ "vars_transp",
+        variable %in% vars_mkt | variable == "vars_mkt" ~ "vars_mkt",
+        variable %in% vars_lab | variable == "vars_lab" ~ "vars_lab",
+        variable %in% vars_fin | variable == "vars_fin" ~ "vars_fin",
+        variable %in% vars_service_del | variable == "vars_service_del" ~ "vars_service_del"
       ),
     family_name =
       case_when(
-        variable %in% vars_leg ~ "Legal institutions",
-        variable %in% vars_pol ~ "Political institutions",
-        variable %in% vars_publ ~ "Public sector institutions",
-        variable %in% vars_social ~ "Social institutions",
-        variable %in% vars_transp ~ "Accountability institutions",
-        variable %in% vars_mkt ~ "Business & trade institutions",
-        variable %in% vars_lab ~ "Labor market institutions",
-        variable %in% vars_fin ~ "Financial institutions",
-        variable %in% vars_service_del ~ "Governance of SOEs"
+        variable %in% vars_leg | variable == "vars_leg" ~ "Legal institutions",
+        variable %in% vars_pol | variable == "vars_pol" ~ "Political institutions",
+        variable %in% vars_publ | variable == "vars_publ" ~ "Public sector institutions",
+        variable %in% vars_social | variable == "vars_social" ~ "Social institutions",
+        variable %in% vars_transp | variable == "vars_transp" ~ "Accountability institutions",
+        variable %in% vars_mkt | variable == "vars_mkt" ~ "Business & trade institutions",
+        variable %in% vars_lab | variable == "vars_lab" ~ "Labor market institutions",
+        variable %in% vars_fin | variable == "vars_fin" ~ "Financial institutions",
+        variable %in% vars_service_del | variable == "vars_service_del" ~ "Governance of SOEs"
       )
   ) %>%
   arrange(family_var)
