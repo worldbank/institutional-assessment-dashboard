@@ -127,10 +127,20 @@
                       sidebarLayout(
                         sidebarPanel(
                           width = 2,
-                          selectInput("vars_map",
-                                      label = "Select indicator to display",
-                                      choice = c("", sort(variable_names$var_name)),
-                                      width = "100%")
+                          pickerInput(
+                            "vars_map",
+                            label = NULL,
+                            choices = list(
+                              `Family Level` = c(sort(unique(variable_names$family_name))),
+                              `Indicator Level` = c(sort(unique(variable_names$var_name)))
+                            ),
+                            options = list(
+                              `live-search` = TRUE,
+                              size = 15,
+                              title = "Selected one indicator"
+                            ),
+                            width = "100%"
+                          )
                         ),
 
                         mainPanel(
