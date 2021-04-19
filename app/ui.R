@@ -107,7 +107,72 @@
                                              ),
                                              bsCollapsePanel("See indicator definitions",
                                                              tableOutput('labor_def'))
+                                    ),
+
+                                    tabPanel("Financial institutions",
+                                             conditionalPanel("input.select !== 0",
+                                                              plotlyOutput("Financial")
+                                             ),
+                                             bsCollapsePanel("See indicator definitions",
+                                                             tableOutput('fin_def'))
+                                    ),
+
+                                    tabPanel("Legal institutions",
+                                             conditionalPanel("input.select !== 0",
+                                                              plotlyOutput("Legal")
+                                             ),
+                                             bsCollapsePanel("See indicator definitions",
+                                                             tableOutput('legal_def'))
+                                    ),
+
+                                    tabPanel("Political institutions",
+                                             conditionalPanel("input.select !== 0",
+                                                              plotlyOutput("Political")
+                                             ),
+                                             bsCollapsePanel("See indicator definitions",
+                                                             tableOutput('political_def'))
+                                    ),
+
+                                    tabPanel("Social institutions",
+                                             conditionalPanel("input.select !== 0",
+                                                              plotlyOutput("Social")
+                                             ),
+                                             bsCollapsePanel("See indicator definitions",
+                                                             tableOutput('social_def'))
+                                    ),
+
+                                    tabPanel("Business & Trade institutions",
+                                             conditionalPanel("input.select !== 0",
+                                                              plotlyOutput("Trade")
+                                             ),
+                                             bsCollapsePanel("See indicator definitions",
+                                                             tableOutput('business_def'))
+                                    ),
+
+                                    tabPanel("Public sector institutions",
+                                             conditionalPanel("input.select !== 0",
+                                                              plotlyOutput("Public")
+                                             ),
+                                             bsCollapsePanel("See indicator definitions",
+                                                             tableOutput('perf_def'))
+                                    ),
+
+                                    tabPanel("Institutions for service delivery",
+                                             conditionalPanel("input.select !== 0",
+                                                              plotlyOutput("Governance")
+                                             ),
+                                             bsCollapsePanel("See indicator definitions",
+                                                             tableOutput('serv_def'))
+                                    ),
+
+                                    tabPanel("Accountability institutions",
+                                             conditionalPanel("input.select !== 0",
+                                                              plotlyOutput("Account")
+                                             ),
+                                             bsCollapsePanel("See indicator definitions",
+                                                             tableOutput('account_def'))
                                     )
+
                         )
                       )
                )
