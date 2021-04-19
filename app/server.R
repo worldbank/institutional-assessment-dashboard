@@ -9,6 +9,7 @@
   library(plotly)
   library(sf)
   library(hrbrthemes)
+  library(stringr)
 
 
 # Inputs ################################################################################
@@ -147,6 +148,12 @@
                     }
       )
 
+    # Plot title according to panel selected
+    plot_title <- reactive({
+      input$tabsetpanel_id
+    })
+
+
    # Plots =============================================================================
 
     # Overview
@@ -170,90 +177,100 @@
         left_join(variable_names)
 
       data %>%
-        static_plot(base_country()) %>%
+        static_plot(base_country(),plot_title()) %>%
         interactive_plot(base_country(),
-                         input$groups)
+                         input$groups,
+                         plot_title())
 
     })
     # Labor
     output$Labor <- renderPlotly({
       data() %>%
         filter(variable %in% vars_lab)  %>%
-        static_plot(base_country()) %>%
+        static_plot(base_country(),plot_title()) %>%
         interactive_plot(base_country(),
-                         input$groups)
+                         input$groups,
+                         plot_title())
     })
 
     # Financial
     output$Financial <- renderPlotly({
       data() %>%
         filter(variable %in% vars_fin)  %>%
-        static_plot(base_country()) %>%
+        static_plot(base_country(),plot_title()) %>%
         interactive_plot(base_country(),
-                         input$groups)
+                         input$groups,
+                         plot_title())
     })
 
     # Legal
     output$Legal <- renderPlotly({
       data() %>%
         filter(variable %in% vars_leg)  %>%
-        static_plot(base_country()) %>%
+        static_plot(base_country(),plot_title()) %>%
         interactive_plot(base_country(),
-                         input$groups)
+                         input$groups,
+                         plot_title())
     })
 
     # Political
     output$Political <- renderPlotly({
       data() %>%
         filter(variable %in% vars_pol)  %>%
-        static_plot(base_country()) %>%
+        static_plot(base_country(),plot_title()) %>%
         interactive_plot(base_country(),
-                         input$groups)
+                         input$groups,
+                         plot_title())
     })
 
     # Social
     output$Social <- renderPlotly({
       data() %>%
         filter(variable %in% vars_social)  %>%
-        static_plot(base_country()) %>%
+        static_plot(base_country(),plot_title()) %>%
         interactive_plot(base_country(),
-                         input$groups)
+                         input$groups,
+                         plot_title())
     })
 
     # Business
     output$Trade <- renderPlotly({
       data() %>%
         filter(variable %in% vars_mkt)  %>%
-        static_plot(base_country()) %>%
+        static_plot(base_country(),plot_title()) %>%
         interactive_plot(base_country(),
-                         input$groups)
+                         input$groups,
+                         plot_title())
     })
 
     # Public sector
     output$Public <- renderPlotly({
       data() %>%
         filter(variable %in% vars_publ)  %>%
-        static_plot(base_country()) %>%
+        static_plot(base_country(),plot_title()) %>%
         interactive_plot(base_country(),
-                         input$groups)
+                         input$groups,
+                         plot_title())
     })
 
     # Governance of SOEs
     output$Governance <- renderPlotly({
       data() %>%
         filter(variable %in% vars_service_del)  %>%
-        static_plot(base_country()) %>%
+        static_plot(base_country(),plot_title()) %>%
         interactive_plot(base_country(),
-                         input$groups)
+                         input$groups,
+                         plot_title())
     })
 
     # Accountability
     output$Account <- renderPlotly({
       data() %>%
         filter(variable %in% vars_transp)  %>%
-        static_plot(base_country()) %>%
+        static_plot(base_country(),plot_title()) %>%
         interactive_plot(base_country(),
-                         input$groups)
+                         input$groups,
+                         plot_title())
     })
 
    # Map =======================================================================================
@@ -261,16 +278,7 @@
     output$map <-
       renderPlotly({
 
-        if (input$vars_map == "") {
-
-          map <-
-            ggplot(wb_country_geom_fact) +
-            geom_sf(aes(text = paste0(WB_NAME))) +
-            theme_void()
-
-          interactive_map(map)
-
-        } else {
+        if (input$vars_map != "") {
 
           var_selected <-
             variable_names %>%
@@ -281,18 +289,24 @@
             ggplot(wb_country_geom_fact) +
             geom_sf(aes(fill = get(var_selected),
                         text = paste0(WB_NAME, ":",
-                                      get(paste0(var_selected, "_value"))))) +
-            scale_fill_manual(values = c("#D55E00",
-                                         "#DD7C00",
-                                         "#E69F00",
-                                         "#579E47",
-                                         "#009E73"),
-                              na.value = "#808080") +
-            labs(title = input$vars_map,
-                 fill = "Closeness to \n frontier") +
-            theme_void()
+                                      get(paste0(var_selected, "_value")))),
+                    color="black",
+                    size=0.1
+                    ) +
+            scale_fill_manual(
+              name = NULL,
+              values = c("0.0 - 0.2" = "#D55E00",
+                         "0.2 - 0.4" = "#DD7C00",
+                         "0.4 - 0.6" = "#E69F00",
+                         "0.6 - 0.8" = "#579E47",
+                         "0.8 - 1.0" = "#009E73",
+                         "Not available" = "#808080"),
+              na.value = "#808080",
+              drop=F) +
+            labs(title = input$vars_map) +
+            theme_bw()
 
-          interactive_map(map)
+          interactive_map(map, input$vars_map)
         }
 
       })
@@ -409,5 +423,4 @@
       )
 
   }
-
 

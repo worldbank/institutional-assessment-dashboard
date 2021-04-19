@@ -2,7 +2,8 @@
 
   static_plot <-
     function(data,
-             selected_country) {
+             selected_country,
+             tab_name) {
 
       ggplot(data) +
         geom_segment(
@@ -43,19 +44,20 @@
           legend.title = element_blank()
         ) +
         ylab("Closeness to frontier") +
-        xlab("")
+        xlab("") +
+        labs(title = paste0(tab_name))
 
     }
 
   interactive_plot <-
-    function(x, y, z) {
+    function(x, y, z, tab_name) {
       x %>%
         ggplotly(tooltip = "text") %>%
         layout(
           margin = list(b = -1.5),
           annotations =
             list(x = 0, y = -0.25,
-                 text = map(paste0("Note: ",y,",",paste(z, collapse = ","),".",
+                 text = map(paste0("Note: ",y,", ",paste(z, collapse = ", "),".",
                                    "<br>Closeness to frontier is calculated as (worst-y)/(worst-frontier).",
                                    "<br>1 identifies the best performer and 0 the worst performer",
                                    "<br>Weak = bottom 25%; Emerging = 25%-50%; Advanced = top 50%."), HTML),
@@ -65,43 +67,54 @@
                  align = 'left',
                  font = list(size = 9))
         ) %>%
-        config(modeBarButtonsToRemove = c("zoomIn2d",
-                                          "zoomOut2d",
-                                          "pan2d",
-                                          "autoScale2d",
-                                          "lasso2d",
-                                          "select2d",
-                                          "toggleSpikelines",
-                                          "hoverClosest3d",
-                                          "hoverClosestCartesian",
-                                          "hoverCompareCartesian"))
+        config(
+          modeBarButtonsToRemove = c("zoomIn2d",
+                                     "zoomOut2d",
+                                     "pan2d",
+                                     "autoScale2d",
+                                     "lasso2d",
+                                     "select2d",
+                                     "toggleSpikelines",
+                                     "hoverClosest3d",
+                                     "hoverClosestCartesian",
+                                     "hoverCompareCartesian"),
+          toImageButtonOptions= list(filename = paste0(tolower(stringr::str_replace_all(tab_name,"\\s","_"))))
+        )
+
 
     }
 
   interactive_map <-
-    function(x) {
+    function(x, title) {
       x %>%
         ggplotly(tooltip = "text") %>%
         layout(
           margin = list(b = -1.5),
-          legend = list(orientation = 'h',
-                            y=0.1,
-                            x=0.5,
-                            xanchor = "center",
-                            bordercolor = "#00000",
-                            borderwidth = 1
+          legend = list(
+            title=list(text='<b>Closeness to\nfrontier:</b>'),
+            #orientation = 'h',
+            y=0.5#,
+            #x=0.5,
+            #xanchor = "center",
+            #bordercolor = "#00000",
+            #borderwidth = 1
           )
         ) %>%
-        config(modeBarButtonsToRemove = c(#"zoomIn2d",
-                                          #"zoomOut2d",
-                                          #"pan2d",
-                                          #"autoScale2d",
-                                          #"lasso2d",
-                                          #"select2d",
-                                          "hoverClosestCartesian",
-                                          "toggleSpikelines",
-                                          "hoverClosest3d",
-                                          "hoverCompareCartesian"))
+        config(
+          modeBarButtonsToRemove = c(#"zoomIn2d",
+                                    #"zoomOut2d",
+                                    #"pan2d",
+                                    #"autoScale2d",
+                                    #"lasso2d",
+                                    #"select2d",
+                                    "hoverClosestCartesian",
+                                    "toggleSpikelines",
+                                    "hoverClosest3d",
+                                    "hoverCompareCartesian"),
+          toImageButtonOptions= list(filename = paste0(tolower(stringr::str_replace_all(title,"\\s","_")),"_map"),
+                                     width = 1050,
+                                     height =  675)
+        )
 
     }
 
