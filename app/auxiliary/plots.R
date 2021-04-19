@@ -50,7 +50,7 @@
     }
 
   interactive_plot <-
-    function(x, y, z) {
+    function(x, y, z, tab_name) {
       x %>%
         ggplotly(tooltip = "text") %>%
         layout(
@@ -67,16 +67,20 @@
                  align = 'left',
                  font = list(size = 9))
         ) %>%
-        config(modeBarButtonsToRemove = c("zoomIn2d",
-                                          "zoomOut2d",
-                                          "pan2d",
-                                          "autoScale2d",
-                                          "lasso2d",
-                                          "select2d",
-                                          "toggleSpikelines",
-                                          "hoverClosest3d",
-                                          "hoverClosestCartesian",
-                                          "hoverCompareCartesian"))
+        config(
+          modeBarButtonsToRemove = c("zoomIn2d",
+                                     "zoomOut2d",
+                                     "pan2d",
+                                     "autoScale2d",
+                                     "lasso2d",
+                                     "select2d",
+                                     "toggleSpikelines",
+                                     "hoverClosest3d",
+                                     "hoverClosestCartesian",
+                                     "hoverCompareCartesian"),
+          toImageButtonOptions= list(filename = paste0(tolower(stringr::str_replace_all(tab_name,"\\s","_"))))
+        )
+
 
     }
 

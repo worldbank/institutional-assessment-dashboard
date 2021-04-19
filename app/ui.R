@@ -2,6 +2,7 @@
 
   library(shiny)
   library(shinyBS)
+  library(shinyWidgets)
   library(bslib)
   library(DT)
   library(shinyjs)
