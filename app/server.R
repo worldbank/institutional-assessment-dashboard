@@ -51,6 +51,8 @@
     read_rds(file.path("data",
                        "wb_country_geom_fact.rds"))
 
+  st_crs(wb_country_geom_fact) <- "WGS84"
+
   # Metadata
   variable_names <-
     read_rds(file.path("data",
