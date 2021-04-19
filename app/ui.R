@@ -371,6 +371,9 @@
                                      id = "def_indicators"),
                                   p("Country group definitions are extracted from the"),
                                   downloadButton("download_indicators", "Download indicator definitions"),
+                                  br(),
+                                  br(),
+                                  br()
                         )
                       )
                )

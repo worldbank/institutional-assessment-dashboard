@@ -306,7 +306,7 @@
                  fill = "Closeness to \n frontier") +
             theme_bw()
 
-          interactive_map(map)
+          interactive_map(map, input$vars_map)
         }
 
       })
