@@ -294,6 +294,7 @@
                     size=0.1
                     ) +
             scale_fill_manual(
+              name = NULL,
               values = c("0.0 - 0.2" = "#D55E00",
                          "0.2 - 0.4" = "#DD7C00",
                          "0.4 - 0.6" = "#E69F00",
@@ -302,8 +303,7 @@
                          "Not avaiable" = "#808080"),
               na.value = "#808080",
               drop=F) +
-            labs(title = input$vars_map,
-                 fill = "Closeness to \n frontier") +
+            labs(title = input$vars_map) +
             theme_bw()
 
           interactive_map(map, input$vars_map)

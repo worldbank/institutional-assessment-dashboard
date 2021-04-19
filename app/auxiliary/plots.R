@@ -90,12 +90,14 @@
         ggplotly(tooltip = "text") %>%
         layout(
           margin = list(b = -1.5),
-          legend = list(orientation = 'h',
-                            y=0.1,
-                            x=0.5,
-                            xanchor = "center",
-                            bordercolor = "#00000",
-                            borderwidth = 1
+          legend = list(
+            title=list(text='<b>Closeness to\nfrontier:</b>'),
+            #orientation = 'h',
+            y=0.5#,
+            #x=0.5,
+            #xanchor = "center",
+            #bordercolor = "#00000",
+            #borderwidth = 1
           )
         ) %>%
         config(
