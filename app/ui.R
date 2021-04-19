@@ -91,7 +91,10 @@
                                        icon = icon("check"),
                                        class = "btn-success",
                                        style="color: #fff"
-                                     )
+                                     ),
+
+                                     downloadButton("report",
+                                                    "Download editable report"),
                         ),
 
                         mainPanel(width = 8,
