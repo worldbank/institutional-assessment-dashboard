@@ -2,7 +2,8 @@
 
   static_plot <-
     function(data,
-             selected_country) {
+             selected_country,
+             tab_name) {
 
       ggplot(data) +
         geom_segment(
@@ -43,7 +44,8 @@
           legend.title = element_blank()
         ) +
         ylab("Closeness to frontier") +
-        xlab("")
+        xlab("") +
+        labs(title = paste0(tab_name))
 
     }
 
@@ -55,7 +57,7 @@
           margin = list(b = -1.5),
           annotations =
             list(x = 0, y = -0.25,
-                 text = map(paste0("Note: ",y,",",paste(z, collapse = ","),".",
+                 text = map(paste0("Note: ",y,", ",paste(z, collapse = ", "),".",
                                    "<br>Closeness to frontier is calculated as (worst-y)/(worst-frontier).",
                                    "<br>1 identifies the best performer and 0 the worst performer",
                                    "<br>Weak = bottom 25%; Emerging = 25%-50%; Advanced = top 50%."), HTML),

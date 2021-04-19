@@ -147,6 +147,12 @@
                     }
       )
 
+    # Plot title according to panel selected
+    plot_title <- reactive({
+      input$tabsetpanel_id
+    })
+
+
    # Plots =============================================================================
 
     # Overview
@@ -170,7 +176,7 @@
         left_join(variable_names)
 
       data %>%
-        static_plot(base_country()) %>%
+        static_plot(base_country(),plot_title()) %>%
         interactive_plot(base_country(),
                          input$groups)
 
@@ -179,7 +185,7 @@
     output$Labor <- renderPlotly({
       data() %>%
         filter(variable %in% vars_lab)  %>%
-        static_plot(base_country()) %>%
+        static_plot(base_country(),plot_title()) %>%
         interactive_plot(base_country(),
                          input$groups)
     })
@@ -188,7 +194,7 @@
     output$Financial <- renderPlotly({
       data() %>%
         filter(variable %in% vars_fin)  %>%
-        static_plot(base_country()) %>%
+        static_plot(base_country(),plot_title()) %>%
         interactive_plot(base_country(),
                          input$groups)
     })
@@ -197,7 +203,7 @@
     output$Legal <- renderPlotly({
       data() %>%
         filter(variable %in% vars_leg)  %>%
-        static_plot(base_country()) %>%
+        static_plot(base_country(),plot_title()) %>%
         interactive_plot(base_country(),
                          input$groups)
     })
@@ -206,7 +212,7 @@
     output$Political <- renderPlotly({
       data() %>%
         filter(variable %in% vars_pol)  %>%
-        static_plot(base_country()) %>%
+        static_plot(base_country(),plot_title()) %>%
         interactive_plot(base_country(),
                          input$groups)
     })
@@ -215,7 +221,7 @@
     output$Social <- renderPlotly({
       data() %>%
         filter(variable %in% vars_social)  %>%
-        static_plot(base_country()) %>%
+        static_plot(base_country(),plot_title()) %>%
         interactive_plot(base_country(),
                          input$groups)
     })
@@ -224,7 +230,7 @@
     output$Trade <- renderPlotly({
       data() %>%
         filter(variable %in% vars_mkt)  %>%
-        static_plot(base_country()) %>%
+        static_plot(base_country(),plot_title()) %>%
         interactive_plot(base_country(),
                          input$groups)
     })
@@ -233,7 +239,7 @@
     output$Public <- renderPlotly({
       data() %>%
         filter(variable %in% vars_publ)  %>%
-        static_plot(base_country()) %>%
+        static_plot(base_country(),plot_title()) %>%
         interactive_plot(base_country(),
                          input$groups)
     })
@@ -242,7 +248,7 @@
     output$Governance <- renderPlotly({
       data() %>%
         filter(variable %in% vars_service_del)  %>%
-        static_plot(base_country()) %>%
+        static_plot(base_country(),plot_title()) %>%
         interactive_plot(base_country(),
                          input$groups)
     })
@@ -251,7 +257,7 @@
     output$Account <- renderPlotly({
       data() %>%
         filter(variable %in% vars_transp)  %>%
-        static_plot(base_country()) %>%
+        static_plot(base_country(),plot_title()) %>%
         interactive_plot(base_country(),
                          input$groups)
     })
@@ -276,14 +282,15 @@
                     color="black",
                     size=0.1
                     ) +
-            scale_fill_manual(values = c("0.0 - 0.2" = "#D55E00",
-                                         "0.2 - 0.4" = "#DD7C00",
-                                         "0.4 - 0.6" = "#E69F00",
-                                         "0.6 - 0.8" = "#579E47",
-                                         "0.8 - 1.0" = "#009E73",
-                                         "Not avaiable" = "#808080"),
-                              na.value = "#808080",
-                              drop=F) +
+            scale_fill_manual(
+              values = c("0.0 - 0.2" = "#D55E00",
+                         "0.2 - 0.4" = "#DD7C00",
+                         "0.4 - 0.6" = "#E69F00",
+                         "0.6 - 0.8" = "#579E47",
+                         "0.8 - 1.0" = "#009E73",
+                         "Not avaiable" = "#808080"),
+              na.value = "#808080",
+              drop=F) +
             labs(title = input$vars_map,
                  fill = "Closeness to \n frontier") +
             theme_bw()

@@ -94,7 +94,7 @@
                         ),
 
                         mainPanel(width = 8,
-                                  tabsetPanel(
+                                  tabsetPanel(id = "tabsetpanel_id",
                                     tabPanel("Overview",
                                              conditionalPanel("input.select !== 0",
                                                               plotlyOutput("overview")
