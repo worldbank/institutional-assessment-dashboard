@@ -89,7 +89,20 @@
                                                     lib = "glyphicon")),
                                        direction = "vertical",
                                        justified = TRUE
-                                       ),
+                                      ),
+
+                                     pickerInput(
+                                       "countries",
+                                       label = NULL,
+                                       choices = country_list$country_name %>% unique %>% sort,
+                                       multiple = TRUE,
+                                       options = list(
+                                        `count-selected-text` = "{0} countries selected",
+                                        `selected-text-format` = "count > 10",
+                                        #`actions-box` = TRUE,
+                                        `live-search` = TRUE,
+                                        size = 10)
+                                     ),
 
                                      actionButton(
                                        "select",
