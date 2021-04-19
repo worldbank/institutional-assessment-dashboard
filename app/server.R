@@ -131,6 +131,14 @@
     )
 
 
+    observeEvent(input$select,
+                 {
+                   toggleState(id = "report",
+                               condition = input$select == 1)
+                 },
+                 ignoreNULL = FALSE
+    )
+
     # Benchmark data
     data <-
       eventReactive(input$select,

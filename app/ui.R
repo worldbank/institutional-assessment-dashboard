@@ -93,6 +93,8 @@
                                        style="color: #fff"
                                      ),
 
+                                     br(),br(),
+
                                      downloadButton("report",
                                                     "Download editable report"),
                         ),
