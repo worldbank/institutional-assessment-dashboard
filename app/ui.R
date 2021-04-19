@@ -197,12 +197,20 @@
                             "vars_map",
                             label = NULL,
                             choices = list(
-                              `Family Level` = c(sort(unique(variable_names$family_name))),
-                              `Indicator Level` = c(sort(unique(variable_names$var_name)))
+                              `Family level` = c(sort(unique(variable_names$family_name))),
+                              `Accountability institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
+                              `Business & trade institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_mkt") %>% .$var_name),
+                              `Financial institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
+                              `Governance of SOEs` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_service_del") %>% .$var_name),
+                              `Labor market institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_lab") %>% .$var_name),
+                              `Legal institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_leg") %>% .$var_name),
+                              `Political institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_pol") %>% .$var_name),
+                              `Public sector institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_publ") %>% .$var_name),
+                              `Social institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_social") %>% .$var_name)
                             ),
                             options = list(
                               `live-search` = TRUE,
-                              size = 15,
+                              size = 20,
                               title = "Select indicator"
                             ),
                             width = "100%"
