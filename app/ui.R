@@ -78,19 +78,26 @@
                                                  selected = "Uruguay",
                                                  multiple = FALSE),
 
-
-                                     checkboxGroupInput("groups",
-                                                        label = "Select a comparison group",
-                                                        choiceNames = country_groups$group_name,
-                                                        choiceValues = country_groups$group_code,
-                                                        selected = "OED"),
+                                     checkboxGroupButtons(
+                                       "groups",
+                                       label = "Select a comparison group",
+                                       choiceNames = country_groups$group_name,
+                                       choiceValues = country_groups$group_code,
+                                       selected = "OED",
+                                       checkIcon = list(
+                                         yes = icon("ok",
+                                                    lib = "glyphicon")),
+                                       direction = "vertical",
+                                       justified = TRUE
+                                       ),
 
                                      actionButton(
                                        "select",
                                        "Apply selection",
                                        icon = icon("check"),
                                        class = "btn-success",
-                                       style="color: #fff"
+                                       style="color: #fff",
+                                       width = "100%"
                                      )
                         ),
 
