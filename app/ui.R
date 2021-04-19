@@ -258,7 +258,9 @@
 
                                      downloadButton("download_global_rds", "Download .rds"),
                                      br(),
+                                     br(),
                                      downloadButton("download_global_csv", "Download .csv"),
+                                     br(),
                                      br(),
                                      downloadButton("download_global_dta", "Download .dta")
                         ),
