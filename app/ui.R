@@ -286,6 +286,7 @@
 
                       sidebarLayout(
                         sidebarPanel(id = "met_sidebar",
+                                     style = "position:fixed; width:inherit; width:12%;",
                                      width = 2,
 
                                      p(tags$a(href = "#met_families",
