@@ -109,7 +109,9 @@
                                     "toggleSpikelines",
                                     "hoverClosest3d",
                                     "hoverCompareCartesian"),
-          toImageButtonOptions= list(filename = paste0(tolower(stringr::str_replace_all(title,"\\s","_")),"_map"))
+          toImageButtonOptions= list(filename = paste0(tolower(stringr::str_replace_all(title,"\\s","_")),"_map"),
+                                     width = 1050,
+                                     height =  675)
         )
 
     }
