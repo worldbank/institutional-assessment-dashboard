@@ -1,0 +1,123 @@
+---
+title: Institutional assessment benchmarking
+output: 
+  word_document
+params:
+  base_country: NA
+  comparison_countries: NA
+  data: NA
+---
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  fig.width = 9
+)
+```
+
+```{r}
+
+ # Auxiliary functions -----------------------------------------------------------------
+
+  source(file.path("auxiliary",
+                   "vars-by-family.R"))
+
+  # Function that defines quantiles based on country, comparison and variables
+  source(file.path("auxiliary",
+                   "fun_quantiles.R"))
+
+  source(file.path("auxiliary",
+                   "plots.R"))
+
+  variable_names <-
+    read_rds(file.path("data",
+                       "variable_names.rds"))
+  
+    global_data <-
+    read_rds(file.path("data",
+                       "country_dtf.rds"))
+
+  family_level_data <-
+    read_rds(file.path("data",
+                       "dtf_family_level.rds"))
+  
+  variable_names <-
+        variable_names %>%
+        select(family_var,
+               family_name) %>%
+        rename(var_name = family_name,
+               variable = family_var) %>%
+        unique
+```
+
+# Country overview
+
+Base country: `r params$base_country`
+
+```{r, echo = FALSE}
+      data <-
+        family_level_data %>%
+        def_quantiles(
+          params$base_country,
+          params$comparison_countries,
+          variable_names$variable
+        )  %>%
+        left_join(variable_names)
+
+      data %>%
+        static_plot(params$base_country,
+                    "Country overview")
+
+```
+
+# Institutional families
+
+```{r}
+      params$data %>%
+        filter(variable %in% vars_lab)  %>%
+        static_plot(params$base_country,
+                    "Labor market institutions") 
+
+      params$data %>%
+        filter(variable %in% vars_fin)  %>%
+        static_plot(params$base_country,
+                    "Financial market institutions") 
+      
+      params$data %>%
+        filter(variable %in% vars_leg)  %>%
+        static_plot(params$base_country,
+                    "Legal Institutions") 
+
+      params$data %>%
+        filter(variable %in% vars_pol)  %>%
+        static_plot(params$base_country,
+                    "Political Institutions") 
+      
+      params$data %>%
+        filter(variable %in% vars_social)  %>%
+        static_plot(params$base_country,
+                    "Social Institutions") 
+
+      params$data %>%
+        filter(variable %in% vars_mkt)  %>%
+        static_plot(params$base_country,
+                    "Business environment and trade institutions") 
+
+      params$data %>%
+        filter(variable %in% vars_publ)  %>%
+        static_plot(params$base_country,
+                    "Public sector performance Institutions") 
+
+      params$data %>%
+        filter(variable %in% vars_service_del)  %>%
+        static_plot(params$base_country,
+                    "Institutions for service delivery") 
+    
+      
+      params$data %>%
+        filter(variable %in% vars_transp)  %>%
+        static_plot(params$base_country,
+                    "Accountability institutions") 
+```

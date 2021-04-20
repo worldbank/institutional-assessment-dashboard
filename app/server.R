@@ -51,6 +51,8 @@
     read_rds(file.path("data",
                        "wb_country_geom_fact.rds"))
 
+  st_crs(wb_country_geom_fact) <- "WGS84"
+
   # Metadata
   variable_names <-
     read_rds(file.path("data",
@@ -130,6 +132,14 @@
                  ignoreNULL = FALSE
     )
 
+
+    observeEvent(input$select,
+                 {
+                   toggleState(id = "report",
+                               condition = input$select == 1)
+                 },
+                 ignoreNULL = FALSE
+    )
 
     # Benchmark data
     data <-
@@ -381,6 +391,24 @@
         }
       )
 
+   # Report ================================================================================
+    output$report <- downloadHandler(
+      filename = "instutitional-assessment-report.docx",
+      content = function(file) {
+
+        file.copy("report.Rmd", "tempReport.Rmd", overwrite = TRUE)
+
+        params <- list(base_country = base_country(),
+                       comparison_countries = comparison_countries(),
+                       data = data())
+
+        rmarkdown::render("tempReport.Rmd",
+                          output_file = file,
+                          params = params,
+                          envir = new.env(parent = globalenv())
+        )
+      }
+    )
 
    # Definitions ===========================================================================
 

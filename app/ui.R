@@ -57,13 +57,40 @@
         p("The dashboard provides a visualization of a country’s profile based on a set of international institutional indicators, highlighting a given country’s institutional strengths and weaknesses. It is recommended to use these empirical results as guides for further quantitative or qualitative in-depth analysis in the specific areas of interest."),
 
         h3("How to use this dashboard"),
-        p("Lorem ipsum dolor sit amet, consectetur adipiscing elit")
+        p("This dashboard aims to enable its users to interact with the country-level IA benchmarking in a few different ways:"),
+        tags$ul(
+          tags$li("The ",
+                  tags$b("country benchmarking"),
+                  "tab shows how one country compares to another group of countries in terms of closeness to frontier for each relevant indicator."
+
+          ),
+          tags$li("The ",
+                  tags$b("world map"),
+                  "tab shows the closeness to frontier of a given indicator for all contries with available data."
+
+          ),
+          tags$li("The ",
+                  tags$b("browse the data"),
+                  "tab provides an interactive table containing the closeness to frontier data for all countries.
+                  It also allows users to download the data in different formats."
+
+          )
+          ,
+          tags$li("The ",
+                  tags$b("methodology"),
+                  "tab includes metadata on the indicators, country groups and methods used in the analysis."
+
+          )
+        ),
+
+        HTML('<center><img src="wb-logo.jpg" width="200" style="padding-top:50px"></center>')
 
       )
     ),
 
     # Benchmarking tab ===================================================================================================
     tabPanel("Country benchmarking",
+             id = "country",
 
              fluidRow(
                column(width = 1),
@@ -111,6 +138,13 @@
                                        class = "btn-success",
                                        style="color: #fff",
                                        width = "100%"
+                                     ),
+
+                                     br(),br(),
+
+                                     downloadButton("report",
+                                                    "Download editable report"),
+                                                     width = "100%"
                                      )
                         ),
 
@@ -127,7 +161,8 @@
                                                               plotlyOutput("Labor")
                                              ),
                                              bsCollapsePanel("See indicator definitions",
-                                                             tableOutput('labor_def'))
+                                                             tableOutput('labor_def'),
+                                                             id = "oi")
                                     ),
 
                                     tabPanel("Financial institutions",
@@ -204,6 +239,7 @@
     # Map tab ===============================================================================================================
 
     tabPanel("World map",
+             id = "world_map",
 
              fluidRow(
                column(width = 1),
@@ -397,7 +433,8 @@
 
                                   h3("List of indicators",
                                      id = "def_indicators"),
-                                  p("Country group definitions are extracted from the"),
+                                  p("The indicators used to benchmark the institutional families are extracted from multiple public data sources.
+                                    For a full list of the indicators used, their sources, and their definitions, download the metadata below."),
                                   downloadButton("download_indicators", "Download indicator definitions"),
                                   br(),
                                   br(),
