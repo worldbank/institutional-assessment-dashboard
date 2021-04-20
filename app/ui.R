@@ -136,15 +136,13 @@
                                        "Apply selection",
                                        icon = icon("check"),
                                        class = "btn-success",
-                                       style="color: #fff",
                                        width = "100%"
                                      ),
 
                                      br(),br(),
 
                                      downloadButton("report",
-                                                    "Download editable report"),
-                                                     width = "100%"
+                                                    "Download editable report"
                                      )
                         ),
 
