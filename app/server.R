@@ -116,11 +116,11 @@
 
                  {
                    # Can also set the label and select items
-                   updateCheckboxGroupInput(session,
-                                            "countries",
-                                            label = NULL,
-                                            choices = global_data$country_name %>% unique,
-                                            selected = comparison_countries()
+                   updatePickerInput(session,
+                                     "countries",
+                                     label = NULL,
+                                     choices = global_data$country_name %>% unique,
+                                     selected = comparison_countries()
                    )
 
                    toggleState(id = "select",
