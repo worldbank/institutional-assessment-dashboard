@@ -105,25 +105,47 @@
                                                  selected = "Uruguay",
                                                  multiple = FALSE),
 
+                                     checkboxGroupButtons(
+                                       "groups",
+                                       label = "Select a comparison group",
+                                       choiceNames = country_groups$group_name,
+                                       choiceValues = country_groups$group_code,
+                                       selected = "OED",
+                                       checkIcon = list(
+                                         yes = icon("ok",
+                                                    lib = "glyphicon")),
+                                       direction = "vertical",
+                                       justified = TRUE
+                                      ),
 
-                                     checkboxGroupInput("groups",
-                                                        label = "Select a comparison group",
-                                                        choiceNames = country_groups$group_name,
-                                                        choiceValues = country_groups$group_code,
-                                                        selected = "OED"),
+                                     pickerInput(
+                                       "countries",
+                                       label = NULL,
+                                       choices = country_list$country_name %>% unique %>% sort,
+                                       multiple = TRUE,
+                                       options = list(
+                                        `count-selected-text` = "{0} countries selected",
+                                        `selected-text-format` = "count > 10",
+                                        #`actions-box` = TRUE,
+                                        `live-search` = TRUE,
+                                        size = 10)
+                                     ),
 
                                      actionButton(
                                        "select",
                                        "Apply selection",
                                        icon = icon("check"),
                                        class = "btn-success",
-                                       style="color: #fff"
+                                       style="color: #fff",
+                                       width = "100%"
                                      ),
 
                                      br(),br(),
 
                                      downloadButton("report",
                                                     "Download editable report"),
+                                                     width = "100%"
+                                     )
                         ),
 
                         mainPanel(width = 8,
@@ -231,12 +253,20 @@
                             "vars_map",
                             label = NULL,
                             choices = list(
-                              `Family Level` = c(sort(unique(variable_names$family_name))),
-                              `Indicator Level` = c(sort(unique(variable_names$var_name)))
+                              `Family level` = c(sort(unique(variable_names$family_name))),
+                              `Accountability institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
+                              `Business & trade institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_mkt") %>% .$var_name),
+                              `Financial institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
+                              `Governance of SOEs` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_service_del") %>% .$var_name),
+                              `Labor market institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_lab") %>% .$var_name),
+                              `Legal institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_leg") %>% .$var_name),
+                              `Political institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_pol") %>% .$var_name),
+                              `Public sector institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_publ") %>% .$var_name),
+                              `Social institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_social") %>% .$var_name)
                             ),
                             options = list(
                               `live-search` = TRUE,
-                              size = 15,
+                              size = 20,
                               title = "Select indicator"
                             ),
                             width = "100%"
