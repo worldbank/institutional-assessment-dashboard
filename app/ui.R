@@ -110,7 +110,7 @@
                                        label = "Select a comparison group",
                                        choiceNames = country_groups$group_name,
                                        choiceValues = country_groups$group_code,
-                                       selected = "OED",
+                                       selected = "OECD",
                                        checkIcon = list(
                                          yes = icon("ok",
                                                     lib = "glyphicon")),
