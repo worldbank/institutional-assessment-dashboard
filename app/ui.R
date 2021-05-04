@@ -142,7 +142,8 @@
                                      br(),br(),
 
                                      downloadButton("report",
-                                                    "Download editable report"
+                                                    "Download editable report",
+                                                    style = "width:100%;"
                                      )
                         ),
 
