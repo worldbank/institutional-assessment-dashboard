@@ -118,7 +118,7 @@
 
                  {
                    # Can also set the label and select items
-                   updatePickerInput(session,
+                   updateMultiInput(session,
                                      "countries",
                                      label = NULL,
                                      choices = global_data$country_name %>% unique,

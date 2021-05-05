@@ -124,17 +124,15 @@
                                        justified = TRUE
                                       ),
 
-                                     pickerInput(
-                                       "countries",
+                                     multiInput(
+                                       inputId = "countries",
                                        label = NULL,
                                        choices = country_list$country_name %>% unique %>% sort,
-                                       multiple = TRUE,
                                        options = list(
-                                        `count-selected-text` = "{0} countries selected",
-                                        `selected-text-format` = "count > 10",
-                                        #`actions-box` = TRUE,
-                                        `live-search` = TRUE,
-                                        size = 10)
+                                         enable_search = T,
+                                         non_selected_header = "Choose between:",
+                                         selected_header = "You have selected:"
+                                       )
                                      ),
 
                                      actionButton(
