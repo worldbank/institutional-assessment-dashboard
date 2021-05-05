@@ -55,6 +55,12 @@
         p("The World Bank recognizes institutional strengthening as key ingredient for progress of its members countries along income categories. While there are numerous diagnostic and assessment tools for specific functional areas such as financial management and tax administration, there is no analytical tool for country-level institutional assessment."),
         p("The Institutional Assessment (IA) benchmarking aims at partially filling this gap by providing a standard methodology to summarize information from a large set of institutional indicators. This dashboard offers a user-friendly interface that can easily and speedily be used for the country-level IA benchmarking."),
         p("The dashboard provides a visualization of a country’s profile based on a set of international institutional indicators, highlighting a given country’s institutional strengths and weaknesses. It is recommended to use these empirical results as guides for further quantitative or qualitative in-depth analysis in the specific areas of interest."),
+        p("This benchmarking is part of a larger analytical effort.
+          For full details about the project, see the Approach paper: Marco Larizza, Serena Sara Daniela Cocciolo, Eric Braian Arias and Peter Siegenthaler (forthcoming), ",
+          tags$em("Country Level Institutional Assessment: a 3-steps analytical framework."),
+          "Users of this resource should cite this approach paper.
+          Further, any publications using data drawn from this resource could include citations to the original source(s) of the data used.
+          Citation information for each component dataset is included in the methodology page."),
 
         h3("How to use this dashboard"),
         p("This dashboard aims to enable its users to interact with the country-level IA benchmarking in a few different ways:"),
@@ -159,8 +165,7 @@
                                                               plotlyOutput("Labor")
                                              ),
                                              bsCollapsePanel("See indicator definitions",
-                                                             tableOutput('labor_def'),
-                                                             id = "oi")
+                                                             tableOutput('labor_def'))
                                     ),
 
                                     tabPanel("Financial institutions",
