@@ -77,8 +77,6 @@ wb_country_geom_fact <-
     keep_shapes = T
   )
 
-mapview::mapview(wb_country_geom_fact)
-
 # 3 Save datasets =========================================================================================
 
 write_rds(wb_country_geom_fact,
