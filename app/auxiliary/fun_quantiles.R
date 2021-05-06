@@ -6,6 +6,7 @@ def_quantiles <- function(data, base_country, comparison_countries, vars) {
 
     quantiles <-
       data %>%
+      ungroup() %>%
       filter(
         country_name == base_country | country_name %in% comparison_countries
       ) %>%
