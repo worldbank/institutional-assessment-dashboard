@@ -333,11 +333,13 @@
 
         data <-
           global_data %>%
+          ungroup() %>%
           select(country_name,
                  all_of(vars)) %>%
           rename(Country = country_name) %>%
           mutate(across(where(is.numeric),
                         round, 3))
+
 
         datatable(
           data %>%
