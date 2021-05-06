@@ -54,9 +54,9 @@
       x %>%
         ggplotly(tooltip = "text") %>%
         layout(
-          margin = list(b = -1.5),
+          margin = list(l=50, r=50, t=75, b=125),
           annotations =
-            list(x = 0, y = -0.25,
+            list(x = 0, y = -0.55,
                  text = map(paste0("Note: ",y,", ",paste(z, collapse = ", "),".",
                                    "<br>Closeness to frontier is calculated as (worst-y)/(worst-frontier).",
                                    "<br>1 identifies the best performer and 0 the worst performer",
@@ -65,7 +65,8 @@
                  xref = 'paper',
                  yref = 'paper',
                  align = 'left',
-                 font = list(size = 9))
+                 font = list(size = 10)
+                 )
         ) %>%
         config(
           modeBarButtonsToRemove = c("zoomIn2d",
