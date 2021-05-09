@@ -4,7 +4,7 @@
 }
 
 .multicol-7 {
-  height: 650x;
+  height: 650px;
   -webkit-column-count: 7; /* Chrome, Safari, Opera */
   -moz-column-count: 7;    /* Firefox */
   column-count: 7;

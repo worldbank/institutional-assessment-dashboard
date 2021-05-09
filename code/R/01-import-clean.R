@@ -80,6 +80,10 @@ data_cleaned <- data_original %>%
       c(governance_soe,price_controls,command_control,complexity_procedures,barriers_startups,protection_incumbents,barriers_trade_expl,barriers_trade_oth),
       ~(6 - .x)
     )
+  ) %>%
+  mutate(
+    country_name = ifelse(country_name == "ksv", "Kosovo", country_name),
+    country_name = ifelse(country_name == "tmp", "Timor-Leste", country_name)
   )
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #

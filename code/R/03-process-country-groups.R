@@ -15,7 +15,11 @@
     read_csv(here("data",
                   "data_raw",
                   "wb_country_list.csv")) %>%
-    rename(country_name = country)
+    rename(country_name = country) %>%
+    mutate(
+      group_code=ifelse(group_code=="OED","OECD",group_code)
+    )
+
 
   group_codes <-
     c("EUU",
@@ -24,7 +28,7 @@
       "LMC",
       "LMY",
       "MIC",
-      "OED",
+      "OECD",
       "UMC")
 
   groups <-

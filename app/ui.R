@@ -25,6 +25,10 @@
     read_rds(file.path("data",
                        "variable_names.rds"))
 
+  global_data <-
+    read_rds(file.path("data",
+                       "country_dtf.rds"))
+
   # Auxiliary functions -----------------------------------------------------------------
 
   source(file.path("auxiliary",
@@ -116,7 +120,7 @@
                                        label = "Select a comparison group",
                                        choiceNames = country_groups$group_name,
                                        choiceValues = country_groups$group_code,
-                                       selected = "OED",
+                                       selected = "OECD",
                                        checkIcon = list(
                                          yes = icon("ok",
                                                     lib = "glyphicon")),
@@ -127,11 +131,11 @@
                                      pickerInput(
                                        "countries",
                                        label = NULL,
-                                       choices = country_list$country_name %>% unique %>% sort,
+                                       choices = global_data$country_name %>% unique %>% sort,
                                        multiple = TRUE,
                                        options = list(
                                         `count-selected-text` = "{0} countries selected",
-                                        `selected-text-format` = "count > 10",
+                                        `selected-text-format` = "count > 5",
                                         #`actions-box` = TRUE,
                                         `live-search` = TRUE,
                                         size = 10)
@@ -148,7 +152,8 @@
                                      br(),br(),
 
                                      downloadButton("report",
-                                                    "Download editable report"
+                                                    "Download editable report",
+                                                    style = "width:100%;"
                                      )
                         ),
 
