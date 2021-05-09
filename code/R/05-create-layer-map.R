@@ -4,6 +4,7 @@
 
 packages <-
   c("tidyverse",
+    "rmapshaper",
     "sf",
     "here")
 
@@ -70,7 +71,11 @@ wb_country_geom <-
 
 wb_country_geom_fact <-
   wb_country_geom_fact %>%
-  left_join(wb_country_geom)
+  left_join(wb_country_geom) %>%
+  ms_simplify(
+    keep = 0.04,
+    keep_shapes = T
+  )
 
 # 3 Save datasets =========================================================================================
 
