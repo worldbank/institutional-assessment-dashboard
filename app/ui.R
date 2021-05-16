@@ -11,6 +11,8 @@
 
 # Inputs ################################################################################
 
+plot_height <- "500px"
+
 # Data sets ---------------------------------------------------------------------------
 
   country_groups <-
@@ -161,13 +163,13 @@
                                   tabsetPanel(id = "tabsetpanel_id",
                                     tabPanel("Overview",
                                              conditionalPanel("input.select !== 0",
-                                                              plotlyOutput("overview")
+                                                              plotlyOutput("overview", height = plot_height)
                                              )
                                     ),
 
                                     tabPanel("Labor market institutions",
                                              conditionalPanel("input.select !== 0",
-                                                              plotlyOutput("Labor")
+                                                              plotlyOutput("Labor", height = plot_height)
                                              ),
                                              bsCollapsePanel("See indicator definitions",
                                                              tableOutput('labor_def'))
@@ -175,7 +177,7 @@
 
                                     tabPanel("Financial institutions",
                                              conditionalPanel("input.select !== 0",
-                                                              plotlyOutput("Financial")
+                                                              plotlyOutput("Financial", height = plot_height)
                                              ),
                                              bsCollapsePanel("See indicator definitions",
                                                              tableOutput('fin_def'))
@@ -183,7 +185,7 @@
 
                                     tabPanel("Legal institutions",
                                              conditionalPanel("input.select !== 0",
-                                                              plotlyOutput("Legal")
+                                                              plotlyOutput("Legal", height = plot_height)
                                              ),
                                              bsCollapsePanel("See indicator definitions",
                                                              tableOutput('legal_def'))
@@ -191,7 +193,7 @@
 
                                     tabPanel("Political institutions",
                                              conditionalPanel("input.select !== 0",
-                                                              plotlyOutput("Political")
+                                                              plotlyOutput("Political", height = plot_height)
                                              ),
                                              bsCollapsePanel("See indicator definitions",
                                                              tableOutput('political_def'))
@@ -199,7 +201,7 @@
 
                                     tabPanel("Social institutions",
                                              conditionalPanel("input.select !== 0",
-                                                              plotlyOutput("Social")
+                                                              plotlyOutput("Social", height = plot_height)
                                              ),
                                              bsCollapsePanel("See indicator definitions",
                                                              tableOutput('social_def'))
@@ -207,7 +209,7 @@
 
                                     tabPanel("Business & Trade institutions",
                                              conditionalPanel("input.select !== 0",
-                                                              plotlyOutput("Trade")
+                                                              plotlyOutput("Trade", height = plot_height)
                                              ),
                                              bsCollapsePanel("See indicator definitions",
                                                              tableOutput('business_def'))
@@ -215,7 +217,7 @@
 
                                     tabPanel("Public sector institutions",
                                              conditionalPanel("input.select !== 0",
-                                                              plotlyOutput("Public")
+                                                              plotlyOutput("Public", height = plot_height)
                                              ),
                                              bsCollapsePanel("See indicator definitions",
                                                              tableOutput('perf_def'))
@@ -223,7 +225,7 @@
 
                                     tabPanel("Institutions for service delivery",
                                              conditionalPanel("input.select !== 0",
-                                                              plotlyOutput("Governance")
+                                                              plotlyOutput("Governance", height = plot_height)
                                              ),
                                              bsCollapsePanel("See indicator definitions",
                                                              tableOutput('serv_def'))
@@ -231,7 +233,7 @@
 
                                     tabPanel("Accountability institutions",
                                              conditionalPanel("input.select !== 0",
-                                                              plotlyOutput("Account")
+                                                              plotlyOutput("Account", height = plot_height)
                                              ),
                                              bsCollapsePanel("See indicator definitions",
                                                              tableOutput('account_def'))
