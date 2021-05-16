@@ -100,16 +100,22 @@
       x %>%
         ggplotly(tooltip = "text") %>%
         layout(
-          margin = list(b = -1.5),
           legend = list(
             title=list(text='<b>Closeness to\nfrontier:</b>'),
-            #orientation = 'h',
-            y=0.5#,
-            #x=0.5,
-            #xanchor = "center",
-            #bordercolor = "#00000",
-            #borderwidth = 1
-          )
+            y=0.5
+          ),
+          margin = list(t=75,b=125),
+          annotations =
+            list(x = 0, y = -0.2,
+                 text = map(paste0("Disclaimer: Country borders or names do not necessarily reflect the World Bank Group's official position.",
+                                   "<br>This map is for illustrative purposes and does not imply the expression of any opinion on the part of the World Bank,",
+                                   "<br>concerning the legal status of any country or territory or concerning the delimitation of frontiers or boundaries."), HTML),
+                 showarrow = F,
+                 xref = 'paper',
+                 yref = 'paper',
+                 align = 'left',
+                 font = list(size = 13)
+            )
         ) %>%
         config(
           modeBarButtonsToRemove = c(#"zoomIn2d",
