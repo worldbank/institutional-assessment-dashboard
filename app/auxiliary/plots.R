@@ -25,6 +25,15 @@
                 '<b>Classification:</b>', classification), HTML),
               color = classification),
           size = 3)  +
+        geom_point(
+          aes(x = reorder(var_name,
+                          -dtf),
+              y = avg,
+              text = map(paste(
+                '<b>CTF average:</b>', round(avg, digits = 3), '<br>'), HTML),),
+          size = 2,
+          shape = 18,
+          color = "black") +
         coord_flip() +
         scale_color_manual(
           values =
@@ -36,6 +45,7 @@
         scale_y_continuous(
           limits = c(0,1)
         )  +
+        guides(color = guide_legend(order=1)) +
         theme_ipsum() +
         theme(
           panel.grid.minor.y = element_blank(),
@@ -56,7 +66,7 @@
         layout(
           margin = list(l=50, r=50, t=75, b=125),
           annotations =
-            list(x = 0, y = -0.6,
+            list(x = 0, y = -0.4,
                  text = map(paste0("Note: ",y,", ",paste(z, collapse = ", "),".",
                                    "<br>Closeness to frontier is calculated as (worst-y)/(worst-frontier).",
                                    "<br>1 identifies the best performer and 0 the worst performer",
