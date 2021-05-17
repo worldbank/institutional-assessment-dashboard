@@ -116,4 +116,9 @@ write_rds(data_selected,
                "data_cleaned",
                "selected_vars.rds"))
 
+write_rds(data_selected,
+          here("app",
+               "data",
+               "raw_data.rds"))
+
 rm(data_cleaned, data_original)
