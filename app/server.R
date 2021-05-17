@@ -53,6 +53,13 @@
 
   st_crs(wb_country_geom_fact) <- "WGS84"
 
+  # Raw data
+  raw_data <-
+    read_rds(file.path("data",
+                       "raw_data.rds")) %>%
+    filter(year>=2000) %>%
+    select(-c(lac,lac6,oecd,structural))
+
   # Metadata
   variable_names <-
     read_rds(file.path("data",
@@ -157,6 +164,25 @@
 
                     }
       )
+
+    # Browse data
+    browse_data <-
+      eventReactive(input$data,
+
+                    {
+                      selected_data <- input$data
+
+                      if (selected_data=="Closeness to frontier") {
+                        return(global_data)
+                      }
+
+                      if (selected_data=="Compiled indicators") {
+                        return(raw_data)
+                      }
+
+                    }
+      )
+
 
     # Plot title according to panel selected
     plot_title <- reactive({
@@ -357,41 +383,42 @@
 
       })
 
-    # Downloadable rds of selected dataset
+        # Downloadable rds of selected dataset
 
-    output$download_global_rds <-
-      downloadHandler(
-        filename = "data.rds",
+        output$download_global_rds <-
+          downloadHandler(
+            filename = "data.rds",
 
-        content = function(file) {
-          write_rds(global_data,
-                    file)
-        }
-      )
+            content = function(file) {
+              write_rds(browse_data(),
+                        file)
+            }
+          )
 
-    # Downloadable csv of selected dataset
+        # Downloadable csv of selected dataset
 
-    output$download_global_csv <-
-      downloadHandler(
-        filename = "data.csv",
+        output$download_global_csv <-
+          downloadHandler(
+            filename = "data.csv",
 
-        content = function(file) {
-          write_csv(global_data,
-                    file)
-        }
-      )
+            content = function(file) {
+              write_csv(browse_data(),
+                        file)
+            }
+          )
 
-    # Downloadable dta of selected dataset
+        # Downloadable dta of selected dataset
 
-    output$download_global_dta <-
-      downloadHandler(
-        filename = "data.dta",
+        output$download_global_dta <-
+          downloadHandler(
+            filename = "data.dta",
 
-        content = function(file) {
-          write_dta(global_data,
-                    file)
-        }
-      )
+            content = function(file) {
+              write_dta(browse_data(),
+                        file)
+            }
+          )
+
 
    # Report ================================================================================
     output$report <- downloadHandler(
