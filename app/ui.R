@@ -260,9 +260,8 @@ plot_height <- "500px"
 
                column(width = 10,
 
-                      sidebarLayout(
-                        sidebarPanel(
-                          width = 2,
+                        mainPanel(
+                          width = 10,
                           pickerInput(
                             "vars_map",
                             label = NULL,
@@ -280,19 +279,52 @@ plot_height <- "500px"
                             ),
                             options = list(
                               `live-search` = TRUE,
-                              size = 20,
+                              size = 10,
                               title = "Select indicator"
                             ),
                             width = "100%"
-                          )
-                        ),
-
-                        mainPanel(
-                          width = 10,
+                          ),
                           plotlyOutput("map",
                                        height = "600px")
                         )
                       )
+               )
+    ),
+
+    # Trends tab ===================================================================================================
+    tabPanel("Trends",
+             id = "trends",
+
+             fluidRow(
+               column(width = 1),
+
+               column(width = 10,
+
+                      sidebarLayout(
+                        sidebarPanel(width = 3,
+                                     selectInput("country_trends",
+                                                 label = "Select a based country",
+                                                 choices = c("", country_list$country_name %>% unique %>% sort),
+                                                 selected = "Uruguay",
+                                                 multiple = FALSE)
+                        ),
+                        mainPanel(width = 8,
+                                  tabsetPanel(id = "tabsetpanel_trends_id",
+                                              tabPanel("Time Series",
+                                                       conditionalPanel("input.trends !== 0",
+                                                                        plotlyOutput("time_series")
+                                                       )
+                                              ),
+
+                                              tabPanel("Compare countries",
+                                                       conditionalPanel("input.trends !== 0",
+                                                                        plotlyOutput("comparison")
+                                                       )
+                                              )
+                                  )
+                        )
+                      ),
+                      br()
                )
              )
     ),
