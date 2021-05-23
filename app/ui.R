@@ -302,11 +302,13 @@ plot_height <- "500px"
 
                       sidebarLayout(
                         sidebarPanel(width = 3,
-                                     selectInput("country_trends",
-                                                 label = "Select a country",
-                                                 choices = c("", country_list$country_name %>% unique %>% sort),
-                                                 selected = "Uruguay",
-                                                 multiple = FALSE),
+                                     selectInput(
+                                       "country_trends",
+                                       label = "Select a country",
+                                       choices = c("", country_list$country_name %>% unique %>% sort),
+                                       selected = "Uruguay",
+                                       multiple = FALSE
+                                     ),
                                      pickerInput(
                                        "indicator_trends",
                                        label = NULL,
@@ -327,20 +329,26 @@ plot_height <- "500px"
                                          title = "Select indicator"
                                        ),
                                        width = "100%"
-                                     )
+                                     ),
+
+                                    #actionButton(
+                                    #   "select_trends",
+                                    #   "Apply selection",
+                                    #   icon = icon("check"),
+                                    #   class = "btn-success",
+                                    # width = "100%"
+                                    #),
+
+                                     br(),br()
                         ),
                         mainPanel(width = 8,
                                   tabsetPanel(id = "tabsetpanel_trends_id",
                                               tabPanel("Time Series",
-                                                       conditionalPanel("input.trends !== 0",
-                                                                        plotlyOutput("time_series")
-                                                       )
+                                                       plotlyOutput("time_series")
                                               ),
 
                                               tabPanel("Compare countries",
-                                                       conditionalPanel("input.trends !== 0",
-                                                                        plotlyOutput("comparison")
-                                                       )
+                                                       plotlyOutput("comparison")
                                               )
                                   )
                         )

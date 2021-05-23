@@ -189,7 +189,6 @@
       input$tabsetpanel_id
     })
 
-
    # Plots =============================================================================
 
     # Overview
@@ -346,6 +345,75 @@
         }
 
       })
+
+   # Trends =====================================================================================
+
+    observe({
+
+      if (input$indicator_trends != "") {
+
+      var_selected <-
+        variable_names %>%
+        filter(var_name == input$indicator_trends) %>%
+        .$variable
+
+      data <-
+        raw_data %>%
+        filter(
+          country_name == input$country_trends
+        ) %>%
+        select(country_name,year,all_of(var_selected)) %>%
+        rename(Country = country_name, Year = year, Indicator = var_selected) %>%
+        mutate(across(where(is.numeric),
+                      round, 3))
+
+      output$time_series <-
+        renderPlotly({
+
+          static_plot <- ggplot(data, aes(x=Year,y=Indicator)) +
+            geom_point(size=3) +
+            geom_line(lwd=1.5) +
+            theme_ipsum() +
+            labs(
+              title = paste0(input$indicator_trends),
+              x="Year",
+              y="Indicator"
+            )
+
+          ggplotly(static_plot) %>%
+            layout(
+              margin = list(l=50, r=50, t=75, b=135),
+              annotations =
+                list(x = 0, y = -0.475,
+                     text = map(paste0("<b>Country: </b>",input$country_trends,"."), HTML),
+                     showarrow = F,
+                     xref = 'paper',
+                     yref = 'paper',
+                     align = 'left',
+                     font = list(size = 12)
+                )
+            ) %>%
+            config(
+              modeBarButtonsToRemove = c("zoomIn2d",
+                                         "zoomOut2d",
+                                         "pan2d",
+                                         "autoScale2d",
+                                         "lasso2d",
+                                         "select2d",
+                                         "toggleSpikelines",
+                                         "hoverClosest3d",
+                                         "hoverClosestCartesian",
+                                         "hoverCompareCartesian"),
+              toImageButtonOptions= list(filename = paste0("trends_",
+                                                           tolower(input$country_trends),"_",
+                                                           tolower(stringr::str_replace_all(input$indicator_trends,"\\s","_"))))
+            )
+
+        })
+
+      }
+
+    })
 
    # Data table =================================================================================
 
