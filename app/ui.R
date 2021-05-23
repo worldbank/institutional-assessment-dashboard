@@ -386,10 +386,15 @@ plot_height <- "500px"
                                      style = "padding-top: 0"),
                                   p("The dashboard uses established well-institutional indicators, clustered into nine main institutional families:",
                                     tags$ul(
+                                      tags$li("Accountability institutions"),
+                                      tags$li("Business & trade institutions"),
+                                      tags$li("Financial institutions"),
+                                      tags$li("Governance of SOEs"),
+                                      tags$li("Labor market institutions"),
+                                      tags$li("Legal institutions"),
                                       tags$li("Political institutions"),
-                                      tags$li("Social institutions"),
-                                      tags$li("Percentile analysis and comparator countries"),
-                                      tags$li("Country group definitions")
+                                      tags$li("Public sector institutions"),
+                                      tags$li("Social institutions")
                                     )
                                   ),
                                   p("There is no agreed theoretical framework that could guide the categorization process. The proposed families are based on an effort to capture key functions that different institutions perform. In so doing, the categorization process faces a trade-off between aggregation and narrowness, where the categories ought to be broad enough to capture enough indicators and policy spaces, but narrow enough to guide a deep qualitative analysis as well as a fruitful and engaged conversation with the country."),
