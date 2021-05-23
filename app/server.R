@@ -339,7 +339,7 @@
                          "Not available" = "#808080"),
               na.value = "#808080",
               drop=F) +
-            labs(title = input$vars_map) +
+            labs(title = paste0("<b>",input$vars_map,"</b>")) +
             theme_bw()
 
           interactive_map(map, input$vars_map)

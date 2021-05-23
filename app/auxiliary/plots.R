@@ -67,7 +67,7 @@
           margin = list(l=50, r=50, t=75, b=135),
           annotations =
             list(x = 0, y = -0.475,
-                 text = map(paste0("Note: ",y,", ",paste(z, collapse = ", "),".",
+                 text = map(paste0("<b>Note:</b> ",y,", ",paste(z, collapse = ", "),".",
                                    "<br>◆ = average.",
                                    "<br>Closeness to frontier is calculated as (worst-y)/(worst-frontier).",
                                    "<br>1 identifies the best performer and 0 the worst performer.",
@@ -108,7 +108,7 @@
           margin = list(t=75,b=125),
           annotations =
             list(x = 0, y = -0.2,
-                 text = map(paste0("Disclaimer: Country borders or names do not necessarily reflect the World Bank Group's official position.",
+                 text = map(paste0("<b>Disclaimer:</b> Country borders or names do not necessarily reflect the World Bank Group's official position.",
                                    "<br>This map is for illustrative purposes and does not imply the expression of any opinion on the part of the World Bank,",
                                    "<br>concerning the legal status of any country or territory or concerning the delimitation of frontiers or boundaries."), HTML),
                  showarrow = F,
