@@ -127,7 +127,8 @@ plot_height <- "500px"
                                          yes = icon("ok",
                                                     lib = "glyphicon")),
                                        direction = "vertical",
-                                       justified = TRUE
+                                       justified = TRUE,
+                                       size = "sm"
                                       ),
 
                                      pickerInput(
