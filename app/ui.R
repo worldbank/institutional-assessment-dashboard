@@ -303,10 +303,31 @@ plot_height <- "500px"
                       sidebarLayout(
                         sidebarPanel(width = 3,
                                      selectInput("country_trends",
-                                                 label = "Select a based country",
+                                                 label = "Select a country",
                                                  choices = c("", country_list$country_name %>% unique %>% sort),
                                                  selected = "Uruguay",
-                                                 multiple = FALSE)
+                                                 multiple = FALSE),
+                                     pickerInput(
+                                       "indicator_trends",
+                                       label = NULL,
+                                       choices = list(
+                                         `Accountability institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
+                                         `Business & trade institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_mkt") %>% .$var_name),
+                                         `Financial institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
+                                         `Governance of SOEs` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_service_del") %>% .$var_name),
+                                         `Labor market institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_lab") %>% .$var_name),
+                                         `Legal institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_leg") %>% .$var_name),
+                                         `Political institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_pol") %>% .$var_name),
+                                         `Public sector institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_publ") %>% .$var_name),
+                                         `Social institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_social") %>% .$var_name)
+                                       ),
+                                       options = list(
+                                         `live-search` = TRUE,
+                                         size = 10,
+                                         title = "Select indicator"
+                                       ),
+                                       width = "100%"
+                                     )
                         ),
                         mainPanel(width = 8,
                                   tabsetPanel(id = "tabsetpanel_trends_id",
