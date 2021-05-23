@@ -358,7 +358,7 @@
           unlist
 
         data <-
-          global_data %>%
+          browse_data() %>%
           ungroup() %>%
           select(country_name,
                  all_of(vars)) %>%
