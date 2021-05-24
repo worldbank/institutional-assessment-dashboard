@@ -57,7 +57,7 @@
   raw_data <-
     read_rds(file.path("data",
                        "raw_data.rds")) %>%
-    filter(year>=2000) %>%
+    filter(year>=1990) %>%
     select(-c(lac,lac6,oecd,structural))
 
   # Metadata
@@ -434,6 +434,19 @@
           mutate(across(where(is.numeric),
                         round, 3))
 
+        if(input$show_rank){
+
+          data <-
+            data %>%
+            mutate(
+              across(
+                all_of(vars),
+                list(rank = ~dense_rank(desc(.x))),
+                .names="{.col}_{.fn}"
+              )
+            )
+
+        }
 
         datatable(
           data %>%

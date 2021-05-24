@@ -331,14 +331,6 @@ plot_height <- "500px"
                                        width = "100%"
                                      ),
 
-                                    #actionButton(
-                                    #   "select_trends",
-                                    #   "Apply selection",
-                                    #   icon = icon("check"),
-                                    #   class = "btn-success",
-                                    # width = "100%"
-                                    #),
-
                                      br(),br()
                         ),
                         mainPanel(width = 8,
@@ -394,6 +386,13 @@ plot_height <- "500px"
                                                         selected = family_names,
                                                         width = "100%"
 
+                                     ),
+
+                                     materialSwitch(
+                                       inputId = "show_rank",
+                                       label = "Show rank variables",
+                                       value = FALSE,
+                                       status = "info"
                                      ),
 
                                      downloadButton("download_global_rds", "Download .rds"),
