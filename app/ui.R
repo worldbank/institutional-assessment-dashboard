@@ -11,6 +11,8 @@
 
 # Inputs ################################################################################
 
+plot_height <- "500px"
+
 # Data sets ---------------------------------------------------------------------------
 
   country_groups <-
@@ -125,7 +127,8 @@
                                          yes = icon("ok",
                                                     lib = "glyphicon")),
                                        direction = "vertical",
-                                       justified = TRUE
+                                       justified = TRUE,
+                                       size = "sm"
                                       ),
 
                                      pickerInput(
@@ -161,13 +164,13 @@
                                   tabsetPanel(id = "tabsetpanel_id",
                                     tabPanel("Overview",
                                              conditionalPanel("input.select !== 0",
-                                                              plotlyOutput("overview")
+                                                              plotlyOutput("overview", height = plot_height)
                                              )
                                     ),
 
                                     tabPanel("Labor market institutions",
                                              conditionalPanel("input.select !== 0",
-                                                              plotlyOutput("Labor")
+                                                              plotlyOutput("Labor", height = plot_height)
                                              ),
                                              bsCollapsePanel("See indicator definitions",
                                                              tableOutput('labor_def'))
@@ -175,7 +178,7 @@
 
                                     tabPanel("Financial institutions",
                                              conditionalPanel("input.select !== 0",
-                                                              plotlyOutput("Financial")
+                                                              plotlyOutput("Financial", height = plot_height)
                                              ),
                                              bsCollapsePanel("See indicator definitions",
                                                              tableOutput('fin_def'))
@@ -183,7 +186,7 @@
 
                                     tabPanel("Legal institutions",
                                              conditionalPanel("input.select !== 0",
-                                                              plotlyOutput("Legal")
+                                                              plotlyOutput("Legal", height = plot_height)
                                              ),
                                              bsCollapsePanel("See indicator definitions",
                                                              tableOutput('legal_def'))
@@ -191,7 +194,7 @@
 
                                     tabPanel("Political institutions",
                                              conditionalPanel("input.select !== 0",
-                                                              plotlyOutput("Political")
+                                                              plotlyOutput("Political", height = plot_height)
                                              ),
                                              bsCollapsePanel("See indicator definitions",
                                                              tableOutput('political_def'))
@@ -199,7 +202,7 @@
 
                                     tabPanel("Social institutions",
                                              conditionalPanel("input.select !== 0",
-                                                              plotlyOutput("Social")
+                                                              plotlyOutput("Social", height = plot_height)
                                              ),
                                              bsCollapsePanel("See indicator definitions",
                                                              tableOutput('social_def'))
@@ -207,7 +210,7 @@
 
                                     tabPanel("Business & Trade institutions",
                                              conditionalPanel("input.select !== 0",
-                                                              plotlyOutput("Trade")
+                                                              plotlyOutput("Trade", height = plot_height)
                                              ),
                                              bsCollapsePanel("See indicator definitions",
                                                              tableOutput('business_def'))
@@ -215,7 +218,7 @@
 
                                     tabPanel("Public sector institutions",
                                              conditionalPanel("input.select !== 0",
-                                                              plotlyOutput("Public")
+                                                              plotlyOutput("Public", height = plot_height)
                                              ),
                                              bsCollapsePanel("See indicator definitions",
                                                              tableOutput('perf_def'))
@@ -223,7 +226,7 @@
 
                                     tabPanel("Institutions for service delivery",
                                              conditionalPanel("input.select !== 0",
-                                                              plotlyOutput("Governance")
+                                                              plotlyOutput("Governance", height = plot_height)
                                              ),
                                              bsCollapsePanel("See indicator definitions",
                                                              tableOutput('serv_def'))
@@ -231,7 +234,7 @@
 
                                     tabPanel("Accountability institutions",
                                              conditionalPanel("input.select !== 0",
-                                                              plotlyOutput("Account")
+                                                              plotlyOutput("Account", height = plot_height)
                                              ),
                                              bsCollapsePanel("See indicator definitions",
                                                              tableOutput('account_def'))
@@ -239,7 +242,10 @@
 
                         )
                       )
-               )
+               ),
+               br(),
+               br(),
+               br()
              )
              )
     ),
@@ -254,9 +260,8 @@
 
                column(width = 10,
 
-                      sidebarLayout(
-                        sidebarPanel(
-                          width = 2,
+                        mainPanel(
+                          width = 10,
                           pickerInput(
                             "vars_map",
                             label = NULL,
@@ -274,19 +279,73 @@
                             ),
                             options = list(
                               `live-search` = TRUE,
-                              size = 20,
+                              size = 10,
                               title = "Select indicator"
                             ),
                             width = "100%"
-                          )
-                        ),
-
-                        mainPanel(
-                          width = 10,
+                          ),
                           plotlyOutput("map",
                                        height = "600px")
                         )
                       )
+               )
+    ),
+
+    # Trends tab ===================================================================================================
+    tabPanel("Trends",
+             id = "trends",
+
+             fluidRow(
+               column(width = 1),
+
+               column(width = 10,
+
+                      sidebarLayout(
+                        sidebarPanel(width = 3,
+                                     selectInput(
+                                       "country_trends",
+                                       label = "Select a country",
+                                       choices = c("", country_list$country_name %>% unique %>% sort),
+                                       selected = "Uruguay",
+                                       multiple = FALSE
+                                     ),
+                                     pickerInput(
+                                       "indicator_trends",
+                                       label = NULL,
+                                       choices = list(
+                                         `Accountability institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
+                                         `Business & trade institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_mkt") %>% .$var_name),
+                                         `Financial institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
+                                         `Governance of SOEs` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_service_del") %>% .$var_name),
+                                         `Labor market institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_lab") %>% .$var_name),
+                                         `Legal institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_leg") %>% .$var_name),
+                                         `Political institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_pol") %>% .$var_name),
+                                         `Public sector institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_publ") %>% .$var_name),
+                                         `Social institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_social") %>% .$var_name)
+                                       ),
+                                       options = list(
+                                         `live-search` = TRUE,
+                                         size = 10,
+                                         title = "Select indicator"
+                                       ),
+                                       width = "100%"
+                                     ),
+
+                                     br(),br()
+                        ),
+                        mainPanel(width = 8,
+                                  tabsetPanel(id = "tabsetpanel_trends_id",
+                                              tabPanel("Time Series",
+                                                       plotlyOutput("time_series")
+                                              ),
+
+                                              tabPanel("Compare countries",
+                                                       plotlyOutput("comparison")
+                                              )
+                                  )
+                        )
+                      ),
+                      br()
                )
              )
     ),
@@ -327,6 +386,13 @@
                                                         selected = family_names,
                                                         width = "100%"
 
+                                     ),
+
+                                     materialSwitch(
+                                       inputId = "show_rank",
+                                       label = "Show rank variables",
+                                       value = FALSE,
+                                       status = "info"
                                      ),
 
                                      downloadButton("download_global_rds", "Download .rds"),
@@ -380,10 +446,15 @@
                                      style = "padding-top: 0"),
                                   p("The dashboard uses established well-institutional indicators, clustered into nine main institutional families:",
                                     tags$ul(
+                                      tags$li("Accountability institutions"),
+                                      tags$li("Business & trade institutions"),
+                                      tags$li("Financial institutions"),
+                                      tags$li("Governance of SOEs"),
+                                      tags$li("Labor market institutions"),
+                                      tags$li("Legal institutions"),
                                       tags$li("Political institutions"),
-                                      tags$li("Social institutions"),
-                                      tags$li("Percentile analysis and comparator countries"),
-                                      tags$li("Country group definitions")
+                                      tags$li("Public sector institutions"),
+                                      tags$li("Social institutions")
                                     )
                                   ),
                                   p("There is no agreed theoretical framework that could guide the categorization process. The proposed families are based on an effort to capture key functions that different institutions perform. In so doing, the categorization process faces a trade-off between aggregation and narrowness, where the categories ought to be broad enough to capture enough indicators and policy spaces, but narrow enough to guide a deep qualitative analysis as well as a fruitful and engaged conversation with the country."),

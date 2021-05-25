@@ -25,6 +25,15 @@
                 '<b>Classification:</b>', classification), HTML),
               color = classification),
           size = 3)  +
+        geom_point(
+          aes(x = reorder(var_name,
+                          -dtf),
+              y = avg,
+              text = map(paste(
+                '<b>CTF average:</b>', round(avg, digits = 3), '<br>'), HTML),),
+          size = 2,
+          shape = 18,
+          color = "black") +
         coord_flip() +
         scale_color_manual(
           values =
@@ -36,6 +45,7 @@
         scale_y_continuous(
           limits = c(0,1)
         )  +
+        guides(color = guide_legend(order=1)) +
         theme_ipsum() +
         theme(
           panel.grid.minor.y = element_blank(),
@@ -54,18 +64,19 @@
       x %>%
         ggplotly(tooltip = "text") %>%
         layout(
-          margin = list(l=50, r=50, t=75, b=125),
+          margin = list(l=50, r=50, t=75, b=135),
           annotations =
-            list(x = 0, y = -0.55,
-                 text = map(paste0("Note: ",y,", ",paste(z, collapse = ", "),".",
+            list(x = 0, y = -0.475,
+                 text = map(paste0("<b>Note:</b> ",y,", ",paste(z, collapse = ", "),".",
+                                   "<br>◆ = average.",
                                    "<br>Closeness to frontier is calculated as (worst-y)/(worst-frontier).",
-                                   "<br>1 identifies the best performer and 0 the worst performer",
+                                   "<br>1 identifies the best performer and 0 the worst performer.",
                                    "<br>Weak = bottom 25%; Emerging = 25%-50%; Advanced = top 50%."), HTML),
                  showarrow = F,
                  xref = 'paper',
                  yref = 'paper',
                  align = 'left',
-                 font = list(size = 10)
+                 font = list(size = 12)
                  )
         ) %>%
         config(
@@ -90,16 +101,22 @@
       x %>%
         ggplotly(tooltip = "text") %>%
         layout(
-          margin = list(b = -1.5),
           legend = list(
             title=list(text='<b>Closeness to\nfrontier:</b>'),
-            #orientation = 'h',
-            y=0.5#,
-            #x=0.5,
-            #xanchor = "center",
-            #bordercolor = "#00000",
-            #borderwidth = 1
-          )
+            y=0.5
+          ),
+          margin = list(t=75,b=125),
+          annotations =
+            list(x = 0, y = -0.2,
+                 text = map(paste0("<b>Disclaimer:</b> Country borders or names do not necessarily reflect the World Bank Group's official position.",
+                                   "<br>This map is for illustrative purposes and does not imply the expression of any opinion on the part of the World Bank,",
+                                   "<br>concerning the legal status of any country or territory or concerning the delimitation of frontiers or boundaries."), HTML),
+                 showarrow = F,
+                 xref = 'paper',
+                 yref = 'paper',
+                 align = 'left',
+                 font = list(size = 13)
+            )
         ) %>%
         config(
           modeBarButtonsToRemove = c(#"zoomIn2d",

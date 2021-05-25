@@ -53,6 +53,13 @@
 
   st_crs(wb_country_geom_fact) <- "WGS84"
 
+  # Raw data
+  raw_data <-
+    read_rds(file.path("data",
+                       "raw_data.rds")) %>%
+    filter(year>=1990) %>%
+    select(-c(lac,lac6,oecd,structural))
+
   # Metadata
   variable_names <-
     read_rds(file.path("data",
@@ -158,11 +165,29 @@
                     }
       )
 
+    # Browse data
+    browse_data <-
+      eventReactive(input$data,
+
+                    {
+                      selected_data <- input$data
+
+                      if (selected_data=="Closeness to frontier") {
+                        return(global_data)
+                      }
+
+                      if (selected_data=="Compiled indicators") {
+                        return(raw_data)
+                      }
+
+                    }
+      )
+
+
     # Plot title according to panel selected
     plot_title <- reactive({
       input$tabsetpanel_id
     })
-
 
    # Plots =============================================================================
 
@@ -313,13 +338,82 @@
                          "Not available" = "#808080"),
               na.value = "#808080",
               drop=F) +
-            labs(title = input$vars_map) +
+            labs(title = paste0("<b>",input$vars_map,"</b>")) +
             theme_bw()
 
           interactive_map(map, input$vars_map)
         }
 
       })
+
+   # Trends =====================================================================================
+
+    observe({
+
+      if (input$indicator_trends != "") {
+
+      var_selected <-
+        variable_names %>%
+        filter(var_name == input$indicator_trends) %>%
+        .$variable
+
+      data <-
+        raw_data %>%
+        filter(
+          country_name == input$country_trends
+        ) %>%
+        select(country_name,year,all_of(var_selected)) %>%
+        rename(Country = country_name, Year = year, Indicator = var_selected) %>%
+        mutate(across(where(is.numeric),
+                      round, 3))
+
+      output$time_series <-
+        renderPlotly({
+
+          static_plot <- ggplot(data, aes(x=Year,y=Indicator)) +
+            geom_point(size=3) +
+            geom_line(lwd=1.5) +
+            theme_ipsum() +
+            labs(
+              title = paste0(input$indicator_trends),
+              x="Year",
+              y="Indicator"
+            )
+
+          ggplotly(static_plot) %>%
+            layout(
+              margin = list(l=50, r=50, t=75, b=135),
+              annotations =
+                list(x = 0, y = -0.475,
+                     text = map(paste0("<b>Country: </b>",input$country_trends,"."), HTML),
+                     showarrow = F,
+                     xref = 'paper',
+                     yref = 'paper',
+                     align = 'left',
+                     font = list(size = 12)
+                )
+            ) %>%
+            config(
+              modeBarButtonsToRemove = c("zoomIn2d",
+                                         "zoomOut2d",
+                                         "pan2d",
+                                         "autoScale2d",
+                                         "lasso2d",
+                                         "select2d",
+                                         "toggleSpikelines",
+                                         "hoverClosest3d",
+                                         "hoverClosestCartesian",
+                                         "hoverCompareCartesian"),
+              toImageButtonOptions= list(filename = paste0("trends_",
+                                                           tolower(input$country_trends),"_",
+                                                           tolower(stringr::str_replace_all(input$indicator_trends,"\\s","_"))))
+            )
+
+        })
+
+      }
+
+    })
 
    # Data table =================================================================================
 
@@ -332,7 +426,7 @@
           unlist
 
         data <-
-          global_data %>%
+          browse_data() %>%
           ungroup() %>%
           select(country_name,
                  all_of(vars)) %>%
@@ -340,6 +434,19 @@
           mutate(across(where(is.numeric),
                         round, 3))
 
+        if(input$show_rank){
+
+          data <-
+            data %>%
+            mutate(
+              across(
+                all_of(vars),
+                list(rank = ~dense_rank(desc(.x))),
+                .names="{.col}_{.fn}"
+              )
+            )
+
+        }
 
         datatable(
           data %>%
@@ -357,41 +464,42 @@
 
       })
 
-    # Downloadable rds of selected dataset
+        # Downloadable rds of selected dataset
 
-    output$download_global_rds <-
-      downloadHandler(
-        filename = "data.rds",
+        output$download_global_rds <-
+          downloadHandler(
+            filename = "data.rds",
 
-        content = function(file) {
-          write_rds(global_data,
-                    file)
-        }
-      )
+            content = function(file) {
+              write_rds(browse_data(),
+                        file)
+            }
+          )
 
-    # Downloadable csv of selected dataset
+        # Downloadable csv of selected dataset
 
-    output$download_global_csv <-
-      downloadHandler(
-        filename = "data.csv",
+        output$download_global_csv <-
+          downloadHandler(
+            filename = "data.csv",
 
-        content = function(file) {
-          write_csv(global_data,
-                    file)
-        }
-      )
+            content = function(file) {
+              write_csv(browse_data(),
+                        file)
+            }
+          )
 
-    # Downloadable dta of selected dataset
+        # Downloadable dta of selected dataset
 
-    output$download_global_dta <-
-      downloadHandler(
-        filename = "data.dta",
+        output$download_global_dta <-
+          downloadHandler(
+            filename = "data.dta",
 
-        content = function(file) {
-          write_dta(global_data,
-                    file)
-        }
-      )
+            content = function(file) {
+              write_dta(browse_data(),
+                        file)
+            }
+          )
+
 
    # Report ================================================================================
     output$report <- downloadHandler(

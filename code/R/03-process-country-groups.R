@@ -23,13 +23,19 @@
 
   group_codes <-
     c("EUU",
+      "LAC",
+      "EAP",
+      "ECA",
+      "MNA",
+      "SSA",
       "HIC",
+      "OECD",
       "LIC",
       "LMC",
       "LMY",
       "MIC",
-      "OECD",
-      "UMC")
+      "UMC"
+      )
 
   groups <-
     country_list %>%
