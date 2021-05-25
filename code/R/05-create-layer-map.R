@@ -28,11 +28,27 @@ wb_country_geom <-
                "layer",
                "WB_countries_Admin0_lowres.geojson"))
 
+wb_disputed_geom <-
+  read_sf(here("data",
+               "layer",
+               "WB_disputed_areas_Admin0_10m",
+               "WB_disputed_areas_Admin0_10m.shp"))
+
 # 2 Operations ============================================================================================
+
+wb_disputed_geom <-
+  wb_disputed_geom %>%
+  select(WB_A3,WB_NAME,geometry) %>%
+  filter(!is.na(WB_A3))
+
+wb_country_geom <-
+  bind_rows(
+    wb_country_geom,
+    wb_disputed_geom
+  )
 
 wb_country_geom <-
   wb_country_geom %>%
-  filter(TYPE=="Sovereign country" | TYPE=="Country") %>%
   select(WB_A3,WB_NAME,geometry) %>%
   left_join(
     dtf_family_level %>%

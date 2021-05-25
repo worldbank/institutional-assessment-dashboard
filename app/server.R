@@ -323,7 +323,7 @@
           map <-
             ggplot(wb_country_geom_fact) +
             geom_sf(aes(fill = get(var_selected),
-                        text = paste0(WB_NAME, ":",
+                        text = paste0(WB_NAME, ": ",
                                       get(paste0(var_selected, "_value")))),
                     color="black",
                     size=0.1
