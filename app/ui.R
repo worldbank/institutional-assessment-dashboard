@@ -19,6 +19,10 @@ plot_height <- "500px"
     read_rds(file.path("data",
                        "wb_country_groups.rds"))
 
+  definitions <-
+    read_rds(file.path("data",
+                       "indicator_definitions.rds"))
+
   country_list <-
     read_rds(file.path("data",
                        "wb_country_list.rds"))
@@ -156,15 +160,7 @@ plot_height <- "500px"
                                        "family",
                                        label = "View institutional family benchmark",
                                        choices = c("Overview",
-                                                  "Labor market institutions",
-                                                  "Financial market institutions",
-                                                  "Legal institutions",
-                                                  "Political institutions",
-                                                  "Social institutions",
-                                                  "Business environment and trade institutions",
-                                                  "Public sector institutions",
-                                                  "Institutions for service delivery",
-                                                  "Accountability institutions"
+                                                  names(definitions)
                                        ),
                                        selected = "Overview",
                                        checkIcon = list(
@@ -174,6 +170,13 @@ plot_height <- "500px"
                                        justified = TRUE,
                                        size = "sm",
                                        status = "primary"
+                                     ),
+
+                                     materialSwitch(
+                                       inputId = "show_def",
+                                       label = "Show list of indicators",
+                                       value = FALSE,
+                                       status = "info"
                                      ),
 
                                      downloadButton("report",
@@ -187,8 +190,12 @@ plot_height <- "500px"
                                   conditionalPanel("input.select !== 0",
                                                    plotlyOutput("plot",
                                                                 height = plot_height)
-                                             )
-                                    )
+                                             ),
+                                  br(),
+                                  conditionalPanel("input.show_def",
+                                                   tableOutput('definition')
+                                  )
+                        )
                       )
                )
              )
@@ -304,24 +311,8 @@ plot_height <- "500px"
 
                                      checkboxGroupButtons("vars",
                                                           label = "Select institutional family",
-                                                          choices = c("Labor market institutions",
-                                                                      "Financial market institutions",
-                                                                      "Legal institutions",
-                                                                      "Political institutions",
-                                                                      "Social institutions",
-                                                                      "Business environment and trade institutions",
-                                                                      "Public sector institutions",
-                                                                      "Institutions for service delivery",
-                                                                      "Accountability institutions"),
-                                                          selected = c("Labor market institutions",
-                                                                       "Financial market institutions",
-                                                                       "Legal institutions",
-                                                                       "Political institutions",
-                                                                       "Social institutions",
-                                                                       "Business environment and trade institutions",
-                                                                       "Public sector institutions",
-                                                                       "Institutions for service delivery",
-                                                                       "Accountability institutions"),
+                                                          choices = names(definitions),
+                                                          selected = names(definitions),
                                                           checkIcon = list(
                                                             yes = icon("ok",
                                                                        lib = "glyphicon")),

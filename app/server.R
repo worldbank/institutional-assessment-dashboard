@@ -88,6 +88,8 @@
         input$country
       )
 
+    observeEvent(input$show_def, {print(input$show_Def)})
+
     # Comparison countries
     observeEvent(input$groups,
                   {
@@ -399,7 +401,7 @@
           rownames = FALSE,
           filter = 'top',
           options = list(scrollX = TRUE,
-                         pageLength = 15,
+                         pageLength = 13,
                          fixedColumns = TRUE,
                          autoWidth = TRUE,
                          dom = "lBtipr"))
@@ -444,6 +446,7 @@
 
 
    # Report ================================================================================
+
     output$report <- downloadHandler(
       filename = "instutitional-assessment-report.docx",
       content = function(file) {
