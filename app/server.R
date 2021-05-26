@@ -89,10 +89,8 @@
       )
 
     # Comparison countries
-    comparison_countries <-
-      eventReactive(input$groups,
-
-                    {
+    observeEvent(input$groups,
+                  {
                       selected_groups  <- input$groups
                       selected_country <- input$country
 
@@ -117,31 +115,28 @@
                           pluck(1)
 
                       }
+
+                      updatePickerInput(session,
+                                        "countries",
+                                        label = NULL,
+                                        choices = global_data$country_name %>% unique,
+                                        selected = selected
+                      )
                     },
 
                     ignoreNULL = FALSE
       )
 
 
-    # Expand
-    observeEvent(input$expand, {
-      toggle('countrylist')
-    })
-
     # Triggered by comparison countries: names of countries selected and action button
-    observeEvent(comparison_countries(),
+    observeEvent(input$countries,
 
                  {
                    # Can also set the label and select items
-                   updatePickerInput(session,
-                                     "countries",
-                                     label = NULL,
-                                     choices = global_data$country_name %>% unique,
-                                     selected = comparison_countries()
-                   )
+
 
                    toggleState(id = "select",
-                               condition = length(comparison_countries()) >= 10)
+                               condition = length(input$countries) >= 10)
                  },
 
                  ignoreNULL = FALSE
@@ -165,7 +160,7 @@
                         global_data %>%
                         def_quantiles(
                           base_country(),
-                          comparison_countries(),
+                          input$countries,
                           vars_all
                         ) %>%
                         left_join(variable_names)
@@ -211,7 +206,7 @@
             family_level_data %>%
             def_quantiles(
               base_country(),
-              comparison_countries(),
+              input$countries,
               variable_names$variable
             )  %>%
             left_join(variable_names)
@@ -456,7 +451,7 @@
         file.copy("report.Rmd", "tempReport.Rmd", overwrite = TRUE)
 
         params <- list(base_country = base_country(),
-                       comparison_countries = comparison_countries(),
+                       comparison_countries = input$countries,
                        data = data())
 
         rmarkdown::render("tempReport.Rmd",
