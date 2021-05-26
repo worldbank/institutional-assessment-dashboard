@@ -220,7 +220,7 @@ plot_height <- "500px"
                                      ),
                                      options = list(
                                        `live-search` = TRUE,
-                                       size = 10,
+                                       size = 25,
                                        title = "Select indicator"
                                      ),
                                      width = "100%"
@@ -371,19 +371,24 @@ plot_height <- "500px"
 
                       sidebarLayout(
                         sidebarPanel(id = "met_sidebar",
-                                     style = "position:fixed; width: 3",
+                                     style = "position:fixed; background-color: #204d74",
                                      width = 3,
 
                                      p(tags$a(href = "#met_families",
-                                              "Institutional families")),
+                                              "Institutional families",
+                                              style = "color: white")),
                                      p(tags$a(href = "#met_ctf",
-                                              "Closeness to frontier")),
+                                              "Closeness to frontier",
+                                              style = "color: white")),
                                      p(tags$a(href = "#met_benchmark",
-                                              "Percentile analysis and comparator countries")),
+                                              "Percentile analysis and comparator countries",
+                                              style = "color: white")),
                                      p(tags$a(href = "#def_country",
-                                              "Country group definitions")),
+                                              "Country group definitions",
+                                              style = "color: white")),
                                      p(tags$a(href = "#def_indicators",
-                                              "List of indicators"))
+                                              "List of indicators",
+                                              style = "color: white"))
                         ),
 
                         mainPanel(width = 9,
@@ -463,7 +468,7 @@ plot_height <- "500px"
                                     For a full list of the indicators used, their sources, and their definitions, download the metadata below."),
                                   downloadButton("download_indicators",
                                                  "Download indicator definitions",
-                                                 style = "width:100%; background-color: #204d74; color: white"),
+                                                 style = "background-color: #204d74; color: white"),
                                   br(),
                                   br(),
                                   br()

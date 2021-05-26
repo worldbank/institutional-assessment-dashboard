@@ -57,8 +57,11 @@
   raw_data <-
     read_rds(file.path("data",
                        "raw_data.rds")) %>%
-    filter(year>=1990) %>%
-    select(-c(lac,lac6,oecd,structural))
+    filter(year >= 1990) %>%
+    select(-c(lac, lac6, oecd, structural))
+
+  raw_data <-
+    raw_data[rowSums(!is.na(raw_data)) > 3, ]
 
   # Metadata
   variable_names <-
@@ -373,7 +376,7 @@
           unlist
 
         data <-
-          global_data %>%
+          browse_data() %>%
           ungroup() %>%
           select(country_name,
                  all_of(vars)) %>%
@@ -401,7 +404,7 @@
           rownames = FALSE,
           filter = 'top',
           options = list(scrollX = TRUE,
-                         pageLength = 13,
+                         pageLength = 15,
                          fixedColumns = TRUE,
                          autoWidth = TRUE,
                          dom = "lBtipr"))
