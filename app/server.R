@@ -58,7 +58,8 @@
     read_rds(file.path("data",
                        "raw_data.rds")) %>%
     filter(year >= 1990) %>%
-    select(-c(lac, lac6, oecd, structural))
+    select(-c(lac, lac6, oecd, structural)) %>%
+    rename(Year = year)
 
   raw_data <-
     raw_data[rowSums(!is.na(raw_data)) > 3, ]
@@ -297,13 +298,12 @@
         filter(
           country_name == input$country_trends
         ) %>%
-        select(country_name, year, all_of(var_selected)) %>%
+        select(country_name, Year, all_of(var_selected)) %>%
         pivot_longer(cols = all_of(var_selected),
                      names_to = "variable",
                      values_to = "Indicator value") %>%
         left_join(variable_names) %>%
         rename(Country = country_name,
-               Year = year,
                `Indicator name` = var_name) %>%
         mutate(across(where(is.numeric),
                       round, 3))
@@ -372,12 +372,17 @@
           .$variable %>%
           unlist
 
+        if (input$data == "Compiled indicators") {
+          vars <- c("Country", "Year", vars)
+        } else {
+          vars <- c("Country", vars)
+        }
+
         data <-
           browse_data() %>%
-          ungroup() %>%
-          select(country_name,
-                 all_of(vars)) %>%
           rename(Country = country_name) %>%
+          ungroup() %>%
+          select(all_of(vars)) %>%
           mutate(across(where(is.numeric),
                         round, 3))
 
