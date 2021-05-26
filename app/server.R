@@ -366,12 +366,14 @@
       renderDataTable(server = FALSE, {
 
         vars <-
-          input$vars %>%
-          map(get) %>%
+          variable_names %>%
+          filter(family_name %in% input$vars,
+                 var_level == "indicator") %>%
+          .$variable %>%
           unlist
 
         data <-
-          browse_data() %>%
+          global_data %>%
           ungroup() %>%
           select(country_name,
                  all_of(vars)) %>%
@@ -383,11 +385,8 @@
 
           data <-
             data %>%
-            mutate(
-              across(
-                all_of(vars),
-                list(rank = ~dense_rank(desc(.x))),
-                .names="{.col}_{.fn}"
+            mutate_at(vars(all_of(vars)),
+                      ~ dense_rank(desc(.)
               )
             )
 
