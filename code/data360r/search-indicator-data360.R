@@ -37,7 +37,7 @@ for(i in 1:nrow(all_indicators)){
       dist
     ) %>%
     arrange(name_dist) %>%
-    filter(name_dist <= 10) %>%
+    filter(name_dist <= 15) %>%
     mutate(indicator = ind) %>%
     rename_all( list(~paste0(., "_360"))) %>%
     left_join(all_indicators %>%
@@ -49,9 +49,9 @@ for(i in 1:nrow(all_indicators)){
       id=id_360,
       Indicator_dash=indicator_360
     ) %>%
-    select(-`Institutional family_dash`) %>%
+    #select(-`Institutional family_dash`) %>%
     relocate(
-      all_of(c("Indicator_dash","Description_dash","Source_dash","name_dist")),
+      all_of(c("Indicator_dash","Institutional family_dash","Description_dash","Source_dash","name_dist")),
       .before = DB_360
     )
 
@@ -76,7 +76,7 @@ for(i in 1:nrow(all_indicators)){
       dist
     ) %>%
     arrange(name_dist) %>%
-    filter(name_dist <= 10) %>%
+    filter(name_dist <= 15) %>%
     mutate(indicator = ind) %>%
     rename_all( list(~paste0(., "_360"))) %>%
     left_join(all_indicators %>%
@@ -88,9 +88,9 @@ for(i in 1:nrow(all_indicators)){
       id=id_360,
       Indicator_dash=indicator_360
     ) %>%
-    select(-`Institutional family_dash`) %>%
+    #select(-`Institutional family_dash`) %>%
     relocate(
-      all_of(c("Indicator_dash","Description_dash","Source_dash","name_dist")),
+      all_of(c("Indicator_dash","Institutional family_dash","Description_dash","Source_dash","name_dist")),
       .before = DB_360
     )
 
