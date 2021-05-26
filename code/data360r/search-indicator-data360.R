@@ -125,3 +125,10 @@ write_rds(match_indicators %>% filter(name_dist==0),
           here("code",
                "data360r",
                "match_indicators.rds"))
+
+
+match <- readxl::read_excel("/home/gabriel/Documentos/consultorias_trabalhos/banco_mundial_shiny/match_indicators.xlsx",sheet="Planilha2")
+
+match_indicators <- left_join(all_indicators,match,by=c("Indicator"="Indicator_dash"))
+
+indicators360 <- bind_rows(tc_indicators,gov_indicators)
