@@ -42,7 +42,7 @@ plot_height <- "500px"
 
     "Global institutional assessment",
 
-    theme = bs_theme(bootswatch = "minty"),
+    #theme = bs_theme(bootswatch = "minty"),
 
     # About page ---------------------------------------------
     tabPanel(
@@ -78,7 +78,7 @@ plot_height <- "500px"
           ),
           tags$li("The ",
                   tags$b("world map"),
-                  "tab shows the closeness to frontier of a given indicator for all contries with available data."
+                  "tab shows the closeness to frontier of a given indicator for all countries with available data."
 
           ),
           tags$li("The ",
@@ -105,7 +105,6 @@ plot_height <- "500px"
              id = "country",
 
              fluidRow(
-               column(width = 1),
 
                column(width = 10,
 
@@ -117,32 +116,31 @@ plot_height <- "500px"
                                                  selected = "Uruguay",
                                                  multiple = FALSE),
 
-                                     checkboxGroupButtons(
+
+                                     selectizeInput(
                                        "groups",
-                                       label = "Select a comparison group",
-                                       choiceNames = country_groups$group_name,
-                                       choiceValues = country_groups$group_code,
-                                       selected = "OECD",
-                                       checkIcon = list(
-                                         yes = icon("ok",
-                                                    lib = "glyphicon")),
-                                       direction = "vertical",
-                                       justified = TRUE,
-                                       size = "sm"
+                                       label = "Select comparison groups",
+                                       choices = country_groups$group_name,
+                                       selected = "OECD members",
+                                       multiple = TRUE
                                       ),
 
-                                     pickerInput(
-                                       "countries",
-                                       label = NULL,
-                                       choices = global_data$country_name %>% unique %>% sort,
-                                       multiple = TRUE,
-                                       options = list(
-                                        `count-selected-text` = "{0} countries selected",
-                                        `selected-text-format` = "count > 5",
-                                        #`actions-box` = TRUE,
-                                        `live-search` = TRUE,
-                                        size = 10)
-                                     ),
+                                     HTML('<button id = "expand-button" class = "btn btn-default shiny-bound-input" data-toggle = "collapse" data-target = "#expand">Select individual countries</button>'),
+                                     tags$div(id = 'expand',
+                                                class = "collapse",
+                                                style = "width: 1700px",
+                                                tags$div(
+                                                  class = "multicol-7",
+                                                  checkboxGroupInput(
+                                                    "countries",
+                                                    label = NULL,
+                                                    choices = country_list$country_name %>% unique %>% sort,
+                                                  )
+                                                )
+                                       ),
+
+                                     br(),
+                                     br(),
 
                                      actionButton(
                                        "select",
@@ -154,9 +152,33 @@ plot_height <- "500px"
 
                                      br(),br(),
 
+                                     radioGroupButtons(
+                                       "family",
+                                       label = "View institutional family benchmark",
+                                       choices = c("Overview",
+                                                  "Labor market institutions",
+                                                  "Financial market institutions",
+                                                  "Legal institutions",
+                                                  "Political institutions",
+                                                  "Social institutions",
+                                                  "Business environment and trade institutions",
+                                                  "Public sector institutions",
+                                                  "Institutions for service delivery",
+                                                  "Accountability institutions"
+                                       ),
+                                       selected = "Overview",
+                                       checkIcon = list(
+                                         yes = icon("ok",
+                                                    lib = "glyphicon")),
+                                       direction = "vertical",
+                                       justified = TRUE,
+                                       size = "sm",
+                                       status = "primary"
+                                     ),
+
                                      downloadButton("report",
                                                     "Download editable report",
-                                                    style = "width:100%;"
+                                                    style = "width:100%; background-color: #204d74; color: white"
                                      )
                         ),
 
@@ -166,87 +188,9 @@ plot_height <- "500px"
                                              conditionalPanel("input.select !== 0",
                                                               plotlyOutput("overview", height = plot_height)
                                              )
-                                    ),
-
-                                    tabPanel("Labor market institutions",
-                                             conditionalPanel("input.select !== 0",
-                                                              plotlyOutput("Labor", height = plot_height)
-                                             ),
-                                             bsCollapsePanel("See indicator definitions",
-                                                             tableOutput('labor_def'))
-                                    ),
-
-                                    tabPanel("Financial institutions",
-                                             conditionalPanel("input.select !== 0",
-                                                              plotlyOutput("Financial", height = plot_height)
-                                             ),
-                                             bsCollapsePanel("See indicator definitions",
-                                                             tableOutput('fin_def'))
-                                    ),
-
-                                    tabPanel("Legal institutions",
-                                             conditionalPanel("input.select !== 0",
-                                                              plotlyOutput("Legal", height = plot_height)
-                                             ),
-                                             bsCollapsePanel("See indicator definitions",
-                                                             tableOutput('legal_def'))
-                                    ),
-
-                                    tabPanel("Political institutions",
-                                             conditionalPanel("input.select !== 0",
-                                                              plotlyOutput("Political", height = plot_height)
-                                             ),
-                                             bsCollapsePanel("See indicator definitions",
-                                                             tableOutput('political_def'))
-                                    ),
-
-                                    tabPanel("Social institutions",
-                                             conditionalPanel("input.select !== 0",
-                                                              plotlyOutput("Social", height = plot_height)
-                                             ),
-                                             bsCollapsePanel("See indicator definitions",
-                                                             tableOutput('social_def'))
-                                    ),
-
-                                    tabPanel("Business & Trade institutions",
-                                             conditionalPanel("input.select !== 0",
-                                                              plotlyOutput("Trade", height = plot_height)
-                                             ),
-                                             bsCollapsePanel("See indicator definitions",
-                                                             tableOutput('business_def'))
-                                    ),
-
-                                    tabPanel("Public sector institutions",
-                                             conditionalPanel("input.select !== 0",
-                                                              plotlyOutput("Public", height = plot_height)
-                                             ),
-                                             bsCollapsePanel("See indicator definitions",
-                                                             tableOutput('perf_def'))
-                                    ),
-
-                                    tabPanel("Institutions for service delivery",
-                                             conditionalPanel("input.select !== 0",
-                                                              plotlyOutput("Governance", height = plot_height)
-                                             ),
-                                             bsCollapsePanel("See indicator definitions",
-                                                             tableOutput('serv_def'))
-                                    ),
-
-                                    tabPanel("Accountability institutions",
-                                             conditionalPanel("input.select !== 0",
-                                                              plotlyOutput("Account", height = plot_height)
-                                             ),
-                                             bsCollapsePanel("See indicator definitions",
-                                                             tableOutput('account_def'))
                                     )
-
-                        )
                       )
-               ),
-               br(),
-               br(),
-               br()
-             )
+               )
              )
     ),
 
@@ -256,34 +200,10 @@ plot_height <- "500px"
              id = "world_map",
 
              fluidRow(
-               column(width = 1),
-
                column(width = 10,
 
                         mainPanel(
-                          width = 10,
-                          pickerInput(
-                            "vars_map",
-                            label = NULL,
-                            choices = list(
-                              `Family level` = c(sort(unique(variable_names$family_name))),
-                              `Accountability institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
-                              `Business & trade institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_mkt") %>% .$var_name),
-                              `Financial institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
-                              `Governance of SOEs` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_service_del") %>% .$var_name),
-                              `Labor market institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_lab") %>% .$var_name),
-                              `Legal institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_leg") %>% .$var_name),
-                              `Political institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_pol") %>% .$var_name),
-                              `Public sector institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_publ") %>% .$var_name),
-                              `Social institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_social") %>% .$var_name)
-                            ),
-                            options = list(
-                              `live-search` = TRUE,
-                              size = 10,
-                              title = "Select indicator"
-                            ),
-                            width = "100%"
-                          ),
+                          width = 9,
                           plotlyOutput("map",
                                        height = "600px")
                         )
@@ -296,8 +216,6 @@ plot_height <- "500px"
              id = "trends",
 
              fluidRow(
-               column(width = 1),
-
                column(width = 10,
 
                       sidebarLayout(
@@ -309,9 +227,11 @@ plot_height <- "500px"
                                        selected = "Uruguay",
                                        multiple = FALSE
                                      ),
-                                     pickerInput(
+
+                                     selectInput(
                                        "indicator_trends",
                                        label = NULL,
+                                       multiple = TRUE,
                                        choices = list(
                                          `Accountability institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
                                          `Business & trade institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_mkt") %>% .$var_name),
@@ -323,29 +243,18 @@ plot_height <- "500px"
                                          `Public sector institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_publ") %>% .$var_name),
                                          `Social institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_social") %>% .$var_name)
                                        ),
-                                       options = list(
-                                         `live-search` = TRUE,
-                                         size = 10,
-                                         title = "Select indicator"
-                                       ),
                                        width = "100%"
                                      ),
 
                                      br(),br()
                         ),
                         mainPanel(width = 8,
-                                  tabsetPanel(id = "tabsetpanel_trends_id",
-                                              tabPanel("Time Series",
-                                                       plotlyOutput("time_series")
-                                              ),
-
-                                              tabPanel("Compare countries",
-                                                       plotlyOutput("comparison")
-                                              )
+                                  tabPanel("Time Series",
+                                           plotlyOutput("time_series",
+                                                        height = plot_height)
                                   )
                         )
-                      ),
-                      br()
+                      )
                )
              )
     ),
@@ -355,8 +264,6 @@ plot_height <- "500px"
     tabPanel("Browse the data",
 
              fluidRow(
-               column(width = 1),
-
                column(width = 10,
 
                       sidebarLayout(
@@ -395,13 +302,19 @@ plot_height <- "500px"
                                        status = "info"
                                      ),
 
-                                     downloadButton("download_global_rds", "Download .rds"),
+                                     downloadButton("download_global_rds",
+                                                    "Download .rds",
+                                                    style = "width:100%; background-color: #204d74; color: white"),
                                      br(),
                                      br(),
-                                     downloadButton("download_global_csv", "Download .csv"),
+                                     downloadButton("download_global_csv",
+                                                    "Download .csv",
+                                                    style = "width:100%; background-color: #204d74; color: white"),
                                      br(),
                                      br(),
-                                     downloadButton("download_global_dta", "Download .dta")
+                                     downloadButton("download_global_dta",
+                                                    "Download .dta",
+                                                    style = "width:100%; background-color: #204d74; color: white")
                         ),
 
                         mainPanel(width = 9,
@@ -418,14 +331,12 @@ plot_height <- "500px"
     tabPanel("Methodology",
 
              fluidRow(
-               column(width = 1),
-
                column(width = 10,
 
                       sidebarLayout(
                         sidebarPanel(id = "met_sidebar",
-                                     style = "position:fixed; width:inherit; width:12%;",
-                                     width = 2,
+                                     style = "position:fixed; width: 3",
+                                     width = 3,
 
                                      p(tags$a(href = "#met_families",
                                               "Institutional families")),
@@ -439,7 +350,7 @@ plot_height <- "500px"
                                               "List of indicators"))
                         ),
 
-                        mainPanel(width = 10,
+                        mainPanel(width = 9,
 
                                   h3("Institutional families",
                                      id = "met_families",
@@ -514,7 +425,9 @@ plot_height <- "500px"
                                      id = "def_indicators"),
                                   p("The indicators used to benchmark the institutional families are extracted from multiple public data sources.
                                     For a full list of the indicators used, their sources, and their definitions, download the metadata below."),
-                                  downloadButton("download_indicators", "Download indicator definitions"),
+                                  downloadButton("download_indicators",
+                                                 "Download indicator definitions",
+                                                 style = "width:100%; background-color: #204d74; color: white"),
                                   br(),
                                   br(),
                                   br()
