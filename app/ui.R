@@ -182,11 +182,11 @@ plot_height <- "500px"
                                      )
                         ),
 
-                        mainPanel(width = 8,
-                                  tabsetPanel(id = "tabsetpanel_id",
-                                    tabPanel("Overview",
-                                             conditionalPanel("input.select !== 0",
-                                                              plotlyOutput("overview", height = plot_height)
+                        mainPanel(width = 9,
+                                  style = "z-index: -1",
+                                  conditionalPanel("input.select !== 0",
+                                                   plotlyOutput("plot",
+                                                                height = plot_height)
                                              )
                                     )
                       )
@@ -201,6 +201,31 @@ plot_height <- "500px"
 
              fluidRow(
                column(width = 10,
+
+                      sidebarPanel(width = 3,
+                                   pickerInput(
+                                     "vars_map",
+                                     label = NULL,
+                                     choices = list(
+                                       `Family level` = c(sort(unique(variable_names$family_name))),
+                                       `Accountability institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
+                                       `Business & trade institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_mkt") %>% .$var_name),
+                                       `Financial institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
+                                       `Governance of SOEs` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_service_del") %>% .$var_name),
+                                       `Labor market institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_lab") %>% .$var_name),
+                                       `Legal institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_leg") %>% .$var_name),
+                                       `Political institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_pol") %>% .$var_name),
+                                       `Public sector institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_publ") %>% .$var_name),
+                                       `Social institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_social") %>% .$var_name)
+                                     ),
+                                     options = list(
+                                       `live-search` = TRUE,
+                                       size = 10,
+                                       title = "Select indicator"
+                                     ),
+                                     width = "100%"
+                                   )
+                                   ),
 
                         mainPanel(
                           width = 9,
