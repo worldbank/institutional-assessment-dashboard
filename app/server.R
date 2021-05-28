@@ -373,16 +373,16 @@
           unlist
 
         if (input$data == "Compiled indicators") {
-          vars <- c("Country", "Year", vars)
+          vars_table <- c("Country", "Year", vars)
         } else {
-          vars <- c("Country", vars)
+          vars_table <- c("Country", vars)
         }
 
         data <-
           browse_data() %>%
           rename(Country = country_name) %>%
           ungroup() %>%
-          select(all_of(vars)) %>%
+          select(all_of(vars_table)) %>%
           mutate(across(where(is.numeric),
                         round, 3))
 
