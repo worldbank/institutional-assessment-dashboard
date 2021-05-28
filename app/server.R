@@ -57,8 +57,12 @@
   raw_data <-
     read_rds(file.path("data",
                        "raw_data.rds")) %>%
-    filter(year>=1990) %>%
-    select(-c(lac,lac6,oecd,structural))
+    filter(year >= 1990) %>%
+    select(-c(lac, lac6, oecd, structural)) %>%
+    rename(Year = year)
+
+  raw_data <-
+    raw_data[rowSums(!is.na(raw_data)) > 3, ]
 
   # Metadata
   variable_names <-
@@ -85,11 +89,11 @@
         input$country
       )
 
-    # Comparison countries
-    comparison_countries <-
-      eventReactive(input$groups,
+    observeEvent(input$show_def, {print(input$show_Def)})
 
-                    {
+    # Comparison countries
+    observeEvent(input$groups,
+                  {
                       selected_groups  <- input$groups
                       selected_country <- input$country
 
@@ -99,7 +103,7 @@
                       } else {
                         selected <-
                           country_list %>%
-                          filter(group_code %in% selected_groups) %>%
+                          filter(group %in% selected_groups) %>%
                           select(country_name) %>%
                           unique
 
@@ -114,6 +118,13 @@
                           pluck(1)
 
                       }
+
+                      updatePickerInput(session,
+                                        "countries",
+                                        label = NULL,
+                                        choices = global_data$country_name %>% unique,
+                                        selected = selected
+                      )
                     },
 
                     ignoreNULL = FALSE
@@ -121,19 +132,14 @@
 
 
     # Triggered by comparison countries: names of countries selected and action button
-    observeEvent(comparison_countries(),
+    observeEvent(input$countries,
 
                  {
                    # Can also set the label and select items
-                   updatePickerInput(session,
-                                     "countries",
-                                     label = NULL,
-                                     choices = global_data$country_name %>% unique,
-                                     selected = comparison_countries()
-                   )
+
 
                    toggleState(id = "select",
-                               condition = length(comparison_countries()) >= 10)
+                               condition = length(input$countries) >= 10)
                  },
 
                  ignoreNULL = FALSE
@@ -157,7 +163,7 @@
                         global_data %>%
                         def_quantiles(
                           base_country(),
-                          comparison_countries(),
+                          input$countries,
                           vars_all
                         ) %>%
                         left_join(variable_names)
@@ -183,130 +189,62 @@
                     }
       )
 
-
-    # Plot title according to panel selected
-    plot_title <- reactive({
-      input$tabsetpanel_id
-    })
-
    # Plots =============================================================================
 
     # Overview
-    output$overview <- renderPlotly({
+    output$plot <-
+      renderPlotly({
 
-      variable_names <-
-        variable_names %>%
-        select(family_var,
-               family_name) %>%
-        rename(var_name = family_name,
-               variable = family_var) %>%
-        unique
+        if (input$family == "Overview") {
 
-      data <-
-        family_level_data %>%
-        def_quantiles(
-          base_country(),
-          comparison_countries(),
-          variable_names$variable
-        )  %>%
-        left_join(variable_names)
+          variable_names <-
+            variable_names %>%
+            select(family_var,
+                   family_name) %>%
+            rename(var_name = family_name,
+                   variable = family_var) %>%
+            unique
 
-      data %>%
-        static_plot(base_country(),plot_title()) %>%
-        interactive_plot(base_country(),
-                         input$groups,
-                         plot_title())
+          data <-
+            family_level_data %>%
+            def_quantiles(
+              base_country(),
+              input$countries,
+              variable_names$variable
+            )  %>%
+            left_join(variable_names)
 
-    })
-    # Labor
-    output$Labor <- renderPlotly({
-      data() %>%
-        filter(variable %in% vars_lab)  %>%
-        static_plot(base_country(),plot_title()) %>%
-        interactive_plot(base_country(),
-                         input$groups,
-                         plot_title())
-    })
+          data %>%
+            static_plot(base_country(),
+                        input$family) %>%
+            interactive_plot(base_country(),
+                             input$groups,
+                             input$family)
+        } else {
 
-    # Financial
-    output$Financial <- renderPlotly({
-      data() %>%
-        filter(variable %in% vars_fin)  %>%
-        static_plot(base_country(),plot_title()) %>%
-        interactive_plot(base_country(),
-                         input$groups,
-                         plot_title())
-    })
+          vars <-
+            if (input$family == "Labor market institutions") {vars_lab} else
+              if (input$family == "Financial market institutions") {vars_fin} else
+                if (input$family == "Legal institutions") {vars_leg} else
+                  if (input$family == "Political institutions") {vars_pol} else
+                    if (input$family == "Social institutions") {vars_social} else
+                      if (input$family == "Business environment and trade institutions") {vars_mkt} else
+                        if (input$family == "Public sector performance institutions") {vars_publ} else
+                          if (input$family == "Institutions for service delivery") {vars_service_del} else
+                            if (input$family == "Accountability institutions") {vars_transp}
 
-    # Legal
-    output$Legal <- renderPlotly({
-      data() %>%
-        filter(variable %in% vars_leg)  %>%
-        static_plot(base_country(),plot_title()) %>%
-        interactive_plot(base_country(),
-                         input$groups,
-                         plot_title())
+
+          data() %>%
+            filter(variable %in% vars)  %>%
+            static_plot(base_country(),
+                        input$family) %>%
+            interactive_plot(base_country(),
+                             input$groups,
+                             input$family)
+        }
     })
 
-    # Political
-    output$Political <- renderPlotly({
-      data() %>%
-        filter(variable %in% vars_pol)  %>%
-        static_plot(base_country(),plot_title()) %>%
-        interactive_plot(base_country(),
-                         input$groups,
-                         plot_title())
-    })
 
-    # Social
-    output$Social <- renderPlotly({
-      data() %>%
-        filter(variable %in% vars_social)  %>%
-        static_plot(base_country(),plot_title()) %>%
-        interactive_plot(base_country(),
-                         input$groups,
-                         plot_title())
-    })
-
-    # Business
-    output$Trade <- renderPlotly({
-      data() %>%
-        filter(variable %in% vars_mkt)  %>%
-        static_plot(base_country(),plot_title()) %>%
-        interactive_plot(base_country(),
-                         input$groups,
-                         plot_title())
-    })
-
-    # Public sector
-    output$Public <- renderPlotly({
-      data() %>%
-        filter(variable %in% vars_publ)  %>%
-        static_plot(base_country(),plot_title()) %>%
-        interactive_plot(base_country(),
-                         input$groups,
-                         plot_title())
-    })
-
-    # Governance of SOEs
-    output$Governance <- renderPlotly({
-      data() %>%
-        filter(variable %in% vars_service_del)  %>%
-        static_plot(base_country(),plot_title()) %>%
-        interactive_plot(base_country(),
-                         input$groups,
-                         plot_title())
-    })
-
-    # Accountability
-    output$Account <- renderPlotly({
-      data() %>%
-        filter(variable %in% vars_transp)  %>%
-        static_plot(base_country(),plot_title()) %>%
-        interactive_plot(base_country(),
-                         input$groups,
-                         plot_title())
-    })
 
    # Map =======================================================================================
 
@@ -348,13 +286,11 @@
 
    # Trends =====================================================================================
 
-    observe({
-
-      if (input$indicator_trends != "") {
-
-      var_selected <-
+    observeEvent(input$indicator_trends,
+                 {
+              var_selected <-
         variable_names %>%
-        filter(var_name == input$indicator_trends) %>%
+        filter(var_name %in% input$indicator_trends) %>%
         .$variable
 
       data <-
@@ -362,29 +298,40 @@
         filter(
           country_name == input$country_trends
         ) %>%
-        select(country_name,year,all_of(var_selected)) %>%
-        rename(Country = country_name, Year = year, Indicator = var_selected) %>%
+        select(country_name, Year, all_of(var_selected)) %>%
+        pivot_longer(cols = all_of(var_selected),
+                     names_to = "variable",
+                     values_to = "Indicator value") %>%
+        left_join(variable_names) %>%
+        rename(Country = country_name,
+               `Indicator name` = var_name) %>%
         mutate(across(where(is.numeric),
                       round, 3))
 
       output$time_series <-
         renderPlotly({
 
-          static_plot <- ggplot(data, aes(x=Year,y=Indicator)) +
-            geom_point(size=3) +
-            geom_line(lwd=1.5) +
+          static_plot <-
+            ggplot(data %>% group_by(variable),
+                   aes(x = Year,
+                       y = `Indicator value`,
+                       color = `Indicator name`)) +
+            geom_point(size = 3,
+                       alpha = .5) +
+            geom_line(lwd = 1.5,
+                      alpha = .5) +
             theme_ipsum() +
             labs(
-              title = paste0(input$indicator_trends),
-              x="Year",
-              y="Indicator"
-            )
+              x = "Year",
+              y = "Indicator value"
+            ) +
+            scale_color_discrete(name = "Indicator name")
 
           ggplotly(static_plot) %>%
             layout(
               margin = list(l=50, r=50, t=75, b=135),
               annotations =
-                list(x = 0, y = -0.475,
+                list(x = 0, y = -0.3,
                      text = map(paste0("<b>Country: </b>",input$country_trends,"."), HTML),
                      showarrow = F,
                      xref = 'paper',
@@ -411,8 +358,6 @@
 
         })
 
-      }
-
     })
 
    # Data table =================================================================================
@@ -421,16 +366,23 @@
       renderDataTable(server = FALSE, {
 
         vars <-
-          input$vars %>%
-          map(get) %>%
+          variable_names %>%
+          filter(family_name %in% input$vars,
+                 var_level == "indicator") %>%
+          .$variable %>%
           unlist
+
+        if (input$data == "Compiled indicators") {
+          vars_table <- c("Country", "Year", vars)
+        } else {
+          vars_table <- c("Country", vars)
+        }
 
         data <-
           browse_data() %>%
-          ungroup() %>%
-          select(country_name,
-                 all_of(vars)) %>%
           rename(Country = country_name) %>%
+          ungroup() %>%
+          select(all_of(vars_table)) %>%
           mutate(across(where(is.numeric),
                         round, 3))
 
@@ -438,11 +390,8 @@
 
           data <-
             data %>%
-            mutate(
-              across(
-                all_of(vars),
-                list(rank = ~dense_rank(desc(.x))),
-                .names="{.col}_{.fn}"
+            mutate_at(vars(all_of(vars)),
+                      ~ dense_rank(desc(.)
               )
             )
 
@@ -502,6 +451,7 @@
 
 
    # Report ================================================================================
+
     output$report <- downloadHandler(
       filename = "instutitional-assessment-report.docx",
       content = function(file) {
@@ -509,7 +459,7 @@
         file.copy("report.Rmd", "tempReport.Rmd", overwrite = TRUE)
 
         params <- list(base_country = base_country(),
-                       comparison_countries = comparison_countries(),
+                       comparison_countries = input$countries,
                        data = data())
 
         rmarkdown::render("tempReport.Rmd",
@@ -522,32 +472,8 @@
 
    # Definitions ===========================================================================
 
-    output$account_def <-
-      renderTable(definitions[["Accountability institutions"]])
-
-    output$business_def <-
-      renderTable(definitions[["Business environment and trade institutions"]])
-
-    output$fin_def <-
-      renderTable(definitions[["Financial market institutions"]])
-
-    output$serv_def <-
-      renderTable(definitions[["Institutions for service delivery"]])
-
-    output$labor_def <-
-      renderTable(definitions[["Labor market institutions"]])
-
-    output$legal_def <-
-      renderTable(definitions[["Legal Institutions"]])
-
-    output$political_def <-
-      renderTable(definitions[["Political Institutions"]])
-
-    output$perf_def <-
-      renderTable(definitions[["Public sector performance Institutions"]])
-
-    output$social_def <-
-      renderTable(definitions[["Social Institutions"]])
+    output$definition <-
+      renderTable(definitions[[input$family]])
 
     # Download csv with definitions
     output$download_indicators <-

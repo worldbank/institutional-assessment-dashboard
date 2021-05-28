@@ -64,14 +64,14 @@
       x %>%
         ggplotly(tooltip = "text") %>%
         layout(
-          margin = list(l=50, r=50, t=75, b=135),
+          margin = list(l=50, r=50, t=75, b=140),
           annotations =
             list(x = 0, y = -0.475,
-                 text = map(paste0("<b>Note:</b> ",y,", ",paste(z, collapse = ", "),".",
-                                   "<br>◆ = average.",
-                                   "<br>Closeness to frontier is calculated as (worst-y)/(worst-frontier).",
-                                   "<br>1 identifies the best performer and 0 the worst performer.",
-                                   "<br>Weak = bottom 25%; Emerging = 25%-50%; Advanced = top 50%."), HTML),
+                 text = paste0("<b>Notes:</b> ", y, " compared to ", paste(z, collapse = ", "), ".",
+                               "<br>Black squares show the group average.",
+                               "<br>Closeness to frontier is calculated as (worst-y)/(worst-frontier).",
+                               "<br>1 identifies the best performer and 0 the worst performer.",
+                               "<br>Weak = bottom 25%; Emerging = 25%-50%; Advanced = top 50%."),
                  showarrow = F,
                  xref = 'paper',
                  yref = 'paper',
