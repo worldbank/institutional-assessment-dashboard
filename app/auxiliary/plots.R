@@ -64,7 +64,7 @@
       x %>%
         ggplotly(tooltip = "text") %>%
         layout(
-          margin = list(l=50, r=50, t=75, b=135),
+          margin = list(l=50, r=50, t=75, b=140),
           annotations =
             list(x = 0, y = -0.475,
                  text = paste0("<b>Notes:</b> ", y, " compared to ", paste(z, collapse = ", "), ".",
