@@ -20,6 +20,8 @@
 
   group_codes <-
     c("EUU",
+      "ARB",
+      "CEB",
       "HIC",
       "LIC",
       "LMC",
@@ -31,6 +33,7 @@
       "ECS",
       "LCN",
       "MEA",
+      "NAC",
       "SAS",
       "SSF"
       )
