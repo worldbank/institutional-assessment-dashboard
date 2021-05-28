@@ -331,7 +331,7 @@
             layout(
               margin = list(l=50, r=50, t=75, b=135),
               annotations =
-                list(x = 0, y = -0.475,
+                list(x = 0, y = -0.3,
                      text = map(paste0("<b>Country: </b>",input$country_trends,"."), HTML),
                      showarrow = F,
                      xref = 'paper',
