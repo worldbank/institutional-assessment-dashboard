@@ -229,7 +229,7 @@
                   if (input$family == "Political institutions") {vars_pol} else
                     if (input$family == "Social institutions") {vars_social} else
                       if (input$family == "Business environment and trade institutions") {vars_mkt} else
-                        if (input$family == "Public sector institutions") {vars_publ} else
+                        if (input$family == "Public sector performance institutions") {vars_publ} else
                           if (input$family == "Institutions for service delivery") {vars_service_del} else
                             if (input$family == "Accountability institutions") {vars_transp}
 
