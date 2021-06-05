@@ -1,119 +1,71 @@
 # Load packages
-
 packages <- c("tidyverse",
               "here",
-              "skimr")
+              "skimr",
+              "data360r")
 
 pacman::p_load(packages,
                character.only = TRUE)
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# IMPORT ORIGINAL DATA ----------------------
+# IMPORT DATA 360 ----------------------
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-# Load .dta file
-# data_original <- read_dta(here("data",
-#                                "data_cleaned",
-#                                "merged_for_residuals.dta"))
-# Saving as R format and csv
-# save_rds(data_original,
-#          here("data",
-#              "data_cleaned",
-#              "merged_for_residuals.rds")) # save as rds format / small file size
-# Open rds file, faster loading
-
-data_original <- read_rds(here("data",
-                               "data_cleaned",
-                               "merged_for_residuals.rds"))
 
 source(file.path("app/auxiliary",
                  "vars-by-family.R"))
+
+# IDs from selected indicators
+selected_indicators <- c(
+  671, # Favoritism in decisions of government officials
+  667, # Irregular payments and bribes
+  663, # Diversion of public funds
+  687, # Transparency of government policymaking
+  633, # Property rights (WEF)
+  519  # Extent of market dominance
+)
+
+# Get data360
+data_api <- get_data360(
+  indicator_id = selected_indicators,
+  output_type = 'long')
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # BASIC CLEANING ---------------------------
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-data_cleaned <- data_original %>%
-  # Rename variables
+data_api <-
+  data_api %>%
   rename(
-    country_name = countryname,
-    country_code = code,
-    telecom_infr = telecommunicationinfrastructurei,
-    daigov_2016 = daigovernmentsubindex_2016,
-    contract_manag_score = contract_management_score,
-    perf_guarantee_score = performance_guarantee_score,
-    proc_mean_score = mean_score,
-    f6_regulatoryenf = f6_regulatoryenforcement,
-    efw_integrity_legalsys = efw_integrityofthelegalsystem,
-    efw_contracts_enf = efw_legalenforcementofcontracts,
-    efw_businessreg = efw_businessregulations,
-    efw_free_foreign_curr = efw_freedom_foreign_curr,
-    protect_minority_ov = protect_minority_overall,
-    efficiency_superv_bank = efficiancy_supervision_banking,
-    efficiency_superv_fin = efficiancy_supervision_finmkt,
-    getting_credit = bl,
-    insolvency_framework = resolvinginsolvencystrength,
-    credit_registry_cov = gettingcreditcreditregistry,
-    rigorous_impartial_pa = v2clrspct,
-    barriers_trade_expl = barriers_trade_explicit,
-    barriers_trade_oth = barriers_trade_other,
-    cbi = lvau,
-    efw_inv_restr = efw_foreign_invest_restr,
-    efw_tourist = efw_freedomofforeignerstovisit
+    country_code = `Country ISO3`,
+    country_name = `Country Name`,
+    value = Observation
   ) %>%
-  # Fix vars with opposite scale
-  # reason: for the CTF methodology, we need for all indicators that "higher values" means "better performance"
-  # freedom house: Countries are graded between 1 (most free) and 7 (least free).
-  mutate(
-    across(
-      c(e_fh_pr,e_fh_cl),
-      ~(8 - .x)
-    )
+  arrange(
+    Indicator,country_name
   ) %>%
-  # transform missing
-  mutate(
-    e_p_polity = ifelse(e_p_polity < -10, NA, e_p_polity)
+  separate(
+    Period,into = c("Year1","year"),sep="-",remove = F
   ) %>%
-  # PRM indicators: Countries are graded between 0 (less control/involvement) and 6 (more control/involvement)
-  mutate(
-    across(
-      c(governance_soe,price_controls,command_control,complexity_procedures,barriers_startups,protection_incumbents,barriers_trade_expl,barriers_trade_oth),
-      ~(6 - .x)
-    )
-  ) %>%
-  mutate(
-    country_name = ifelse(country_name == "ksv", "Kosovo", country_name),
-    country_name = ifelse(country_name == "tmp", "Timor-Leste", country_name)
-  )
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# CHOOSE INDICATORS OF INTEREST --------------------------
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-# Keep only vars of interest
-data_selected <- data_cleaned %>%
   select(
-    country_name, country_code,
-    year,
-    lac, lac6, oecd,
-    structural,
-    all_of(vars_all)
+    -c(`Subindicator Type`,Period,Year1)
   ) %>%
-  # SC: methodological note for PRM indicates that 1998 and 2013 indicators are comparable, but not with 2018 due to change in methodology
-  # --> drop if year ==2018
   mutate(
-    across(
-      c(barriers_startups:protection_incumbents),
-      ~ifelse(year==2018, NA, .x)
+    var = case_when(
+      Indicator == "Favoritism in decisions of government officials, 1-7 (best)" ~ "favoritism",
+      Indicator == "Irregular payments and bribes" ~ "bribes",
+      Indicator == "Diversion of public funds" ~ "diversion_pfunds",
+      Indicator == "Transparency of government policymaking" ~ "transparency_polmak",
+      Indicator == "Property rights (WEF)" ~ "property_rights",
+      Indicator == "Extent of market dominance" ~ "mkt_dominance"
     )
+  ) %>%
+  pivot_wider(
+    id_cols = c(country_name,country_code,year),
+    names_from = var
   )
 
-# Explore dataset
-skim(data_selected)
-
-write_rds(data_selected,
+# Export cleaned data
+write_rds(data_api,
           here("data",
                "data_cleaned",
                "selected_vars.rds"))
-
-rm(data_cleaned, data_original)
