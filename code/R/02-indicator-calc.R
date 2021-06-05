@@ -33,7 +33,7 @@ vars_minmax <-
   data_selected %>%
   summarise(
     across(
-      all_of(vars_all),
+      where(is.numeric), # all_of(vars_all) replace later
       list(
         min = ~ min(.x[year >= 2013], na.rm = T), # year >= as.numeric(format(Sys.Date(), "%Y"))-8): Change eventually to filter for the last 7 years and disable next line
         max = ~ max(.x[year >= 2013], na.rm = T)  # year >= as.numeric(format(Sys.Date(), "%Y"))-8): Change eventually to filter for the last 7 years and disable next line
@@ -56,40 +56,24 @@ vars_minmax <-
     id_cols = "variable",
     names_from = "minmax",
     values_from = "value_minmax"
-  ) %>%
-  remove_labels()
-
-# Collapse at country level, keeping the most recent data for each indicator
-#data_recent_country <-
-#  data_selected %>%
-#  arrange(country_name,
-#          year) %>%
-#  group_by(country_name) %>%
-#  fill(
-#    all_of(vars_global)
-#  ) %>%
-#  filter(
-#    year == max(year)
-#  ) %>%
-#  select(-year)
+  )
 
 # Collapse at country level. for each country, keep only the average since 2013
-# SC: in the long term, this step should be flexibly adjusted in the dashboard (keep last 7 years, given the present time)
 data_country <-
   data_selected %>%
-  group_by(country_name,
-           country_code,
-           lac,lac6,oecd,
-           structural) %>%
+  group_by(
+    country_name,
+    country_code
+  ) %>%
   summarise(
     across(
-      all_of(vars_all),
+      where(is.numeric), # all_of(vars_all) replace later
       ~mean(.x[year>=2013], na.rm = T)  # year >= as.numeric(format(Sys.Date(), "%Y"))-8): Change eventually to filter for the last 7 years and disable next line
     )
   ) %>%
   mutate(
     across(
-      all_of(vars_all),
+      where(is.numeric), # all_of(vars_all) replace later
       ~ifelse(is.nan(.x),NA,.x)
     )
   )
@@ -99,7 +83,7 @@ dtf_vars_global <-
   data_country %>%
   remove_labels %>%
   pivot_longer(
-    all_of(vars_all),
+    where(is.numeric), # all_of(vars_all) replace later
     names_to = "variable",
     values_drop_na = F
   ) %>%
@@ -112,7 +96,9 @@ dtf_vars_global <-
                  dtf) # small adjustments to display a very short bar on the graph, in case dtf = 0
   ) %>%
   pivot_wider(
-    id_cols = c("country_name", "country_code", "lac", "lac6", "oecd", "structural"),
+    id_cols = c(
+      "country_name", "country_code"
+    ),
     names_from = "variable",
     values_from = "dtf"
   )
@@ -183,7 +169,6 @@ dtf_family_level <- dtf_family_level %>%
   )
 
 # Save datasets ====================================================
-
 write_rds(dtf_family_level,
           here("app",
                "data",

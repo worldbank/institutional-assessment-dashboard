@@ -11,9 +11,6 @@ pacman::p_load(packages,
 # IMPORT DATA 360 ----------------------
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-source(file.path("app/auxiliary",
-                 "vars-by-family.R"))
-
 # IDs from selected indicators
 selected_indicators <- c(
   671, # Favoritism in decisions of government officials
