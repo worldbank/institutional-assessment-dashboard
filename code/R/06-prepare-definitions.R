@@ -14,6 +14,14 @@ definitions <-
   select(-c(family, var_name)) %>%
   split(families)
 
+all_indicators <- bind_rows(definitions,
+                            .id = "Institutional family")
+
+write_rds(all_indicators,
+          here("app",
+               "data",
+               "list_of_indicators.rds"))
+
 definitions %>%
   write_rds(here("app",
                  "data",
