@@ -18,6 +18,9 @@ pacman::p_load(packages,
 # IDs from selected indicators
 selected_indicators <- c(
   290,   # Corruption / Percent of firms identifying the courts system as a major constraint
+  472	Registering property: Cost
+  477	Enforcing contracts: Cost
+  482	Resolving insolvency: Cost
   519,   # Extent of market dominance
   633,   # Property rights (WEF)
   663,   # Diversion of public funds
@@ -26,9 +29,21 @@ selected_indicators <- c(
   671,   # Favoritism in decisions of government officials
   683,   # Wastefulness of government spending
   687,   # Transparency of government policymaking
+  691	Efficiency of legal framework in challenging regs
+  697	Effectiveness of antimonopoly policy
+  719	Prevalence of trade barriers
+  723	Burden of customs procedures
+  747	Index of economic freedom score
   3311,	 # Price controls
   3285,	 # Foreign Currency Regulations
   3289,	 # Restrictive Labor Regulations
+  3305	Administrative burdens on startups
+  3307	Explicit barriers to trade and investment
+  3308	Other barriers to trade and investment
+  3311	Price controls
+  3323	Complexity of regulatory procedures
+  3326	Governance of state-owned enterprises
+  3328	Regulatory protection of incumbents
   3469,  # E-Participation Index, 0-1 (best)
   27885, # Publicized laws and government data
   31115, # Freedom of entry for foreigners
