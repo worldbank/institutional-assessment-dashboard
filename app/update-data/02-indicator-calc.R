@@ -8,8 +8,7 @@ pacman::p_load(packages,
 
 data_selected <-
   read_rds(file.path("data",
-                     "data_cleaned",
-                     "selected_vars.rds"))
+                     "raw_data.rds"))
 
 source(file.path("auxiliary",
                  "vars-by-family.R"))

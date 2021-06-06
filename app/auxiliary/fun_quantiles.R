@@ -4,21 +4,33 @@
 
 def_quantiles <- function(data, base_country, comparison_countries, vars) {
 
-    quantiles <-
-      data %>%
-      ungroup() %>%
-      filter(
-        country_name == base_country | country_name %in% comparison_countries
-      ) %>%
-      select(country_name,
-             all_of(vars)) %>%
-      summarise_at(vars(vars),
-                   ~ quantile(., c(0.25, 0.5), na.rm = TRUE)) %>%
-    t %>%
-    as.data.frame() %>%
-    mutate(variable = row.names(.)) %>%
-    rename(q25 = V1,
-           q50 = V2)
+  quantiles <-
+    data %>%
+    ungroup() %>%
+    filter(
+      country_name == base_country | country_name %in% comparison_countries
+    ) %>%
+    select(all_of(vars)) %>%
+    summarise(
+      across(
+        all_of(vars),
+        list(
+          q25 = ~ quantile(., c(0.25), na.rm = TRUE),
+          q50 = ~ quantile(., c(0.5), na.rm = TRUE),
+          avg = ~ mean(., na.rm = TRUE)
+        ),
+        .names="{.col}-{.fn}"
+      )
+    ) %>%
+    pivot_longer(
+      everything(),
+      names_to = c("variable","fn"),
+      names_sep = "-"
+    ) %>%
+    pivot_wider(
+      id_cols = "variable",
+      names_from = "fn"
+    )
 
   quantiles_group <- as.data.frame(apply(data[all_of(vars)], 2, quantile, probs = c(0.25,0.5) , na.rm = T)) %>%
     rownames_to_column(var="quantile_break") %>%

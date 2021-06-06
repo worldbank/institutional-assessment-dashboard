@@ -2,7 +2,7 @@ definitions <-
   read_csv(
     file.path(
       "data",
-      "data_cleaned",
+      "definitions",
       "indicator_definitions.csv"
     )
   )

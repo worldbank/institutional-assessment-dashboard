@@ -21,7 +21,7 @@ selected_indicators <- c(
   519,   # Extent of market dominance
   633,   # Property rights (WEF)
   663,   # Diversion of public funds
-  665,   #	Public trust in politicians
+  665,   # Public trust in politicians
   667,   # Irregular payments and bribes
   671,   # Favoritism in decisions of government officials
   683,   # Wastefulness of government spending
@@ -107,5 +107,4 @@ data_cleaned <-
 # Export cleaned data
 write_rds(data_cleaned,
           file.path("data",
-                    "data_cleaned",
-                    "selected_vars.rds"))
+                    "raw_data.rds"))
