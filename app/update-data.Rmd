@@ -1,0 +1,36 @@
+```{r import clean, echo=F, warning=F}
+
+source(file.path("update-data",
+                 "01-import-clean.R"), local = knitr::knit_global())
+
+```
+
+```{r indicator calc, echo=F}
+
+source(file.path("update-data",
+                 "02-indicator-calc.R"), local = knitr::knit_global())
+
+```
+
+```{r variable names, echo=F}
+
+source(file.path("update-data",
+                 "04-process-variable-names.R"), local = knitr::knit_global())
+
+```
+
+```{r create layer map, echo=F}
+
+source(file.path("update-data",
+                 "05-create-layer-map.R"), local = knitr::knit_global())
+
+```
+
+```{r definitions, echo=F}
+
+source(file.path("update-data",
+                 "06-prepare-definitions.R"), local = knitr::knit_global())
+
+rm(list = ls())
+```
+
