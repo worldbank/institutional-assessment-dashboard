@@ -45,13 +45,27 @@ selected_indicators <- c(
   3326	Governance of state-owned enterprises
   3328	Regulatory protection of incumbents
   3469,  # E-Participation Index, 0-1 (best)
+  24840	Paying taxes: Time
+  27885	Publicized laws and government data
   27885, # Publicized laws and government data
+  30823	Central Bank independence
+  31001	Efficiency of the banking supervisory authority
+  31003	Efficiency of the financial market supervisory authority
+  31088	Financial sector: competition regulation
   31115, # Freedom of entry for foreigners
   40985, # Civil Liberties
   40986, # Political Rights
+  41008	Burden of government regulation, 1-7 (best)
   41794, # Absence of corruption (Global States of Democracy)
   41827, # Civil society participation
   41881  # Engaged society
+  41932	Fundamental rights
+  41951	Judicial accountability
+  41953	Judicial independence
+  41981	Lower chamber female legislators
+  42025	Power distributed by social group
+  42026	Power distributed by socio-economic position
+  42084	Rigorous and impartial public administration
 )
 
 # Get data360
