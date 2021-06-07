@@ -54,12 +54,12 @@
     c(
   #    "f8_criminaljustice",
   #    "f7_civiljustice",
-      "es_court_constraint"
+      "es_court_constraint",
   #    "v2juaccnt",
   #    "efw_integrity_legalsys",
   #    "legaleff_challenging",
   #    "legaleff_disputes",
-  #    "enf_contr_overall",
+      "enf_contr_overall"
   #    "resolve_insolv_overall"
       )
 
@@ -74,7 +74,7 @@
       "property_rights",
       #"efw_inv_restr",
       #"efw_capitalcontrols",
-      "efw_tourist"
+      "efw_tourist",
       #"customs_burden",
       #"lpi_clearance_eff",
       #"wef_border_admin",
@@ -85,7 +85,7 @@
       #"barriers_trade_oth",
       #"start_bus_overall",
       #"constr_perm_overall",
-      #"register_prop_overall",
+      "register_prop_overall"
       #"protect_minority_ov",
       #"pay_taxes_overall",
       #"trade_borders_overall"

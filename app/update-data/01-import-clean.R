@@ -18,8 +18,8 @@ pacman::p_load(packages,
 # IDs from selected indicators
 selected_indicators <- c(
   290,   # Corruption / Percent of firms identifying the courts system as a major constraint
-  472	Registering property: Cost
-  477	Enforcing contracts: Cost
+  472,   # Registering property: Cost
+  477	   # Enforcing contracts: Cost
   482	Resolving insolvency: Cost
   519,   # Extent of market dominance
   633,   # Property rights (WEF)
@@ -125,7 +125,9 @@ data_cleaned <-
       Indicator == "Political Rights" ~ "e_fh_pr",
       Indicator == "Price controls" ~ "price_controls",
       Indicator == "Civil Liberties" ~ "e_fh_cl",
-      Indicator == "Wastefulness of government spending" ~ "eff_govspending"
+      Indicator == "Wastefulness of government spending" ~ "eff_govspending",
+      Indicator == "Registering property: Cost" ~ "register_prop_overall",
+      Indicator == "Enforcing contracts: Cost" ~ "enf_contr_overall"
     )
   ) %>%
   pivot_wider(
