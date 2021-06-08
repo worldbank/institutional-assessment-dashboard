@@ -19,8 +19,8 @@ pacman::p_load(packages,
 selected_indicators <- c(
   290,   # Corruption / Percent of firms identifying the courts system as a major constraint
   472,   # Registering property: Cost
-  477	   # Enforcing contracts: Cost
-  482	Resolving insolvency: Cost
+  477,	   # Enforcing contracts: Cost
+  #482	Resolving insolvency: Cost                    # ONLY ON DEFINITIONS
   519,   # Extent of market dominance
   633,   # Property rights (WEF)
   663,   # Diversion of public funds
@@ -29,49 +29,59 @@ selected_indicators <- c(
   671,   # Favoritism in decisions of government officials
   683,   # Wastefulness of government spending
   687,   # Transparency of government policymaking
-  691	Efficiency of legal framework in challenging regs
-  697	Effectiveness of antimonopoly policy
-  719	Prevalence of trade barriers
-  723	Burden of customs procedures
-  747	Index of economic freedom score
+  #691	Efficiency of legal framework in challenging regs      # ONLY ON DEFINITIONS
+  697,   #	Effectiveness of antimonopoly policy
+  #719,   #	Prevalence of trade barriers
+  723,	 # Burden of customs procedures
+  747,   # Index of economic freedom score          # ONLY ON DEFINITIONS
   3311,	 # Price controls
   3285,	 # Foreign Currency Regulations
   3289,	 # Restrictive Labor Regulations
-  3305	Administrative burdens on startups
-  3307	Explicit barriers to trade and investment
-  3308	Other barriers to trade and investment
-  3311	Price controls
-  3323	Complexity of regulatory procedures
-  3326	Governance of state-owned enterprises
-  3328	Regulatory protection of incumbents
+  3305,	 # Administrative burdens on startups
+  3307,	 # Explicit barriers to trade and investment
+  3308,	 # Other barriers to trade and investment
+  3311,	 # Price controls
+  3323,	 # Complexity of regulatory procedures
+  3326,	 # Governance of state-owned enterprises
+  3328,	 # Regulatory protection of incumbents
   3469,  # E-Participation Index, 0-1 (best)
-  24840	Paying taxes: Time
-  27885	Publicized laws and government data
+  24840, # Paying taxes: Time
   27885, # Publicized laws and government data
-  30823	Central Bank independence
-  31001	Efficiency of the banking supervisory authority
-  31003	Efficiency of the financial market supervisory authority
-  31088	Financial sector: competition regulation
+  30823, # Central Bank independence
+  31001, # Efficiency of the banking supervisory authority
+  31003, # Efficiency of the financial market supervisory authority
+  31088, # Financial sector: competition regulation
   31115, # Freedom of entry for foreigners
-  40985, # Civil Liberties
+  40985 # Civil Liberties
+)
+
+selected_indicators_2 <- c(
   40986, # Political Rights
-  41008	Burden of government regulation, 1-7 (best)
+  41008, #	Burden of government regulation, 1-7 (best)
   41794, # Absence of corruption (Global States of Democracy)
   41827, # Civil society participation
-  41881  # Engaged society
-  41932	Fundamental rights
-  41951	Judicial accountability
-  41953	Judicial independence
-  41981	Lower chamber female legislators
-  42025	Power distributed by social group
-  42026	Power distributed by socio-economic position
-  42084	Rigorous and impartial public administration
+  41881, # Engaged society
+  41932, # Fundamental rights
+  41951, # Judicial accountability
+  #41953,	Judicial independence       # ONLY ON DEFINITIONS
+  41981, # Lower chamber female legislators
+  42025, # Power distributed by social group
+  42026, # Power distributed by socio-economic position
+  42084  #	Rigorous and impartial public administration
 )
 
 # Get data360
 data_api <- get_data360(
   indicator_id = selected_indicators,
   output_type = 'long')
+
+data_api_2 <- get_data360(
+  indicator_id = selected_indicators_2,
+  output_type = 'long')
+
+data_api <- bind_rows(data_api,data_api_2)
+
+rm(data_api_2,selected_indicators_2)
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # BASIC CLEANING ---------------------------
@@ -127,12 +137,72 @@ data_cleaned <-
       Indicator == "Civil Liberties" ~ "e_fh_cl",
       Indicator == "Wastefulness of government spending" ~ "eff_govspending",
       Indicator == "Registering property: Cost" ~ "register_prop_overall",
-      Indicator == "Enforcing contracts: Cost" ~ "enf_contr_overall"
+      Indicator == "Enforcing contracts: Cost" ~ "enf_contr_overall",
+      Indicator == "Effectiveness of antimonopoly policy" ~ "eff_antimonopoly",
+      Indicator == "Explicit barriers to trade and investment" ~ "barriers_trade_expl",
+      Indicator == "Burden of customs procedures" ~ "customs_burden",
+      Indicator == "Index of economic freedom score" ~ "wsj_financialfreedom",
+      Indicator == "Administrative burdens on startups" ~ "barriers_startups",
+      Indicator == "Other barriers to trade and investment" ~ "barriers_trade_oth",
+      Indicator == "Price controls" ~ "price_controls",
+      Indicator == "Complexity of regulatory procedures" ~ "complexity_procedures",
+      Indicator == "Governance of state-owned enterprises" ~ "governance_soe",
+      Indicator == "Regulatory protection of incumbents" ~ "protection_incumbents",
+      Indicator == "Paying taxes: Time" ~ "pay_taxes_overall",
+      Indicator == "Publicized laws and government data" ~ "open_data_barometer",
+      Indicator == "Central Bank independence" ~ "cbi",
+      Indicator == "Efficiency of the banking supervisory authority" ~ "efficiency_superv_bank",
+      Indicator == "Efficiency of the financial market supervisory authority" ~ "efficiency_superv_fin",
+      Indicator == "Financial sector: competition regulation" ~ "competition_rules_fin",
+      Indicator == "Burden of government regulation, 1-7 (best)" ~ "govreg_burden",
+      Indicator == "Fundamental rights" ~ "f4_rights",
+      Indicator == "Judicial accountability" ~ "v2juaccnt",
+      Indicator == "Lower chamber female legislators" ~ "v2lgfemleg",
+      Indicator == "Power distributed by social group" ~ "v2pepwrsoc",
+      Indicator == "Power distributed by socio-economic position" ~ "v2pepwrses",
+      Indicator == "Rigorous and impartial public administration" ~ "rigorous_impartial_pa"
     )
   ) %>%
   pivot_wider(
     id_cols = c(country_name,country_code,year),
     names_from = var
+  ) %>%
+  # SC: methodological note for PRM indicates that 1998 and 2013 indicators are comparable, but not with 2018 due to change in methodology
+  # --> drop if year ==2018
+  mutate(
+    across(
+      c(barriers_startups,protection_incumbents),
+      ~ifelse(year==2018, NA, .x)
+    )
+  ) %>%
+  # Fix vars with opposite scale
+  # reason: for the CTF methodology, we need for all indicators that "higher values" means "better performance"
+  # freedom house: Countries are graded between 1 (most free) and 7 (least free).
+  #mutate(
+  #  across(
+  #    c(e_fh_pr,e_fh_cl),
+  #    ~(8 - .x)
+  #  )
+  #) %>%
+  # transform missing
+  #mutate(
+  #  e_p_polity = ifelse(e_p_polity < -10, NA, e_p_polity)
+  #) %>%
+  # PRM indicators: Countries are graded between 0 (less control/involvement) and 6 (more control/involvement)
+  mutate(
+    across(
+      c(
+        governance_soe,
+        price_controls,
+        #command_control,
+        complexity_procedures,
+        barriers_startups,
+        protection_incumbents,
+        barriers_trade_expl,
+        barriers_trade_oth
+      ),
+      ~(6 - .x)
+    )
   )
 
 # Export cleaned data

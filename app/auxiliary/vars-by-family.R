@@ -2,16 +2,16 @@
   vars_pol <-
     c(
       "e_fh_pr",
-      "e_fh_cl"
+      "e_fh_cl",
   #    "e_p_polity",
   #    "f1_govpowers",
-  #    "v2pepwrsoc",
-  #    "v2pepwrses",
+      "v2pepwrsoc",
+      "v2pepwrses",
   #    "v2pepwrgen",
   #    "v2lgqugen",
-  #    "f4_rights",
+      "f4_rights",
   #    "f3_security",
-  #    "v2lgfemleg"
+      "v2lgfemleg"
     )
 
   # 2 SOCIAL INSTITUTIONS
@@ -55,7 +55,7 @@
   #    "f8_criminaljustice",
   #    "f7_civiljustice",
       "es_court_constraint",
-  #    "v2juaccnt",
+      "v2juaccnt",
   #    "efw_integrity_legalsys",
   #    "legaleff_challenging",
   #    "legaleff_disputes",
@@ -66,28 +66,28 @@
   # 6 BUSINESS ENV. AND TRADE INSTITUTIONS
   vars_mkt <-
     c(
-      #"govreg_burden",
+      "govreg_burden",
       #"gci_overall",
       "mkt_dominance",
-      #"eff_antimonopoly",
+      "eff_antimonopoly",
       #"nontariff_barriers",
       "property_rights",
       #"efw_inv_restr",
       #"efw_capitalcontrols",
       "efw_tourist",
-      #"customs_burden",
+      "customs_burden",
       #"lpi_clearance_eff",
       #"wef_border_admin",
-      #"complexity_procedures",
-      #"barriers_startups",
-      #"protection_incumbents",
-      #"barriers_trade_expl",
-      #"barriers_trade_oth",
+      "complexity_procedures",
+      "barriers_startups",
+      "protection_incumbents",
+      "barriers_trade_expl",
+      "barriers_trade_oth",
       #"start_bus_overall",
       #"constr_perm_overall",
-      "register_prop_overall"
+      "register_prop_overall",
       #"protect_minority_ov",
-      #"pay_taxes_overall",
+      "pay_taxes_overall"
       #"trade_borders_overall"
       )
 
@@ -106,11 +106,12 @@
   vars_fin <-
     c(
       #"efw_credit_mkt_reg",
-      "efw_free_foreign_curr"
+      "efw_free_foreign_curr",
+      "wsj_financialfreedom",
   #    "competition_rules_fin",
-  #    "efficiency_superv_bank",
-  #    "efficiency_superv_fin",
-  #    "cbi",
+      "efficiency_superv_bank",
+      "efficiency_superv_fin",
+      "cbi"
   #    "access_credit_overall",
   #    "insolvency_framework"
   )
@@ -118,7 +119,7 @@
   # 9 SOE Governance/SERVICE DELIVERY INSTITUTIONS
   vars_service_del <-
     c(
-  #  "governance_soe",
+      "governance_soe",
       "price_controls"
   #    "command_control"
   )

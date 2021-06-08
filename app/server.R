@@ -13,6 +13,8 @@ library(stringr)
 
 # Inputs ################################################################################
 
+rmarkdown::render("update-data.Rmd")
+
 # Auxiliary functions -----------------------------------------------------------------
 
 source(file.path("auxiliary",
