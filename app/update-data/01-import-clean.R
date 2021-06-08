@@ -51,12 +51,13 @@ selected_indicators <- c(
   31001, # Efficiency of the banking supervisory authority
   31003, # Efficiency of the financial market supervisory authority
   31088, # Financial sector: competition regulation
-  31115, # Freedom of entry for foreigners
-  40985 # Civil Liberties
+  31115#, # Freedom of entry for foreigners
+  #40985 # Civil Liberties
 )
 
+# DIVIDED BECAUSE API WASNT ABLE TO GET ALL TOGETHER
 selected_indicators_2 <- c(
-  40986, # Political Rights
+  #40986, # Political Rights
   41008, #	Burden of government regulation, 1-7 (best)
   41794, # Absence of corruption (Global States of Democracy)
   41827, # Civil society participation
@@ -132,9 +133,9 @@ data_cleaned <-
       Indicator == "Freedom of entry for foreigners" ~ "efw_tourist",
       Indicator == "Restrictive Labor Regulations" ~ "efw_labor_mkt_reg",
       Indicator == "Foreign Currency Regulations" ~ "efw_free_foreign_curr",
-      Indicator == "Political Rights" ~ "e_fh_pr",
+      #Indicator == "Political Rights" ~ "e_fh_pr",                     # STRANGE VALUES
       Indicator == "Price controls" ~ "price_controls",
-      Indicator == "Civil Liberties" ~ "e_fh_cl",
+      #Indicator == "Civil Liberties" ~ "e_fh_cl",                       # STRANGE VALUES
       Indicator == "Wastefulness of government spending" ~ "eff_govspending",
       Indicator == "Registering property: Cost" ~ "register_prop_overall",
       Indicator == "Enforcing contracts: Cost" ~ "enf_contr_overall",
@@ -171,7 +172,7 @@ data_cleaned <-
   # --> drop if year ==2018
   mutate(
     across(
-      c(barriers_startups,protection_incumbents),
+      c(barriers_startups:protection_incumbents),
       ~ifelse(year==2018, NA, .x)
     )
   ) %>%

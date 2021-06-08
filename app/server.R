@@ -13,7 +13,7 @@ library(stringr)
 
 # Inputs ################################################################################
 
-rmarkdown::render("update-data.Rmd")
+#rmarkdown::render("update-data.Rmd")
 
 # Auxiliary functions -----------------------------------------------------------------
 

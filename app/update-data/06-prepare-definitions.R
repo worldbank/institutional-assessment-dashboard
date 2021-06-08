@@ -7,6 +7,18 @@ definitions <-
     )
   )
 
+definitions <-
+  definitions %>%
+  mutate(
+    family = case_when(
+      family == "Legal Institutions" ~ "Legal institutions",
+      family == "Social Institutions" ~ "Social institutions",
+      family == "Political Institutions" ~ "Political institutions",
+      family == "Public sector performance Institutions" ~ "Public sector performance institutions",
+      TRUE ~ family
+    )
+  )
+
 families <-
   definitions$family
 

@@ -1,8 +1,8 @@
   # 1 POLITICAL INSTITUTIONS
   vars_pol <-
     c(
-      "e_fh_pr",
-      "e_fh_cl",
+      #"e_fh_pr",
+      #"e_fh_cl",
   #    "e_p_polity",
   #    "f1_govpowers",
       "v2pepwrsoc",

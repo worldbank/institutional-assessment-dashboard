@@ -34,8 +34,8 @@ vars_minmax <-
     across(
       where(is.numeric), # all_of(vars_all) replace later
       list(
-        min = ~ min(.x[year >= 2013], na.rm = T), # year >= as.numeric(format(Sys.Date(), "%Y"))-8): Change eventually to filter for the last 7 years and disable next line
-        max = ~ max(.x[year >= 2013], na.rm = T)  # year >= as.numeric(format(Sys.Date(), "%Y"))-8): Change eventually to filter for the last 7 years and disable next line
+        min = ~ min(.x[year >= as.numeric(format(Sys.Date(), "%Y"))-8], na.rm = T),
+        max = ~ max(.x[year >= as.numeric(format(Sys.Date(), "%Y"))-8], na.rm = T)
       ),
       .names="{.col}-{.fn}"
     )
@@ -55,6 +55,9 @@ vars_minmax <-
     id_cols = "variable",
     names_from = "minmax",
     values_from = "value_minmax"
+  ) %>%
+  filter(
+    !is.infinite(min)
   )
 
 # Collapse at country level. for each country, keep only the average since 2013
@@ -67,7 +70,7 @@ data_country <-
   summarise(
     across(
       where(is.numeric), # all_of(vars_all) replace later
-      ~mean(.x[year>=2013], na.rm = T)  # year >= as.numeric(format(Sys.Date(), "%Y"))-8): Change eventually to filter for the last 7 years and disable next line
+      ~mean(.x[year >= as.numeric(format(Sys.Date(), "%Y"))-8], na.rm = T)
     )
   ) %>%
   mutate(
