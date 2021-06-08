@@ -47,17 +47,17 @@ selected_indicators <- c(
   3469,  # E-Participation Index, 0-1 (best)
   24840, # Paying taxes: Time
   27885, # Publicized laws and government data
-  30823, # Central Bank independence
+  #30823, # Central Bank independence                # NO RECENT DATA
   31001, # Efficiency of the banking supervisory authority
   31003, # Efficiency of the financial market supervisory authority
   31088, # Financial sector: competition regulation
   31115#, # Freedom of entry for foreigners
-  #40985 # Civil Liberties
+  #40985 # Civil Liberties                    # STRANGE VALUES
 )
 
 # DIVIDED BECAUSE API WASNT ABLE TO GET ALL TOGETHER
 selected_indicators_2 <- c(
-  #40986, # Political Rights
+  #40986, # Political Rights                           # STRANGE VALUES
   41008, #	Burden of government regulation, 1-7 (best)
   41794, # Absence of corruption (Global States of Democracy)
   41827, # Civil society participation
@@ -151,7 +151,7 @@ data_cleaned <-
       Indicator == "Regulatory protection of incumbents" ~ "protection_incumbents",
       Indicator == "Paying taxes: Time" ~ "pay_taxes_overall",
       Indicator == "Publicized laws and government data" ~ "open_data_barometer",
-      Indicator == "Central Bank independence" ~ "cbi",
+      #Indicator == "Central Bank independence" ~ "cbi",
       Indicator == "Efficiency of the banking supervisory authority" ~ "efficiency_superv_bank",
       Indicator == "Efficiency of the financial market supervisory authority" ~ "efficiency_superv_fin",
       Indicator == "Financial sector: competition regulation" ~ "competition_rules_fin",

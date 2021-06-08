@@ -55,10 +55,10 @@ vars_minmax <-
     id_cols = "variable",
     names_from = "minmax",
     values_from = "value_minmax"
-  ) %>%
-  filter(
-    !is.infinite(min)
-  )
+  ) #%>%
+  #filter(
+  #  !is.infinite(min)
+  #)
 
 # Collapse at country level. for each country, keep only the average since 2013
 data_country <-

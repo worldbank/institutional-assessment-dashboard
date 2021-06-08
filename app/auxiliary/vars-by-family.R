@@ -110,8 +110,8 @@
       "wsj_financialfreedom",
   #    "competition_rules_fin",
       "efficiency_superv_bank",
-      "efficiency_superv_fin",
-      "cbi"
+      "efficiency_superv_fin"#,
+      #"cbi"
   #    "access_credit_overall",
   #    "insolvency_framework"
   )
