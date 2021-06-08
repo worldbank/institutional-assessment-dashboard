@@ -14,6 +14,11 @@ pacman::p_load(packages,
 #data_original <- read_rds(here("data",
 #                               "data_cleaned",
 #                               "merged_for_residuals.rds"))
+#
+#gov_indicators <- get_metadata360(site="gov", metadata_type = "indicators")
+#tc_indicators <- get_metadata360(site="tc", metadata_type = "indicators")
+#
+#indicators_360 <- bind_rows(gov_indicators,tc_indicators)
 
 # IDs from selected indicators
 selected_indicators <- c(
@@ -35,7 +40,7 @@ selected_indicators <- c(
   723,	 # Burden of customs procedures
   747,   # Index of economic freedom score          # ONLY ON DEFINITIONS
   3311,	 # Price controls
-  3285,	 # Foreign Currency Regulations
+  #3285,	 # Foreign Currency Regulations               # DIFFERENT VALUES
   3289,	 # Restrictive Labor Regulations
   3305,	 # Administrative burdens on startups
   3307,	 # Explicit barriers to trade and investment
@@ -132,7 +137,7 @@ data_cleaned <-
       Indicator == "Corruption / Percent of firms identifying the courts system as a major constraint" ~ "es_court_constraint",
       Indicator == "Freedom of entry for foreigners" ~ "efw_tourist",
       Indicator == "Restrictive Labor Regulations" ~ "efw_labor_mkt_reg",
-      Indicator == "Foreign Currency Regulations" ~ "efw_free_foreign_curr",
+      #Indicator == "Foreign Currency Regulations" ~ "efw_free_foreign_curr",
       #Indicator == "Political Rights" ~ "e_fh_pr",                     # STRANGE VALUES
       Indicator == "Price controls" ~ "price_controls",
       #Indicator == "Civil Liberties" ~ "e_fh_cl",                       # STRANGE VALUES

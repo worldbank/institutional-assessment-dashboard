@@ -106,7 +106,7 @@
   vars_fin <-
     c(
       #"efw_credit_mkt_reg",
-      "efw_free_foreign_curr",
+      #"efw_free_foreign_curr",
       "wsj_financialfreedom",
   #    "competition_rules_fin",
       "efficiency_superv_bank",
