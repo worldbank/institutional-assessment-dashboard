@@ -3,14 +3,14 @@
     c(
       #"e_fh_pr",
       #"e_fh_cl",
-  #    "e_p_polity",
-  #    "f1_govpowers",
+      "e_p_polity",
+      "f1_govpowers",
       "v2pepwrsoc",
       "v2pepwrses",
-  #    "v2pepwrgen",
+      "v2pepwrgen",
   #    "v2lgqugen",
       "f4_rights",
-  #    "f3_security",
+      "f3_security",
       "v2lgfemleg"
     )
 
@@ -26,16 +26,16 @@
   # 3 ACCOUTABILITY INSTITUTIONS
   vars_transp <-
     c(
-      #"e_ti_cpi",
+      "e_ti_cpi",
       "f2_corruption",
       "favoritism",
       "bribes",
       "diversion_pfunds",
       "transparency_polmak",
-      #"egovernmentindex",
+      "egovernmentindex",
       "eparticipationindex",
       #"f5_opengov",
-      #"rigorous_impartial_pa",
+      "rigorous_impartial_pa",
       "open_data_barometer"
     )
 
@@ -43,9 +43,9 @@
   vars_publ <-
     c(
   #    "f6_regulatoryenf",
-  #    "proc_mean_score",
-      "eff_govspending"
-  #    "regulatory_governance",
+      "proc_mean_score",
+      "eff_govspending",
+      "regulatory_governance",
   #    "centregov_mean"
       )
 
@@ -53,21 +53,21 @@
   vars_leg <-
     c(
   #    "f8_criminaljustice",
-  #    "f7_civiljustice",
+      "f7_civiljustice",
       "es_court_constraint",
       "v2juaccnt",
   #    "efw_integrity_legalsys",
-  #    "legaleff_challenging",
-  #    "legaleff_disputes",
-      "enf_contr_overall"
-  #    "resolve_insolv_overall"
+      "legaleff_challenging",
+      "legaleff_disputes",
+      "enf_contr_overall",
+      "resolve_insolv_overall"
       )
 
   # 6 BUSINESS ENV. AND TRADE INSTITUTIONS
   vars_mkt <-
     c(
       "govreg_burden",
-      #"gci_overall",
+      "gci_overall",
       "mkt_dominance",
       "eff_antimonopoly",
       #"nontariff_barriers",
@@ -76,7 +76,7 @@
       #"efw_capitalcontrols",
       "efw_tourist",
       "customs_burden",
-      #"lpi_clearance_eff",
+      "lpi_clearance_eff",
       #"wef_border_admin",
       "complexity_procedures",
       "barriers_startups",

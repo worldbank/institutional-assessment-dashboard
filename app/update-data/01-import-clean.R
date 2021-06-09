@@ -33,14 +33,18 @@ selected_indicators <- c(
   667,   # Irregular payments and bribes
   671,   # Favoritism in decisions of government officials
   683,   # Wastefulness of government spending
+  685,   # Efficiency of legal framework in settling disputes
   687,   # Transparency of government policymaking
-  #691	Efficiency of legal framework in challenging regs      # ONLY ON DEFINITIONS
+  691,   #	Efficiency of legal framework in challenging regs
   697,   #	Effectiveness of antimonopoly policy
   #719,   #	Prevalence of trade barriers
   723,	 # Burden of customs procedures
   747,   # Index of economic freedom score          # ONLY ON DEFINITIONS
+  3210,  #  Consolidated regulatory governance score
   3311,	 # Price controls
   #3285,	 # Foreign Currency Regulations               # DIFFERENT VALUES
+  3451,  # Government Online Service Index
+  3276,  # Corruption
   3289,	 # Restrictive Labor Regulations
   3305,	 # Administrative burdens on startups
   3307,	 # Explicit barriers to trade and investment
@@ -51,28 +55,37 @@ selected_indicators <- c(
   3328,	 # Regulatory protection of incumbents
   3469,  # E-Participation Index, 0-1 (best)
   24840, # Paying taxes: Time
+  27470, # Revised Combined Polity Score
   27885, # Publicized laws and government data
-  #30823, # Central Bank independence                # NO RECENT DATA
-  31001, # Efficiency of the banking supervisory authority
-  31003, # Efficiency of the financial market supervisory authority
-  31088, # Financial sector: competition regulation
-  31115#, # Freedom of entry for foreigners
-  #40985 # Civil Liberties                    # STRANGE VALUES
+  27919, # People can access and afford civil justice
+  28833, #  Resolving insolvency Outcome
 )
 
 # DIVIDED BECAUSE API WASNT ABLE TO GET ALL TOGETHER
 selected_indicators_2 <- c(
+  #30823, # Central Bank independence                # NO RECENT DATA
+  31001, #  Efficiency of the banking supervisory authority
+  31003, #  Efficiency of the financial market supervisory authority
+  31088, #  Financial sector: competition regulation
+  31115, #  Freedom of entry for foreigners
+  #40985 #  Civil Liberties                    # STRANGE VALUES
   #40986, # Political Rights                           # STRANGE VALUES
   41008, #	Burden of government regulation, 1-7 (best)
-  41794, # Absence of corruption (Global States of Democracy)
-  41827, # Civil society participation
-  41881, # Engaged society
-  41932, # Fundamental rights
-  41951, # Judicial accountability
+  41619, #  GCI 4.0: Global Competitiveness Index 4.0
+  41714, #  GCI 4.0: Efficiency of the clearance process
+  41794, #  Absence of corruption (Global States of Democracy)
+  41827, #  Civil society participation
+  41881, #  Engaged society
+  41883, #  Executive constraints
+  41189, #  Procurement
+  41932, #  Fundamental rights
+  41951, #  Judicial accountability
   #41953,	Judicial independence       # ONLY ON DEFINITIONS
-  41981, # Lower chamber female legislators
-  42025, # Power distributed by social group
-  42026, # Power distributed by socio-economic position
+  41955, #  Law  and order
+  41981, #  Lower chamber female legislators
+  42024, #  Power distributed by gender
+  42025, #  Power distributed by social group
+  42026, #  Power distributed by socio-economic position
   42084  #	Rigorous and impartial public administration
 )
 
@@ -166,7 +179,21 @@ data_cleaned <-
       Indicator == "Lower chamber female legislators" ~ "v2lgfemleg",
       Indicator == "Power distributed by social group" ~ "v2pepwrsoc",
       Indicator == "Power distributed by socio-economic position" ~ "v2pepwrses",
-      Indicator == "Rigorous and impartial public administration" ~ "rigorous_impartial_pa"
+      Indicator == "Rigorous and impartial public administration" ~ "rigorous_impartial_pa",
+      Indicator == "Revised Combined Polity Score" ~ "e_p_polity",
+      Indicator == "Executive constraints" ~ "f1_govpowers",
+      Indicator == "Power distributed by gender" ~ "v2pepwrgen",
+      Indicator == "Law  and order" ~ "f3_security",
+      Indicator == "Corruption" ~ "e_ti_cpi",
+      Indicator == "Government Online Service Index" ~ "egovernmentindex",
+      Indicator == "Procurement" ~ "proc_mean_score",
+      Indicator == "Consolidated regulatory governance score" ~ "regulatory_governance",
+      Indicator == "People can access and afford civil justice",
+      Indicator == "Efficiency of legal framework in challenging regs" ~ "legaleff_challenging",
+      Indicator == "Efficiency of legal framework in settling disputes" ~ "legaleff_disputes",
+      Indicator == "Resolving insolvency: Outcome" ~ "resolve_insolv_overall",
+      Indicator == "GCI 4.0: Global Competitiveness Index 4.0" ~ "gci_overall",
+      Indicator == "GCI 4.0: Efficiency of the clearance process" ~ "lpi_clearance_eff"
     )
   ) %>%
   pivot_wider(
@@ -191,9 +218,9 @@ data_cleaned <-
   #  )
   #) %>%
   # transform missing
-  #mutate(
-  #  e_p_polity = ifelse(e_p_polity < -10, NA, e_p_polity)
-  #) %>%
+  mutate(
+    e_p_polity = ifelse(e_p_polity < -10, NA, e_p_polity)
+  ) %>%
   # PRM indicators: Countries are graded between 0 (less control/involvement) and 6 (more control/involvement)
   mutate(
     across(
