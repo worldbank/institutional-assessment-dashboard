@@ -11,7 +11,7 @@
 
 # Inputs ################################################################################
 
-plot_height <- "500px"
+plot_height <- "600px"
 
 # Data sets ---------------------------------------------------------------------------
 
@@ -115,7 +115,7 @@ plot_height <- "500px"
                       sidebarLayout(
                         sidebarPanel(width = 3,
                                      selectInput("country",
-                                                 label = "Select a based country",
+                                                 label = "Select a base country",
                                                  choices = c("", country_list$country_name %>% unique %>% sort),
                                                  selected = "Uruguay",
                                                  multiple = FALSE),
@@ -237,7 +237,7 @@ plot_height <- "500px"
                         mainPanel(
                           width = 9,
                           plotlyOutput("map",
-                                       height = "600px")
+                                       height = plot_height)
                         )
                       )
                )
@@ -253,17 +253,8 @@ plot_height <- "500px"
                       sidebarLayout(
                         sidebarPanel(width = 3,
                                      selectInput(
-                                       "country_trends",
-                                       label = "Select a country",
-                                       choices = c("", country_list$country_name %>% unique %>% sort),
-                                       selected = "Uruguay",
-                                       multiple = FALSE
-                                     ),
-
-                                     selectInput(
                                        "indicator_trends",
-                                       label = NULL,
-                                       multiple = TRUE,
+                                       "Select an indicator",
                                        choices = list(
                                          `Accountability institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
                                          `Business environment and trade institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_mkt") %>% .$var_name),
@@ -278,8 +269,37 @@ plot_height <- "500px"
                                        width = "100%"
                                      ),
 
+                                     selectInput("country_trends",
+                                                 label = "Select a base country",
+                                                 choices = c("", country_list$country_name %>% unique %>% sort),
+                                                 selected = "Uruguay",
+                                                 multiple = FALSE),
+
+                                     selectizeInput(
+                                       "group_trends",
+                                       label = "Select comparison groups",
+                                       choices = country_groups$group_name,
+                                       selected = "OECD members",
+                                       multiple = TRUE
+                                     ),
+
+                                     HTML('<button id = "expand-button" class = "btn btn-default shiny-bound-input" data-toggle = "collapse" data-target = "#trends">Select comparison countries</button>'),
+                                     tags$div(id = 'trends',
+                                              class = "collapse",
+                                              style = "width: 1700px",
+                                              tags$div(
+                                                class = "multicol-7",
+                                                checkboxGroupInput(
+                                                  "countries_trends",
+                                                  label = NULL,
+                                                  choices = country_list$country_name %>% unique %>% sort,
+                                                )
+                                              )
+                                     ),
+
                                      br(),br()
                         ),
+
                         mainPanel(width = 8,
                                   tabPanel("Time Series",
                                            plotlyOutput("time_series",
