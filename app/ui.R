@@ -301,6 +301,7 @@ plot_height <- "600px"
                         ),
 
                         mainPanel(width = 8,
+                                  style = "z-index: -1",
                                   tabPanel("Time Series",
                                            plotlyOutput("time_series",
                                                         height = plot_height)
