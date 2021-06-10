@@ -23,6 +23,7 @@ pacman::p_load(packages,
 # IDs from selected indicators
 selected_indicators <- c(
   290,   # Corruption / Percent of firms identifying the courts system as a major constraint
+  464,   #  Dealing with construction permits: Procedures
   472,   # Registering property: Cost
   477,	   # Enforcing contracts: Cost
   #482	Resolving insolvency: Cost                    # ONLY ON DEFINITIONS
@@ -58,7 +59,7 @@ selected_indicators <- c(
   27470, # Revised Combined Polity Score
   27885, # Publicized laws and government data
   27919, # People can access and afford civil justice
-  28833, #  Resolving insolvency Outcome
+  28833 #  Resolving insolvency Outcome
 )
 
 # DIVIDED BECAUSE API WASNT ABLE TO GET ALL TOGETHER
@@ -68,6 +69,8 @@ selected_indicators_2 <- c(
   31003, #  Efficiency of the financial market supervisory authority
   31088, #  Financial sector: competition regulation
   31115, #  Freedom of entry for foreigners
+  40294, #  Ease of starting a business
+  40432, #  Ease of protecting minority investors
   #40985 #  Civil Liberties                    # STRANGE VALUES
   #40986, # Political Rights                           # STRANGE VALUES
   41008, #	Burden of government regulation, 1-7 (best)
@@ -86,7 +89,8 @@ selected_indicators_2 <- c(
   42024, #  Power distributed by gender
   42025, #  Power distributed by social group
   42026, #  Power distributed by socio-economic position
-  42084  #	Rigorous and impartial public administration
+  42084, #	Rigorous and impartial public administration
+  43050  #  GCI 4.0: Border clearance efficiency
 )
 
 # Get data360
@@ -163,7 +167,6 @@ data_cleaned <-
       Indicator == "Index of economic freedom score" ~ "wsj_financialfreedom",
       Indicator == "Administrative burdens on startups" ~ "barriers_startups",
       Indicator == "Other barriers to trade and investment" ~ "barriers_trade_oth",
-      Indicator == "Price controls" ~ "price_controls",
       Indicator == "Complexity of regulatory procedures" ~ "complexity_procedures",
       Indicator == "Governance of state-owned enterprises" ~ "governance_soe",
       Indicator == "Regulatory protection of incumbents" ~ "protection_incumbents",
@@ -188,12 +191,16 @@ data_cleaned <-
       Indicator == "Government Online Service Index" ~ "egovernmentindex",
       Indicator == "Procurement" ~ "proc_mean_score",
       Indicator == "Consolidated regulatory governance score" ~ "regulatory_governance",
-      Indicator == "People can access and afford civil justice",
+      Indicator == "People can access and afford civil justice" ~ "f7_civiljustice",
       Indicator == "Efficiency of legal framework in challenging regs" ~ "legaleff_challenging",
       Indicator == "Efficiency of legal framework in settling disputes" ~ "legaleff_disputes",
       Indicator == "Resolving insolvency: Outcome" ~ "resolve_insolv_overall",
       Indicator == "GCI 4.0: Global Competitiveness Index 4.0" ~ "gci_overall",
-      Indicator == "GCI 4.0: Efficiency of the clearance process" ~ "lpi_clearance_eff"
+      Indicator == "GCI 4.0: Efficiency of the clearance process" ~ "lpi_clearance_eff",
+      Indicator == "GCI 4.0: Border clearance efficiency" ~ "wef_border_admin",
+      Indicator == "Ease of starting a business" ~ "start_bus_overall",
+      Indicator == "Dealing with construction permits: Procedures" ~ "constr_perm_overall",
+      Indicator == "Ease of protecting minority investors" ~ "protect_minority_ov"
     )
   ) %>%
   pivot_wider(

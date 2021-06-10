@@ -45,7 +45,7 @@
   #    "f6_regulatoryenf",
       "proc_mean_score",
       "eff_govspending",
-      "regulatory_governance",
+      "regulatory_governance"
   #    "centregov_mean"
       )
 
@@ -77,16 +77,16 @@
       "efw_tourist",
       "customs_burden",
       "lpi_clearance_eff",
-      #"wef_border_admin",
+      "wef_border_admin",
       "complexity_procedures",
       "barriers_startups",
       "protection_incumbents",
       "barriers_trade_expl",
       "barriers_trade_oth",
-      #"start_bus_overall",
-      #"constr_perm_overall",
+      "start_bus_overall",
+      "constr_perm_overall",
       "register_prop_overall",
-      #"protect_minority_ov",
+      "protect_minority_ov",
       "pay_taxes_overall"
       #"trade_borders_overall"
       )
