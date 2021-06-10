@@ -42,24 +42,24 @@ selected_indicators_1 <- c(
   723,	 # Burden of customs procedures
   747,   # Index of economic freedom score          # ONLY ON DEFINITIONS
   3210,  #  Consolidated regulatory governance score
-  3311,	 # Price controls
-  3285,	 # Foreign Currency Regulations               # DIFFERENT VALUES
-  3451,  # Government Online Service Index
   3276,  # Corruption
+  3285,	 # Foreign Currency Regulations               # DIFFERENT VALUES
   3289,	 # Restrictive Labor Regulations
   3305,	 # Administrative burdens on startups
   3307,	 # Explicit barriers to trade and investment
   3308,	 # Other barriers to trade and investment
   3310,  #  Use of command and control regulation
   3311,	 # Price controls
-  3323,	 # Complexity of regulatory procedures
-  3326,	 # Governance of state-owned enterprises
-  3328,	 # Regulatory protection of incumbents
-  3469  # E-Participation Index, 0-1 (best)
+  3323	 # Complexity of regulatory procedures
+
 )
 
-# DIVIDED BECAUSE API WASNT ABLE TO GET ALL TOGETHER
+# API WASNT ABLE TO GET ALL TOGETHER
 selected_indicators_2 <- c(
+  3326,	 # Governance of state-owned enterprises
+  3328,	 # Regulatory protection of incumbents
+  3451,  # Government Online Service Index
+  3469,  # E-Participation Index, 0-1 (best)
   24840, # Paying taxes: Time
   27470, # Revised Combined Polity Score
   27885, # Publicized laws and government data
@@ -71,24 +71,24 @@ selected_indicators_2 <- c(
   31088, #  Financial sector: competition regulation
   31115, #  Freedom of entry for foreigners
   40294, #  Ease of starting a business
-  40432, #  Ease of protecting minority investors
   40418, #  Ease of getting credit
+  40432 #  Ease of protecting minority investors
   #40985 #  Civil Liberties                    # STRANGE VALUES
   #40986, # Political Rights                           # STRANGE VALUES
+)
+
+selected_indicators_3 <- c(
   41008, #	Burden of government regulation, 1-7 (best)
+  41189, #  Procurement
   41619, #  GCI 4.0: Global Competitiveness Index 4.0
   41714, #  GCI 4.0: Efficiency of the clearance process
   41794, #  Absence of corruption (Global States of Democracy)
   41827, #  Civil society participation
   41881, #  Engaged society
   41883, #  Executive constraints
-  41189, #  Procurement
   41932, #  Fundamental rights
-  41951 #  Judicial accountability
+  41951, #  Judicial accountability
   #41953 #	Judicial independence       # ONLY ON DEFINITIONS
-)
-
-selected_indicators_3 <- c(
   41955, #  Law  and order
   41981, #  Lower chamber female legislators
   42024, #  Power distributed by gender
@@ -114,7 +114,40 @@ data_api_3 <- get_data360(
 
 data_api <- bind_rows(data_api_1,data_api_2,data_api_3)
 
-rm(data_api_2,selected_indicators_2, data_api_3, selected_indicators_3,data_api_1,selected_indicators_1)
+rm(data_api_2, data_api_3,data_api_1)
+
+data_api <-
+  data_api %>%
+  mutate(
+    Indicator = str_trim(Indicator)
+  )
+
+# GET INDICATORS INFOS FROM 360 ----
+gov_indicators <- get_metadata360(site="gov", metadata_type = "indicators")
+tc_indicators <- get_metadata360(site="tc", metadata_type = "indicators")
+
+indicators_metadata <- bind_rows(gov_indicators,tc_indicators)
+
+rm(gov_indicators,tc_indicators)
+
+indicators_metadata <-
+  indicators_metadata %>%
+  filter(
+    id %in% selected_indicators_1 |
+    id %in% selected_indicators_2 |
+    id %in% selected_indicators_3
+  ) %>%
+  select(id,name,dataset,datasetId,datasetLink,definition,valueType,units,subindicatorType,periodicity,dateRange) %>%
+  filter(!duplicated(id)) %>%
+  mutate(
+    name = str_trim(name)
+  )
+
+#data_api <- data_api %>%
+#  left_join(indicators_metadata %>% select(id,name), by = c("Indicator"="name")) %>%
+#  mutate(
+#    id = paste0("ID_",as.character(id))
+#  )
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # BASIC CLEANING ---------------------------

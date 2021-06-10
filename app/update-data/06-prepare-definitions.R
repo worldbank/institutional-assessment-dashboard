@@ -1,5 +1,5 @@
 definitions <-
-  read_csv2(
+  read_csv(
     file.path(
       "data",
       "definitions",
