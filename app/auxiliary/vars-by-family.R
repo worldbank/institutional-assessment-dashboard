@@ -106,22 +106,22 @@
   vars_fin <-
     c(
       #"efw_credit_mkt_reg",
-      #"efw_free_foreign_curr",
+      "efw_free_foreign_curr",
       "wsj_financialfreedom",
-  #    "competition_rules_fin",
+      "competition_rules_fin",
       "efficiency_superv_bank",
-      "efficiency_superv_fin"#,
+      "efficiency_superv_fin",
       #"cbi"
-  #    "access_credit_overall",
-  #    "insolvency_framework"
+      "access_credit_overall",
+      "insolvency_framework"
   )
 
   # 9 SOE Governance/SERVICE DELIVERY INSTITUTIONS
   vars_service_del <-
     c(
       "governance_soe",
-      "price_controls"
-  #    "command_control"
+      "price_controls",
+      "command_control"
   )
 
     vars_all <-

@@ -31,6 +31,6 @@ source(file.path("update-data",
 source(file.path("update-data",
                  "06-prepare-definitions.R"), local = knitr::knit_global())
 
-rm(list = ls())
+#rm(list = ls())
 ```
 

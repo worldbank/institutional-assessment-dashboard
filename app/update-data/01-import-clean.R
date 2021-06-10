@@ -21,7 +21,7 @@ pacman::p_load(packages,
 #indicators_360 <- bind_rows(gov_indicators,tc_indicators)
 
 # IDs from selected indicators
-selected_indicators <- c(
+selected_indicators_1 <- c(
   290,   # Corruption / Percent of firms identifying the courts system as a major constraint
   464,   #  Dealing with construction permits: Procedures
   472,   # Registering property: Cost
@@ -43,27 +43,28 @@ selected_indicators <- c(
   747,   # Index of economic freedom score          # ONLY ON DEFINITIONS
   3210,  #  Consolidated regulatory governance score
   3311,	 # Price controls
-  #3285,	 # Foreign Currency Regulations               # DIFFERENT VALUES
+  3285,	 # Foreign Currency Regulations               # DIFFERENT VALUES
   3451,  # Government Online Service Index
   3276,  # Corruption
   3289,	 # Restrictive Labor Regulations
   3305,	 # Administrative burdens on startups
   3307,	 # Explicit barriers to trade and investment
   3308,	 # Other barriers to trade and investment
+  3310,  #  Use of command and control regulation
   3311,	 # Price controls
   3323,	 # Complexity of regulatory procedures
   3326,	 # Governance of state-owned enterprises
   3328,	 # Regulatory protection of incumbents
-  3469,  # E-Participation Index, 0-1 (best)
-  24840, # Paying taxes: Time
-  27470, # Revised Combined Polity Score
-  27885, # Publicized laws and government data
-  27919, # People can access and afford civil justice
-  28833 #  Resolving insolvency Outcome
+  3469  # E-Participation Index, 0-1 (best)
 )
 
 # DIVIDED BECAUSE API WASNT ABLE TO GET ALL TOGETHER
 selected_indicators_2 <- c(
+  24840, # Paying taxes: Time
+  27470, # Revised Combined Polity Score
+  27885, # Publicized laws and government data
+  27919, # People can access and afford civil justice
+  28833, #  Resolving insolvency Outcome
   #30823, # Central Bank independence                # NO RECENT DATA
   31001, #  Efficiency of the banking supervisory authority
   31003, #  Efficiency of the financial market supervisory authority
@@ -71,6 +72,7 @@ selected_indicators_2 <- c(
   31115, #  Freedom of entry for foreigners
   40294, #  Ease of starting a business
   40432, #  Ease of protecting minority investors
+  40418, #  Ease of getting credit
   #40985 #  Civil Liberties                    # STRANGE VALUES
   #40986, # Political Rights                           # STRANGE VALUES
   41008, #	Burden of government regulation, 1-7 (best)
@@ -82,29 +84,37 @@ selected_indicators_2 <- c(
   41883, #  Executive constraints
   41189, #  Procurement
   41932, #  Fundamental rights
-  41951, #  Judicial accountability
-  #41953,	Judicial independence       # ONLY ON DEFINITIONS
+  41951 #  Judicial accountability
+  #41953 #	Judicial independence       # ONLY ON DEFINITIONS
+)
+
+selected_indicators_3 <- c(
   41955, #  Law  and order
   41981, #  Lower chamber female legislators
   42024, #  Power distributed by gender
   42025, #  Power distributed by social group
   42026, #  Power distributed by socio-economic position
   42084, #	Rigorous and impartial public administration
+  42602, #  Resolving insolvency: Strength of insolvency framework index
   43050  #  GCI 4.0: Border clearance efficiency
 )
 
 # Get data360
-data_api <- get_data360(
-  indicator_id = selected_indicators,
+data_api_1 <- get_data360(
+  indicator_id = selected_indicators_1,
   output_type = 'long')
 
 data_api_2 <- get_data360(
   indicator_id = selected_indicators_2,
   output_type = 'long')
 
-data_api <- bind_rows(data_api,data_api_2)
+data_api_3 <- get_data360(
+  indicator_id = selected_indicators_3,
+  output_type = 'long')
 
-rm(data_api_2,selected_indicators_2)
+data_api <- bind_rows(data_api_1,data_api_2,data_api_3)
+
+rm(data_api_2,selected_indicators_2, data_api_3, selected_indicators_3,data_api_1,selected_indicators_1)
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # BASIC CLEANING ---------------------------
@@ -154,7 +164,7 @@ data_cleaned <-
       Indicator == "Corruption / Percent of firms identifying the courts system as a major constraint" ~ "es_court_constraint",
       Indicator == "Freedom of entry for foreigners" ~ "efw_tourist",
       Indicator == "Restrictive Labor Regulations" ~ "efw_labor_mkt_reg",
-      #Indicator == "Foreign Currency Regulations" ~ "efw_free_foreign_curr",
+      Indicator == "Foreign Currency Regulations" ~ "efw_free_foreign_curr",        # DIFFERENT VALUES
       #Indicator == "Political Rights" ~ "e_fh_pr",                     # STRANGE VALUES
       Indicator == "Price controls" ~ "price_controls",
       #Indicator == "Civil Liberties" ~ "e_fh_cl",                       # STRANGE VALUES
@@ -188,7 +198,7 @@ data_cleaned <-
       Indicator == "Power distributed by gender" ~ "v2pepwrgen",
       Indicator == "Law  and order" ~ "f3_security",
       Indicator == "Corruption" ~ "e_ti_cpi",
-      Indicator == "Government Online Service Index" ~ "egovernmentindex",
+      Indicator == "Government Online Service Index, 0-1 (best)" ~ "egovernmentindex",
       Indicator == "Procurement" ~ "proc_mean_score",
       Indicator == "Consolidated regulatory governance score" ~ "regulatory_governance",
       Indicator == "People can access and afford civil justice" ~ "f7_civiljustice",
@@ -200,7 +210,10 @@ data_cleaned <-
       Indicator == "GCI 4.0: Border clearance efficiency" ~ "wef_border_admin",
       Indicator == "Ease of starting a business" ~ "start_bus_overall",
       Indicator == "Dealing with construction permits: Procedures" ~ "constr_perm_overall",
-      Indicator == "Ease of protecting minority investors" ~ "protect_minority_ov"
+      Indicator == "Ease of protecting minority investors" ~ "protect_minority_ov",
+      Indicator == "Ease of getting credit" ~ "access_credit_overall",
+      Indicator == "Resolving insolvency: Strength of insolvency framework index" ~ "insolvency_framework",
+      Indicator == "Use of command and control regulation" ~ "command_control"
     )
   ) %>%
   pivot_wider(
@@ -234,7 +247,7 @@ data_cleaned <-
       c(
         governance_soe,
         price_controls,
-        #command_control,
+        command_control,
         complexity_procedures,
         barriers_startups,
         protection_incumbents,
@@ -243,6 +256,9 @@ data_cleaned <-
       ),
       ~(6 - .x)
     )
+  ) %>%
+  filter(
+    year >= 1950   # variable e_p_polity has values since 1800, filter to reduce # of rows
   )
 
 # Export cleaned data
