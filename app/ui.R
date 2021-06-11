@@ -252,7 +252,7 @@ plot_height <- "600px"
 
                       sidebarLayout(
                         sidebarPanel(width = 3,
-                                     selectInput(
+                                     pickerInput(
                                        "indicator_trends",
                                        "Select an indicator",
                                        choices = list(
@@ -266,7 +266,12 @@ plot_height <- "600px"
                                          `Public sector institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_publ") %>% .$var_name),
                                          `Social institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_social") %>% .$var_name)
                                        ),
-                                       width = "100%"
+                                       width = "100%",
+                                       options = list(
+                                         `live-search` = TRUE,
+                                         size = 25,
+                                         title = ""
+                                       )
                                      ),
 
                                      selectInput("country_trends",
