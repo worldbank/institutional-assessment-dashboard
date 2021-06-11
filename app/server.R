@@ -279,7 +279,7 @@
               na.value = "#808080",
               drop=F) +
             labs(title = paste0("<b>",input$vars_map,"</b>")) +
-            theme_bw()
+            theme_ipsum()
 
           interactive_map(map, input$vars_map)
         }
