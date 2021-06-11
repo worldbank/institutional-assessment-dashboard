@@ -359,23 +359,33 @@
                                         "Value:", get(var_trends()))),
                        size = 3) +
             geom_line() +
-            labs(title = paste0("<b>",input$indicator_trends,"</b>")) +
             theme_ipsum() +
             labs(
               x = "Year",
-              y = "Indicator value"
+              y = "Indicator value",
+              title = paste0("<b>",input$indicator_trends,"</b>")
             ) +
-            scale_color_manual(values = c("#FB8500",
-                                          gray.colors(length(input$countries_trends)),
-                                          color_groups(length(input$group_trends))),
-                               breaks = c(input$country_trends,
-                                          input$countries_trends,
-                                          input$group_trends)
+            scale_color_manual(
+              name = NULL,
+              values = c("#FB8500",
+                         gray.colors(length(input$countries_trends)),
+                         color_groups(length(input$group_trends))),
+              breaks = c(input$country_trends,
+                         input$countries_trends,
+                         input$group_trends)
             ) +
             scale_alpha_identity()
 
           ggplotly(static_plot, tooltip = "text") %>%
             layout(
+              legend = list(
+                title=list(text='<b>Country:</b>'),
+                #orientation="h",
+                #yanchor="bottom",
+                y=0.5
+                #xanchor="right",
+                #x=1
+              ),
               margin = list(l=50, r=50, t=75, b=135)
             ) %>%
             config(
