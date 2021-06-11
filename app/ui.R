@@ -212,7 +212,7 @@ plot_height <- "600px"
                       sidebarPanel(width = 3,
                                    pickerInput(
                                      "vars_map",
-                                     label = NULL,
+                                     "Select an indicator",
                                      choices = list(
                                        `Family level` = c(sort(names(definitions))),
                                        `Accountability institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
@@ -228,7 +228,7 @@ plot_height <- "600px"
                                      options = list(
                                        `live-search` = TRUE,
                                        size = 25,
-                                       title = "Select indicator"
+                                       title = "Click to select family or indicator"
                                      ),
                                      width = "100%"
                                    )
@@ -270,7 +270,7 @@ plot_height <- "600px"
                                        options = list(
                                          `live-search` = TRUE,
                                          size = 25,
-                                         title = ""
+                                         title = "Click to select"
                                        )
                                      ),
 
