@@ -123,25 +123,26 @@ data_api <-
   )
 
 # GET INDICATORS INFOS FROM 360 ----
-gov_indicators <- get_metadata360(site="gov", metadata_type = "indicators")
-tc_indicators <- get_metadata360(site="tc", metadata_type = "indicators")
 
-indicators_metadata <- bind_rows(gov_indicators,tc_indicators)
-
-rm(gov_indicators,tc_indicators)
-
-indicators_metadata <-
-  indicators_metadata %>%
-  filter(
-    id %in% selected_indicators_1 |
-    id %in% selected_indicators_2 |
-    id %in% selected_indicators_3
-  ) %>%
-  select(id,name,dataset,datasetId,datasetLink,definition,valueType,units,subindicatorType,periodicity,dateRange) %>%
-  filter(!duplicated(id)) %>%
-  mutate(
-    name = str_trim(name)
-  )
+#gov_indicators <- get_metadata360(site="gov", metadata_type = "indicators")
+#tc_indicators <- get_metadata360(site="tc", metadata_type = "indicators")
+#
+#indicators_metadata <- bind_rows(gov_indicators,tc_indicators)
+#
+#rm(gov_indicators,tc_indicators)
+#
+#indicators_metadata <-
+#  indicators_metadata %>%
+#  filter(
+#    id %in% selected_indicators_1 |
+#    id %in% selected_indicators_2 |
+#    id %in% selected_indicators_3
+#  ) %>%
+#  select(id,name,dataset,datasetId,datasetLink,definition,valueType,units,subindicatorType,periodicity,dateRange) %>%
+#  filter(!duplicated(id)) %>%
+#  mutate(
+#    name = str_trim(name)
+#  )
 
 #data_api <- data_api %>%
 #  left_join(indicators_metadata %>% select(id,name), by = c("Indicator"="name")) %>%
