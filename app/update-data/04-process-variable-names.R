@@ -35,6 +35,17 @@ variable_names <-
     var_level = ifelse(variable %in% family_names,"family","indicator"),
     var_name =
       case_when(
+        variable == "steering_capability" ~ "Steering Capability",
+        variable == "hiring_pract" ~ "Hiring and firing practices, 1-7 (best)",
+        variable == "opinion_freedom" ~ "Freedom of opinion and expression is effectively guaranteed",
+        variable == "v2clacfree" ~ "Freedom of academic and cultural expression",
+        variable == "complaint_mechan" ~ "Complaint mechanisms",
+        variable == "right_to_info" ~ "Right to information",
+        variable == "undue_influ_corrupt" ~ "GCI 4.0: 1.E Undue influence and corruption",
+        variable == "v2cseeorgs" ~ "CSO entry and exit",
+        variable == "undue_incluence" ~ "3. Undue influence",
+        variable == "burden_cust_proc" ~ "Burden of customs procedures, 1-7 (best)",
+        variable == "domestic_competition" ~ "GCI 4.0: 7.A Domestic competition",
         variable == "centregov_mean" ~ "Centre of Government, influence",
         variable == "nontariff_barriers" ~ "Non-tariffs trade barriers",
         variable == "property_rights" ~ "Property rights",
@@ -51,9 +62,9 @@ variable_names <-
         variable == "insolvency_framework" ~ "Resolving insolvency: Strength of insolvency framework index",
         variable == "financial_institution" ~ "Financial Institutions",
         variable == "access_credit_overall" ~ "Ease of getting credit",
-        variable == "competition_rules_fin" ~ "Financial sector: competition regulation",
-        variable == "efficiency_superv_bank" ~ "Efficiency of the banking supervisory authority",
-        variable == "efficiency_superv_fin" ~ "Efficiency of the financial market supervisory authority",
+        #variable == "competition_rules_fin" ~ "Financial sector: competition regulation",
+        #variable == "efficiency_superv_bank" ~ "Efficiency of the banking supervisory authority",
+        #variable == "efficiency_superv_fin" ~ "Efficiency of the financial market supervisory authority",
         variable == "minimum_wage_ratio" ~ "Minimum to mean wage ratio",
         variable == "union_density" ~ "Union density",
         variable == "empl_protection_perm" ~ "Employment protection, regular",
@@ -118,10 +129,10 @@ variable_names <-
         variable == "efw_capitalcontrols" ~ "Capital controls",
         variable == "efw_integrity_legalsys" ~ "Integrity of the legal system",
         variable == "efw_inv_restr" ~ "Foreign Investment Restrictions",
-        variable == "efw_tourist" ~ "Freedom of entry for foreigners",
-        variable == "egovernmentindex" ~ "Government Online Service Index",
+        #variable == "efw_tourist" ~ "Freedom of entry for foreigners",
+        #variable == "egovernmentindex" ~ "Government Online Service Index",
         variable == "enf_contr_overall" ~ "Enforcing contracts: Cost",
-        variable == "eparticipationindex" ~ "E-Participation Index, 0-1 (best)",
+        #variable == "eparticipationindex" ~ "E-Participation Index, 0-1 (best)",
         variable == "es_court_constraint" ~ "Corruption / Percent of firms identifying the courts system as a major constraint",
         variable == "favoritism" ~ "Favoritism in decisions of government officials",
         variable == "gci_overall" ~ "GCI 4.0: Global Competitiveness Index 4.0",
@@ -144,11 +155,11 @@ variable_names <-
         variable == "vars_pol" ~ "Political institutions",
         variable == "vars_publ" ~ "Public sector performance institutions",
         variable == "vars_social" ~ "Social institutions",
-        variable == "vars_transp" ~ "Accountability institutions",
+        variable == "vars_transp" ~ "Anti-Corruption, Transparency and Accountability institutions ",
         variable == "vars_mkt" ~ "Business environment and trade institutions",
         variable == "vars_lab" ~ "Labor market institutions",
         variable == "vars_fin" ~ "Financial market institutions",
-        variable == "vars_service_del" ~ "Institutions for service delivery"
+        variable == "vars_service_del" ~ "SOE Corporate Governance "
       ),
     family_var =
       case_when(
@@ -168,11 +179,11 @@ variable_names <-
         variable %in% vars_pol | variable == "vars_pol" ~ "Political institutions",
         variable %in% vars_publ | variable == "vars_publ" ~ "Public sector performance institutions",
         variable %in% vars_social | variable == "vars_social" ~ "Social institutions",
-        variable %in% vars_transp | variable == "vars_transp" ~ "Accountability institutions",
+        variable %in% vars_transp | variable == "vars_transp" ~ "Anti-Corruption, Transparency and Accountability institutions ",
         variable %in% vars_mkt | variable == "vars_mkt" ~ "Business environment and trade institutions",
         variable %in% vars_lab | variable == "vars_lab" ~ "Labor market institutions",
         variable %in% vars_fin | variable == "vars_fin" ~ "Financial market institutions",
-        variable %in% vars_service_del | variable == "vars_service_del" ~ "Institutions for service delivery"
+        variable %in% vars_service_del | variable == "vars_service_del" ~ "SOE Corporate Governance"
       )
   ) %>%
   arrange(family_var)

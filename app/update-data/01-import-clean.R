@@ -58,21 +58,26 @@ selected_indicators_1 <- c(
 selected_indicators_2 <- c(
   3326,	 # Governance of state-owned enterprises
   3328,	 # Regulatory protection of incumbents
-  3451,  # Government Online Service Index
-  3469,  # E-Participation Index, 0-1 (best)
+  #3451,  # Government Online Service Index
+  #3469,  # E-Participation Index, 0-1 (best)
   24840, # Paying taxes: Time
   27470, # Revised Combined Polity Score
   27885, # Publicized laws and government data
+  27889, # Right to information
+  27894, # Complaint mechanisms
+  27900, # Freedom of opinion and expression is effectively guaranteed
   27919, # People can access and afford civil justice
   28833, #  Resolving insolvency Outcome
+  28782, #  Steering Capability
   #30823, # Central Bank independence                # NO RECENT DATA
-  31001, #  Efficiency of the banking supervisory authority
-  31003, #  Efficiency of the financial market supervisory authority
-  31088, #  Financial sector: competition regulation
-  31115, #  Freedom of entry for foreigners
+  #31001, #  Efficiency of the banking supervisory authority
+  #31003, #  Efficiency of the financial market supervisory authority
+  #31088, #  Financial sector: competition regulation # ID NOT FOUND 24-09-2021
+  #31115, #  Freedom of entry for foreigners # ID NOT FOUND 24-09-2021
   40294, #  Ease of starting a business
   40418, #  Ease of getting credit
-  40432 #  Ease of protecting minority investors
+  40432, #  Ease of protecting minority investors
+  40822  # 3. Undue influence
   #40985 #  Civil Liberties                    # STRANGE VALUES
   #40986, # Political Rights                           # STRANGE VALUES
 )
@@ -80,12 +85,17 @@ selected_indicators_2 <- c(
 selected_indicators_3 <- c(
   41008, #	Burden of government regulation, 1-7 (best)
   41189, #  Procurement
+  41305, #  Burden of customs procedures, 1-7 (best)
   41619, #  GCI 4.0: Global Competitiveness Index 4.0
+  41629, #  GCI 4.0: 1.E Undue influence and corruption
+  41703, #  GCI 4.0: 7.A Domestic competition
   41714, #  GCI 4.0: Efficiency of the clearance process
   41794, #  Absence of corruption (Global States of Democracy)
   41827, #  Civil society participation
   41881, #  Engaged society
   41883, #  Executive constraints
+  41857, #  CSO entry and exit
+  41918, #  Freedom of academic and cultural expression
   41932, #  Fundamental rights
   41951, #  Judicial accountability
   #41953 #	Judicial independence       # ONLY ON DEFINITIONS
@@ -96,6 +106,7 @@ selected_indicators_3 <- c(
   42026, #  Power distributed by socio-economic position
   42084, #	Rigorous and impartial public administration
   42602, #  Resolving insolvency: Strength of insolvency framework index
+  43034, #  Hiring and firing practices, 1-7 (best)
   43050  #  GCI 4.0: Border clearance efficiency
 )
 
@@ -183,6 +194,17 @@ data_cleaned <-
   ) %>%
   mutate(
     var = case_when(
+      Indicator == "Steering Capability" ~ "steering_capability",
+      Indicator == "Hiring and firing practices, 1-7 (best)" ~ "hiring_pract",
+      Indicator == "Freedom of opinion and expression is effectively guaranteed" ~ "opinion_freedom",
+      Indicator == "Freedom of academic and cultural expression" ~ "v2clacfree",
+      Indicator == "Complaint mechanisms" ~ "complaint_mechan",
+      Indicator == "Right to information" ~ "right_to_info",
+      Indicator == "GCI 4.0: 1.E Undue influence and corruption" ~ "undue_influ_corrupt",
+      Indicator == "CSO entry and exit" ~ "v2cseeorgs",
+      Indicator == "3. Undue influence" ~ "undue_incluence",
+      Indicator == "Burden of customs procedures, 1-7 (best)" ~ "burden_cust_proc",
+      Indicator == "GCI 4.0: 7.A Domestic competition" ~ "domestic_competition",
       Indicator == "Favoritism in decisions of government officials, 1-7 (best)" ~ "favoritism",
       Indicator == "Irregular payments and bribes" ~ "bribes",
       Indicator == "Diversion of public funds" ~ "diversion_pfunds",
@@ -193,10 +215,10 @@ data_cleaned <-
       Indicator == "Engaged society" ~ "v2dlengage",
       Indicator == "Public trust in politicians" ~ "trust_pol",
       Indicator == "Absence of corruption (Global States of Democracy)" ~ "f2_corruption",
-      Indicator == "E-Participation Index, 0-1 (best)" ~ "eparticipationindex",
+      #Indicator == "E-Participation Index, 0-1 (best)" ~ "eparticipationindex",
       Indicator == "Publicized laws and government data"  ~ "open_data_barometer",
       Indicator == "Corruption / Percent of firms identifying the courts system as a major constraint" ~ "es_court_constraint",
-      Indicator == "Freedom of entry for foreigners" ~ "efw_tourist",
+      #Indicator == "Freedom of entry for foreigners" ~ "efw_tourist",
       Indicator == "Restrictive Labor Regulations" ~ "efw_labor_mkt_reg",
       Indicator == "Foreign Currency Regulations" ~ "efw_free_foreign_curr",        # DIFFERENT VALUES
       #Indicator == "Political Rights" ~ "e_fh_pr",                     # STRANGE VALUES
@@ -217,9 +239,9 @@ data_cleaned <-
       Indicator == "Paying taxes: Time" ~ "pay_taxes_overall",
       Indicator == "Publicized laws and government data" ~ "open_data_barometer",
       #Indicator == "Central Bank independence" ~ "cbi",
-      Indicator == "Efficiency of the banking supervisory authority" ~ "efficiency_superv_bank",
-      Indicator == "Efficiency of the financial market supervisory authority" ~ "efficiency_superv_fin",
-      Indicator == "Financial sector: competition regulation" ~ "competition_rules_fin",
+      #Indicator == "Efficiency of the banking supervisory authority" ~ "efficiency_superv_bank",
+      #Indicator == "Efficiency of the financial market supervisory authority" ~ "efficiency_superv_fin",
+      #Indicator == "Financial sector: competition regulation" ~ "competition_rules_fin",
       Indicator == "Burden of government regulation, 1-7 (best)" ~ "govreg_burden",
       Indicator == "Fundamental rights" ~ "f4_rights",
       Indicator == "Judicial accountability" ~ "v2juaccnt",
@@ -232,7 +254,7 @@ data_cleaned <-
       Indicator == "Power distributed by gender" ~ "v2pepwrgen",
       Indicator == "Law  and order" ~ "f3_security",
       Indicator == "Corruption" ~ "e_ti_cpi",
-      Indicator == "Government Online Service Index, 0-1 (best)" ~ "egovernmentindex",
+      #Indicator == "Government Online Service Index, 0-1 (best)" ~ "egovernmentindex",
       Indicator == "Procurement" ~ "proc_mean_score",
       Indicator == "Consolidated regulatory governance score" ~ "regulatory_governance",
       Indicator == "People can access and afford civil justice" ~ "f7_civiljustice",

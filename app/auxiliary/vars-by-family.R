@@ -20,7 +20,10 @@
       "v2x_cspart",
       "v2dlengage",
   #    "v2xcs_ccsi",
-      "trust_pol"
+      "trust_pol",
+      "v2cseeorgs",
+      "v2clacfree",
+      "opinion_freedom"
       )
 
   # 3 ACCOUTABILITY INSTITUTIONS
@@ -28,15 +31,16 @@
     c(
       "e_ti_cpi",
       "f2_corruption",
-      "favoritism",
       "bribes",
       "diversion_pfunds",
       "transparency_polmak",
-      "egovernmentindex",
-      "eparticipationindex",
+      #"egovernmentindex",
+      #"eparticipationindex",
       #"f5_opengov",
       "rigorous_impartial_pa",
-      "open_data_barometer"
+      "open_data_barometer",
+      "right_to_info",
+      "complaint_mechan"
     )
 
   # 4 CENTER OF GOV/PUBLIC SECTOR INSTITUTIONS
@@ -45,7 +49,11 @@
   #    "f6_regulatoryenf",
       "proc_mean_score",
       "eff_govspending",
-      "regulatory_governance"
+      "regulatory_governance",
+      "favoritism",
+      "undue_influ_corrupt",
+      "hiring_pract",
+      "steering_capability"
   #    "centregov_mean"
       )
 
@@ -74,7 +82,7 @@
       "property_rights",
       #"efw_inv_restr",
       #"efw_capitalcontrols",
-      "efw_tourist",
+      #"efw_tourist",
       "customs_burden",
       "lpi_clearance_eff",
       "wef_border_admin",
@@ -87,7 +95,10 @@
       "constr_perm_overall",
       "register_prop_overall",
       "protect_minority_ov",
-      "pay_taxes_overall"
+      "pay_taxes_overall",
+      "domestic_competition",
+      "burden_cust_proc",
+      "undue_incluence"
       #"trade_borders_overall"
       )
 
@@ -108,9 +119,9 @@
       #"efw_credit_mkt_reg",
       "efw_free_foreign_curr",
       "wsj_financialfreedom",
-      "competition_rules_fin",
-      "efficiency_superv_bank",
-      "efficiency_superv_fin",
+      #"competition_rules_fin",
+      #"efficiency_superv_bank",
+      #"efficiency_superv_fin",
       #"cbi"
       "access_credit_overall",
       "insolvency_framework"
