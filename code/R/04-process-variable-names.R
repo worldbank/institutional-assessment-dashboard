@@ -145,11 +145,11 @@ variable_names <-
         variable == "vars_pol" ~ "Political institutions",
         variable == "vars_publ" ~ "Public sector institutions",
         variable == "vars_social" ~ "Social institutions",
-        variable == "vars_transp" ~ "Accountability institutions",
+        variable == "vars_transp" ~ "Anti-Corruption, Transparency and Accountability institutions",
         variable == "vars_mkt" ~ "Business environment and trade institutions",
         variable == "vars_lab" ~ "Labor market institutions",
         variable == "vars_fin" ~ "Financial market institutions",
-        variable == "vars_service_del" ~ "Institutions for service delivery"
+        variable == "vars_service_del" ~ "SOE Corporate Governance"
       ),
     family_var =
       case_when(
@@ -169,11 +169,11 @@ variable_names <-
         variable %in% vars_pol | variable == "vars_pol" ~ "Political institutions",
         variable %in% vars_publ | variable == "vars_publ" ~ "Public sector performance institutions",
         variable %in% vars_social | variable == "vars_social" ~ "Social institutions",
-        variable %in% vars_transp | variable == "vars_transp" ~ "Accountability institutions",
+        variable %in% vars_transp | variable == "vars_transp" ~ "Anti-Corruption, Transparency and Accountability institutions",
         variable %in% vars_mkt | variable == "vars_mkt" ~ "Business environment and trade institutions",
         variable %in% vars_lab | variable == "vars_lab" ~ "Labor market institutions",
         variable %in% vars_fin | variable == "vars_fin" ~ "Financial market institutions",
-        variable %in% vars_service_del | variable == "vars_service_del" ~ "Institutions for service delivery"
+        variable %in% vars_service_del | variable == "vars_service_del" ~ "SOE Corporate Governance"
       )
   ) %>%
   arrange(family_var)
