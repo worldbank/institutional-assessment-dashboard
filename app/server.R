@@ -230,8 +230,8 @@
                     if (input$family == "Social institutions") {vars_social} else
                       if (input$family == "Business environment and trade institutions") {vars_mkt} else
                         if (input$family == "Public sector performance institutions") {vars_publ} else
-                          if (input$family == "Institutions for service delivery") {vars_service_del} else
-                            if (input$family == "Accountability institutions") {vars_transp}
+                          if (input$family == "SOE Corporate Governance") {vars_service_del} else
+                            if (input$family == "Anti-Corruption, Transparency and Accountability institutions") {vars_transp}
 
 
           data() %>%
