@@ -15,6 +15,8 @@ definitions <-
       family == "Social Institutions" ~ "Social institutions",
       family == "Political Institutions" ~ "Political institutions",
       family == "Public sector performance Institutions" ~ "Public sector performance institutions",
+      family == "Accountability institutions" ~ "Anti-Corruption, Transparency and Accountability institutions",
+      family == "Institutions for service delivery" ~ "SOE Corporate Governance",
       TRUE ~ family
     )
   )
