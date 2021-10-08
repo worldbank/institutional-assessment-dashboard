@@ -23,9 +23,9 @@ pacman::p_load(packages,
 # IDs from selected indicators
 selected_indicators_1 <- c(
   290,   # Corruption / Percent of firms identifying the courts system as a major constraint
-  464,   #  Dealing with construction permits: Procedures
-  472,   # Registering property: Cost
-  477,	   # Enforcing contracts: Cost
+  #464, #DOING BUSINESS INDICATOR  #  Dealing with construction permits: Procedures
+  #472, #DOING BUSINESS INDICATOR  # Registering property: Cost
+  #477,	#DOING BUSINESS INDICATOR  # Enforcing contracts: Cost
   #482	Resolving insolvency: Cost                    # ONLY ON DEFINITIONS
   519,   # Extent of market dominance
   633,   # Property rights (WEF)
@@ -38,7 +38,7 @@ selected_indicators_1 <- c(
   687,   # Transparency of government policymaking
   691,   #	Efficiency of legal framework in challenging regs
   697,   #	Effectiveness of antimonopoly policy
-  #719,   #	Prevalence of trade barriers
+  #719,  #	Prevalence of trade barriers
   723,	 # Burden of customs procedures
   747,   # Index of economic freedom score          # ONLY ON DEFINITIONS
   3210,  #  Consolidated regulatory governance score
@@ -51,7 +51,6 @@ selected_indicators_1 <- c(
   3310,  #  Use of command and control regulation
   3311,	 # Price controls
   3323	 # Complexity of regulatory procedures
-
 )
 
 # API WASNT ABLE TO GET ALL TOGETHER
@@ -60,14 +59,14 @@ selected_indicators_2 <- c(
   3328,	 # Regulatory protection of incumbents
   #3451,  # Government Online Service Index
   #3469,  # E-Participation Index, 0-1 (best)
-  24840, # Paying taxes: Time
+  #24840, #DOING BUSINESS INDICATOR # Paying taxes: Time
   27470, # Revised Combined Polity Score
   27885, # Publicized laws and government data
   27889, # Right to information
   27894, # Complaint mechanisms
   27900, # Freedom of opinion and expression is effectively guaranteed
   27919, # People can access and afford civil justice
-  28833, #  Resolving insolvency Outcome
+  #28833, #DOING BUSINESS INDICATOR  # Resolving insolvency Outcome
   28782, #  Steering Capability
   #30823, # Central Bank independence                # NO RECENT DATA
   #31001, #  Efficiency of the banking supervisory authority
@@ -105,7 +104,7 @@ selected_indicators_3 <- c(
   42025, #  Power distributed by social group
   42026, #  Power distributed by socio-economic position
   42084, #	Rigorous and impartial public administration
-  42602, #  Resolving insolvency: Strength of insolvency framework index
+  #42602, #DOING BUSINESS INDICATOR #  Resolving insolvency: Strength of insolvency framework index
   43034, #  Hiring and firing practices, 1-7 (best)
   43050  #  GCI 4.0: Border clearance efficiency
 )
@@ -225,8 +224,8 @@ data_cleaned <-
       Indicator == "Price controls" ~ "price_controls",
       #Indicator == "Civil Liberties" ~ "e_fh_cl",                       # STRANGE VALUES
       Indicator == "Wastefulness of government spending" ~ "eff_govspending",
-      Indicator == "Registering property: Cost" ~ "register_prop_overall",
-      Indicator == "Enforcing contracts: Cost" ~ "enf_contr_overall",
+      #Indicator == "Registering property: Cost" ~ "register_prop_overall",
+      #Indicator == "Enforcing contracts: Cost" ~ "enf_contr_overall",
       Indicator == "Effectiveness of antimonopoly policy" ~ "eff_antimonopoly",
       Indicator == "Explicit barriers to trade and investment" ~ "barriers_trade_expl",
       Indicator == "Burden of customs procedures" ~ "customs_burden",
@@ -236,7 +235,7 @@ data_cleaned <-
       Indicator == "Complexity of regulatory procedures" ~ "complexity_procedures",
       Indicator == "Governance of state-owned enterprises" ~ "governance_soe",
       Indicator == "Regulatory protection of incumbents" ~ "protection_incumbents",
-      Indicator == "Paying taxes: Time" ~ "pay_taxes_overall",
+      #Indicator == "Paying taxes: Time" ~ "pay_taxes_overall",
       Indicator == "Publicized laws and government data" ~ "open_data_barometer",
       #Indicator == "Central Bank independence" ~ "cbi",
       #Indicator == "Efficiency of the banking supervisory authority" ~ "efficiency_superv_bank",
@@ -260,15 +259,15 @@ data_cleaned <-
       Indicator == "People can access and afford civil justice" ~ "f7_civiljustice",
       Indicator == "Efficiency of legal framework in challenging regs" ~ "legaleff_challenging",
       Indicator == "Efficiency of legal framework in settling disputes" ~ "legaleff_disputes",
-      Indicator == "Resolving insolvency: Outcome" ~ "resolve_insolv_overall",
+      #Indicator == "Resolving insolvency: Outcome" ~ "resolve_insolv_overall",
       Indicator == "GCI 4.0: Global Competitiveness Index 4.0" ~ "gci_overall",
       Indicator == "GCI 4.0: Efficiency of the clearance process" ~ "lpi_clearance_eff",
       Indicator == "GCI 4.0: Border clearance efficiency" ~ "wef_border_admin",
       Indicator == "Ease of starting a business" ~ "start_bus_overall",
-      Indicator == "Dealing with construction permits: Procedures" ~ "constr_perm_overall",
+      #Indicator == "Dealing with construction permits: Procedures" ~ "constr_perm_overall",
       Indicator == "Ease of protecting minority investors" ~ "protect_minority_ov",
       Indicator == "Ease of getting credit" ~ "access_credit_overall",
-      Indicator == "Resolving insolvency: Strength of insolvency framework index" ~ "insolvency_framework",
+      #Indicator == "Resolving insolvency: Strength of insolvency framework index" ~ "insolvency_framework",
       Indicator == "Use of command and control regulation" ~ "command_control"
     )
   ) %>%

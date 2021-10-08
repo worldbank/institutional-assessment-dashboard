@@ -66,9 +66,9 @@
       "v2juaccnt",
   #    "efw_integrity_legalsys",
       "legaleff_challenging",
-      "legaleff_disputes",
-      "enf_contr_overall",
-      "resolve_insolv_overall"
+      "legaleff_disputes"#,
+      #"enf_contr_overall",
+      #"resolve_insolv_overall"
       )
 
   # 6 BUSINESS ENV. AND TRADE INSTITUTIONS
@@ -92,10 +92,10 @@
       "barriers_trade_expl",
       "barriers_trade_oth",
       "start_bus_overall",
-      "constr_perm_overall",
-      "register_prop_overall",
+      #"constr_perm_overall",
+      #"register_prop_overall",
       "protect_minority_ov",
-      "pay_taxes_overall",
+      #"pay_taxes_overall",
       "domestic_competition",
       "burden_cust_proc",
       "undue_incluence"
@@ -123,8 +123,8 @@
       #"efficiency_superv_bank",
       #"efficiency_superv_fin",
       #"cbi"
-      "access_credit_overall",
-      "insolvency_framework"
+      "access_credit_overall"#,
+      #"insolvency_framework"
   )
 
   # 9 SOE Governance/SERVICE DELIVERY INSTITUTIONS
