@@ -24,6 +24,10 @@ source(file.path("auxiliary",
 source(file.path("auxiliary",
                  "fun_quantiles.R"))
 
+# Function to calculate to calculate the family-level average with only indicators available for based country
+source(file.path("auxiliary",
+                 "fun_family_data.R"))
+
 source(file.path("auxiliary",
                  "plots.R"))
 
@@ -207,7 +211,11 @@ server <- function(input, output, session) {
           unique
 
         data <-
-          family_level_data %>%
+          family_data(
+            global_data,
+            base_country(),
+            input$groups
+          ) %>%
           def_quantiles(
             base_country(),
             input$countries,
