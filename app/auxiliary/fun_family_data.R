@@ -18,15 +18,15 @@ family_data <- function(data, base_country, comparison_countries) {
   i=1
 
   vars_global_list=list(
-    #vars_pol = vars_pol,
-    #vars_social = vars_social,
-    #vars_transp = vars_transp,
-    #vars_publ = vars_publ,
-    #vars_leg = vars_leg,
-    vars_mkt = vars_mkt#,
-    #vars_lab = vars_lab,
-    #vars_fin = vars_fin,
-    #vars_service_del = vars_service_del
+    vars_pol = vars_pol,
+    vars_social = vars_social,
+    vars_transp = vars_transp,
+    vars_publ = vars_publ,
+    vars_leg = vars_leg,
+    vars_mkt = vars_mkt,
+    vars_lab = vars_lab,
+    vars_fin = vars_fin,
+    vars_service_del = vars_service_del
   )
 
   for(group in vars_global_list){
