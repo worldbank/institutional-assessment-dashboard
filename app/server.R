@@ -24,6 +24,9 @@
                    "fun_quantiles.R"))
 
   source(file.path("auxiliary",
+                   "fun_family_data.R"))
+
+  source(file.path("auxiliary",
                    "plots.R"))
 
   # Data sets ---------------------------------------------------------------------------
@@ -206,7 +209,11 @@
             unique
 
           data <-
-            family_level_data %>%
+            family_data(
+              global_data,
+              base_country(),
+              input$groups
+            ) %>%
             def_quantiles(
               base_country(),
               input$countries,
