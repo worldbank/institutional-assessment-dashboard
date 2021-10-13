@@ -44,7 +44,7 @@ plot_height <- "500px"
 
   ui <- navbarPage(
 
-    "Global institutional assessment",
+    "Global Institutional Benchmarking Dashboard (GIBD)",
 
     #theme = bs_theme(bootswatch = "minty"),
 
@@ -62,15 +62,12 @@ plot_height <- "500px"
 
         h3("About"),
 
-        p("The World Bank recognizes institutional strengthening as key ingredient for progress of its members countries along income categories. While there are numerous diagnostic and assessment tools for specific functional areas such as financial management and tax administration, there is no analytical tool for country-level institutional assessment."),
-        p("The Institutional Assessment (IA) benchmarking aims at partially filling this gap by providing a standard methodology to summarize information from a large set of institutional indicators. This dashboard offers a user-friendly interface that can easily and speedily be used for the country-level IA benchmarking."),
-        p("The dashboard provides a visualization of a country’s profile based on a set of international institutional indicators, highlighting a given country’s institutional strengths and weaknesses. It is recommended to use these empirical results as guides for further quantitative or qualitative in-depth analysis in the specific areas of interest."),
-        p("This benchmarking is part of a larger analytical effort.
-          For full details about the project, see the Approach paper: Marco Larizza, Serena Sara Daniela Cocciolo, Eric Braian Arias and Peter Siegenthaler (forthcoming), ",
-          tags$em("Country Level Institutional Assessment: a 3-steps analytical framework."),
-          "Users of this resource should cite this approach paper.
-          Further, any publications using data drawn from this resource could include citations to the original source(s) of the data used.
-          Citation information for each component dataset is included in the methodology page."),
+        p("The World Bank recognizes institutional strengthening as key ingredient for progress of its members countries along income categories. While there are numerous diagnostic and assessment tools for specific functional areas such as public financial management and tax administration, there is no analytical tool for country-level institutional assessment."),
+        p("The Global Institutional Benchmarking Dashboard (GIBD) contributes to fill this gap by providing a standard methodology to summarize information from a large set of country-level institutional indicators."),
+        p("The dashboard provides a user-friendly interface with multiple visualizations of a country’s institutional profile based on a set of international indicators, highlighting a given country’s institutional strengths and weaknesses relative to a set of country comparators. The findings of the GIBD can provide a structured and up-to-date empirical guidance for further in-depth analysis in the specific areas of interest, given the nature of the World Bank engagement in a country and/or complementarity with other ongoing country-level diagnostics (SCDs, CEMs, CPFs and the like)."),
+        p("The GIBD part of a larger analytical effort to assess and review the quality of country’s institutions. For full details about the broader analytical effort, see the Approach paper: Marco Larizza, Serena Sara Daniela Cocciolo, Eric Braian Arias, Peter Siegenthaler and Jim Brumby (forthcoming),  ",
+          tags$em("Country Level Institutional Assessment and Review (CLIAR): a 3-steps analytical framework."),
+          "Users of this resource should cite this approach paper. Further, any publications using data drawn from the GIBD should include a citation of the dashboard as well as the original source(s) of the data used. Citation information for each component dataset is included in the methodology page."),
 
         h3("How to use this dashboard"),
         p("This dashboard aims to enable its users to interact with the country-level IA benchmarking in a few different ways:"),
