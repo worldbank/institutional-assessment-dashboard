@@ -46,13 +46,16 @@ static_plot <-
         "Advanced" = "#238823"
       )
 
+    shapes <- c(
+      "LAC6 Median" = 22,
+      "OECD Median" = 23,
+      "Structural Median" = 24
+    )
+
     colors_median <-
       c("Weak" = "#D2222D",
-        "LAC6 Median" = "white",
         "Emerging" = "#FFBF00",
-        "OECD Median" = "gray",
-        "Advanced" = "#238823",
-        "Structural Median" = "black"
+        "Advanced" = "#238823"
       )
 
     ggplot() +
@@ -72,10 +75,14 @@ static_plot <-
           mutate(group ="OECD Median"),
         aes(y = var_name,
             x = dtt,
-            fill = group),
-        alpha = .7,
-        size = 4,
-        shape = 21
+            shape = group,
+            fill = group,
+            color = group,
+            alpha = gr),
+        alpha = .5,
+        fill = "white",
+        color = "black",
+        size = 4
       ) +
       geom_point(
         data = data %>%
@@ -83,12 +90,13 @@ static_plot <-
           group_by(var_name) %>%
           summarise(dtt = median(dtt, na.rm = TRUE)) %>%
           mutate(group ="LAC6 Median"),
-        aes(y = var_name,
+        aes(y = family_name,
             x = dtt,
-            fill = group),
-        alpha = .7,
-        size = 4,
-        shape = 21
+            shape = group),
+        alpha = .5,
+        fill = "white",
+        color = "black",
+        size = 4
       ) +
       geom_point(
         data = data %>%
@@ -98,10 +106,11 @@ static_plot <-
           mutate(group ="Structural Median"),
         aes(y = var_name,
             x = dtt,
-            fill = group),
-        alpha = .7,
-        size = 4,
-        shape = 21
+            shape = group),
+        alpha = .5,
+        fill = "white",
+        color = "black",
+        size = 4
       ) +
       geom_point(
         data = data %>% filter(country_name == base_country),
@@ -122,17 +131,23 @@ static_plot <-
       theme(legend.position = "top",
             panel.grid.minor = element_blank(),
             panel.grid.major = element_blank(),
-            axis.ticks = element_blank()) +
+            axis.ticks = element_blank(),
+            axis.text = element_text(color = "black"),
+            axis.text.y = element_text(size = 10)) +
       labs(y = NULL,
            x = NULL,
            fill = NULL) +
+      scale_shape_manual(
+        values = shapes
+      )+
       scale_fill_manual(
         values = colors_median
       ) +
       scale_color_manual(
         values = colors_median
       ) +
-      guides(fill = guide_legend(ncol = 3)) +
+      guides(fill = guide_legend(ncol = 3),
+             shape = guide_legend(ncol = 3)) +
       scale_x_continuous(breaks = c(0, 0.5, 1),
                          labels = c("Worst ranked",
                                     "Middle of ranking",
