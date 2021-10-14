@@ -218,8 +218,8 @@
               base_country(),
               input$countries,
               variable_names$variable
-            )  %>%
-            left_join(variable_names)
+            )  #%>%
+            #left_join(variable_names)
 
           data %>%
             static_plot(base_country(),
