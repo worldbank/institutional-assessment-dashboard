@@ -167,7 +167,8 @@
                         def_quantiles(
                           base_country(),
                           input$countries,
-                          vars_all
+                          vars_all,
+                          variable_names
                         ) %>%
                         left_join(variable_names)
 
@@ -217,7 +218,8 @@
             def_quantiles(
               base_country(),
               input$countries,
-              variable_names$variable
+              variable_names$variable,
+              variable_names
             )  #%>%
             #left_join(variable_names)
 
