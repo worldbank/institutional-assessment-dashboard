@@ -4,7 +4,13 @@
 
 def_quantiles <- function(data, base_country, comparison_countries, vars) {
 
+  #base_country <- "Uruguay"
+
+  #data <- global_data
   #vars <- vars_lab
+
+  #vars <- family_names
+  #data <- dtf_family_level
 
   quantiles <-
     data %>%

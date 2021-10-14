@@ -240,7 +240,6 @@
                           if (input$family == "SOE Corporate Governance") {vars_service_del} else
                             if (input$family == "Anti-Corruption, Transparency and Accountability institutions") {vars_transp}
 
-
           data() %>%
             filter(variable %in% vars)  %>%
             static_plot(base_country(),
