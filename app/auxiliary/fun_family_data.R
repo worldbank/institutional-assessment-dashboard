@@ -4,6 +4,7 @@
 
 family_data <- function(data, base_country, comparison_countries) {
 
+  #base_country <- "Uruguay"
   #data <- global_data
 
   miss_indicator_base <- data %>%
