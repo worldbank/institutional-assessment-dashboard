@@ -11,7 +11,7 @@ family_data <- function(data, base_country, comparison_countries) {
     pivot_longer(cols = 1:ncol(.), names_to = "missing_var")
 
   dtf_family_level <-
-    dtf_vars_global %>%
+    data %>%
     ungroup() %>%
     select(country_code,country_name)
 
@@ -33,7 +33,7 @@ family_data <- function(data, base_country, comparison_countries) {
 
     name_var <- names(vars_global_list[i])
 
-    dtf_family <- dtf_vars_global %>%
+    dtf_family <- data %>%
       ungroup() %>%
       select(
         country_code,
