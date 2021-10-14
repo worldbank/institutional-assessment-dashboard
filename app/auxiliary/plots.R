@@ -2,12 +2,12 @@
 
 static_plot <-
   function(data,
-           selected_country,
+           base_country,
            tab_name) {
 
     order <-
       data %>%
-      filter(country_name == selected_country) %>%
+      filter(country_name == base_country) %>%
       arrange(dtt) %>%
       select(var_name) %>%
       unlist
@@ -90,7 +90,7 @@ static_plot <-
           group_by(var_name) %>%
           summarise(dtt = median(dtt, na.rm = TRUE)) %>%
           mutate(group ="LAC6 Median"),
-        aes(y = family_name,
+        aes(y = var_name,
             x = dtt,
             shape = group),
         alpha = .5,
@@ -186,9 +186,9 @@ interactive_plot <-
         annotations =
           list(x = 0, y = -0.475,
                text = paste0("<b>Notes:</b> ", y, " compared to ", paste(z, collapse = ", "), ".",
-                             "<br>Black squares show the group average.",
-                             "<br>Closeness to frontier is calculated as (worst-y)/(worst-frontier).",
-                             "<br>1 identifies the best performer and 0 the worst performer.",
+                             #"<br>Black squares show the group average.",
+                             #"<br>Closeness to frontier is calculated as (worst-y)/(worst-frontier).",
+                             #"<br>1 identifies the best performer and 0 the worst performer.",
                              "<br>Weak = bottom 25%; Emerging = 25%-50%; Advanced = top 50%."),
                showarrow = F,
                xref = 'paper',
