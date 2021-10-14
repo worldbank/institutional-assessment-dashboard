@@ -7,7 +7,7 @@ static_plot <-
 
     order <-
       data %>%
-      filter(country_name == base_country) %>%
+      filter(country_name == selected_country) %>%
       arrange(dtt) %>%
       select(var_name) %>%
       unlist
