@@ -316,7 +316,7 @@ data_cleaned <-
     year >= 1950   # variable e_p_polity has values since 1800, filter to reduce # of rows
   )
 
-# Additions with indicators that is not on Gov360 ----
+# Additions with indicators that are not on Gov360 ----
 additions <- haven::read_dta(here("data",
                                   "data_raw",
                                   "new_additions_notGov360.dta"))
