@@ -316,7 +316,21 @@ data_cleaned <-
     year >= 1950   # variable e_p_polity has values since 1800, filter to reduce # of rows
   )
 
+# Additions with indicators that is not on Gov360 ----
+additions <- haven::read_dta(here("data",
+                                  "data_raw",
+                                  "new_additions_notGov360.dta"))
+
+additions <- additions %>%
+  filter(year==2020) %>%
+  rename(country_code = iso3code) %>%
+  select(-c(countryname,country,ccode)) %>%
+  mutate(year=as.character(year)) %>%
+  labelled::remove_labels()
+
+data_binded <- left_join(data_cleaned, additions, by.x = "country_code", by.y = "year")
+
 # Export cleaned data
-write_rds(data_cleaned,
+write_rds(data_binded,
           file.path("data",
                     "raw_data.rds"))
