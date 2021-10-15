@@ -35,6 +35,16 @@ variable_names <-
     var_level = ifelse(variable %in% family_names,"family","indicator"),
     var_name =
       case_when(
+        # New additions out gov360
+        variable == "gtmi" ~ "GovTech Maturity Index (GTMI)",
+        variable == "cgsi" ~ "Core Government Systems Index",
+        variable == "psdi" ~ "Public Service Delivery Index",
+        variable == "cei" ~ "Citizen Engagement Index",
+        variable == "proff1" ~ "Patronage",
+        variable == "close2" ~ "Entry via examination",
+        variable == "v2stfisccap" ~ "State fiscal source of revenue",
+        variable == "v2stcritrecadm" ~ "Criteria for appointment decisions in the state administration",
+        # Gov360
         variable == "steering_capability" ~ "Steering Capability",
         variable == "hiring_pract" ~ "Hiring and firing practices, 1-7 (best)",
         variable == "opinion_freedom" ~ "Freedom of opinion and expression is effectively guaranteed",
