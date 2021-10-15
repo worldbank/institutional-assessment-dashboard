@@ -30,29 +30,20 @@ static_plot <-
     bar_colors_dtt <-
       data %>%
       transmute(var_name = var_name,
-                Weak = r25/rank_max,
-                Emerging = r50/rank_max - r25/rank_max,
-                Advanced = 1 - r50/rank_max) %>%
+                Weak = .25,
+                Emerging = .25,
+                Advanced = .50) %>%
       unique %>%
       pivot_longer(cols = c(Weak, Emerging, Advanced),
                    names_to = "status",
                    values_to = "dtt")
-
-    colors <-
-      c("Weak" = "#D2222D",
-        "LAC" = "gray",
-        "Emerging" = "#FFBF00",
-        "OECD" = "white",
-        "Advanced" = "#238823"
-      )
-
     shapes <- c(
       "LAC6 Median" = 22,
       "OECD Median" = 23,
       "Structural Median" = 24
     )
 
-    colors_median <-
+    colors <-
       c("Weak" = "#D2222D",
         "Emerging" = "#FFBF00",
         "Advanced" = "#238823"
@@ -133,18 +124,20 @@ static_plot <-
             panel.grid.major = element_blank(),
             axis.ticks = element_blank(),
             axis.text = element_text(color = "black"),
-            axis.text.y = element_text(size = 10)) +
+            axis.text.y = element_text(size = 10),
+            legend.box = "vertical") +
       labs(y = NULL,
            x = NULL,
-           fill = NULL) +
+           fill = NULL,
+           shape = NULL) +
       scale_shape_manual(
         values = shapes
       )+
       scale_fill_manual(
-        values = colors_median
+        values = colors
       ) +
       scale_color_manual(
-        values = colors_median
+        values = colors
       ) +
       guides(fill = guide_legend(ncol = 3),
              shape = guide_legend(ncol = 3)) +
