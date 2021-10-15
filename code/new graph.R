@@ -108,17 +108,6 @@ benchmark_data <-
                                       levels = order,
                                       ordered = TRUE)
 
-  bar_colors_dtf <-
-    benchmark_data %>%
-    transmute(var_name = var_name,
-              Weak = q25,
-              Emerging = q50 - q25,
-              Advanced = 1 - q50) %>%
-    unique %>%
-    pivot_longer(cols = c(Weak, Emerging, Advanced),
-                 names_to = "status",
-                 values_to = "dtf")
-
   bar_colors_dtt <-
     benchmark_data %>%
     transmute(var_name = var_name,
