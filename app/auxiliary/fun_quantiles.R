@@ -24,29 +24,27 @@ def_quantiles <- function(data, base_country, comparison_countries, vars, variab
                  names_to = "variable") %>%
     left_join(variable_names,
               by = "variable") %>%
+    filter(!is.na(value)) %>%
     group_by(country_name, var_name, lac6, oecd, structural) %>%
-    summarise(dtf = mean(value, na.rm = TRUE))  %>%
+    summarise(dtf = mean(value)) %>%
     group_by(var_name) %>%
     mutate(
-      rank = dense_rank(dtf),
-      rank_max = max(rank, na.rm = TRUE),
-      r25 = quantile(1:rank_max, c(.25)),
-      r50 = quantile(1:rank_max, c(.5)),
-      dtt = (rank/rank_max),
+      n = n(),
+      dtt = percent_rank(dtf),
+      q25 = quantile(dtf, c(0.25)),
+      q50 = quantile(dtf, c(0.5)),
+      r25 = floor(n * .25) / n,
+      r50 = floor(n * .5) / n,
       status_dtt = case_when(
-        rank <= r25 ~ "Weak",
-        rank > r25 & rank <= r50 ~ "Emerging",
-        rank > r50 ~ "Advanced"
+        dtt <= .25 ~ "Weak",
+        dtt > .25 & dtt <= .50 ~ "Emerging",
+        dtt > .50 ~ "Advanced"
       ),
-      q25 = quantile(dtf, c(0.25), na.rm = TRUE),
-      q50 = quantile(dtf, c(0.5), na.rm = TRUE),
-      avg = mean(dtf, na.rm = TRUE),
       status_dtf = case_when(
         dtf <= q25 ~ "Weak",
         dtf > q25 & dtf <= q50 ~ "Emerging",
         dtf > q50 ~ "Advanced"
-      ),
-      var_name = var_name %>% str_to_sentence() %>% str_replace_all("Soe", "SOE")
+      )
     )
 
 }
