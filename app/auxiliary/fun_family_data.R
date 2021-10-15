@@ -4,6 +4,9 @@
 
 family_data <- function(data, base_country, comparison_countries) {
 
+  #base_country <- "Uruguay"
+  #data <- global_data
+
   miss_indicator_base <- data %>%
     ungroup() %>%
     filter(country_name == base_country) %>%
@@ -75,6 +78,12 @@ family_data <- function(data, base_country, comparison_countries) {
                 0.01,
                 .x) # small adjustments to display a very short bar on the graph, in case dtf = 0
       )
+    ) %>%
+    left_join(
+      data %>%
+        ungroup() %>%
+        select(country_code,lac6,oecd,structural),
+      by = "country_code"
     )
 
 }

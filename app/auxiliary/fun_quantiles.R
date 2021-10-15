@@ -2,64 +2,49 @@
 # FUNCTION THAT DEFINES THE QUANTILES BASED ON SELECTED COUNTRY AND COMPARISON GROUP -----------------------
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-def_quantiles <- function(data, base_country, comparison_countries, vars) {
+def_quantiles <- function(data, base_country, comparison_countries, vars, variable_names) {
 
-    quantiles <-
-      data %>%
-      ungroup() %>%
-      filter(
-        country_name == base_country | country_name %in% comparison_countries
-      ) %>%
-      select(all_of(vars)) %>%
-      summarise(
-        across(
-          all_of(vars),
-          list(
-            q25 = ~ quantile(., c(0.25), na.rm = TRUE),
-            q50 = ~ quantile(., c(0.5), na.rm = TRUE),
-            avg = ~ mean(., na.rm = TRUE)
-          ),
-          .names="{.col}-{.fn}"
-        )
-      ) %>%
-      pivot_longer(
-        everything(),
-        names_to = c("variable","fn"),
-        names_sep = "-"
-      ) %>%
-      pivot_wider(
-        id_cols = "variable",
-        names_from = "fn"
-      )
+  #base_country <- "Uruguay"
 
-  quantiles_group <- as.data.frame(apply(data[all_of(vars)], 2, quantile, probs = c(0.25,0.5) , na.rm = T)) %>%
-    rownames_to_column(var="quantile_break") %>%
-    pivot_longer(all_of(vars)) %>%
-    rename(variable=name,dtf_q=value) %>%
+  #data <- global_data
+  #vars <- vars_lab
+
+  #vars <- family_names
+  #data <- dtf_family_level
+
+  quantiles <-
+    data %>%
+    ungroup() %>%
+    mutate(oecd = ifelse(country_code == "COL", 1, oecd)) %>%
+    filter(
+      lac6 == 1 | oecd == 1 | country_name == base_country
+    ) %>%
+    select(country_name, all_of(vars), lac6, oecd, structural) %>%
+    pivot_longer(cols = vars,
+                 names_to = "variable") %>%
+    left_join(variable_names,
+              by = "variable") %>%
+    filter(!is.na(value)) %>%
+    group_by(country_name, var_name, lac6, oecd, structural) %>%
+    summarise(dtf = mean(value)) %>%
+    group_by(var_name) %>%
     mutate(
-      quantile_break = case_when(
-        quantile_break == "25%" ~ "q25_group",
-        quantile_break == "50%" ~ "q50_group"
+      n = n(),
+      dtt = percent_rank(dtf),
+      q25 = quantile(dtf, c(0.25)),
+      q50 = quantile(dtf, c(0.5)),
+      r25 = floor(n * .25) / n,
+      r50 = floor(n * .5) / n,
+      status_dtt = case_when(
+        dtt <= .25 ~ "Weak",
+        dtt > .25 & dtt <= .50 ~ "Emerging",
+        dtt > .50 ~ "Advanced"
+      ),
+      status_dtf = case_when(
+        dtf <= q25 ~ "Weak",
+        dtf > q25 & dtf <= q50 ~ "Emerging",
+        dtf > q50 ~ "Advanced"
       )
     )
-
-  data <-
-    data %>%
-    filter(country_name == base_country) %>%
-    select(all_of(vars)) %>%
-    pivot_longer(all_of(vars)) %>%
-    rename(variable = name,
-           dtf = value) %>%
-    left_join(quantiles) %>%
-    mutate(
-      classification = case_when(
-        dtf >= q50 ~ "Advanced",
-        dtf <= q25 ~ "Weak",
-        dtf > q25 & dtf < q50 ~ "Emerging"
-      )
-    ) %>%
-    filter(!is.na(dtf))
-
-  return(data)
 
 }

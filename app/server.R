@@ -167,7 +167,8 @@
                         def_quantiles(
                           base_country(),
                           input$countries,
-                          vars_all
+                          vars_all,
+                          variable_names
                         ) %>%
                         left_join(variable_names)
 
@@ -217,9 +218,10 @@
             def_quantiles(
               base_country(),
               input$countries,
-              variable_names$variable
-            )  %>%
-            left_join(variable_names)
+              variable_names$variable,
+              variable_names
+            )  #%>%
+            #left_join(variable_names)
 
           data %>%
             static_plot(base_country(),
@@ -239,7 +241,6 @@
                         if (input$family == "Public sector performance institutions") {vars_publ} else
                           if (input$family == "SOE Corporate Governance") {vars_service_del} else
                             if (input$family == "Anti-Corruption, Transparency and Accountability institutions") {vars_transp}
-
 
           data() %>%
             filter(variable %in% vars)  %>%
