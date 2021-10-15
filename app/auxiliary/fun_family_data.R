@@ -33,7 +33,7 @@ family_data <- function(data, base_country, comparison_countries) {
 
     name_var <- names(vars_global_list[i])
 
-    dtf_family <- dtf_vars_global %>%
+    dtf_family <- data %>%
       ungroup() %>%
       select(
         country_code,
