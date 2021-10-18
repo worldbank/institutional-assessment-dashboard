@@ -108,15 +108,38 @@ data_selected <- data_cleaned %>%
     )
   )
 
-# Explore dataset
-skim(data_selected)
+# Additions with indicators that are not on Gov360 ----
+additions <- haven::read_dta(here("data",
+                                  "data_raw",
+                                  "new_additions_notGov360.dta"))
 
-write_rds(data_selected,
+additions <- additions %>%
+  filter(year==2020) %>%
+  rename(country_code = iso3code) %>%
+  select(-c(countryname,country,ccode)) %>%
+  mutate(
+    year=as.character(year)
+  ) %>%
+  labelled::remove_labels()
+
+data_binded <- left_join(
+  data_selected %>% mutate(
+    country_code=as.character(country_code),
+    year=as.character(year)
+  ),
+  additions,
+  by.x = "country_code",
+  by.y = "year")
+
+# Explore dataset
+skim(data_binded)
+
+write_rds(data_binded,
           here("data",
                "data_cleaned",
                "selected_vars.rds"))
 
-write_rds(data_selected,
+write_rds(data_binded,
           here("app",
                "data",
                "raw_data.rds"))
