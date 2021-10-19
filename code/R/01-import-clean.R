@@ -93,11 +93,7 @@ data_cleaned <- data_original %>%
 # Keep only vars of interest
 data_selected <- data_cleaned %>%
   select(
-    country_name, country_code,
-    year,
-    lac, lac6, oecd,
-    structural,
-    all_of(vars_all)
+    -c(country,iso3code)
   ) %>%
   # SC: methodological note for PRM indicates that 1998 and 2013 indicators are comparable, but not with 2018 due to change in methodology
   # --> drop if year ==2018
@@ -122,17 +118,30 @@ additions <- additions %>%
   ) %>%
   labelled::remove_labels()
 
-data_binded <- left_join(
-  data_selected %>% mutate(
+data_binded <-
+  data_selected %>%
+  mutate(
     country_code=as.character(country_code),
     year=as.character(year)
-  ),
-  additions,
-  by.x = "country_code",
-  by.y = "year")
+  ) %>%
+  left_join(
+    additions,
+    by = c("country_code","year")
+  ) %>%
+  mutate(
+    v2stfisccap = coalesce(v2stfisccap.x, v2stfisccap.y),
+    v2stcritrecadm = coalesce(v2stcritrecadm.x, v2stcritrecadm.y)
+  ) %>%
+  select(
+    country_name, country_code,
+    year,
+    lac, lac6, oecd,
+    structural,
+    all_of(vars_all)
+  )
 
 # Explore dataset
-skim(data_binded)
+#skim(data_selected)
 
 write_rds(data_binded,
           here("data",
@@ -144,4 +153,4 @@ write_rds(data_binded,
                "data",
                "raw_data.rds"))
 
-rm(data_cleaned, data_original)
+rm(data_cleaned, data_original, data_binded)
