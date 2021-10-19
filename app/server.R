@@ -197,7 +197,7 @@
 
     # Overview
     output$plot <-
-      renderPlotly({
+      renderPlot({
 
         if (input$family == "Overview") {
 
@@ -225,10 +225,7 @@
 
           data %>%
             static_plot(base_country(),
-                        input$family) %>%
-            interactive_plot(base_country(),
-                             input$groups,
-                             input$family)
+                        input$family)
         } else {
 
           vars <-
@@ -245,10 +242,7 @@
           data() %>%
             filter(variable %in% vars)  %>%
             static_plot(base_country(),
-                        input$family) %>%
-            interactive_plot(base_country(),
-                             input$groups,
-                             input$family)
+                        input$family)
         }
     })
 

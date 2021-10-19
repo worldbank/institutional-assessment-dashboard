@@ -185,7 +185,7 @@ plot_height <- "500px"
                         mainPanel(width = 9,
                                   style = "z-index: -1",
                                   conditionalPanel("input.select !== 0",
-                                                   plotlyOutput("plot",
+                                                   plotOutput("plot",
                                                                 height = plot_height)
                                              ),
                                   br(),
