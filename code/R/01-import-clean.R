@@ -93,7 +93,11 @@ data_cleaned <- data_original %>%
 # Keep only vars of interest
 data_selected <- data_cleaned %>%
   select(
-    -c(country,iso3code)
+    country_name, country_code,
+    year,
+    lac, lac6, oecd,
+    structural,
+    all_of(vars_all)
   ) %>%
   # SC: methodological note for PRM indicates that 1998 and 2013 indicators are comparable, but not with 2018 due to change in methodology
   # --> drop if year ==2018
@@ -104,53 +108,17 @@ data_selected <- data_cleaned %>%
     )
   )
 
-# Additions with indicators that are not on Gov360 ----
-additions <- haven::read_dta(here("data",
-                                  "data_raw",
-                                  "new_additions_notGov360.dta"))
-
-additions <- additions %>%
-  filter(year==2020) %>%
-  rename(country_code = iso3code) %>%
-  select(-c(countryname,country,ccode)) %>%
-  mutate(
-    year=as.character(year)
-  ) %>%
-  labelled::remove_labels()
-
-data_binded <-
-  data_selected %>%
-  mutate(
-    country_code=as.character(country_code),
-    year=as.character(year)
-  ) %>%
-  left_join(
-    additions,
-    by = c("country_code","year")
-  ) %>%
-  mutate(
-    v2stfisccap = coalesce(v2stfisccap.x, v2stfisccap.y),
-    v2stcritrecadm = coalesce(v2stcritrecadm.x, v2stcritrecadm.y)
-  ) %>%
-  select(
-    country_name, country_code,
-    year,
-    lac, lac6, oecd,
-    structural,
-    all_of(vars_all)
-  )
-
 # Explore dataset
-#skim(data_selected)
+skim(data_selected)
 
-write_rds(data_binded,
+write_rds(data_selected,
           here("data",
                "data_cleaned",
                "selected_vars.rds"))
 
-write_rds(data_binded,
+write_rds(data_selected,
           here("app",
                "data",
                "raw_data.rds"))
 
-rm(data_cleaned, data_original, data_binded)
+rm(data_cleaned, data_original)
