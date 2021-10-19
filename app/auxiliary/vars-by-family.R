@@ -21,12 +21,7 @@
 
   # 3 ACCOUTABILITY INSTITUTIONS
   vars_transp <-
-    c(
-      "gtmi",
-      "cgsi",
-      "psdi",
-      "cei",
-      "e_ti_cpi",
+    c("e_ti_cpi",
       "f2_corruption",
       "favoritism",
       "bribes",
@@ -40,12 +35,7 @@
 
   # 4 CENTER OF GOV/PUBLIC SECTOR INSTITUTIONS
   vars_publ <-
-    c(
-      "v2stfisccap",
-      "v2stcritrecadm",
-      "close2",
-      "proff1",
-      "f6_regulatoryenf",
+    c("f6_regulatoryenf",
       "proc_mean_score",
       "eff_govspending",
       "regulatory_governance",
