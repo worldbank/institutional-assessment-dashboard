@@ -178,7 +178,7 @@ interactive_plot <-
         margin = list(l=50, r=50, t=75, b=140),
         annotations =
           list(x = 0, y = -0.475,
-               text = paste0("<b>Notes:</b> ", y, " compared to ", paste(z, collapse = ", "), ".",
+               text = paste0("<b>Notes:</b> ",#, y, " compared to ", paste(z, collapse = ", "), ".",
                              #"<br>Black squares show the group average.",
                              #"<br>Closeness to frontier is calculated as (worst-y)/(worst-frontier).",
                              #"<br>1 identifies the best performer and 0 the worst performer.",

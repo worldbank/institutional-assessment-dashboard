@@ -7,10 +7,16 @@ def_quantiles <- function(data, base_country, comparison_countries, vars, variab
   #base_country <- "Uruguay"
 
   #data <- global_data
-  #vars <- vars_lab
+  #vars <- vars_publ
 
   #vars <- family_names
   #data <- dtf_family_level
+
+  na_indicators <- data %>%
+    ungroup() %>%
+    filter(country_name == base_country) %>%
+    select(where(is.na)) %>%
+    pivot_longer(cols = 1:ncol(.), names_to = "missing_var")
 
   quantiles <-
     data %>%
@@ -22,6 +28,7 @@ def_quantiles <- function(data, base_country, comparison_countries, vars, variab
     select(country_name, all_of(vars), lac6, oecd, structural) %>%
     pivot_longer(cols = vars,
                  names_to = "variable") %>%
+    filter(! variable %in% na_indicators$missing_var) %>%
     left_join(variable_names,
               by = "variable") %>%
     filter(!is.na(value)) %>%
