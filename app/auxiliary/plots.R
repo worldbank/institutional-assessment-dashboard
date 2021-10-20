@@ -124,7 +124,8 @@ static_plot <-
             panel.grid.major = element_blank(),
             axis.ticks = element_blank(),
             axis.text = element_text(color = "black"),
-            axis.text.y = element_text(size = 10),
+            axis.text.y = element_text(size = 11),
+            axis.text.x = element_text(size = 10),
             legend.box = "vertical") +
       labs(y = NULL,
            x = NULL,
@@ -149,21 +150,21 @@ static_plot <-
         geom = "text",
         size = 3,
         x = .13,
-        y = .7,
+        y = .65,
         label = "Bottom 25%"
       ) +
       annotate(
         geom = "text",
         size = 3,
         x = .4,
-        y = .7,
+        y = .65,
         label = "25% - 50%"
       ) +
       annotate(
         geom = "text",
         size = 3,
         x = .75,
-        y = .7,
+        y = .65,
         label = "Top 50%"
       ) +
       labs(title = paste0(tab_name))
@@ -178,7 +179,7 @@ interactive_plot <-
         margin = list(l=50, r=50, t=75, b=140),
         annotations =
           list(x = 0, y = -0.475,
-               text = paste0("<b>Notes:</b> ", y, " compared to ", paste(z, collapse = ", "), ".",
+               text = paste0("<b>Notes:</b> ",#, y, " compared to ", paste(z, collapse = ", "), ".",
                              #"<br>Black squares show the group average.",
                              #"<br>Closeness to frontier is calculated as (worst-y)/(worst-frontier).",
                              #"<br>1 identifies the best performer and 0 the worst performer.",
@@ -187,7 +188,7 @@ interactive_plot <-
                xref = 'paper',
                yref = 'paper',
                align = 'left',
-               font = list(size = 12)
+               font = list(size = 13)
           )
       ) %>%
       config(
@@ -201,7 +202,9 @@ interactive_plot <-
                                    "hoverClosest3d",
                                    "hoverClosestCartesian",
                                    "hoverCompareCartesian"),
-        toImageButtonOptions= list(filename = paste0(tolower(stringr::str_replace_all(tab_name,"\\s","_"))))
+        toImageButtonOptions= list(filename = paste0(tolower(stringr::str_replace_all(tab_name,"\\s","_"))),
+                                   width = 1100,
+                                   height =  1000)
       )
 
 
