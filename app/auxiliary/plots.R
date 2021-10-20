@@ -147,21 +147,21 @@ static_plot <-
                                     "Top ranked")) +
       annotate(
         geom = "text",
-        size = 3,
+        size = 4,
         x = .13,
         y = .7,
         label = "Bottom 25%"
       ) +
       annotate(
         geom = "text",
-        size = 3,
+        size = 4,
         x = .4,
         y = .7,
         label = "25% - 50%"
       ) +
       annotate(
         geom = "text",
-        size = 3,
+        size = 4,
         x = .75,
         y = .7,
         label = "Top 50%"
