@@ -124,8 +124,8 @@ static_plot <-
             panel.grid.major = element_blank(),
             axis.ticks = element_blank(),
             axis.text = element_text(color = "black"),
-            axis.text.y = element_text(size = 11),
-            axis.text.x = element_text(size = 10),
+            axis.text.y = element_text(size = 12),
+            axis.text.x = element_text(size = 11),
             legend.box = "vertical") +
       labs(y = NULL,
            x = NULL,
@@ -178,7 +178,7 @@ interactive_plot <-
       layout(
         margin = list(l=50, r=50, t=75, b=140),
         annotations =
-          list(x = 0, y = -0.475,
+          list(x = 0, y = -0.25,
                text = paste0("<b>Notes:</b> ",#, y, " compared to ", paste(z, collapse = ", "), ".",
                              #"<br>Black squares show the group average.",
                              #"<br>Closeness to frontier is calculated as (worst-y)/(worst-frontier).",
