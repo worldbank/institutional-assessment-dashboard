@@ -126,7 +126,7 @@ variable_names <-
         variable == "v2pepwrgen" ~ "Power by gender",
         variable == "cbi" ~ "Central bank independence",
         variable == "bribes" ~ "Irregular payments and bribes",
-        variable == "command_control" ~ "Use of command & control regulatio",
+        #variable == "command_control" ~ "Use of command & control regulation",
         variable == "constr_perm_overall" ~ "Construction permits",
         variable == "customs_burden" ~ "Burden of customs procedures",
         variable == "diversion_pfunds" ~ "Diversion of public funds",

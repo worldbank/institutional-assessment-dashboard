@@ -129,8 +129,7 @@ data_binded <-
   ) %>%
   mutate(
     v2stfisccap = coalesce(v2stfisccap.x, v2stfisccap.y),
-    v2stcritrecadm = coalesce(v2stcritrecadm.x, v2stcritrecadm.y),
-    useofcommandcontrolregulation = coalesce(useofcommandcontrolregulation,command_control)
+    v2stcritrecadm = coalesce(v2stcritrecadm.x, v2stcritrecadm.y)
   ) %>%
   select(
     country_name, country_code,

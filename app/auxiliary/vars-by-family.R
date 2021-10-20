@@ -118,8 +118,9 @@
       "governanceofstateownedenterprise",
       "useofcommandcontrolregulation",
       "governance_soe",
-      "pricecontrols",
-      "command_control")
+      "pricecontrols"#,
+      #"command_control"
+      )
 
     vars_all <-
       c(vars_service_del,
