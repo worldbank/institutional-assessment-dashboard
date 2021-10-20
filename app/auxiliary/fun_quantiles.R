@@ -7,7 +7,7 @@ def_quantiles <- function(data, base_country, comparison_countries, vars, variab
   #base_country <- "Uruguay"
 
   #data <- global_data
-  #vars <- vars_publ
+  #vars <- vars_transp
 
   #vars <- family_names
   #data <- dtf_family_level
@@ -32,9 +32,9 @@ def_quantiles <- function(data, base_country, comparison_countries, vars, variab
     left_join(variable_names,
               by = "variable") %>%
     filter(!is.na(value)) %>%
-    group_by(country_name, var_name, lac6, oecd, structural) %>%
+    group_by(country_name, variable, var_name, lac6, oecd, structural) %>%
     summarise(dtf = mean(value)) %>%
-    group_by(var_name) %>%
+    group_by(variable,var_name) %>%
     mutate(
       n = n(),
       dtt = percent_rank(dtf),

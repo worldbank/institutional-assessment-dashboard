@@ -108,9 +108,8 @@ data_selected <- data_cleaned %>%
 additions <- haven::read_dta(here("data",
                                   "data_raw",
                                   "new_additions_notGov360.dta"))
-
 additions <- additions %>%
-  filter(year==2020) %>%
+  filter(year==2020 | year ==2015) %>%
   rename(country_code = iso3code) %>%
   select(-c(countryname,country,ccode)) %>%
   mutate(

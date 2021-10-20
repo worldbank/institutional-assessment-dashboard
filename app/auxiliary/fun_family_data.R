@@ -58,7 +58,7 @@ family_data <- function(data, base_country, comparison_countries) {
 
   }
 
-  #rm(dtf_family, i, group, vars_minmax, data_country, data_selected, packages,name_var,vars_global_list)
+  rm(dtf_family, i, group, vars_minmax, data_country, data_selected, packages,name_var,vars_global_list)
 
   dtf_family_level <- dtf_family_level %>%
     mutate(

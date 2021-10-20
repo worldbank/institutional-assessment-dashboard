@@ -169,8 +169,8 @@
                           input$countries,
                           vars_all,
                           variable_names
-                        ) %>%
-                        left_join(variable_names)
+                        ) #%>%
+                        #left_join(variable_names)
 
                     }
       )
@@ -220,8 +220,8 @@
               input$countries,
               variable_names$variable,
               variable_names
-            )  #%>%
-            #left_join(variable_names)
+            )  %>%
+            left_join(variable_names)
 
           data %>%
             static_plot(base_country(),
@@ -240,7 +240,7 @@
                             if (input$family == "Anti-Corruption, Transparency and Accountability institutions") {vars_transp}
 
           data() %>%
-            filter(variable %in% vars)  %>%
+            filter(variable %in% vars) %>%
             static_plot(base_country(),
                         input$family)
         }
