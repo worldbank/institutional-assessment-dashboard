@@ -21,21 +21,29 @@
 
   # 3 ACCOUTABILITY INSTITUTIONS
   vars_transp <-
-    c("e_ti_cpi",
+    c(
+      "gtmi",
+      "e_ti_cpi",
       "f2_corruption",
       "favoritism",
       "bribes",
       "diversion_pfunds",
       "transparency_polmak",
-      "egovernmentindex",
-      "eparticipationindex",
+      #"egovernmentindex",
+      #"eparticipationindex",
       "f5_opengov",
       "rigorous_impartial_pa",
       "open_data_barometer")
 
   # 4 CENTER OF GOV/PUBLIC SECTOR INSTITUTIONS
   vars_publ <-
-    c("f6_regulatoryenf",
+    c(
+      "v2stfisccap",
+      "v2stcritrecadm",
+      "close2",
+      "proff1",
+      "f6_regulatoryenf",
+      "f6_regulatoryenf",
       "proc_mean_score",
       "eff_govspending",
       "regulatory_governance",
@@ -103,8 +111,14 @@
 
   # 9 SOE Governance/SERVICE DELIVERY INSTITUTIONS
   vars_service_del <-
-    c("governance_soe",
-      "price_controls",
+    c(
+      "scopeofstateownedenterprises",
+      "governmentinvolvementinnetworkse",
+      "directcontroloverbusinessenterpr",
+      "governanceofstateownedenterprise",
+      "useofcommandcontrolregulation",
+      "governance_soe",
+      "pricecontrols",
       "command_control")
 
     vars_all <-
