@@ -7,6 +7,9 @@ packages <- c("tidyverse",
 pacman::p_load(packages,
                character.only = TRUE)
 
+source(file.path("auxiliary",
+                 "vars-by-family.R"))
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # IMPORT DATA 360 ----------------------
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -322,13 +325,30 @@ additions <- haven::read_dta(here("data",
                                   "new_additions_notGov360.dta"))
 
 additions <- additions %>%
-  filter(year==2020) %>%
+  filter(year==2020 | year ==2015) %>%
   rename(country_code = iso3code) %>%
   select(-c(countryname,country,ccode)) %>%
-  mutate(year=as.character(year)) %>%
+  mutate(
+    year=as.character(year)
+  ) %>%
   labelled::remove_labels()
 
-data_binded <- left_join(data_cleaned, additions, by.x = "country_code", by.y = "year")
+data_binded <-
+  data_cleaned %>%
+  mutate(
+    country_code=as.character(country_code),
+    year=as.character(year)
+  ) %>%
+  left_join(
+    additions,
+    by = c("country_code","year")
+  ) %>%
+  select(
+    country_name, country_code,
+    year,
+    all_of(vars_all)
+  )
+
 
 # Export cleaned data
 write_rds(data_binded,

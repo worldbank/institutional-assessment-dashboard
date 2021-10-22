@@ -37,13 +37,17 @@ variable_names <-
       case_when(
         # New additions out gov360
         variable == "gtmi" ~ "GovTech Maturity Index (GTMI)",
-        variable == "cgsi" ~ "Core Government Systems Index",
-        variable == "psdi" ~ "Public Service Delivery Index",
-        variable == "cei" ~ "Citizen Engagement Index",
+        #variable == "cgsi" ~ "Core Government Systems Index",
+        #variable == "psdi" ~ "Public Service Delivery Index",
+        #variable == "cei" ~ "Citizen Engagement Index",
         variable == "proff1" ~ "Patronage",
         variable == "close2" ~ "Entry via examination",
         variable == "v2stfisccap" ~ "State fiscal source of revenue",
         variable == "v2stcritrecadm" ~ "Criteria for appointment decisions in the state administration",
+        variable == "scopeofstateownedenterprises" ~ "Scope of state-owned enterprises",
+        variable == "governmentinvolvementinnetworkse" ~ "Government involvement in network sectors",
+        variable == "directcontroloverbusinessenterpr" ~ "Direct control over business enterprises",
+        variable == "governanceofstateownedenterprise" ~ "Governance of state-owned enterprises",
         # Gov360
         variable == "steering_capability" ~ "Steering Capability",
         variable == "hiring_pract" ~ "Hiring and firing practices, 1-7 (best)",

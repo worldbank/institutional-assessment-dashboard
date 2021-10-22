@@ -30,9 +30,6 @@
   vars_transp <-
     c(
       "gtmi",
-      "cgsi",
-      "psdi",
-      "cei",
       "e_ti_cpi",
       "f2_corruption",
       "bribes",
@@ -138,6 +135,10 @@
   # 9 SOE Governance/SERVICE DELIVERY INSTITUTIONS
   vars_service_del <-
     c(
+      "scopeofstateownedenterprises",
+      "governmentinvolvementinnetworkse",
+      "directcontroloverbusinessenterpr",
+      "governanceofstateownedenterprise",
       "governance_soe",
       "price_controls",
       "command_control"
