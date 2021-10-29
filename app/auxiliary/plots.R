@@ -132,9 +132,9 @@ static_plot <-
            x = NULL,
            fill = NULL,
            shape = NULL) +
-      scale_shape_manual(
-        values = shapes
-      )+
+      #scale_shape_manual(
+      #  values = shapes
+      #)+
       scale_fill_manual(
         values = colors
       ) +
