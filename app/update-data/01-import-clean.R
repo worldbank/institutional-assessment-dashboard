@@ -44,7 +44,6 @@ selected_indicators_1 <- c(
   #719,  #	Prevalence of trade barriers
   723,	 # Burden of customs procedures
   747,   # Index of economic freedom score          # ONLY ON DEFINITIONS
-  3210,  #  Consolidated regulatory governance score
   3276,  # Corruption
   3285,	 # Foreign Currency Regulations               # DIFFERENT VALUES
   3289,	 # Restrictive Labor Regulations
@@ -86,6 +85,7 @@ selected_indicators_2 <- c(
 
 selected_indicators_3 <- c(
   41008, #	Burden of government regulation, 1-7 (best)
+  41031, #  Regulatory governance score
   41189, #  Procurement
   41305, #  Burden of customs procedures, 1-7 (best)
   41619, #  GCI 4.0: Global Competitiveness Index 4.0
@@ -258,7 +258,7 @@ data_cleaned <-
       Indicator == "Corruption" ~ "e_ti_cpi",
       #Indicator == "Government Online Service Index, 0-1 (best)" ~ "egovernmentindex",
       Indicator == "Procurement" ~ "proc_mean_score",
-      Indicator == "Consolidated regulatory governance score" ~ "regulatory_governance",
+      Indicator == "Regulatory governance score" ~ "regulatory_governance",
       Indicator == "People can access and afford civil justice" ~ "f7_civiljustice",
       Indicator == "Efficiency of legal framework in challenging regs" ~ "legaleff_challenging",
       Indicator == "Efficiency of legal framework in settling disputes" ~ "legaleff_disputes",
@@ -280,12 +280,12 @@ data_cleaned <-
   ) %>%
   # SC: methodological note for PRM indicates that 1998 and 2013 indicators are comparable, but not with 2018 due to change in methodology
   # --> drop if year ==2018
-  mutate(
-    across(
-      c(barriers_startups:protection_incumbents),
-      ~ifelse(year==2018, NA, .x)
-    )
-  ) %>%
+  #mutate(
+  #  across(
+  #    c(barriers_startups:protection_incumbents),
+  #    ~ifelse(year==2018, NA, .x)
+  #  )
+  #) %>%
   # Fix vars with opposite scale
   # reason: for the CTF methodology, we need for all indicators that "higher values" means "better performance"
   # freedom house: Countries are graded between 1 (most free) and 7 (least free).
