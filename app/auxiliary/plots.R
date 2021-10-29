@@ -1,4 +1,4 @@
-
+#data <- quantiles_group
 
 static_plot <-
   function(data,
@@ -37,17 +37,22 @@ static_plot <-
       pivot_longer(cols = c(Weak, Emerging, Advanced),
                    names_to = "status",
                    values_to = "dtt")
-    shapes <- c(
-      "LAC6 Median" = 22,
-      "OECD Median" = 23#,
+    #shapes <- c(
+    #  "LAC6 Median" = 22,
+    #  "OECD Median" = 23#,
       #"Structural Median" = 24
-    )
+    #)
 
     colors <-
       c("Weak" = "#D2222D",
         "Emerging" = "#FFBF00",
         "Advanced" = "#238823"
       )
+
+    data_group <- data %>%
+      group_by(group, var_name) %>%
+      summarise(dtt = median(dtt, na.rm = TRUE)) %>%
+      mutate(group_med = paste0(group," Median"))
 
     ggplot() +
       geom_col(
@@ -59,36 +64,32 @@ static_plot <-
         alpha = .6
       ) +
       geom_point(
-        data = data %>%
-          filter(oecd == 1) %>%
-          group_by(var_name) %>%
-          summarise(dtt = median(dtt, na.rm = TRUE)) %>%
-          mutate(group ="OECD Median"),
+        data = data_group,
         aes(y = var_name,
             x = dtt,
             shape = group,
             fill = group,
             color = group,
-            alpha = gr),
+            group = group_med),
         alpha = .5,
         fill = "white",
         color = "black",
         size = 4
       ) +
-      geom_point(
-        data = data %>%
-          filter(lac6 == 1) %>%
-          group_by(var_name) %>%
-          summarise(dtt = median(dtt, na.rm = TRUE)) %>%
-          mutate(group ="LAC6 Median"),
-        aes(y = var_name,
-            x = dtt,
-            shape = group),
-        alpha = .5,
-        fill = "white",
-        color = "black",
-        size = 4
-      ) +
+      #geom_point(
+      #  data = data %>%
+      #    filter(lac6 == 1) %>%
+      #    group_by(var_name) %>%
+      #    summarise(dtt = median(dtt, na.rm = TRUE)) %>%
+      #    mutate(group ="LAC6 Median"),
+      #  aes(y = var_name,
+      #      x = dtt,
+      #      shape = group),
+      #  alpha = .5,
+      #  fill = "white",
+      #  color = "black",
+      #  size = 4
+      #) +
       #geom_point(
       #  data = data %>%
       #    filter(structural == 1) %>%
