@@ -58,7 +58,9 @@ wb_country_geom <-
   left_join(
     dtf_vars_global %>%
       ungroup() %>%
-      select(-c(country_name,lac,lac6,oecd,structural)),
+      select(-c(country_name,lac,lac6,oecd#,
+                #structural
+                )),
     by=c("WB_A3"="country_code")
   )
 

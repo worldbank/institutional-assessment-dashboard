@@ -82,7 +82,9 @@ family_data <- function(data, base_country, comparison_countries) {
     left_join(
       data %>%
         ungroup() %>%
-        select(country_code,lac6,oecd,structural),
+        select(country_code,lac6,oecd
+               #,structural
+               ),
       by = "country_code"
     )
 

@@ -39,8 +39,8 @@ static_plot <-
                    values_to = "dtt")
     shapes <- c(
       "LAC6 Median" = 22,
-      "OECD Median" = 23,
-      "Structural Median" = 24
+      "OECD Median" = 23#,
+      #"Structural Median" = 24
     )
 
     colors <-
@@ -89,20 +89,20 @@ static_plot <-
         color = "black",
         size = 4
       ) +
-      geom_point(
-        data = data %>%
-          filter(structural == 1) %>%
-          group_by(var_name) %>%
-          summarise(dtt = median(dtt, na.rm = TRUE)) %>%
-          mutate(group ="Structural Median"),
-        aes(y = var_name,
-            x = dtt,
-            shape = group),
-        alpha = .5,
-        fill = "white",
-        color = "black",
-        size = 4
-      ) +
+      #geom_point(
+      #  data = data %>%
+      #    filter(structural == 1) %>%
+      #    group_by(var_name) %>%
+      #    summarise(dtt = median(dtt, na.rm = TRUE)) %>%
+      #    mutate(group ="Structural Median"),
+      #  aes(y = var_name,
+      #      x = dtt,
+      #      shape = group),
+      #  alpha = .5,
+      #  fill = "white",
+      #  color = "black",
+      #  size = 4
+      #) +
       geom_point(
         data = data %>% filter(country_name == base_country),
         aes(y = var_name,

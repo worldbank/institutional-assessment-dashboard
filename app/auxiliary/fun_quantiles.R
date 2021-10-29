@@ -25,14 +25,16 @@ def_quantiles <- function(data, base_country, comparison_countries, vars, variab
     filter(
       lac6 == 1 | oecd == 1 | country_name == base_country
     ) %>%
-    select(country_name, all_of(vars), lac6, oecd, structural) %>%
+    select(country_name, all_of(vars), lac6, oecd#, structural
+           ) %>%
     pivot_longer(cols = vars,
                  names_to = "variable") %>%
     filter(! variable %in% na_indicators$missing_var) %>%
     left_join(variable_names,
               by = "variable") %>%
     filter(!is.na(value)) %>%
-    group_by(country_name, variable, var_name, lac6, oecd, structural) %>%
+    group_by(country_name, variable, var_name, lac6, oecd#, structural
+             ) %>%
     summarise(dtf = mean(value)) %>%
     group_by(variable,var_name) %>%
     mutate(

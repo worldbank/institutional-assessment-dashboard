@@ -61,7 +61,8 @@
     read_rds(file.path("data",
                        "raw_data.rds")) %>%
     filter(year >= 1990) %>%
-    select(-c(lac, lac6, oecd, structural)) %>%
+    select(-c(lac, lac6, oecd#, #structural
+              )) %>%
     rename(Year = year)
 
   raw_data <-
