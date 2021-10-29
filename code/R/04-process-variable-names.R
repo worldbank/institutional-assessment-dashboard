@@ -12,7 +12,7 @@ pacman::p_load(packages,
 data_selected <-
   read_rds(here("data",
                 "data_cleaned",
-                "selected_vars.rds"))
+                "dtf_vars_global.rds"))
 
 source(file.path("app/auxiliary",
                  "vars-by-family.R"))
@@ -51,6 +51,8 @@ variable_names <-
         variable == "governanceofstateownedenterprise" ~ "Governance of state-owned enterprises",
         variable == "useofcommandcontrolregulation" ~ "Use of command & control regulation",
         variable == "pricecontrols" ~ "Price controls",
+        variable == "price_controls" ~ "Price controls",
+        variable == "command_control" ~ "Use of command & control regulation",
         # Old data
         variable == "centregov_mean" ~ "Centre of Government, influence",
         variable == "nontariff_barriers" ~ "Non-tariffs trade barriers",
@@ -126,7 +128,6 @@ variable_names <-
         variable == "v2pepwrgen" ~ "Power by gender",
         variable == "cbi" ~ "Central bank independence",
         variable == "bribes" ~ "Irregular payments and bribes",
-        #variable == "command_control" ~ "Use of command & control regulation",
         variable == "constr_perm_overall" ~ "Construction permits",
         variable == "customs_burden" ~ "Burden of customs procedures",
         variable == "diversion_pfunds" ~ "Diversion of public funds",
@@ -164,7 +165,8 @@ variable_names <-
         variable == "vars_mkt" ~ "Business environment and trade institutions",
         variable == "vars_lab" ~ "Labor market institutions",
         variable == "vars_fin" ~ "Financial market institutions",
-        variable == "vars_service_del" ~ "SOE Corporate Governance"
+        variable == "vars_service_del" ~ "SOE Corporate Governance",
+        TRUE ~ NA_character_
       ),
     family_var =
       case_when(

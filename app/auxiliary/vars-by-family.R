@@ -72,7 +72,7 @@
       "property_rights",
       "efw_inv_restr",
       "efw_capitalcontrols",
-      "efw_tourist",
+      #"efw_tourist",
       "customs_burden",
       "lpi_clearance_eff",
       "wef_border_admin",
@@ -102,12 +102,13 @@
   vars_fin <-
     c("efw_credit_mkt_reg",
       "efw_free_foreign_curr",
-      "competition_rules_fin",
-      "efficiency_superv_bank",
-      "efficiency_superv_fin",
-      "cbi",
+      #"competition_rules_fin",
+      #"efficiency_superv_bank",
+      #"efficiency_superv_fin",
+      "cbi"#,
       #"access_credit_overall",
-      "insolvency_framework")
+      #"insolvency_framework"
+      )
 
   # 9 SOE Governance/SERVICE DELIVERY INSTITUTIONS
   vars_service_del <-
@@ -116,10 +117,10 @@
       "governmentinvolvementinnetworkse",
       "directcontroloverbusinessenterpr",
       "governanceofstateownedenterprise",
-      "useofcommandcontrolregulation",
+      #"useofcommandcontrolregulation",
       "governance_soe",
-      "pricecontrols"#,
-      #"command_control"
+      "price_controls",
+      "command_control"
       )
 
     vars_all <-
