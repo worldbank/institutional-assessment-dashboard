@@ -46,6 +46,9 @@
     read_rds(file.path("data",
                        "country_dtf.rds"))
 
+  global_data <- global_data %>%
+    select(-c(lac, lac6, oecd))
+
   family_level_data <-
     read_rds(file.path("data",
                        "dtf_family_level.rds"))
@@ -61,8 +64,7 @@
     read_rds(file.path("data",
                        "raw_data.rds")) %>%
     filter(year >= 1990) %>%
-    select(-c(lac, lac6, oecd#, #structural
-              )) %>%
+    select(-c(lac, lac6, oecd, structural)) %>%
     rename(Year = year)
 
   raw_data <-
@@ -140,8 +142,6 @@
 
                  {
                    # Can also set the label and select items
-
-
                    toggleState(id = "select",
                                condition = length(input$countries) >= 10)
                  },
@@ -167,7 +167,8 @@
                         global_data %>%
                         def_quantiles(
                           base_country(),
-                          input$countries,
+                          country_list,
+                          input$groups,
                           vars_all,
                           variable_names
                         ) #%>%
@@ -218,7 +219,8 @@
             ) %>%
             def_quantiles(
               base_country(),
-              input$countries,
+              country_list,
+              input$groups,
               variable_names$variable,
               variable_names
             )  %>%

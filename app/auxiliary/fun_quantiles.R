@@ -2,7 +2,7 @@
 # FUNCTION THAT DEFINES THE QUANTILES BASED ON SELECTED COUNTRY AND COMPARISON GROUP -----------------------
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-def_quantiles <- function(data, base_country, comparison_countries, vars, variable_names) {
+def_quantiles <- function(datam, base_country, country_list, selected_groups, vars, variable_names) {
 
   #base_country <- "Uruguay"
 
@@ -12,42 +12,31 @@ def_quantiles <- function(data, base_country, comparison_countries, vars, variab
   #vars <- family_names
   #data <- dtf_family_level
 
-  comparison_countries <-
+  comparison_list <-
     country_list %>%
-    #filter(group %in% c("OECD members", "Latin America & Caribbean"))
-    filter(group %in% comparison_countries)
-
-  #group_countries_selected <- comparison_countries %>%
-  #  .$group %>%
-  #  unique
-
-  #n_group <- length(group_countries_selected)
-
-  #comparison_countries <- comparison_countries %>%
-  #  select(-c(group_code, country_name)) %>%
-  #  pivot_wider(id_cols = "country_code", names_from = "group", values_from = "group")
+    #filter(group %in% c("OECD members"))
+    filter(group %in% selected_groups)
 
   na_indicators <- data %>%
     ungroup() %>%
-    select(-c(lac,lac6,oecd)) %>%
+    #select(-c(lac,lac6,oecd)) %>%
     filter(country_name == base_country) %>%
     select(where(is.na)) %>%
     pivot_longer(cols = 1:ncol(.), names_to = "missing_var")
 
-  quantiles <-
-    data %>%
+  quantiles <- data %>%
     ungroup() %>%
-    select(-c(lac,lac6,oecd)) %>%
+    #select(-c(lac,lac6,oecd)) %>%
     filter(
-      country_name %in% comparison_countries | country_name == base_country
+      country_name %in% comparison_list$country_name | country_name == base_country
     ) %>%
     select(
       country_name, all_of(vars)
     )
 
-  quantiles_group <- comparison_countries %>%
+  quantiles_group <- comparison_list %>%
     select(country_name,group) %>%
-    left_join(quantiles, by = c("country_name")) %>%
+    right_join(quantiles, by = c("country_name")) %>%
     pivot_longer(cols = all_of(vars), names_to = "variable") %>%
     filter(! variable %in% na_indicators$missing_var) %>%
     left_join(variable_names,

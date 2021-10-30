@@ -37,6 +37,7 @@ static_plot <-
       pivot_longer(cols = c(Weak, Emerging, Advanced),
                    names_to = "status",
                    values_to = "dtt")
+
     #shapes <- c(
     #  "LAC6 Median" = 22,
     #  "OECD Median" = 23#,
