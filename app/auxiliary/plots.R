@@ -38,12 +38,6 @@ static_plot <-
                    names_to = "status",
                    values_to = "dtt")
 
-    #shapes <- c(
-    #  "LAC6 Median" = 22,
-    #  "OECD Median" = 23#,
-      #"Structural Median" = 24
-    #)
-
     colors <-
       c("Weak" = "#D2222D",
         "Emerging" = "#FFBF00",
@@ -51,9 +45,18 @@ static_plot <-
       )
 
     data_group <- data %>%
+      filter(!is.na(group)) %>%
       group_by(group, var_name) %>%
       summarise(dtt = median(dtt, na.rm = TRUE)) %>%
       mutate(group_med = paste0(group," Median"))
+
+    shapes <- c(
+      "High income Median" = 21,
+      "Latin America & Caribbean" = 22,
+      "OECD members Median" = 23,
+      "European Union Median" = 24,
+      "Low income Median" = 25
+    )
 
     ggplot() +
       geom_col(
@@ -68,43 +71,12 @@ static_plot <-
         data = data_group,
         aes(y = var_name,
             x = dtt,
-            shape = group,
-            fill = group,
-            color = group,
-            group = group_med),
+            shape = group_med),
         alpha = .5,
-        fill = "white",
         color = "black",
+        fill = "white",
         size = 4
       ) +
-      #geom_point(
-      #  data = data %>%
-      #    filter(lac6 == 1) %>%
-      #    group_by(var_name) %>%
-      #    summarise(dtt = median(dtt, na.rm = TRUE)) %>%
-      #    mutate(group ="LAC6 Median"),
-      #  aes(y = var_name,
-      #      x = dtt,
-      #      shape = group),
-      #  alpha = .5,
-      #  fill = "white",
-      #  color = "black",
-      #  size = 4
-      #) +
-      #geom_point(
-      #  data = data %>%
-      #    filter(structural == 1) %>%
-      #    group_by(var_name) %>%
-      #    summarise(dtt = median(dtt, na.rm = TRUE)) %>%
-      #    mutate(group ="Structural Median"),
-      #  aes(y = var_name,
-      #      x = dtt,
-      #      shape = group),
-      #  alpha = .5,
-      #  fill = "white",
-      #  color = "black",
-      #  size = 4
-      #) +
       geom_point(
         data = data %>% filter(country_name == base_country),
         aes(y = var_name,
@@ -133,9 +105,9 @@ static_plot <-
            x = NULL,
            fill = NULL,
            shape = NULL) +
-      #scale_shape_manual(
-      #  values = shapes
-      #)+
+      scale_shape_manual(
+        values = shapes
+      )+
       scale_fill_manual(
         values = colors
       ) +
