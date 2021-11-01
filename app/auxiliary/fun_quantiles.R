@@ -14,7 +14,7 @@ def_quantiles <- function(data, base_country, country_list, selected_groups, var
 
   comparison_list <-
     country_list %>%
-    #filter(group %in% c("OECD members"))
+    #filter(group %in% c("OECD members","High income","Latin America & Caribbean"))
     filter(group %in% selected_groups)
 
   na_indicators <- data %>%

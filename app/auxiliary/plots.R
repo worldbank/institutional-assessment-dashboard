@@ -10,6 +10,7 @@ static_plot <-
       filter(country_name == base_country) %>%
       arrange(dtt) %>%
       select(var_name) %>%
+      unique %>%
       unlist
 
     data$var_name = factor(data$var_name,
@@ -52,7 +53,7 @@ static_plot <-
 
     shapes <- c(
       "High income Median" = 21,
-      "Latin America & Caribbean" = 22,
+      "Latin America & Caribbean Median" = 22,
       "OECD members Median" = 23,
       "European Union Median" = 24,
       "Low income Median" = 25
@@ -114,8 +115,12 @@ static_plot <-
       scale_color_manual(
         values = colors
       ) +
-      guides(fill = guide_legend(ncol = 3),
-             shape = guide_legend(ncol = 3)) +
+      guides(
+        fill = guide_legend(ncol = 3),
+        shape = guide_legend(ncol = 3)#,
+        #size = "none",
+        #color = "none"
+      ) +
       scale_x_continuous(breaks = c(0, 0.5, 1),
                          labels = c("Worst ranked",
                                     "Middle of ranking",
@@ -153,7 +158,7 @@ interactive_plot <-
         margin = list(l=50, r=50, t=75, b=140),
         annotations =
           list(x = 0, y = -0.25,
-               text = paste0("<b>Notes:</b> ",#, y, " compared to ", paste(z, collapse = ", "), ".",
+               text = paste0("<b>Notes:</b> ", y, " compared to ", paste(z, collapse = ", "), ".",
                              #"<br>Black squares show the group average.",
                              #"<br>Closeness to frontier is calculated as (worst-y)/(worst-frontier).",
                              #"<br>1 identifies the best performer and 0 the worst performer.",
