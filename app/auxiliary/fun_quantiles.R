@@ -21,8 +21,16 @@ def_quantiles <- function(data, base_country, country_list, selected_groups, var
     ungroup() %>%
     #select(-c(lac,lac6,oecd)) %>%
     filter(country_name == base_country) %>%
-    select(where(is.na)) %>%
-    pivot_longer(cols = 1:ncol(.), names_to = "missing_var")
+    select(where(is.na))
+
+  #%>%
+  #  pivot_longer(cols = 1:ncol(.), names_to = "missing_var")
+
+  na_indicators <- if(length(na_indicators)==0){
+    NULL
+  } else {
+    na_indicators <- na_indicators %>% pivot_longer(cols = 1:ncol(.), names_to = "missing_var")
+  }
 
   quantiles <- data %>%
     ungroup() %>%
