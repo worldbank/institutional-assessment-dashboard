@@ -23,7 +23,7 @@
   vars_transp <-
     c(
       "gtmi",
-      "e_ti_cpi",
+      #"e_ti_cpi",
       "f2_corruption",
       "favoritism",
       "bribes",
@@ -65,7 +65,7 @@
   # 6 BUSINESS ENV. AND TRADE INSTITUTIONS
   vars_mkt <-
     c("govreg_burden",
-      "gci_overall",
+      #"gci_overall",
       "mkt_dominance",
       "eff_antimonopoly",
       "nontariff_barriers",

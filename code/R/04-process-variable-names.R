@@ -20,6 +20,7 @@ source(file.path("app/auxiliary",
 # Inputs =====================================================================================
 variable_names <-
   data_selected %>%
+  ungroup() %>%
   select(
     all_of(vars_all)
   ) %>%
@@ -80,7 +81,7 @@ variable_names <-
         variable == "collective_barg" ~ "Collective bargaining coverage",
         variable == "govreg_burden" ~ "Burden of gov. regulation",
         variable == "efw_labor_mkt_reg" ~ "Labor market regulations",
-        variable == "wsj_financialfreedom" ~ "Financial freedom",
+        #variable == "wsj_financialfreedom" ~ "Financial freedom",
         variable == "wsj_businessfreedom" ~ "Business freedom",
         variable == "wsj_propertyrights" ~ "Property rights",
         variable == "efw_property_rights" ~ "Property rights protection",
@@ -93,7 +94,7 @@ variable_names <-
         variable == "trust_pol" ~ "Public trust in politician",
         variable == "v2dlengage" ~ "Engaged society",
         variable == "f2_corruption" ~ "Absence of corruption",
-        variable == "e_ti_cpi" ~ "Perception of corruption",
+        #variable == "e_ti_cpi" ~ "Perception of corruption",
         variable == "f4_rights" ~ "Fundamental rights",
         variable == "v2lgqugen" ~ "Lower chamber gender quota",
         variable == "v2pepwrsoc" ~ "Power by social group",
@@ -142,7 +143,7 @@ variable_names <-
         #variable == "eparticipationindex" ~ "E-participation Index",
         variable == "es_court_constraint" ~ "Courts as major constraint",
         variable == "favoritism" ~ "Favoritism in decisions of government officials",
-        variable == "gci_overall" ~ "Global Competitiveness Index",
+        #variable == "gci_overall" ~ "Global Competitiveness Index",
         variable == "governance_soe" ~ "Regulatory Governance score",
         variable == "lpi_clearance_eff" ~ "Efficiency of the clearance process",
         variable == "mkt_dominance" ~ "Extent of market dominance",
