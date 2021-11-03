@@ -83,6 +83,16 @@ plot_height <- "500px"
 
           ),
           tags$li("The ",
+                  tags$b("trends"),
+                  "tab shows the evolution year by year of multiple indicators."
+
+          ),
+          tags$li("The ",
+                  tags$b("aggregation of preferences"),
+                  "tab shows the prioritization matrix where the coloring reflects the institutional areas in need of development or emerging."
+
+          ),
+          tags$li("The ",
                   tags$b("browse the data"),
                   "tab provides an interactive table containing the closeness to frontier data for all countries.
                   It also allows users to download the data in different formats."
