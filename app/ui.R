@@ -288,6 +288,74 @@ plot_height <- "500px"
              )
     ),
 
+    # Aggregation of preferences tab ===================================================================================================
+    tabPanel("Aggregation of preferences",
+             id = "heatmap",
+
+             fluidRow(
+               column(width = 10,
+
+                      sidebarLayout(
+
+                        sidebarPanel(id = "met_sidebar",
+                                     width = 3,
+
+                                     selectInput("country_pref",
+                                                 label = "Base country:",
+                                                 choices = c("", country_list$country_name %>% unique %>% sort),
+                                                 selected = "Uruguay",
+                                                 multiple = FALSE),
+
+                                     uiOutput("comparison_countries"),
+                                     br(),
+
+                                     actionButton(
+                                       "select_pref",
+                                       "Start/Update",
+                                       icon = icon("check"),
+                                       class = "btn-success",
+                                       width = "100%"
+                                     )
+
+                        ),
+
+                        mainPanel(width = 9,
+                                  fluidRow(
+                                    column(
+                                      8,
+                                      textInput(
+                                        "user",
+                                        label = HTML("<b>Username:</b>"),
+                                        placeholder = "Insert username"
+                                      )
+                                    ),
+                                    column(
+                                      4,
+                                      actionButton(
+                                        "save_matrix",
+                                        "Save and upload preferences",
+                                        icon = icon("check"),
+                                        class = "btn-success",
+                                        width = "100%"
+                                      )
+                                    )
+                                  ),
+                                  fluidRow(
+
+                                    DTOutput("matrix"),
+                                    br(),
+                                    uiOutput("table_legend")
+
+                                  )
+
+                        )
+
+                      )
+
+               )
+             )
+    ),
+
     # Data tab ===============================================================================================================
 
     tabPanel("Browse the data",
