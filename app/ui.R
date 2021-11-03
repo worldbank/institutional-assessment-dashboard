@@ -221,7 +221,7 @@ plot_height <- "500px"
                                      "vars_map",
                                      label = NULL,
                                      choices = list(
-                                       `Family level` = c(sort(names(definitions))),
+                                       #`Family level` = c(sort(names(definitions))),
                                        `Anti-Corruption, Transparency and Accountability institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
                                        `Business environment and trade institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_mkt") %>% .$var_name),
                                        `Financial market institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
