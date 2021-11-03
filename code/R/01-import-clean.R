@@ -134,8 +134,8 @@ data_binded <-
   select(
     country_name, country_code,
     year,
-    lac, lac6, oecd,
-    structural,
+    #lac, lac6, oecd,
+    #structural,
     all_of(vars_all)
   )
 

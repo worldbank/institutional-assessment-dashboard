@@ -46,8 +46,8 @@
     read_rds(file.path("data",
                        "country_dtf.rds"))
 
-  global_data <- global_data %>%
-    select(-c(lac, lac6, oecd))
+  global_data <- global_data #%>%
+    #select(-c(lac, lac6, oecd))
 
   family_level_data <-
     read_rds(file.path("data",
@@ -64,7 +64,7 @@
     read_rds(file.path("data",
                        "raw_data.rds")) %>%
     filter(year >= 1990) %>%
-    select(-c(lac, lac6, oecd, structural)) %>%
+    #select(-c(lac, lac6, oecd, structural)) %>%
     rename(Year = year)
 
   raw_data <-
