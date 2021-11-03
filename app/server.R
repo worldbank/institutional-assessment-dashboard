@@ -336,7 +336,10 @@
               x = "Year",
               y = "Indicator value"
             ) +
-            scale_color_discrete(name = "Indicator name")
+            scale_color_discrete(name = "Indicator name") +
+            theme(
+              axis.text.x = element_text(angle = 90, size=9, hjust = 0.5)
+            )
 
           ggplotly(static_plot) %>%
             layout(
