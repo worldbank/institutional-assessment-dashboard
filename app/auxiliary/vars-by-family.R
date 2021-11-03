@@ -47,7 +47,8 @@
       "proc_mean_score",
       "eff_govspending",
       "regulatory_governance",
-      "centregov_mean")
+      "centregov_mean"
+    )
 
   # 5 LEGAL INSTITUTIONS
   vars_leg <-
@@ -70,8 +71,6 @@
       "eff_antimonopoly",
       "nontariff_barriers",
       "property_rights",
-      "efw_inv_restr",
-      "efw_capitalcontrols",
       #"efw_tourist",
       "customs_burden",
       "lpi_clearance_eff",
@@ -102,6 +101,8 @@
   vars_fin <-
     c("efw_credit_mkt_reg",
       "efw_free_foreign_curr",
+      "efw_capitalcontrols",
+      "efw_inv_restr",
       #"competition_rules_fin",
       #"efficiency_superv_bank",
       #"efficiency_superv_fin",
@@ -116,7 +117,7 @@
       "scopeofstateownedenterprises",
       "governmentinvolvementinnetworkse",
       "directcontroloverbusinessenterpr",
-      "governanceofstateownedenterprise",
+      #"governanceofstateownedenterprise",
       #"useofcommandcontrolregulation",
       "governance_soe",
       "price_controls",
