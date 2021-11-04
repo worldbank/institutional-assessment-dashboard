@@ -467,10 +467,10 @@ ui <- navbarPage(
                                    style = "padding-top: 0"),
                                 p("The dashboard uses established well-institutional indicators, clustered into nine main institutional families:",
                                   tags$ul(
-                                    tags$li("Accountability institutions"),
-                                    tags$li("Business & trade institutions"),
+                                    tags$li("Anti-corruption, transparency and accountability institutions"),
+                                    tags$li("Business environment and trade institutions"),
                                     tags$li("Financial institutions"),
-                                    tags$li("Governance of SOEs"),
+                                    tags$li("SOE Corporate Governance"),
                                     tags$li("Labor market institutions"),
                                     tags$li("Legal institutions"),
                                     tags$li("Political institutions"),
