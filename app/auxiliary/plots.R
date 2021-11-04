@@ -60,23 +60,31 @@ static_plot <-
     )
 
     ggplot() +
+      #geom_col(
+      #  data = bar_colors_dtt,
+      #  aes(y = var_name,
+      #      x = dtt,
+      #      fill = status),
+      #  width = .2,
+      #  alpha = .6
+      #) +
+      #geom_point(
+      #  data = data_group,
+      #  aes(y = var_name,
+      #      x = dtt,
+      #      shape = group_med),
+      #  alpha = .5,
+      #  color = "black",
+      #  fill = "white",
+      #  size = 4
+      #) +
       geom_col(
-        data = bar_colors_dtt,
+        data = bar_colors_dtf,
         aes(y = var_name,
-            x = dtt,
+            x = dtf,
             fill = status),
         width = .2,
         alpha = .6
-      ) +
-      geom_point(
-        data = data_group,
-        aes(y = var_name,
-            x = dtt,
-            shape = group_med),
-        alpha = .5,
-        color = "black",
-        fill = "white",
-        size = 4
       ) +
       geom_point(
         data = data %>% filter(country_name == base_country),
@@ -117,35 +125,33 @@ static_plot <-
       ) +
       guides(
         fill = guide_legend(ncol = 3),
-        shape = guide_legend(ncol = 3)#,
-        #size = "none",
-        #color = "none"
+        shape = guide_legend(ncol = 3)
       ) +
-      scale_x_continuous(breaks = c(0, 0.5, 1),
-                         labels = c("Worst ranked",
-                                    "Middle of ranking",
-                                    "Top ranked")) +
-      annotate(
-        geom = "text",
-        size = 3,
-        x = .13,
-        y = .65,
-        label = "Bottom 25%"
-      ) +
-      annotate(
-        geom = "text",
-        size = 3,
-        x = .4,
-        y = .65,
-        label = "25% - 50%"
-      ) +
-      annotate(
-        geom = "text",
-        size = 3,
-        x = .75,
-        y = .65,
-        label = "Top 50%"
-      ) +
+      #scale_x_continuous(breaks = c(0, 0.5, 1),
+      #                   labels = c("Worst ranked",
+      #                              "Middle of ranking",
+      #                              "Top ranked")) +
+      #annotate(
+      #  geom = "text",
+      #  size = 3,
+      #  x = .13,
+      #  y = .65,
+      #  label = "Bottom 25%"
+      #) +
+      #annotate(
+      #  geom = "text",
+      #  size = 3,
+      #  x = .4,
+      #  y = .65,
+      #  label = "25% - 50%"
+      #) +
+      #annotate(
+      #  geom = "text",
+      #  size = 3,
+      #  x = .75,
+      #  y = .65,
+      #  label = "Top 50%"
+      #) +
       labs(title = paste0(tab_name))
 
   }
