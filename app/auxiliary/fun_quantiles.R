@@ -4,10 +4,10 @@
 
 def_quantiles <- function(data, base_country, country_list, selected_groups, vars, variable_names) {
 
-  #base_country <- "Uruguay"
+  #base_country <- "United Kingdom"
 
   #data <- global_data
-  #vars <- vars_mkt
+  #vars <- vars_service_del
 
   #vars <- family_names
   #data <- dtf_family_level

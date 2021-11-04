@@ -30,7 +30,7 @@
   vars_transp <-
     c(
       "gtmi",
-      "e_ti_cpi",
+      #"e_ti_cpi",
       "f2_corruption",
       "bribes",
       "diversion_pfunds",
@@ -80,7 +80,7 @@
   vars_mkt <-
     c(
       "govreg_burden",
-      "gci_overall",
+      #"gci_overall",
       "mkt_dominance",
       "eff_antimonopoly",
       #"nontariff_barriers",
@@ -102,7 +102,7 @@
       "protect_minority_ov",
       #"pay_taxes_overall",
       "domestic_competition",
-      "burden_cust_proc",
+      #"burden_cust_proc",
       "undue_incluence"
       #"trade_borders_overall"
       )
@@ -123,7 +123,7 @@
     c(
       #"efw_credit_mkt_reg",
       "efw_free_foreign_curr",
-      "wsj_financialfreedom",
+      #"wsj_financialfreedom",
       #"competition_rules_fin",
       #"efficiency_superv_bank",
       #"efficiency_superv_fin",
@@ -138,10 +138,11 @@
       "scopeofstateownedenterprises",
       "governmentinvolvementinnetworkse",
       "directcontroloverbusinessenterpr",
-      "governanceofstateownedenterprise",
+      #"governanceofstateownedenterprise",
       "governance_soe",
       "price_controls",
-      "command_control"
+      "command_control",
+      "soe_average"
   )
 
     vars_all <-
