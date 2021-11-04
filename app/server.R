@@ -220,8 +220,10 @@ server <- function(input, output, session) {
           ) %>%
           def_quantiles(
             base_country(),
-            input$countries,
-            variable_names$variable
+            country_list,
+            input$groups,
+            variable_names$variable,
+            variable_names
           )  %>%
           left_join(variable_names)
 
@@ -336,7 +338,10 @@ server <- function(input, output, session) {
                          x = "Year",
                          y = "Indicator value"
                        ) +
-                       scale_color_discrete(name = "Indicator name")
+                       scale_color_discrete(name = "Indicator name") +
+                       theme(
+                         axis.text.x = element_text(angle = 90, size=9, hjust = 0.5)
+                       )
 
                      ggplotly(static_plot) %>%
                        layout(
@@ -370,6 +375,109 @@ server <- function(input, output, session) {
                    })
 
                })
+
+  # Aggregation of preferences ================================================================================
+  observeEvent(input$select_pref,{
+
+    variable_names <-
+      variable_names %>%
+      select(family_var,
+             family_name) %>%
+      rename(var_name = family_name,
+             variable = family_var) %>%
+      unique
+
+    #data <-
+    #  family_level_data %>%
+    #  def_quantiles(
+    #    input$country_pref,
+    #    input$countries,
+    #    variable_names$variable
+    #  )  %>%
+    #  left_join(variable_names) %>%
+    data <-
+      family_data(
+        global_data,
+        input$country_pref,
+        input$groups
+      ) %>%
+      def_quantiles(
+        input$country_pref,
+        country_list,
+        input$groups,
+        variable_names$variable,
+        variable_names
+      )  %>%
+      #data <- quantiles_group %>%
+      filter(country_name == input$country_pref) %>%
+      ungroup() %>%
+      select(var_name, status_dtf) %>%
+      unique %>%
+      filter(status_dtf %in% c("Weak","Emerging")) %>%
+      mutate(
+        development_change_1 = 0,
+        development_change_2 = 1,
+        development_change_3 = 2,
+        development_change_4 = 3
+      ) %>%
+      as.data.frame()
+
+    output$comparison_countries <-
+      renderText({
+        paste0(" <b>Comparison countries: </b>", paste(input$countries, collapse = ", "))
+      })
+
+    output$table_legend <-
+      renderText({
+        paste0("<b>Legend:</b> For the institutional challenges, the coloring reflects the institutional areas in need of development (orange) and those that are emerging/transitioning (yellow). For the SCD development challenges, the cells are shaded to reflect the following relation ship: top tier/substantial (<b>3</b>); mid-tier or moderate (<b>2</b>); low-tier or marginal (<b>1</b>).")
+      })
+
+    output$matrix <-
+      renderDT({
+
+        data %>%
+          datatable(
+            rownames = FALSE,
+            colnames = c("Institutional dimension in which the country lags most","Classification",
+                         "Development Change #1","Development Change #2","Development Change #3","Development Change #4"),
+            editable = list(target = "cell", disable = list(columns = c(0,1))),
+            extensions = c('Buttons','Responsive'),
+            selection = 'none',
+            options = list(
+              columnDefs = list(list(targets = 1, visible = FALSE)),
+              paging = FALSE,
+              searching = FALSE,
+              dom = "lBtpr",
+              buttons = c('csv', 'excel', 'pdf')
+            )
+          ) %>%
+          formatStyle("var_name","status_dtf",
+                      color = "black",
+                      backgroundColor = styleEqual(c("Weak","Emerging"), c('#D55E00', '#E69F00')),
+                      fontSize = '90%', fontWeight = 'bold') %>%
+          formatStyle(
+            c(3:6),
+            fontSize = '110%', fontWeight = 'bold',
+            backgroundColor = styleEqual(c(0,1,2,3), c('#bababa','#d9f2d9','#7ad17a',"#349834"))
+          )
+
+      })
+
+    proxy <- dataTableProxy('matrix')
+
+    observeEvent(input$matrix_cell_edit, {
+
+      data <<-
+        editData(data,
+                 input$matrix_cell_edit,
+                 proxy = proxy,
+                 resetPaging = FALSE,
+                 rownames = FALSE
+        )
+
+    })
+
+  })
 
   # Data table =================================================================================
 
