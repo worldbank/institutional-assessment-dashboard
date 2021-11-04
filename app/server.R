@@ -168,10 +168,12 @@ server <- function(input, output, session) {
                       global_data %>%
                       def_quantiles(
                         base_country(),
-                        input$countries,
-                        vars_all
-                      ) %>%
-                      left_join(variable_names)
+                        country_list,
+                        input$groups,
+                        vars_all,
+                        variable_names
+                      ) #%>%
+                    #left_join(variable_names)
 
                   }
     )
