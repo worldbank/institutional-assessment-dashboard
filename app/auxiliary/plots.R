@@ -83,7 +83,7 @@ static_plot <-
         aes(y = var_name,
             x = dtf,
             fill = status),
-        width = .2,
+        width = .3,
         alpha = .6
       ) +
       geom_point(
@@ -111,7 +111,8 @@ static_plot <-
             axis.text.x = element_text(size = 11),
             legend.box = "vertical") +
       labs(y = NULL,
-           x = NULL,
+           #x = NULL,
+           x = "CTF",
            fill = NULL,
            shape = NULL) +
       scale_shape_manual(
@@ -163,7 +164,7 @@ interactive_plot <-
       layout(
         margin = list(l=50, r=50, t=75, b=140),
         annotations =
-          list(x = 0, y = -0.25,
+          list(x = 0, y = -0.4,
                text = paste0("<b>Notes:</b> ", y, " compared to ", paste(z, collapse = ", "), ".",
                              #"<br>Black squares show the group average.",
                              #"<br>Closeness to frontier is calculated as (worst-y)/(worst-frontier).",
