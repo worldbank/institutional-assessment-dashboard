@@ -36,6 +36,7 @@ variable_names <-
     var_name =
       case_when(
         # New additions out gov360
+        variable == "soe_average" ~ " SOE Average",
         variable == "gtmi" ~ "GovTech Maturity Index (GTMI)",
         #variable == "cgsi" ~ "Core Government Systems Index",
         #variable == "psdi" ~ "Public Service Delivery Index",

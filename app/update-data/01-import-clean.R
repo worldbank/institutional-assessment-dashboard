@@ -112,6 +112,15 @@ selected_indicators_3 <- c(
   43050  #  GCI 4.0: Border clearance efficiency
 )
 
+governance_data <- c(
+  42099, # SOE board of directors independence (Mining)
+  42100, # SOE board of directors independence (Oil & Gas)
+  42105, # SOE corporate governance practice (Mining)
+  42106, #  SOE corporate governance practice (Oil & Gas)
+  42161, # SOE-government transfers governance rule (Mining)
+  42162 # SOE-government transfers governance rule (Oil & Gas)
+)
+
 # Get data360
 data_api_1 <- get_data360(
   indicator_id = selected_indicators_1,
@@ -125,7 +134,16 @@ data_api_3 <- get_data360(
   indicator_id = selected_indicators_3,
   output_type = 'long')
 
-data_api <- bind_rows(data_api_1,data_api_2,data_api_3)
+data_api_governance <- get_data360(
+  indicator_id = governance_data,
+  output_type = 'long')
+
+data_api_governance <- data_api_governance %>%
+  group_by(`Country ISO3`,`Country Name`,Period) %>%
+  summarise(Observation = mean(Observation, na.rm=T)) %>%
+  mutate(Indicator = "SOE Average")
+
+data_api <- bind_rows(data_api_1,data_api_2,data_api_3,data_api_governance)
 
 rm(data_api_2, data_api_3,data_api_1)
 
@@ -196,6 +214,7 @@ data_cleaned <-
   ) %>%
   mutate(
     var = case_when(
+      Indicator == "SOE Average" ~ "soe_average",
       Indicator == "Steering Capability" ~ "steering_capability",
       Indicator == "Hiring and firing practices, 1-7 (best)" ~ "hiring_pract",
       Indicator == "Freedom of opinion and expression is effectively guaranteed" ~ "opinion_freedom",
