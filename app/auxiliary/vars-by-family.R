@@ -38,8 +38,8 @@
       #"egovernmentindex",
       #"eparticipationindex",
       #"f5_opengov",
-      "rigorous_impartial_pa",
-      "open_data_barometer",
+      #"rigorous_impartial_pa",
+      #"open_data_barometer",
       "right_to_info",
       "complaint_mechan"
     )
@@ -52,7 +52,7 @@
       "v2stcritrecadm",
       "close2",
       "proff1",
-      "proc_mean_score",
+      #"proc_mean_score",
       "eff_govspending",
       "regulatory_governance",
       "favoritism",
@@ -79,7 +79,7 @@
   # 6 BUSINESS ENV. AND TRADE INSTITUTIONS
   vars_mkt <-
     c(
-      "govreg_burden",
+      #"govreg_burden",
       #"gci_overall",
       "mkt_dominance",
       "eff_antimonopoly",
@@ -122,7 +122,7 @@
   vars_fin <-
     c(
       #"efw_credit_mkt_reg",
-      "efw_free_foreign_curr",
+      #"efw_free_foreign_curr",
       #"wsj_financialfreedom",
       #"competition_rules_fin",
       #"efficiency_superv_bank",

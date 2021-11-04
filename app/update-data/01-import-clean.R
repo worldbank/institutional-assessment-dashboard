@@ -45,7 +45,7 @@ selected_indicators_1 <- c(
   723,	 # Burden of customs procedures
   747,   # Index of economic freedom score          # ONLY ON DEFINITIONS
   3276,  # Corruption
-  3285,	 # Foreign Currency Regulations               # DIFFERENT VALUES
+  #3285,	 # Foreign Currency Regulations               # DIFFERENT VALUES
   3289,	 # Restrictive Labor Regulations
   3305,	 # Administrative burdens on startups
   3307,	 # Explicit barriers to trade and investment
@@ -63,7 +63,7 @@ selected_indicators_2 <- c(
   #3469,  # E-Participation Index, 0-1 (best)
   #24840, #DOING BUSINESS INDICATOR # Paying taxes: Time
   27470, # Revised Combined Polity Score
-  27885, # Publicized laws and government data
+  #27885, # Publicized laws and government data
   27889, # Right to information
   27894, # Complaint mechanisms
   27900, # Freedom of opinion and expression is effectively guaranteed
@@ -84,9 +84,9 @@ selected_indicators_2 <- c(
 )
 
 selected_indicators_3 <- c(
-  41008, #	Burden of government regulation, 1-7 (best)
+  #41008, #	Burden of government regulation, 1-7 (best)
   41031, #  Regulatory governance score
-  41189, #  Procurement
+  #41189, #  Procurement
   41305, #  Burden of customs procedures, 1-7 (best)
   41619, #  GCI 4.0: Global Competitiveness Index 4.0
   41629, #  GCI 4.0: 1.E Undue influence and corruption
@@ -106,7 +106,7 @@ selected_indicators_3 <- c(
   42024, #  Power distributed by gender
   42025, #  Power distributed by social group
   42026, #  Power distributed by socio-economic position
-  42084, #	Rigorous and impartial public administration
+  #42084, #	Rigorous and impartial public administration
   #42602, #DOING BUSINESS INDICATOR #  Resolving insolvency: Strength of insolvency framework index
   43034, #  Hiring and firing practices, 1-7 (best)
   43050  #  GCI 4.0: Border clearance efficiency
@@ -237,11 +237,11 @@ data_cleaned <-
       Indicator == "Public trust in politicians" ~ "trust_pol",
       Indicator == "Absence of corruption (Global States of Democracy)" ~ "f2_corruption",
       #Indicator == "E-Participation Index, 0-1 (best)" ~ "eparticipationindex",
-      Indicator == "Publicized laws and government data"  ~ "open_data_barometer",
+      #Indicator == "Publicized laws and government data"  ~ "open_data_barometer",
       Indicator == "Corruption / Percent of firms identifying the courts system as a major constraint" ~ "es_court_constraint",
       #Indicator == "Freedom of entry for foreigners" ~ "efw_tourist",
       Indicator == "Restrictive Labor Regulations" ~ "efw_labor_mkt_reg",
-      Indicator == "Foreign Currency Regulations" ~ "efw_free_foreign_curr",        # DIFFERENT VALUES
+      #Indicator == "Foreign Currency Regulations" ~ "efw_free_foreign_curr",        # DIFFERENT VALUES
       #Indicator == "Political Rights" ~ "e_fh_pr",                     # STRANGE VALUES
       Indicator == "Price controls" ~ "price_controls",
       #Indicator == "Civil Liberties" ~ "e_fh_cl",                       # STRANGE VALUES
@@ -251,7 +251,7 @@ data_cleaned <-
       Indicator == "Effectiveness of antimonopoly policy" ~ "eff_antimonopoly",
       Indicator == "Explicit barriers to trade and investment" ~ "barriers_trade_expl",
       Indicator == "Burden of customs procedures" ~ "customs_burden",
-      Indicator == "Index of economic freedom score" ~ "wsj_financialfreedom",
+      #Indicator == "Index of economic freedom score" ~ "wsj_financialfreedom",
       Indicator == "Administrative burdens on startups" ~ "barriers_startups",
       Indicator == "Other barriers to trade and investment" ~ "barriers_trade_oth",
       Indicator == "Complexity of regulatory procedures" ~ "complexity_procedures",
@@ -263,20 +263,20 @@ data_cleaned <-
       #Indicator == "Efficiency of the banking supervisory authority" ~ "efficiency_superv_bank",
       #Indicator == "Efficiency of the financial market supervisory authority" ~ "efficiency_superv_fin",
       #Indicator == "Financial sector: competition regulation" ~ "competition_rules_fin",
-      Indicator == "Burden of government regulation, 1-7 (best)" ~ "govreg_burden",
+      #Indicator == "Burden of government regulation, 1-7 (best)" ~ "govreg_burden",
       Indicator == "Fundamental rights" ~ "f4_rights",
       Indicator == "Judicial accountability" ~ "v2juaccnt",
       Indicator == "Lower chamber female legislators" ~ "v2lgfemleg",
       Indicator == "Power distributed by social group" ~ "v2pepwrsoc",
       Indicator == "Power distributed by socio-economic position" ~ "v2pepwrses",
-      Indicator == "Rigorous and impartial public administration" ~ "rigorous_impartial_pa",
+      #Indicator == "Rigorous and impartial public administration" ~ "rigorous_impartial_pa",
       Indicator == "Revised Combined Polity Score" ~ "e_p_polity",
       Indicator == "Executive constraints" ~ "f1_govpowers",
       Indicator == "Power distributed by gender" ~ "v2pepwrgen",
       Indicator == "Law  and order" ~ "f3_security",
       Indicator == "Corruption" ~ "e_ti_cpi",
       #Indicator == "Government Online Service Index, 0-1 (best)" ~ "egovernmentindex",
-      Indicator == "Procurement" ~ "proc_mean_score",
+      #Indicator == "Procurement" ~ "proc_mean_score",
       Indicator == "Regulatory governance score" ~ "regulatory_governance",
       Indicator == "People can access and afford civil justice" ~ "f7_civiljustice",
       Indicator == "Efficiency of legal framework in challenging regs" ~ "legaleff_challenging",
