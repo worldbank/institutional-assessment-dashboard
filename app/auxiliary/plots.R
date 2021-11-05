@@ -25,6 +25,12 @@ static_plot <-
         size = 2,
         alpha = .1
       ) +
+      geom_vline(
+        xintercept = 1,
+        linetype = "dashed",
+        color = colors["Advanced"],
+        size = 1
+      ) +
       geom_segment(
         data = data,
         aes(y = var_name,
@@ -53,12 +59,6 @@ static_plot <-
         size = 3,
         shape = 21,
         color = "gray0"
-      ) +
-      geom_vline(
-        xintercept = 1,
-        linetype = "dashed",
-        color = colors["Advanced"],
-        size = 1
       ) +
       theme_minimal() +
       theme(legend.position = "top",
@@ -94,23 +94,22 @@ interactive_plot <-
                align = 'left',
                font = list(size = 13)
           )
+      ) %>%
+      config(
+        modeBarButtonsToRemove = c("zoomIn2d",
+                                   "zoomOut2d",
+                                   "pan2d",
+                                   "autoScale2d",
+                                   "lasso2d",
+                                   "select2d",
+                                   "toggleSpikelines",
+                                   "hoverClosest3d",
+                                   "hoverClosestCartesian",
+                                   "hoverCompareCartesian"),
+        toImageButtonOptions= list(filename = paste0(tolower(stringr::str_replace_all(tab_name,"\\s","_"))),
+                                   width = 1100,
+                                   height =  1000)
       )
-    # %>%
-    #   config(
-    #     modeBarButtonsToRemove = c("zoomIn2d",
-    #                                "zoomOut2d",
-    #                                "pan2d",
-    #                                "autoScale2d",
-    #                                "lasso2d",
-    #                                "select2d",
-    #                                "toggleSpikelines",
-    #                                "hoverClosest3d",
-    #                                "hoverClosestCartesian",
-    #                                "hoverCompareCartesian"),
-    #     toImageButtonOptions= list(filename = paste0(tolower(stringr::str_replace_all(tab_name,"\\s","_"))),
-    #                                width = 1100,
-    #                                height =  1000)
-    #   )
 
 
   }
