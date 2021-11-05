@@ -116,9 +116,9 @@ governance_data <- c(
   42099, # SOE board of directors independence (Mining)
   42100, # SOE board of directors independence (Oil & Gas)
   42105, # SOE corporate governance practice (Mining)
-  42106, #  SOE corporate governance practice (Oil & Gas)
+  42106, # SOE corporate governance practice (Oil & Gas)
   42161, # SOE-government transfers governance rule (Mining)
-  42162 # SOE-government transfers governance rule (Oil & Gas)
+  42162 #  SOE-government transfers governance rule (Oil & Gas)
 )
 
 # Get data360
@@ -337,6 +337,8 @@ data_cleaned <-
   filter(
     year >= 1950   # variable e_p_polity has values since 1800, filter to reduce # of rows
   )
+
+# proff1 * (-1)
 
 # Additions with indicators that are not on Gov360 ----
 additions <- haven::read_dta(here("data",

@@ -57,7 +57,6 @@
       "regulatory_governance",
       "favoritism",
       "undue_influ_corrupt",
-      "hiring_pract",
       "steering_capability"
   #    "centregov_mean"
       )
@@ -101,16 +100,17 @@
       #"register_prop_overall",
       "protect_minority_ov",
       #"pay_taxes_overall",
-      "domestic_competition",
+      "domestic_competition"#,
       #"burden_cust_proc",
-      "undue_incluence"
+      #"undue_incluence"
       #"trade_borders_overall"
       )
 
   # 7 LABOR MARKET INSTITUTIONS
   vars_lab <-
     c(
-      "efw_labor_mkt_reg"#,
+      "efw_labor_mkt_reg",
+      "hiring_pract"#,
   #    "collective_barg",
   #    "empl_protection_perm",
   #    "empl_protection_temp",
