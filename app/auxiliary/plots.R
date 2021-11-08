@@ -110,8 +110,6 @@ interactive_plot <-
                                    width = 1100,
                                    height =  1000)
       )
-
-
   }
 
 interactive_map <-

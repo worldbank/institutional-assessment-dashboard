@@ -10,6 +10,7 @@
   library(sf)
   library(hrbrthemes)
   library(stringr)
+  library(grDevices)
 
 
 # Inputs ################################################################################
@@ -77,6 +78,7 @@
     read_rds(file.path("data",
                        "wb_country_list.rds"))
 
+  color_groups <- colorRampPalette(c("#053E5D", "#60C2F7"))
 
 
 # Server ################################################################################
@@ -286,7 +288,7 @@
               na.value = "#808080",
               drop=F) +
             labs(title = paste0("<b>",input$vars_map,"</b>")) +
-            theme_bw()
+            theme_ipsum()
 
           interactive_map(map, input$vars_map)
         }
@@ -295,62 +297,105 @@
 
    # Trends =====================================================================================
 
-    observeEvent(input$indicator_trends,
-                 {
-              var_selected <-
-        variable_names %>%
-        filter(var_name %in% input$indicator_trends) %>%
-        .$variable
+    var_trends <-
+      eventReactive(input$indicator_trends,
+                    {
+                      var_selected <-
+                        variable_names %>%
+                        filter(var_name == input$indicator_trends) %>%
+                        .$variable
+                    }
+      )
 
-      data <-
-        raw_data %>%
-        filter(
-          country_name == input$country_trends
-        ) %>%
-        select(country_name, Year, all_of(var_selected)) %>%
-        pivot_longer(cols = all_of(var_selected),
-                     names_to = "variable",
-                     values_to = "Indicator value") %>%
-        left_join(variable_names) %>%
-        rename(Country = country_name,
-               `Indicator name` = var_name) %>%
-        mutate(across(where(is.numeric),
-                      round, 3))
+    data_trends <-
+      reactive({
 
-      output$time_series <-
-        renderPlotly({
+        data <-
+          raw_data %>%
+          filter(country_name %in% c(input$country_trends)) %>%
+          mutate(alpha = .8,
+                 shape = 19)
 
+        if (!is.null(input$countries_trends)) {
+
+          data <-
+            raw_data %>%
+            filter(country_name %in% c(input$countries_trends)) %>%
+            mutate(alpha = .5,
+                   shape = 18) %>%
+            bind_rows(data)
+        }
+
+        if (!is.null(input$group_trends)) {
+
+          indicator <-
+            raw_data %>%
+            select(country_name, Year, all_of(var_trends()))
+
+          data <-
+            country_list %>%
+            filter(group %in% input$group_trends) %>%
+            select(group, country_name) %>%
+            mutate(country_name = as.character(country_name)) %>%
+            left_join(indicator) %>%
+            group_by(Year, group) %>%
+            summarise_all(~ mean(., na.rm = TRUE)) %>%
+            mutate(country_name = as.character(group),
+                   alpha = .5,
+                   shape = 19) %>%
+            bind_rows(data)
+        }
+
+        data %>%
+          rename(Country = country_name) %>%
+          select(Country, Year, all_of(var_trends()), alpha) %>%
+          mutate_at(vars(all_of(var_trends())),
+                    ~ round(., 3))
+      })
+
+    output$time_series <-
+      renderPlotly({
+
+        if (input$indicator_trends != "") {
           static_plot <-
-            ggplot(data %>% group_by(variable),
-                   aes(x = Year,
-                       y = `Indicator value`,
-                       color = `Indicator name`)) +
-            geom_point(size = 3,
-                       alpha = .5) +
-            geom_line(lwd = 1.5,
-                      alpha = .5) +
+            ggplot(data_trends(),
+                   aes_string(x = "Year",
+                              y = var_trends(),
+                              color = "Country",
+                              alpha = "alpha")) +
+            geom_point(aes(text = paste("Country:", Country, "<br>",
+                                        "Year:", Year, "<br>",
+                                        "Value:", get(var_trends()))),
+                       size = 3) +
+            geom_line() +
             theme_ipsum() +
             labs(
               x = "Year",
-              y = "Indicator value"
+              y = "Indicator value",
+              title = paste0("<b>",input$indicator_trends,"</b>")
             ) +
-            scale_color_discrete(name = "Indicator name") +
-            theme(
-              axis.text.x = element_text(angle = 90, size=9, hjust = 0.5)
-            )
+            scale_color_manual(
+              name = NULL,
+              values = c("#FB8500",
+                         gray.colors(length(input$countries_trends)),
+                         color_groups(length(input$group_trends))),
+              breaks = c(input$country_trends,
+                         input$countries_trends,
+                         input$group_trends)
+            ) +
+            scale_alpha_identity()
 
-          ggplotly(static_plot) %>%
+          ggplotly(static_plot, tooltip = "text") %>%
             layout(
-              margin = list(l=50, r=50, t=75, b=135),
-              annotations =
-                list(x = 0, y = -0.3,
-                     text = map(paste0("<b>Country: </b>",input$country_trends,"."), HTML),
-                     showarrow = F,
-                     xref = 'paper',
-                     yref = 'paper',
-                     align = 'left',
-                     font = list(size = 12)
-                )
+              legend = list(
+                title=list(text='<b>Country:</b>'),
+                #orientation="h",
+                #yanchor="bottom",
+                y=0.5
+                #xanchor="right",
+                #x=1
+              ),
+              margin = list(l=50, r=50, t=75, b=135)
             ) %>%
             config(
               modeBarButtonsToRemove = c("zoomIn2d",
@@ -367,10 +412,9 @@
                                                            tolower(input$country_trends),"_",
                                                            tolower(stringr::str_replace_all(input$indicator_trends,"\\s","_"))))
             )
+        }
 
-        })
-
-    })
+      })
 
     # Aggregation of preferences ================================================================================
     observeEvent(input$select_pref,{
