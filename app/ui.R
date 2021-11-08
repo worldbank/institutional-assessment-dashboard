@@ -44,7 +44,7 @@ plot_height <- "600px"
 
   ui <- navbarPage(
 
-    "Global institutional assessment",
+    "Global Institutional Benchmarking Dashboard (GIBD)",
 
     #theme = bs_theme(bootswatch = "minty"),
 
@@ -62,15 +62,12 @@ plot_height <- "600px"
 
         h3("About"),
 
-        p("The World Bank recognizes institutional strengthening as key ingredient for progress of its members countries along income categories. While there are numerous diagnostic and assessment tools for specific functional areas such as financial management and tax administration, there is no analytical tool for country-level institutional assessment."),
-        p("The Institutional Assessment (IA) benchmarking aims at partially filling this gap by providing a standard methodology to summarize information from a large set of institutional indicators. This dashboard offers a user-friendly interface that can easily and speedily be used for the country-level IA benchmarking."),
-        p("The dashboard provides a visualization of a country’s profile based on a set of international institutional indicators, highlighting a given country’s institutional strengths and weaknesses. It is recommended to use these empirical results as guides for further quantitative or qualitative in-depth analysis in the specific areas of interest."),
-        p("This benchmarking is part of a larger analytical effort.
-          For full details about the project, see the Approach paper: Marco Larizza, Serena Sara Daniela Cocciolo, Eric Braian Arias and Peter Siegenthaler (forthcoming), ",
-          tags$em("Country Level Institutional Assessment: a 3-steps analytical framework."),
-          "Users of this resource should cite this approach paper.
-          Further, any publications using data drawn from this resource could include citations to the original source(s) of the data used.
-          Citation information for each component dataset is included in the methodology page."),
+        p("The World Bank recognizes institutional strengthening as key ingredient for progress of its members countries along income categories. While there are numerous diagnostic and assessment tools for specific functional areas such as public financial management and tax administration, there is no analytical tool for country-level institutional assessment."),
+        p("The Global Institutional Benchmarking Dashboard (GIBD) contributes to fill this gap by providing a standard methodology to summarize information from a large set of country-level institutional indicators."),
+        p("The dashboard provides a user-friendly interface with multiple visualizations of a country’s institutional profile based on a set of international indicators, highlighting a given country’s institutional strengths and weaknesses relative to a set of country comparators. The findings of the GIBD can provide a structured and up-to-date empirical guidance for further in-depth analysis in the specific areas of interest, given the nature of the World Bank engagement in a country and/or complementarity with other ongoing country-level diagnostics (SCDs, CEMs, CPFs and the like)."),
+        p("The GIBD part of a larger analytical effort to assess and review the quality of country’s institutions. For full details about the broader analytical effort, see the Approach paper: Marco Larizza, Serena Sara Daniela Cocciolo, Eric Braian Arias, Peter Siegenthaler and Jim Brumby (forthcoming),  ",
+          tags$em("Country Level Institutional Assessment and Review (CLIAR): a 3-steps analytical framework."),
+          "Users of this resource should cite this approach paper. Further, any publications using data drawn from the GIBD should include a citation of the dashboard as well as the original source(s) of the data used. Citation information for each component dataset is included in the methodology page."),
 
         h3("How to use this dashboard"),
         p("This dashboard aims to enable its users to interact with the country-level IA benchmarking in a few different ways:"),
@@ -83,6 +80,16 @@ plot_height <- "600px"
           tags$li("The ",
                   tags$b("world map"),
                   "tab shows the closeness to frontier of a given indicator for all countries with available data."
+
+          ),
+          tags$li("The ",
+                  tags$b("trends"),
+                  "tab shows the evolution year by year of multiple indicators."
+
+          ),
+          tags$li("The ",
+                  tags$b("aggregation of preferences"),
+                  "tab shows the prioritization matrix where the coloring reflects the institutional areas in need of development or emerging."
 
           ),
           tags$li("The ",
@@ -125,7 +132,7 @@ plot_height <- "600px"
                                        "groups",
                                        label = "Select comparison groups",
                                        choices = country_groups$group_name,
-                                       selected = "OECD members",
+                                       selected = c("OECD members", "Latin America & Caribbean"),
                                        multiple = TRUE
                                       ),
 
@@ -138,7 +145,7 @@ plot_height <- "600px"
                                                   checkboxGroupInput(
                                                     "countries",
                                                     label = NULL,
-                                                    choices = country_list$country_name %>% unique %>% sort,
+                                                    choices = country_list$country_name %>% unique %>% sort
                                                   )
                                                 )
                                        ),
@@ -214,11 +221,11 @@ plot_height <- "600px"
                                      "vars_map",
                                      "Select an indicator",
                                      choices = list(
-                                       `Family level` = c(sort(names(definitions))),
-                                       `Accountability institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
+                                       #`Family level` = c(sort(names(definitions))),
+                                       `Anti-Corruption, Transparency and Accountability institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
                                        `Business environment and trade institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_mkt") %>% .$var_name),
                                        `Financial market institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
-                                       `Institutions for service delivery` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_service_del") %>% .$var_name),
+                                       `SOE Corporate Governance` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_service_del") %>% .$var_name),
                                        `Labor market institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_lab") %>% .$var_name),
                                        `Legal institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_leg") %>% .$var_name),
                                        `Political institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_pol") %>% .$var_name),
@@ -254,12 +261,13 @@ plot_height <- "600px"
                         sidebarPanel(width = 3,
                                      pickerInput(
                                        "indicator_trends",
-                                       "Select an indicator",
+                                       label = "Select the indicators",
+                                       multiple = TRUE,
                                        choices = list(
-                                         `Accountability institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
+                                         `Anti-Corruption, Transparency and Accountability institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
                                          `Business environment and trade institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_mkt") %>% .$var_name),
                                          `Financial market institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
-                                         `Institutions for service delivery` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_service_del") %>% .$var_name),
+                                         `SOE Corporate Governance` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_service_del") %>% .$var_name),
                                          `Labor market institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_lab") %>% .$var_name),
                                          `Legal institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_leg") %>% .$var_name),
                                          `Political institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_pol") %>% .$var_name),
@@ -313,6 +321,74 @@ plot_height <- "600px"
                                   )
                         )
                       )
+               )
+             )
+    ),
+
+    # Aggregation of preferences tab ===================================================================================================
+    tabPanel("Aggregation of preferences",
+             id = "heatmap",
+
+             fluidRow(
+               column(width = 10,
+
+                      sidebarLayout(
+
+                        sidebarPanel(id = "met_sidebar",
+                                     width = 3,
+
+                                     selectInput("country_pref",
+                                                 label = "Base country:",
+                                                 choices = c("", country_list$country_name %>% unique %>% sort),
+                                                 selected = "Uruguay",
+                                                 multiple = FALSE),
+
+                                     uiOutput("comparison_countries"),
+                                     br(),
+
+                                     actionButton(
+                                       "select_pref",
+                                       "Start/Update",
+                                       icon = icon("check"),
+                                       class = "btn-success",
+                                       width = "100%"
+                                     )
+
+                        ),
+
+                        mainPanel(width = 9,
+                                  fluidRow(
+                                    column(
+                                      8,
+                                      textInput(
+                                        "user",
+                                        label = HTML("<b>Username:</b>"),
+                                        placeholder = "Insert username"
+                                      )
+                                    ),
+                                    column(
+                                      4,
+                                      actionButton(
+                                        "save_matrix",
+                                        "Save and upload preferences",
+                                        icon = icon("check"),
+                                        class = "btn-success",
+                                        width = "100%"
+                                      )
+                                    )
+                                  ),
+                                  fluidRow(
+
+                                    DTOutput("matrix"),
+                                    br(),
+                                    uiOutput("table_legend")
+
+                                  )
+
+                        )
+
+                      )
+
                )
              )
     ),
@@ -415,10 +491,10 @@ plot_height <- "600px"
                                      style = "padding-top: 0"),
                                   p("The dashboard uses established well-institutional indicators, clustered into nine main institutional families:",
                                     tags$ul(
-                                      tags$li("Accountability institutions"),
-                                      tags$li("Business & trade institutions"),
+                                      tags$li("Anti-corruption, transparency and accountability institutions"),
+                                      tags$li("Business environment and trade institutions"),
                                       tags$li("Financial institutions"),
-                                      tags$li("Governance of SOEs"),
+                                      tags$li("SOE Corporate Governance"),
                                       tags$li("Labor market institutions"),
                                       tags$li("Legal institutions"),
                                       tags$li("Political institutions"),

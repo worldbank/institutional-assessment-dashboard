@@ -3,6 +3,7 @@ packages <- c("tidyverse",
               "here",
               "skimr",
               "labelled")
+
 pacman::p_load(packages,
                character.only = TRUE)
 
@@ -78,9 +79,10 @@ vars_minmax <-
 data_country <-
   data_selected %>%
   group_by(country_name,
-           country_code,
-           lac,lac6,oecd,
-           structural) %>%
+           country_code#,
+           #lac,lac6,oecd,
+           #structural
+           ) %>%
   summarise(
     across(
       all_of(vars_all),
@@ -112,7 +114,9 @@ dtf_vars_global <-
                  dtf) # small adjustments to display a very short bar on the graph, in case dtf = 0
   ) %>%
   pivot_wider(
-    id_cols = c("country_name", "country_code", "lac", "lac6", "oecd", "structural"),
+    id_cols = c("country_name", "country_code"#,
+                #"lac", "lac6", "oecd", "structural"
+                ),
     names_from = "variable",
     values_from = "dtf"
   )
