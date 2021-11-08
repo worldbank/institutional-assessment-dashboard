@@ -83,6 +83,16 @@ plot_height <- "500px"
 
           ),
           tags$li("The ",
+                  tags$b("trends"),
+                  "tab shows the evolution year by year of multiple indicators."
+
+          ),
+          tags$li("The ",
+                  tags$b("aggregation of preferences"),
+                  "tab shows the prioritization matrix where the coloring reflects the institutional areas in need of development or emerging."
+
+          ),
+          tags$li("The ",
                   tags$b("browse the data"),
                   "tab provides an interactive table containing the closeness to frontier data for all countries.
                   It also allows users to download the data in different formats."
@@ -122,7 +132,7 @@ plot_height <- "500px"
                                        "groups",
                                        label = "Select comparison groups",
                                        choices = country_groups$group_name,
-                                       selected = "OECD members",
+                                       selected = c("OECD members", "Latin America & Caribbean"),
                                        multiple = TRUE
                                       ),
 
@@ -135,7 +145,7 @@ plot_height <- "500px"
                                                   checkboxGroupInput(
                                                     "countries",
                                                     label = NULL,
-                                                    choices = country_list$country_name %>% unique %>% sort,
+                                                    choices = country_list$country_name %>% unique %>% sort
                                                   )
                                                 )
                                        ),
@@ -211,7 +221,7 @@ plot_height <- "500px"
                                      "vars_map",
                                      label = NULL,
                                      choices = list(
-                                       `Family level` = c(sort(names(definitions))),
+                                       #`Family level` = c(sort(names(definitions))),
                                        `Anti-Corruption, Transparency and Accountability institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
                                        `Business environment and trade institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_mkt") %>% .$var_name),
                                        `Financial market institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
@@ -284,6 +294,74 @@ plot_height <- "500px"
                                   )
                         )
                       )
+               )
+             )
+    ),
+
+    # Aggregation of preferences tab ===================================================================================================
+    tabPanel("Aggregation of preferences",
+             id = "heatmap",
+
+             fluidRow(
+               column(width = 10,
+
+                      sidebarLayout(
+
+                        sidebarPanel(id = "met_sidebar",
+                                     width = 3,
+
+                                     selectInput("country_pref",
+                                                 label = "Base country:",
+                                                 choices = c("", country_list$country_name %>% unique %>% sort),
+                                                 selected = "Uruguay",
+                                                 multiple = FALSE),
+
+                                     uiOutput("comparison_countries"),
+                                     br(),
+
+                                     actionButton(
+                                       "select_pref",
+                                       "Start/Update",
+                                       icon = icon("check"),
+                                       class = "btn-success",
+                                       width = "100%"
+                                     )
+
+                        ),
+
+                        mainPanel(width = 9,
+                                  fluidRow(
+                                    column(
+                                      8,
+                                      textInput(
+                                        "user",
+                                        label = HTML("<b>Username:</b>"),
+                                        placeholder = "Insert username"
+                                      )
+                                    ),
+                                    column(
+                                      4,
+                                      actionButton(
+                                        "save_matrix",
+                                        "Save and upload preferences",
+                                        icon = icon("check"),
+                                        class = "btn-success",
+                                        width = "100%"
+                                      )
+                                    )
+                                  ),
+                                  fluidRow(
+
+                                    DTOutput("matrix"),
+                                    br(),
+                                    uiOutput("table_legend")
+
+                                  )
+
+                        )
+
+                      )
+
                )
              )
     ),
@@ -386,10 +464,10 @@ plot_height <- "500px"
                                      style = "padding-top: 0"),
                                   p("The dashboard uses established well-institutional indicators, clustered into nine main institutional families:",
                                     tags$ul(
-                                      tags$li("Accountability institutions"),
-                                      tags$li("Business & trade institutions"),
+                                      tags$li("Anti-corruption, transparency and accountability institutions"),
+                                      tags$li("Business environment and trade institutions"),
                                       tags$li("Financial institutions"),
-                                      tags$li("Governance of SOEs"),
+                                      tags$li("SOE Corporate Governance"),
                                       tags$li("Labor market institutions"),
                                       tags$li("Legal institutions"),
                                       tags$li("Political institutions"),

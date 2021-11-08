@@ -12,7 +12,7 @@ pacman::p_load(packages,
 data_selected <-
   read_rds(here("data",
                 "data_cleaned",
-                "selected_vars.rds"))
+                "dtf_vars_global.rds"))
 
 source(file.path("app/auxiliary",
                  "vars-by-family.R"))
@@ -20,6 +20,7 @@ source(file.path("app/auxiliary",
 # Inputs =====================================================================================
 variable_names <-
   data_selected %>%
+  ungroup() %>%
   select(
     all_of(vars_all)
   ) %>%
@@ -38,6 +39,19 @@ variable_names <-
       case_when(
         # New additions out gov360
         variable == "gtmi" ~ "GovTech Maturity Index (GTMI)",
+        variable == "complaint_mechan" ~ "Complaint mechanisms",
+        variable == "right_to_info" ~ "Right to information",
+        variable == "hiring_pract" ~ "Hiring and firing practices, 1-7 (best)",
+        variable == "steering_capability" ~ "Steering Capability",
+        variable == "undue_influ_corrupt" ~ "GCI 4.0: 1.E Undue influence and corruption",
+        variable == "opinion_freedom" ~ "Freedom of opinion and expression is effectively guaranteed",
+        variable == "v2clacfree" ~ "Freedom of academic and cultural expression",
+        variable == "v2cseeorgs" ~ "CSO entry and exit",
+        variable == "soe_annual_report" ~ "SOE annual report disclosure",
+        variable == "soe_board" ~ "SOE board of directors independence",
+        variable == "soe_financial" ~ "SOE financial audit requirement",
+        variable == "soe_government" ~ "SOE-government transfers governance rule",
+        variable == "soe_report_legislative" ~ "SOE report legislative review requirement",
         #variable == "cgsi" ~ "Core Government Systems Index",
         #variable == "psdi" ~ "Public Service Delivery Index",
         #variable == "cei" ~ "Citizen Engagement Index",
@@ -51,6 +65,8 @@ variable_names <-
         variable == "governanceofstateownedenterprise" ~ "Governance of state-owned enterprises",
         variable == "useofcommandcontrolregulation" ~ "Use of command & control regulation",
         variable == "pricecontrols" ~ "Price controls",
+        variable == "price_controls" ~ "Price controls",
+        variable == "command_control" ~ "Use of command & control regulation",
         # Old data
         variable == "centregov_mean" ~ "Centre of Government, influence",
         variable == "nontariff_barriers" ~ "Non-tariffs trade barriers",
@@ -78,7 +94,7 @@ variable_names <-
         variable == "collective_barg" ~ "Collective bargaining coverage",
         variable == "govreg_burden" ~ "Burden of gov. regulation",
         variable == "efw_labor_mkt_reg" ~ "Labor market regulations",
-        variable == "wsj_financialfreedom" ~ "Financial freedom",
+        #variable == "wsj_financialfreedom" ~ "Financial freedom",
         variable == "wsj_businessfreedom" ~ "Business freedom",
         variable == "wsj_propertyrights" ~ "Property rights",
         variable == "efw_property_rights" ~ "Property rights protection",
@@ -91,7 +107,7 @@ variable_names <-
         variable == "trust_pol" ~ "Public trust in politician",
         variable == "v2dlengage" ~ "Engaged society",
         variable == "f2_corruption" ~ "Absence of corruption",
-        variable == "e_ti_cpi" ~ "Perception of corruption",
+        #variable == "e_ti_cpi" ~ "Perception of corruption",
         variable == "f4_rights" ~ "Fundamental rights",
         variable == "v2lgqugen" ~ "Lower chamber gender quota",
         variable == "v2pepwrsoc" ~ "Power by social group",
@@ -126,7 +142,6 @@ variable_names <-
         variable == "v2pepwrgen" ~ "Power by gender",
         variable == "cbi" ~ "Central bank independence",
         variable == "bribes" ~ "Irregular payments and bribes",
-        #variable == "command_control" ~ "Use of command & control regulation",
         variable == "constr_perm_overall" ~ "Construction permits",
         variable == "customs_burden" ~ "Burden of customs procedures",
         variable == "diversion_pfunds" ~ "Diversion of public funds",
@@ -141,7 +156,7 @@ variable_names <-
         #variable == "eparticipationindex" ~ "E-participation Index",
         variable == "es_court_constraint" ~ "Courts as major constraint",
         variable == "favoritism" ~ "Favoritism in decisions of government officials",
-        variable == "gci_overall" ~ "Global Competitiveness Index",
+        #variable == "gci_overall" ~ "Global Competitiveness Index",
         variable == "governance_soe" ~ "Regulatory Governance score",
         variable == "lpi_clearance_eff" ~ "Efficiency of the clearance process",
         variable == "mkt_dominance" ~ "Extent of market dominance",
@@ -164,7 +179,8 @@ variable_names <-
         variable == "vars_mkt" ~ "Business environment and trade institutions",
         variable == "vars_lab" ~ "Labor market institutions",
         variable == "vars_fin" ~ "Financial market institutions",
-        variable == "vars_service_del" ~ "SOE Corporate Governance"
+        variable == "vars_service_del" ~ "SOE Corporate Governance",
+        TRUE ~ NA_character_
       ),
     family_var =
       case_when(

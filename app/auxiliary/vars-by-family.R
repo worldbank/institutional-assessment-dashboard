@@ -1,6 +1,7 @@
   # 1 POLITICAL INSTITUTIONS
   vars_pol <-
-    c("e_fh_pr",
+    c(
+      "e_fh_pr",
       "e_fh_cl",
       "e_p_polity",
       "f1_govpowers",
@@ -10,20 +11,26 @@
       "v2lgqugen",
       "f4_rights",
       "f3_security",
-      "v2lgfemleg")
+      "v2lgfemleg"
+    )
 
   # 2 SOCIAL INSTITUTIONS
   vars_social <-
-    c("v2x_cspart",
+    c(
+      "opinion_freedom",
+      "v2clacfree",
+      "v2cseeorgs",
+      "v2x_cspart",
       "v2dlengage",
       "v2xcs_ccsi",
-      "trust_pol")
+      "trust_pol"
+    )
 
   # 3 ACCOUTABILITY INSTITUTIONS
   vars_transp <-
     c(
       "gtmi",
-      "e_ti_cpi",
+      #"e_ti_cpi",
       "f2_corruption",
       "favoritism",
       "bribes",
@@ -32,22 +39,27 @@
       #"egovernmentindex",
       #"eparticipationindex",
       "f5_opengov",
+      "complaint_mechan",
+      "right_to_info",
       "rigorous_impartial_pa",
-      "open_data_barometer")
+      "open_data_barometer"
+    )
 
   # 4 CENTER OF GOV/PUBLIC SECTOR INSTITUTIONS
   vars_publ <-
     c(
+      "steering_capability",
       "v2stfisccap",
       "v2stcritrecadm",
       "close2",
       "proff1",
       "f6_regulatoryenf",
-      "f6_regulatoryenf",
       "proc_mean_score",
       "eff_govspending",
       "regulatory_governance",
-      "centregov_mean")
+      "centregov_mean",
+      "undue_influ_corrupt"
+    )
 
   # 5 LEGAL INSTITUTIONS
   vars_leg <-
@@ -65,13 +77,11 @@
   # 6 BUSINESS ENV. AND TRADE INSTITUTIONS
   vars_mkt <-
     c("govreg_burden",
-      "gci_overall",
+      #"gci_overall",
       "mkt_dominance",
       "eff_antimonopoly",
       "nontariff_barriers",
       "property_rights",
-      "efw_inv_restr",
-      "efw_capitalcontrols",
       "efw_tourist",
       "customs_burden",
       "lpi_clearance_eff",
@@ -96,18 +106,23 @@
       "empl_protection_perm",
       "empl_protection_temp",
       "union_density",
-      "minimum_wage_ratio")
+      "minimum_wage_ratio",
+      "hiring_pract"
+    )
 
   # 8 FINANCIAL INSTITUTITONS
   vars_fin <-
     c("efw_credit_mkt_reg",
       "efw_free_foreign_curr",
+      "efw_capitalcontrols",
+      "efw_inv_restr",
       "competition_rules_fin",
       "efficiency_superv_bank",
       "efficiency_superv_fin",
       "cbi",
       #"access_credit_overall",
-      "insolvency_framework")
+      "insolvency_framework"
+      )
 
   # 9 SOE Governance/SERVICE DELIVERY INSTITUTIONS
   vars_service_del <-
@@ -115,12 +130,18 @@
       "scopeofstateownedenterprises",
       "governmentinvolvementinnetworkse",
       "directcontroloverbusinessenterpr",
-      "governanceofstateownedenterprise",
-      "useofcommandcontrolregulation",
+      #"governanceofstateownedenterprise",
+      #"useofcommandcontrolregulation",
       "governance_soe",
-      "pricecontrols"#,
-      #"command_control"
-      )
+      "price_controls",
+      "command_control",
+      "soe_board",
+      #"soe_corporate",
+      "soe_government",
+      "soe_annual_report",
+      "soe_financial",
+      "soe_report_legislative"
+    )
 
     vars_all <-
       c(vars_service_del,

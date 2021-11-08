@@ -2,37 +2,57 @@
 # FUNCTION THAT DEFINES THE QUANTILES BASED ON SELECTED COUNTRY AND COMPARISON GROUP -----------------------
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-def_quantiles <- function(data, base_country, comparison_countries, vars, variable_names) {
+def_quantiles <- function(data, base_country, country_list, selected_groups, vars, variable_names) {
 
   #base_country <- "Uruguay"
 
   #data <- global_data
-  #vars <- vars_transp
+  #vars <- vars_mkt
 
   #vars <- family_names
   #data <- dtf_family_level
 
+  comparison_list <-
+    country_list %>%
+    #filter(group %in% c("OECD members"))
+    filter(group %in% selected_groups)
+
   na_indicators <- data %>%
     ungroup() %>%
+    #select(-c(lac,lac6,oecd)) %>%
     filter(country_name == base_country) %>%
-    select(where(is.na)) %>%
-    pivot_longer(cols = 1:ncol(.), names_to = "missing_var")
+    select(where(is.na))
 
-  quantiles <-
-    data %>%
+  #%>%
+  #  pivot_longer(cols = 1:ncol(.), names_to = "missing_var")
+
+  na_indicators <- if(length(na_indicators)==0){
+    NULL
+  } else {
+    na_indicators <- na_indicators %>% pivot_longer(cols = 1:ncol(.), names_to = "missing_var")
+  }
+
+  quantiles <- data %>%
     ungroup() %>%
-    mutate(oecd = ifelse(country_code == "COL", 1, oecd)) %>%
+    #select(-c(lac,lac6,oecd)) %>%
     filter(
-      lac6 == 1 | oecd == 1 | country_name == base_country
+      country_name %in% comparison_list$country_name | country_name == base_country
     ) %>%
-    select(country_name, all_of(vars), lac6, oecd, structural) %>%
-    pivot_longer(cols = vars,
-                 names_to = "variable") %>%
+    select(
+      country_name, all_of(vars)
+    )
+
+  quantiles_group <- comparison_list %>%
+    select(country_name,group) %>%
+    right_join(quantiles, by = c("country_name")) %>%
+    pivot_longer(cols = all_of(vars), names_to = "variable") %>%
     filter(! variable %in% na_indicators$missing_var) %>%
     left_join(variable_names,
               by = "variable") %>%
     filter(!is.na(value)) %>%
-    group_by(country_name, variable, var_name, lac6, oecd, structural) %>%
+    group_by(
+      country_name, variable, var_name, group
+    ) %>%
     summarise(dtf = mean(value)) %>%
     group_by(variable,var_name) %>%
     mutate(
@@ -53,5 +73,7 @@ def_quantiles <- function(data, base_country, comparison_countries, vars, variab
         dtf > q50 ~ "Advanced"
       )
     )
+
+  return(quantiles_group)
 
 }
