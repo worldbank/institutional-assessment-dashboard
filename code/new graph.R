@@ -32,22 +32,13 @@ variable_names <-
 data <-
   read_rds(here("app",
                 "data",
-                "country_dtf.rds")) %>%
-  select(-c(resolve_insolv_overall,
-            enf_contr_overall,
-            start_bus_overall,
-            constr_perm_overall,
-            register_prop_overall,
-            protect_minority_ov,
-            pay_taxes_overall,
-            trade_borders_overall,
-            access_credit_overall))
+                "country_dtf.rds"))
 
 data[data$country_code == "COL", "oecd"] <- 1
 
 country_level_data <-
   data %>%
-  filter(lac6 == 1 | oecd == 1 | country_name == base_country)
+  filter(oecd == 1 | country_name == base_country)
 
 variables <-
   variable_names %>%
@@ -69,13 +60,13 @@ vars <-
 benchmark_data <-
   country_level_data %>%
   ungroup %>%
-  select(country_name, all_of(vars), lac6, oecd, structural) %>%
+  select(country_name, all_of(vars),  oecd) %>%
   pivot_longer(cols = vars,
                names_to = "variable") %>%
   left_join(variable_names,
             by = "variable") %>%
   filter(!is.na(value)) %>%
-  group_by(country_name, var_name, lac6, oecd, structural) %>%
+  group_by(country_name, var_name,  oecd) %>%
   summarise(dtf = mean(value)) %>%
   group_by(var_name) %>%
   mutate(

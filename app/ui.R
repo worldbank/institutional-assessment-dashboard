@@ -132,7 +132,7 @@ plot_height <- "500px"
                                        "groups",
                                        label = "Select comparison groups",
                                        choices = country_groups$group_name,
-                                       selected = "OECD members",
+                                       selected = c("OECD members", "Latin America & Caribbean"),
                                        multiple = TRUE
                                       ),
 
@@ -145,7 +145,7 @@ plot_height <- "500px"
                                                   checkboxGroupInput(
                                                     "countries",
                                                     label = NULL,
-                                                    choices = country_list$country_name %>% unique %>% sort,
+                                                    choices = country_list$country_name %>% unique %>% sort
                                                   )
                                                 )
                                        ),
