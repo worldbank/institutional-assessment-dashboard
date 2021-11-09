@@ -493,7 +493,7 @@
             ) %>%
             formatStyle("var_name","status_dtf",
                         color = "black",
-                        backgroundColor = styleEqual(c("Weak","Emerging"), c('#D55E00', '#E69F00')),
+                        backgroundColor = styleEqual(c("Weak","Emerging"), c('#D2222D', '#FFBF00')),
                         fontSize = '90%', fontWeight = 'bold') %>%
             formatStyle(
               c(3:6),
