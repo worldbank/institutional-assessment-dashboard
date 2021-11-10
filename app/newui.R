@@ -3,19 +3,12 @@ library(shinydashboard)
 library(shinycssloaders)
 library(shinyWidgets)
 library(bs4Dash)
-library(plotly)
 library(fresh)
 library(tidyverse)
-
-plot_height <- "600px"
 
 country_groups <-
   read_rds(file.path("data",
                      "wb_country_groups.rds"))
-
-variable_names <-
-  read_rds(file.path("data",
-                     "variable_names.rds"))
 
 country_list <-
   read_rds(file.path("data",
@@ -55,8 +48,7 @@ ui <-
         menuItem("Home", tabName = "home", icon = icon("home")),
         menuItem("Country benchmarking", tabName = "country", icon = icon("sort-amount-up")),
         menuItem("Aggregation of preferences", tabName = "heatmap", icon = icon("comments")),
-        menuItem("World map", tabName = "world_map", icon = icon("globe-americas")),
-        menuItem("Time trends", tabName = "trends", icon = icon("globe-americas")),
+        menuItem("Map & trends", tabName = "viz", icon = icon("chart-bar")),
         menuItem("Data", tabName = "data", icon = icon("table")),
         menuItem("Methodology", tabName = "methodology", icon = icon("book"))
       )
@@ -124,17 +116,12 @@ ui <-
           )
         ),
 
-        ## Country benchmark tab -------------------------------------------------------
+## Country benchmark tab -------------------------------------------------------
 
         tabItem(
           tabName = "country",
 
-
           bs4Card(
-            title = "Select information to display",
-            status = "success",
-            solidHeader = TRUE,
-            width = 12,
 
             fluidRow(
 
@@ -182,276 +169,142 @@ ui <-
                   width = "100%"
                 )
               )
-
-            )
-
-          ),
-
-          bs4Card(
-            title = "Select individual comparison countries",
-            width = 12,
-            status = "success",
-            collapsed = TRUE,
-
-            checkboxGroupButtons(
-              inputId = "countries",
-              individual = TRUE,
-              label = NULL,
-              choices = country_list$country_name %>% unique %>% sort,
-              checkIcon = list(
-                yes = icon("ok",
-                           lib = "glyphicon")
-              )
-            )
-          ),
-
-          bs4Card(
-            title = NULL,
-            collapsible = FALSE,
-            width = 12,
-            plotlyOutput("plot",
-                         height = plot_height)
-          )
-
-              # column(
-              #   width = 3,
-              #   downloadButton(
-              #     "report",
-              #     "Download editable report",
-              #     style = "width:100%; background-color: #204d74; color: white"
-              #   )
-              #
-              # )
-        ),
-
-        ## Trends  tab ------------------------------------------------------------
-
-
-        tabItem(
-          tabName = "trends",
-
-          box(
-            width = 11,
-            solidHeader = TRUE,
-            title = "Select indicator to visualize",
-            status = "success",
-            collapsible = TRUE,
+            ),
 
             fluidRow(
-              column(
-                width = 3,
-                pickerInput(
-                  "indicator_trends",
-                  label = "Select indicator to visualize",
-                  choices = list(
-                    `Anti-Corruption, Transparency and Accountability institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
-                    `Business environment and trade institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_mkt") %>% .$var_name),
-                    `Financial market institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
-                    `SOE Corporate Governance` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_service_del") %>% .$var_name),
-                    `Labor market institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_lab") %>% .$var_name),
-                    `Legal institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_leg") %>% .$var_name),
-                    `Political institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_pol") %>% .$var_name),
-                    `Public sector institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_publ") %>% .$var_name),
-                    `Social institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_social") %>% .$var_name)
-                  ),
-                  options = list(
-                    `live-search` = TRUE,
-                    size = 25,
-                    title = "Click to select family or indicator"
-                  ),
-                  width = "100%"
+
+              box(
+                title = "Select individual comparison countries",
+                status = "secondary",
+                width = 9,
+                collapsed = TRUE,
+                collapsible = TRUE,
+                checkboxGroupButtons(
+                  inputId = "countries",
+                  individual = TRUE,
+                  label = NULL,
+                  choices = country_list$country_name %>% unique %>% sort,
+                  checkIcon = list(
+                    yes = tags$i(class = "fa fa-check-square",
+                                 style = "color: steelblue"),
+                    no = tags$i(class = "fa fa-square-o",
+                                style = "color: steelblue")
+                  )
                 )
               ),
 
               column(
                 width = 3,
-                pickerInput(
-                  "country_trends",
-                  label = "Select a base country",
-                  choices = c("", country_list$country_name %>% unique %>% sort),
-                  selected = "Uruguay",
-                  multiple = FALSE
+                downloadButton(
+                  "report",
+                  "Download editable report",
+                  style = "width:100%; background-color: #204d74; color: white"
                 )
-              ),
 
-              column(
-                width = 3,
-                pickerInput(
-                  "group_trends",
-                  label = "Select comparison groups",
-                  choices = country_groups$group_name,
-                  selected = c("OECD members", "Latin America & Caribbean"),
-                  multiple = TRUE
-                )
-              ),
-
-              column(
-                width = 3,
-                pickerInput(
-                  "countries_trends",
-                  label = "Select comparison countries",
-                  choices = c(country_list$country_name %>% unique %>% sort),
-                  multiple = TRUE
-                )
               )
-            )
-          ),
-
-          bs4Card(
-            width = 11,
-            solidHeader = FALSE,
-            gradientColor = "primary",
-            collapsible = FALSE,
-            plotlyOutput(
-              "time_series",
-              height = plot_height
-            )
-          )
-        ),
-
-        ## Map  tab ------------------------------------------------------------
+            ),
 
 
-        tabItem(
-          tabName = "world_map",
 
-          box(
-            width = 11,
-            solidHeader = TRUE,
-            title = "Select indicator to visualize",
+            # inputId = NULL,
+            title = "Select information to be displayed",
+            # footer = NULL,
             status = "success",
-            collapsible = TRUE,
-
-            column(
-              width = 6,
-              pickerInput(
-                "vars_map",
-                label = NULL,
-                choices = list(
-                  `Anti-Corruption, Transparency and Accountability institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
-                  `Business environment and trade institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_mkt") %>% .$var_name),
-                  `Financial market institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
-                  `SOE Corporate Governance` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_service_del") %>% .$var_name),
-                  `Labor market institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_lab") %>% .$var_name),
-                  `Legal institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_leg") %>% .$var_name),
-                  `Political institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_pol") %>% .$var_name),
-                  `Public sector institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_publ") %>% .$var_name),
-                  `Social institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_social") %>% .$var_name)
-                ),
-                options = list(
-                  `live-search` = TRUE,
-                  size = 25,
-                  title = "Click to select family or indicator"
-                ),
-                width = "100%"
-              )
-            )
-          ),
-
-          bs4Card(
-            width = 11,
-            solidHeader = FALSE,
-            gradientColor = "primary",
-            collapsible = FALSE,
-            plotlyOutput(
-              "map",
-              height = plot_height
-            )
+            # elevation = NULL,
+            solidHeader = TRUE,
+            # headerBorder = TRUE,
+            gradientColor = "lightblue",
+            width = 12
+            # height = NULL,
+            # collapsible = TRUE,
+            # collapsed = FALSE,
+            # closable = FALSE,
+            # maximizable = FALSE,
+            # cardLabel = NULL,
+            # dropdownMenu = NULL,
+            # overflow = FALSE,
+            # sidebar = NULL
           )
         ),
 
-        ## Data tab --------------------------------------------------------------------
+## Data tab --------------------------------------------------------------------
 
         tabItem(
           tabName = "data",
 
-          fluidRow(
-            bs4Card(
+          bs4Card(
 
-              fluidRow(
+            fluidRow(
 
-                column(
-                  width = 5,
-                  radioGroupButtons(
-                    "data",
-                    label = "Select a dataset",
-                    choices = c("Closeness to frontier",
-                                "Compiled indicators"),
-                    selected = "Closeness to frontier",
-                    justified = TRUE,
-                    checkIcon = list(
-                      yes = icon("ok",
-                                 lib = "glyphicon")
-                    )
-                  )
-                ),
-
-                column(
-                  width = 4,
-                  pickerInput(
-                    "vars",
-                    label = "Select institutional families to include",
-                    choices = names(definitions),
-                    selected = names(definitions),
-                    multiple = TRUE,
-                    options = list(`actions-box` = TRUE)
-                  )
-                ),
-
-                column(
-                  width = 3,
-                  materialSwitch(
-                    inputId = "show_rank",
-                    label = "Show rank variables",
-                    value = FALSE,
-                    status = "success"
-                  )
+              column(
+                width = 3,
+                shinyWidgets::radioGroupButtons(
+                  "data",
+                  label = "Select a dataset",
+                  choices = c("Closeness to frontier",
+                              "Compiled indicators"),
+                  justified = TRUE
                 )
-
               ),
 
-              title = "Select information to display",
-              status = "success",
-              width = 9,
-              collapsed = TRUE
+              column(
+                width = 4,
+                pickerInput(
+                  "family",
+                  label = "Select institutional families to include",
+                  choices = names(definitions),
+                  selected = names(definitions),
+                  multiple = TRUE,
+                  options = list(`actions-box` = TRUE)
+                )
+              ),
 
+              column(
+                width = 2,
+                materialSwitch(
+                  inputId = "show_rank",
+                  label = "Show rank variables",
+                  value = FALSE,
+                  status = "success"
+                )
+              ),
 
-            ),
+              column(
+                width = 1,
+                downloadButton(
+                  "download_global_rds",
+                  ".rds",
+                  style = "width:100%; background-color: #204d74; color: white"
+                )
+              ),
 
+              column(
+                width = 1,
+                downloadButton(
+                  "download_global_csv",
+                  ".csv",
+                  style = "width:100%; background-color: #204d74; color: white"
+                )
+              ),
 
-            column(
-              width = 1,
-              downloadButton(
-                "download_global_rds",
-                ".rds",
-                style = "width:100%; background-color: #204d74; color: white"
+              column(
+                width = 1,
+                downloadButton(
+                  "download_global_dta",
+                  ".dta",
+                  style = "width:100%; background-color: #204d74; color: white"
+                )
               )
             ),
 
-            column(
-              width = 1,
-              downloadButton(
-                "download_global_csv",
-                ".csv",
-                style = "width:100%; background-color: #204d74; color: white"
-              )
-            ),
+            status = "success",
+            width = 12,
+            collapsible = FALSE
 
-            column(
-              width = 1,
-              downloadButton(
-                "download_global_dta",
-                ".dta",
-                style = "width:100%; background-color: #204d74; color: white"
-              )
-            )
-          ),
-
-          dataTableOutput("benchmark_datatable")
-
+          )
         ),
 
-        ## Methodology tab -------------------------------------------------------------
+## Methodology tab -------------------------------------------------------------
 
         tabItem(
           tabName = "methodology",
@@ -557,3 +410,8 @@ ui <-
       )
     )
   )
+
+server <- function(input, output) { }
+
+shinyApp(ui, server)
+

@@ -62,12 +62,8 @@
     read_rds(file.path("data",
                        "raw_data.rds")) %>%
     filter(year >= 1990,
-           rowSums(!is.na(raw_data)) > 3) %>%
+           rowSums(!is.na(.)) > 3) %>%
     rename(Year = year)
-
-
-  raw_data <-
-    raw_data[, ]
 
   # Metadata
   variable_names <-
@@ -409,7 +405,7 @@
                                          "hoverCompareCartesian"),
               toImageButtonOptions= list(filename = paste0("trends_",
                                                            tolower(input$country_trends),"_",
-                                                           tolower(stringr::str_replace_all(input$indicator_trends,"\\s","_"))))
+                                                           tolower(input$indicator_trends)))
             )
         }
 
@@ -553,12 +549,11 @@
                      as.character(variable_names$var_name),
                      skip_absent = TRUE),
           rownames = FALSE,
-          filter = 'top',
+          filter = 'none',
           options = list(scrollX = TRUE,
-                         pageLength = 13,
-                         fixedColumns = TRUE,
+                         pageLength = 10,
                          autoWidth = TRUE,
-                         dom = "lBtipr"))
+                         dom = "lftipr"))
 
       })
 
