@@ -262,7 +262,7 @@ plot_height <- "600px"
                                      pickerInput(
                                        "indicator_trends",
                                        label = "Select the indicators",
-                                       multiple = TRUE,
+                                       multiple = FALSE,
                                        choices = list(
                                          `Anti-Corruption, Transparency and Accountability institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
                                          `Business environment and trade institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_mkt") %>% .$var_name),

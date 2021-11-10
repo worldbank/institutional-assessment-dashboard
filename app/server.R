@@ -383,7 +383,10 @@
                          input$countries_trends,
                          input$group_trends)
             ) +
-            scale_alpha_identity()
+            scale_alpha_identity() +
+            theme(
+              axis.text.x = element_text(angle = 90)
+            )
 
           ggplotly(static_plot, tooltip = "text") %>%
             layout(
