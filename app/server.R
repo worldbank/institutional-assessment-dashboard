@@ -15,7 +15,7 @@
 
 # Inputs ################################################################################
 
-  # Auxiliary functions -----------------------------------------------------------------
+  ## Auxiliary functions -----------------------------------------------------------------
 
   source(file.path("auxiliary",
                    "vars-by-family.R"))
@@ -27,11 +27,11 @@
   source(file.path("auxiliary",
                    "fun_family_data.R"))
 
+  # Create benchmark graphs
   source(file.path("auxiliary",
                    "plots.R"))
 
-  # Data sets ---------------------------------------------------------------------------
-
+  ## Data sets ---------------------------------------------------------------------------
 
   # Indicator definitions
   definitions <-
@@ -47,8 +47,6 @@
     read_rds(file.path("data",
                        "country_dtf.rds"))
 
-  global_data <- global_data
-
   family_level_data <-
     read_rds(file.path("data",
                        "dtf_family_level.rds"))
@@ -63,11 +61,13 @@
   raw_data <-
     read_rds(file.path("data",
                        "raw_data.rds")) %>%
-    filter(year >= 1990) %>%
+    filter(year >= 1990,
+           rowSums(!is.na(raw_data)) > 3) %>%
     rename(Year = year)
 
+
   raw_data <-
-    raw_data[rowSums(!is.na(raw_data)) > 3, ]
+    raw_data[, ]
 
   # Metadata
   variable_names <-
@@ -88,16 +88,14 @@
 
    # Handle inputs ======================================================================
 
-    # Base country
+    ## Base country ------------------------------------------------------------
     base_country <-
       eventReactive(
         input$select,
         input$country
       )
 
-    observeEvent(input$show_def, {print(input$show_Def)})
-
-    # Comparison countries
+    ## Comparison countries ----------------------------------------------------
     observeEvent(input$groups,
                   {
                       selected_groups  <- input$groups
@@ -137,7 +135,7 @@
       )
 
 
-    # Triggered by comparison countries: names of countries selected and action button
+    ## Validate options -------------------------------------------------------
     observeEvent(input$countries,
 
                  {
@@ -158,7 +156,9 @@
                  ignoreNULL = FALSE
     )
 
-    # Benchmark data
+    # Reactive objects ==============================================
+
+    ## Benchmark data -----------------------------------------------
     data <-
       eventReactive(input$select,
 
@@ -177,27 +177,26 @@
                     }
       )
 
-    # Browse data
+    ## Browse data -------------------------------------------------------------
     browse_data <-
       eventReactive(input$data,
 
                     {
                       selected_data <- input$data
 
-                      if (selected_data=="Closeness to frontier") {
+                      if (selected_data == "Closeness to frontier") {
                         return(global_data)
                       }
 
-                      if (selected_data=="Compiled indicators") {
+                      if (selected_data == "Compiled indicators") {
                         return(raw_data)
                       }
 
                     }
       )
 
-   # Plots =============================================================================
+   # Benchmark plot ============================================================
 
-    # Overview
     output$plot <-
       renderPlotly({
 
@@ -295,7 +294,7 @@
 
       })
 
-   # Trends =====================================================================================
+   # Trends plot ===============================================================
 
     var_trends <-
       eventReactive(input$indicator_trends,
@@ -416,7 +415,7 @@
 
       })
 
-    # Aggregation of preferences ================================================================================
+    # Aggregation of preferences ===============================================
     observeEvent(input$select_pref,{
 
       variable_names <-
@@ -427,14 +426,6 @@
                variable = family_var) %>%
         unique
 
-      #data <-
-      #  family_level_data %>%
-      #  def_quantiles(
-      #    input$country_pref,
-      #    input$countries,
-      #    variable_names$variable
-      #  )  %>%
-      #  left_join(variable_names) %>%
       data <-
         family_data(
           global_data,
@@ -448,7 +439,6 @@
           variable_names$variable,
           variable_names
         )  %>%
-        #data <- quantiles_group %>%
         filter(country_name == input$country_pref) %>%
         ungroup() %>%
         select(var_name, status_dtf) %>%
@@ -519,7 +509,7 @@
 
     })
 
-   # Data table =================================================================================
+   # Data table ================================================================
 
     output$benchmark_datatable <-
       renderDataTable(server = FALSE, {
