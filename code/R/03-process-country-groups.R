@@ -17,6 +17,11 @@
                   "wb_country_list.csv")) %>%
     rename(country_name = country)
 
+  extra_groups <- read_rds(here("data",
+                                "data_cleaned",
+                                "extra_groups.rds")) %>%
+    labelled::remove_labels()
+
 
   group_codes <-
     c("EUU",
@@ -45,6 +50,23 @@
     select(group_code,
            group_name) %>%
     unique
+
+  lac6 <- extra_groups %>%
+    filter(lac6==1) %>%
+    select(country_code,country_name) %>%
+    mutate(
+      group_code="LAC6",
+      group="LAC6"
+    )
+
+  country_list <-
+    country_list %>%
+    bind_rows(lac6)
+
+  groups <- bind_rows(
+    groups,
+    data.frame(group_code=c("LAC6"),group_name=c("LAC6"))
+  )
 
 # 3 Save datasets ###########################################################################
 

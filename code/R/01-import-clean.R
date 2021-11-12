@@ -87,6 +87,15 @@ data_cleaned <- data_original %>%
     country_name = ifelse(country_name == "tmp", "Timor-Leste", country_name)
   )
 
+extra_groups <- data_cleaned %>%
+  select(country_name,country_code, lac,lac6,structural) %>%
+  unique
+
+write_rds(extra_groups,
+          here("data",
+               "data_cleaned",
+               "extra_groups.rds"))
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # CHOOSE INDICATORS OF INTEREST --------------------------
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
