@@ -328,14 +328,54 @@
    # Trends plot ===============================================================
 
     var_trends <-
-      eventReactive(input$indicator_trends,
-                    {
-                      var_selected <-
-                        variable_names %>%
-                        filter(var_name == input$indicator_trends) %>%
-                        .$variable
-                    }
+      eventReactive(
+        input$indicator_trends,
+
+        {
+          var_selected <-
+            variable_names %>%
+            filter(var_name == input$indicator_trends) %>%
+            .$variable
+        }
       )
+
+    observeEvent(
+      input$indicator_trends,
+
+      {
+        valid_countries <-
+          raw_data %>%
+          filter(!is.na(get(var_trends()))) %>%
+          select(country_name) %>%
+          unique %>%
+          arrange(country_name) %>%
+          unlist %>%
+          unname
+
+        last_country <-
+          input$country_trends
+
+        updatePickerInput(
+          session,
+          "country_trends",
+          choices = valid_countries,
+          selected = last_country
+        )
+
+        last_countries <-
+          input$countries_trends
+
+        updatePickerInput(
+          session,
+          "countries_trends",
+          choices = valid_countries,
+          selected = last_countries
+        )
+      },
+
+      ignoreNULL = FALSE
+    )
+
 
     data_trends <-
       reactive({
