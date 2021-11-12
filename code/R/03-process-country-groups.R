@@ -63,10 +63,18 @@
     country_list %>%
     bind_rows(lac6)
 
-  groups <- bind_rows(
-    groups,
-    data.frame(group_code=c("LAC6"),group_name=c("LAC6"))
-  )
+  groups <- groups %>%
+    bind_rows(
+      data.frame(group_code=c("LAC6"),group_name=c("LAC6"))
+    ) %>%
+    mutate(
+      group_category = case_when(
+        group_code %in% c("HIC","LIC","LMC","LMY","MIC","UMC") ~ "Income",
+        group_code %in% c("OED","LAC6","EUU") ~ "Economic",
+        TRUE ~ "Region"
+      )
+    )
+
 
 # 3 Save datasets ###########################################################################
 

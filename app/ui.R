@@ -180,9 +180,16 @@ ui <-
                 pickerInput(
                   "groups",
                   label = "Select comparison groups",
-                  choices = country_groups$group_name,
+                  choices = list(
+                    `Economic` = c(country_groups %>% filter(group_category=="Economic") %>% .$group_name),
+                    `Region` = c(country_groups %>% filter(group_category=="Region") %>% .$group_name),
+                    `Income` = c(country_groups %>% filter(group_category=="Income") %>% .$group_name)
+                  ),
                   selected = c("OECD members", "Latin America & Caribbean"),
-                  multiple = TRUE
+                  multiple = TRUE,
+                  options = list(
+                    size = 15
+                  )
                 )
               ),
 
