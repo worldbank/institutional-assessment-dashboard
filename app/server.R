@@ -663,19 +663,29 @@
 
     output$report <- downloadHandler(
 
-      filename = "instutitional-assessment-report.docx",
+      filename = paste0(
+        str_to_lower(input$country),
+        "-instutitional-assessment-report.docx"
+      ),
+
       content = function(file) {
 
-        file.copy("report.Rmd", "tempReport.Rmd", overwrite = TRUE)
+        tempReport <- file.path(tempdir(), "report.Rmd")
+        file.copy("report.Rmd", tempReport, overwrite = TRUE)
 
-        params <- list(base_country = base_country(),
-                       comparison_countries = input$countries,
-                       data = data())
+        params <-
+          list(
+            base_country = base_country(),
+            comparison_countries = input$countries,
+            data = data()
+          )
 
-        rmarkdown::render("tempReport.Rmd",
-                          output_file = file,
-                          params = params,
-                          envir = new.env(parent = globalenv())
+        rmarkdown::render(
+          tempReport,
+          output_file = file,
+          params = params,
+          envir = new.env(parent = globalenv()),
+          knit_root_dir = getwd()
         )
       }
     )

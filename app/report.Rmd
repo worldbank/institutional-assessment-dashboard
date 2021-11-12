@@ -57,18 +57,18 @@ knitr::opts_chunk$set(
 Base country: `r params$base_country`
 
 ```{r, echo = FALSE}
-      data <-
-        family_level_data %>%
-        def_quantiles(
-          params$base_country,
-          params$comparison_countries,
-          variable_names$variable
-        )  %>%
-        left_join(variable_names)
-
-      data %>%
-        static_plot(params$base_country,
-                    "Country overview")
+      # data <-
+      #   family_level_data %>%
+#         def_quantiles(  
+#           params$base_country,
+#           params$comparison_countries,
+#           variable_names$variable
+#         ) %>%
+#         left_join(variable_names)
+# 
+#       data %>%
+#         static_plot(params$base_country,
+#                     "Country overview")
 
 ```
 
