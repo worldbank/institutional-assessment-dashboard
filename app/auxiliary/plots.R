@@ -17,10 +17,12 @@ static_plot <-
     ggplot() +
       geom_segment(
         data = data,
-        aes(y = var_name,
-            yend = var_name,
-            x = 0,
-            xend = q25),
+        aes(
+          y = var_name,
+          yend = var_name,
+          x = 0,
+          xend = q25
+        ),
         color = "#e47a81",
         size = 2,
         alpha = .1
@@ -33,29 +35,37 @@ static_plot <-
       ) +
       geom_segment(
         data = data,
-        aes(y = var_name,
-            yend = var_name,
-            x = q25,
-            xend = q50),
+        aes(
+          y = var_name,
+          yend = var_name,
+          x = q25,
+          xend = q50
+        ),
         color = "#ffd966",
         size = 2,
         alpha = .3
       ) +
       geom_segment(
         data = data,
-        aes(y = var_name,
-            yend = var_name,
-            x = q50,
-            xend = 1),
+        aes(
+          y = var_name,
+          yend = var_name,
+          x = q50,
+          xend = 1
+        ),
         color = "#8ec18e",
         size = 2,
         alpha = .3
       ) +
       geom_point(
         data = data %>% filter(country_name == base_country),
-        aes(y = var_name,
-            x = dtf,
-            fill = status_dtf),
+        aes(
+          y = var_name,
+          x = dtf,
+          fill = status_dtf,
+          text = paste("Country:", base_country,"<br>",
+                       "Closeness to frontier:", round(dtf, 3))
+        ),
         size = 3,
         shape = 21,
         color = "gray0"
@@ -74,16 +84,16 @@ static_plot <-
       scale_fill_manual(
         values = colors
       ) +
-      labs(title = paste0(tab_name))
+      labs(title = paste0("<b>", tab_name, "</b>"))
 
   }
 
 interactive_plot <-
-  function(x, y, z, tab_name) {
+  function(x, y, z, tab_name, buttons) {
     x %>%
       ggplotly(tooltip = "text") %>%
       layout(
-        margin = list(l=50, r=50, t=75, b=140),
+        margin = list(l = 50, r = 50, t = 75, b = 150),
         annotations =
           list(x = 0, y = -0.4,
                text = paste0("<b>Notes:</b> ", y, " compared to ", paste(z, collapse = ", "), ".",
@@ -96,16 +106,7 @@ interactive_plot <-
           )
       ) %>%
       config(
-        modeBarButtonsToRemove = c("zoomIn2d",
-                                   "zoomOut2d",
-                                   "pan2d",
-                                   "autoScale2d",
-                                   "lasso2d",
-                                   "select2d",
-                                   "toggleSpikelines",
-                                   "hoverClosest3d",
-                                   "hoverClosestCartesian",
-                                   "hoverCompareCartesian"),
+        modeBarButtonsToRemove = buttons,
         toImageButtonOptions= list(filename = paste0(tolower(stringr::str_replace_all(tab_name,"\\s","_"))),
                                    width = 1100,
                                    height =  1000)
@@ -113,15 +114,17 @@ interactive_plot <-
   }
 
 interactive_map <-
-  function(x, title) {
+  function(x, title, buttons) {
     x %>%
       ggplotly(tooltip = "text") %>%
       layout(
         legend = list(
-          title=list(text='<b>Closeness to\nfrontier:</b>'),
-          y=0.5
+          title = list(text = '<b>Closeness to\nfrontier:</b>'),
+          y = 0.5
         ),
-        margin = list(t=75,b=125),
+        margin = list(t = 75, b = 125),
+        xaxis = list(visible = FALSE),
+        yaxis = list(visible = FALSE),
         annotations =
           list(x = 0, y = -0.2,
                text = map(paste0("<b>Disclaimer:</b> Country borders or names do not necessarily reflect the World Bank Group's official position.",
@@ -135,12 +138,7 @@ interactive_map <-
           )
       ) %>%
       config(
-        modeBarButtonsToRemove = c(
-          "hoverClosestCartesian",
-          "toggleSpikelines",
-          "hoverClosest3d",
-          "hoverCompareCartesian"
-        ),
+        modeBarButtonsToRemove = buttons,
         toImageButtonOptions= list(filename = paste0(tolower(stringr::str_replace_all(title,"\\s","_")),"_map"),
                                    width = 1050,
                                    height =  675)

@@ -1,29 +1,46 @@
+# Inputs ###########################################################################
+
+## Packages --------------------------------------------------------------------
+
 library(shiny)
-library(shinydashboard)
-library(shinycssloaders)
+library(shinyBS)
 library(shinyWidgets)
-library(bs4Dash)
+library(bslib)
+library(DT)
+library(shinyjs)
 library(plotly)
-library(fresh)
 library(tidyverse)
 
+# Inputs ################################################################################
+
 plot_height <- "600px"
+
+# Data sets ---------------------------------------------------------------------------
 
 country_groups <-
   read_rds(file.path("data",
                      "wb_country_groups.rds"))
 
-variable_names <-
+definitions <-
   read_rds(file.path("data",
-                     "variable_names.rds"))
+                     "indicator_definitions.rds"))
 
 country_list <-
   read_rds(file.path("data",
                      "wb_country_list.rds"))
 
-definitions <-
+variable_names <-
   read_rds(file.path("data",
-                     "indicator_definitions.rds"))
+                     "variable_names.rds"))
+
+global_data <-
+  read_rds(file.path("data",
+                     "country_dtf.rds"))
+
+# Auxiliary functions -----------------------------------------------------------------
+
+source(file.path("auxiliary",
+                 "vars-by-family.R"))
 
 # UI ###########################################################################
 
@@ -56,7 +73,7 @@ ui <-
         menuItem("Country benchmarking", tabName = "country", icon = icon("sort-amount-up")),
         menuItem("Aggregation of preferences", tabName = "heatmap", icon = icon("comments")),
         menuItem("World map", tabName = "world_map", icon = icon("globe-americas")),
-        menuItem("Time trends", tabName = "trends", icon = icon("globe-americas")),
+        menuItem("Time trends", tabName = "trends", icon = icon("chart-line")),
         menuItem("Data", tabName = "data", icon = icon("table")),
         menuItem("Methodology", tabName = "methodology", icon = icon("book"))
       )
@@ -173,7 +190,7 @@ ui <-
               ),
 
               column(
-                width = 1,
+                width = 2,
                 actionButton(
                   "select",
                   "Apply selection",
@@ -181,8 +198,17 @@ ui <-
                   class = "btn-success",
                   width = "100%"
                 )
-              )
+              ),
 
+              column(
+                width = 2,
+                downloadButton(
+                  "report",
+                  "Download editable report",
+                  style = "width:100%; background-color: #204d74; color: white"
+                )
+
+              )
             )
 
           ),
@@ -197,7 +223,7 @@ ui <-
               inputId = "countries",
               individual = TRUE,
               label = NULL,
-              choices = country_list$country_name %>% unique %>% sort,
+              choices = global_data$country_name %>% unique %>% sort,
               checkIcon = list(
                 yes = icon("ok",
                            lib = "glyphicon")
@@ -209,19 +235,14 @@ ui <-
             title = NULL,
             collapsible = FALSE,
             width = 12,
-            plotlyOutput("plot",
-                         height = plot_height)
+            conditionalPanel(
+              "input.select !== 0",
+              plotlyOutput(
+                "plot",
+                height = plot_height
+              )
+            )
           )
-
-              # column(
-              #   width = 3,
-              #   downloadButton(
-              #     "report",
-              #     "Download editable report",
-              #     style = "width:100%; background-color: #204d74; color: white"
-              #   )
-              #
-              # )
         ),
 
         ## Trends  tab ------------------------------------------------------------
@@ -302,9 +323,13 @@ ui <-
             solidHeader = FALSE,
             gradientColor = "primary",
             collapsible = FALSE,
-            plotlyOutput(
-              "time_series",
-              height = plot_height
+
+            conditionalPanel(
+              "input.indicator_trends !== ''",
+              plotlyOutput(
+                "time_series",
+                height = plot_height
+              )
             )
           )
         ),
@@ -353,9 +378,13 @@ ui <-
             solidHeader = FALSE,
             gradientColor = "primary",
             collapsible = FALSE,
-            plotlyOutput(
-              "map",
-              height = plot_height
+
+            conditionalPanel(
+              "input.vars_map !== ''",
+              plotlyOutput(
+                "map",
+                height = plot_height
+              )
             )
           )
         ),

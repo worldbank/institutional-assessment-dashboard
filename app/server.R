@@ -15,6 +15,18 @@
 
 # Inputs ################################################################################
 
+  plotly_remove_buttons <-
+    c("zoomIn2d",
+      "zoomOut2d",
+      "pan2d",
+      "autoScale2d",
+      "lasso2d",
+      "select2d",
+      "toggleSpikelines",
+      "hoverClosest3d",
+      "hoverClosestCartesian",
+      "hoverCompareCartesian")
+
   ## Auxiliary functions -----------------------------------------------------------------
 
   source(file.path("auxiliary",
@@ -167,9 +179,7 @@
                           input$groups,
                           vars_all,
                           variable_names
-                        ) #%>%
-                        #left_join(variable_names)
-
+                        )
                     }
       )
 
@@ -194,7 +204,6 @@
    # Benchmark plot ============================================================
 
     output$plot <-
-      renderPlotly({
 
         if (input$family == "Overview") {
 
@@ -281,11 +290,13 @@
                          "0.8 - 1.0" = "#009E73",
                          "Not available" = "#808080"),
               na.value = "#808080",
-              drop=F) +
+              drop = F) +
             labs(title = paste0("<b>",input$vars_map,"</b>")) +
-            theme_ipsum()
+            theme_void()
 
-          interactive_map(map, input$vars_map)
+          interactive_map(map,
+                          input$vars_map,
+                          plotly_remove_buttons)
         }
 
       })
@@ -357,6 +368,7 @@
                    aes_string(x = "Year",
                               y = var_trends(),
                               color = "Country",
+                              group = "Country",
                               alpha = "alpha")) +
             geom_point(aes(text = paste("Country:", Country, "<br>",
                                         "Year:", Year, "<br>",
@@ -383,27 +395,14 @@
           ggplotly(static_plot, tooltip = "text") %>%
             layout(
               legend = list(
-                title=list(text='<b>Country:</b>'),
-                #orientation="h",
-                #yanchor="bottom",
-                y=0.5
-                #xanchor="right",
-                #x=1
+                title = list(text = '<b>Country:</b>'),
+                y = 0.5
               ),
-              margin = list(l=50, r=50, t=75, b=135)
+              margin = list(l = 50, r = 50, t = 75, b = 135)
             ) %>%
             config(
-              modeBarButtonsToRemove = c("zoomIn2d",
-                                         "zoomOut2d",
-                                         "pan2d",
-                                         "autoScale2d",
-                                         "lasso2d",
-                                         "select2d",
-                                         "toggleSpikelines",
-                                         "hoverClosest3d",
-                                         "hoverClosestCartesian",
-                                         "hoverCompareCartesian"),
-              toImageButtonOptions= list(filename = paste0("trends_",
+              modeBarButtonsToRemove = plotly_remove_buttons,
+              toImageButtonOptions = list(filename = paste0("trends_",
                                                            tolower(input$country_trends),"_",
                                                            tolower(input$indicator_trends)))
             )
@@ -597,6 +596,7 @@
    # Report ================================================================================
 
     output$report <- downloadHandler(
+
       filename = "instutitional-assessment-report.docx",
       content = function(file) {
 

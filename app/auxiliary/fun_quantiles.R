@@ -4,14 +4,6 @@
 
 def_quantiles <- function(data, base_country, country_list, selected_groups, vars, variable_names) {
 
-  #base_country <- "Uruguay"
-
-  #data <- global_data
-  #vars <- vars_mkt
-
-  #vars <- family_names
-  #data <- dtf_family_level
-
   comparison_list <-
     country_list %>%
     #filter(group %in% c("OECD members"))
