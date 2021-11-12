@@ -55,14 +55,14 @@ def_quantiles <- function(data, base_country, country_list, selected_groups, var
       r25 = floor(n * .25) / n,
       r50 = floor(n * .5) / n,
       status_dtt = case_when(
-        dtt <= .25 ~ "Weak",
-        dtt > .25 & dtt <= .50 ~ "Emerging",
-        dtt > .50 ~ "Advanced"
+        dtt <= .25 ~ "Weak\n(bottom 25%)",
+        dtt > .25 & dtt <= .50 ~ "Emerging\n(25% - 50%)",
+        dtt > .50 ~ "Advanced\n(top 50%)"
       ),
       status_dtf = case_when(
-        dtf <= q25 ~ "Weak",
-        dtf > q25 & dtf <= q50 ~ "Emerging",
-        dtf > q50 ~ "Advanced"
+        dtf <= q25 ~ "Weak\n(bottom 25%)",
+        dtf > q25 & dtf <= q50 ~ "Emerging\n(25% - 50%)",
+        dtf > q50 ~ "Advanced\n(top 50%)"
       )
     )
 

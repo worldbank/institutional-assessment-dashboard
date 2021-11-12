@@ -9,9 +9,9 @@ static_plot <-
                            levels = sort(unique(data$var_name), decreasing = TRUE),
                            ordered = TRUE)
     colors <-
-      c("Weak" = "#D2222D",
-        "Emerging" = "#FFBF00",
-        "Advanced" = "#238823"
+      c("Weak\n(bottom 25%)" = "#D2222D",
+        "Emerging\n(25% - 50%)" = "#FFBF00",
+        "Advanced\n(top 50%)" = "#238823"
       )
 
     ggplot() +
@@ -96,8 +96,7 @@ interactive_plot <-
         margin = list(l = 50, r = 50, t = 75, b = 150),
         annotations =
           list(x = 0, y = -0.4,
-               text = paste0("<b>Notes:</b> ", y, " compared to ", paste(z, collapse = ", "), ".",
-                             "<br>Weak = bottom 25%; Emerging = 25%-50%; Advanced = top 50%."),
+               text = paste0("<b>Notes:</b> ", y, " compared to ", paste(z, collapse = ", "), "."),
                showarrow = F,
                xref = 'paper',
                yref = 'paper',
