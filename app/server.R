@@ -104,44 +104,50 @@
       )
 
     ## Comparison countries ----------------------------------------------------
-    observeEvent(input$groups,
-                  {
-                      selected_groups  <- input$groups
-                      selected_country <- input$country
+    observeEvent(
+      input$groups,
 
-                      # Can use character(0) to remove all choices
-                      if (is.null(selected_groups)) {
-                        selected <- NULL
-                      } else {
-                        selected <-
-                          country_list %>%
-                          filter(group %in% selected_groups) %>%
-                          select(country_name) %>%
-                          unique
+      {
+        selected_groups  <- input$groups
+        selected_country <- input$country
 
-                        if (!is.null(selected_country)) {
-                          selected <-
-                            selected %>%
-                            filter(country_name != selected_country)
-                        }
+        # Can use character(0) to remove all choices
+        if (is.null(selected_groups)) {
+          selected <- NULL
+        } else {
+          selected <-
+            country_list %>%
+            filter(group %in% selected_groups) %>%
+            select(country_name) %>%
+            unique
 
-                        selected <-
-                          selected %>%
-                          pluck(1)
+          if (!is.null(selected_country)) {
+            selected <-
+              selected %>%
+              filter(country_name != selected_country)
+          }
 
-                      }
+          selected <-
+            selected %>%
+            pluck(1)
 
-                      updatePickerInput(session,
-                                        "countries",
-                                        label = NULL,
-                                        choices = global_data$country_name %>% unique,
-                                        selected = selected
-                      )
-                    },
+        }
 
-                    ignoreNULL = FALSE
-      )
+        updateCheckboxGroupButtons(
+          session,
+          "countries",
+          label = NULL,
+          choices = global_data$country_name %>% unique %>% sort,
+          checkIcon = list(
+            yes = icon("ok",
+                       lib = "glyphicon")
+          ),
+          selected = selected
+        )
+      },
 
+      ignoreNULL = FALSE
+    )
 
     ## Validate options -------------------------------------------------------
     observeEvent(input$countries,
