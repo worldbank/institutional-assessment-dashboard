@@ -2,7 +2,6 @@
 # Load packages ###########################################################################
 
   library(shiny)
-  library(shinyjs)
   library(tidyverse)
   library(DT)
   library(data.table)
@@ -11,6 +10,7 @@
   library(hrbrthemes)
   library(stringr)
   library(grDevices)
+  library(shinyjs)
 
 
 # Inputs ################################################################################
@@ -150,24 +150,34 @@
     )
 
     ## Validate options -------------------------------------------------------
-    observeEvent(input$countries,
+    observeEvent(
+      input$countries,
 
-                 {
-                   # Can also set the label and select items
-                   toggleState(id = "select",
-                               condition = length(input$countries) >= 10)
-                 },
+       {
+         print(input$countries)
+         toggleState(
+           id = "select",
+           condition = length(input$countries) >= 10
+         )
+         length(input$countries)
+         print(input$select)
+       },
 
-                 ignoreNULL = FALSE
+       ignoreNULL = FALSE
     )
 
 
-    observeEvent(input$select,
-                 {
-                   toggleState(id = "report",
-                               condition = input$select == 1)
-                 },
-                 ignoreNULL = FALSE
+    observeEvent(
+      input$select,
+
+      {
+        toggleState(
+          id = "report",
+          condition = input$select
+        )
+      },
+
+      ignoreNULL = FALSE
     )
 
     # Reactive objects ==============================================

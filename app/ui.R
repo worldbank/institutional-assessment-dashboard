@@ -7,9 +7,9 @@ library(shinyBS)
 library(shinyWidgets)
 library(bslib)
 library(DT)
-library(shinyjs)
 library(plotly)
 library(tidyverse)
+library(shinyjs)
 
 # Inputs ################################################################################
 
@@ -145,7 +145,7 @@ ui <-
 
         tabItem(
           tabName = "country",
-
+          useShinyjs(),
 
           bs4Card(
             title = "Select information to display",
