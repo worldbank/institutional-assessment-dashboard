@@ -154,13 +154,10 @@
       input$countries,
 
        {
-         print(input$countries)
          toggleState(
            id = "select",
            condition = length(input$countries) >= 10
          )
-         length(input$countries)
-         print(input$select)
        },
 
        ignoreNULL = FALSE
@@ -184,96 +181,107 @@
 
     ## Benchmark data -----------------------------------------------
     data <-
-      eventReactive(input$select,
+      eventReactive(
+        input$select,
 
-                    {
-                      data <-
-                        global_data %>%
-                        def_quantiles(
-                          base_country(),
-                          country_list,
-                          input$groups,
-                          vars_all,
-                          variable_names
-                        )
-                    }
+        {
+          data <-
+            global_data %>%
+            def_quantiles(
+              base_country(),
+              country_list,
+              input$groups,
+              vars_all,
+              variable_names
+            )
+        }
       )
 
     ## Browse data -------------------------------------------------------------
     browse_data <-
-      eventReactive(input$data,
+      eventReactive(
+        input$data,
 
-                    {
-                      selected_data <- input$data
+        {
+          selected_data <- input$data
 
-                      if (selected_data == "Closeness to frontier") {
-                        return(global_data)
-                      }
+          if (selected_data == "Closeness to frontier") {
+            return(global_data)
+          }
 
-                      if (selected_data == "Compiled indicators") {
-                        return(raw_data)
-                      }
-
-                    }
+          if (selected_data == "Compiled indicators") {
+            return(raw_data)
+          }
+        }
       )
 
    # Benchmark plot ============================================================
 
     output$plot <-
+      renderPlotly({
 
-        if (input$family == "Overview") {
+        input$select
 
-          variable_names <-
-            variable_names %>%
-            select(family_var,
-                   family_name) %>%
-            rename(var_name = family_name,
-                   variable = family_var) %>%
-            unique
+        isolate(
 
-          data <-
-            family_data(
-              global_data,
-              base_country(),
-              input$groups
-            ) %>%
-            def_quantiles(
-              base_country(),
-              country_list,
-              input$groups,
-              variable_names$variable,
-              variable_names
-            )  %>%
-            left_join(variable_names)
+          if (input$family == "Overview") {
 
-          data %>%
-            static_plot(base_country(),
-                        input$family) %>%
-            interactive_plot(base_country(),
-                             input$groups,
-                             input$family)
-        } else {
+            variable_names <-
+              variable_names %>%
+              select(family_var,
+                     family_name) %>%
+              rename(var_name = family_name,
+                     variable = family_var) %>%
+              unique
 
-          vars <-
-            if (input$family == "Labor market institutions") {vars_lab} else
-              if (input$family == "Financial market institutions") {vars_fin} else
-                if (input$family == "Legal institutions") {vars_leg} else
-                  if (input$family == "Political institutions") {vars_pol} else
-                    if (input$family == "Social institutions") {vars_social} else
-                      if (input$family == "Business environment and trade institutions") {vars_mkt} else
-                        if (input$family == "Public sector performance institutions") {vars_publ} else
-                          if (input$family == "SOE Corporate Governance") {vars_service_del} else
-                            if (input$family == "Anti-Corruption, Transparency and Accountability institutions") {vars_transp}
+            data <-
+              family_data(
+                global_data,
+                base_country()
+              ) %>%
+              def_quantiles(
+                base_country(),
+                country_list,
+                input$groups,
+                variable_names$variable,
+                variable_names
+              )  %>%
+              left_join(variable_names)
 
-          data() %>%
-            filter(variable %in% vars) %>%
-            static_plot(base_country(),
-                        input$family) %>%
-            interactive_plot(base_country(),
-                             input$groups,
-                             input$family)
-        }
-    })
+            data %>%
+              static_plot(base_country(),
+                          input$family) %>%
+              interactive_plot(base_country(),
+                               input$groups,
+                               input$family,
+                               plotly_remove_buttons)
+          } else {
+
+            vars <-
+              # case_when()
+              if (input$family == "Labor market institutions") {vars_lab} else
+                if (input$family == "Financial market institutions") {vars_fin} else
+                  if (input$family == "Legal institutions") {vars_leg} else
+                    if (input$family == "Political institutions") {vars_pol} else
+                      if (input$family == "Social institutions") {vars_social} else
+                        if (input$family == "Business environment and trade institutions") {vars_mkt} else
+                          if (input$family == "Public sector performance institutions") {vars_publ} else
+                            if (input$family == "SOE Corporate Governance") {vars_service_del} else
+                              if (input$family == "Anti-Corruption, Transparency and Accountability institutions") {vars_transp}
+
+            data() %>%
+              filter(variable %in% vars) %>%
+              static_plot(base_country(),
+                          input$family) %>%
+              interactive_plot(base_country(),
+                               input$groups,
+                               input$family,
+                               plotly_remove_buttons)
+          }
+        )
+      })
+
+
 
 
 
