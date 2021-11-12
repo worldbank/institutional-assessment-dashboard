@@ -641,7 +641,8 @@
 
             content = function(file) {
               write_csv(browse_data(),
-                        file)
+                        file,
+                        na = "")
             }
           )
 
@@ -691,7 +692,8 @@
 
         content = function(file) {
           write_csv(all_indicators,
-                    file)
+                    file,
+                    na = "")
         }
       )
 
