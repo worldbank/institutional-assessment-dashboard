@@ -286,7 +286,7 @@
 
 
 
-   # Map =======================================================================================
+   # Map =======================================================================
 
     output$map <-
       renderPlotly({
@@ -298,29 +298,10 @@
             filter(var_name == input$vars_map) %>%
             .$variable
 
-          map <-
-            ggplot(wb_country_geom_fact) +
-            geom_sf(aes(fill = get(var_selected),
-                        text = paste0(WB_NAME, ": ",
-                                      get(paste0(var_selected, "_value")))),
-                    color="black",
-                    size=0.1
-                    ) +
-            scale_fill_manual(
-              name = NULL,
-              values = c("0.0 - 0.2" = "#D55E00",
-                         "0.2 - 0.4" = "#DD7C00",
-                         "0.4 - 0.6" = "#E69F00",
-                         "0.6 - 0.8" = "#579E47",
-                         "0.8 - 1.0" = "#009E73",
-                         "Not available" = "#808080"),
-              na.value = "#808080",
-              drop = F) +
-            labs(title = paste0("<b>",input$vars_map,"</b>")) +
-            theme_void()
-
-          interactive_map(map,
-                          input$vars_map,
+          static_map(wb_country_geom_fact,
+                     var_selected,
+                     input$vars_map) %>%
+          interactive_map(input$vars_map,
                           plotly_remove_buttons)
         }
 
