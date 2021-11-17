@@ -19,30 +19,46 @@ shapes <- c(
   "Structural Median" = 24
 )
 
-base_country <- "Uruguay"
-family <- "vars_leg"
-
 # Prepare data --------------------------------------
-
-variable_names <-
-  read_rds(here("app",
-                "data",
-                "variable_names.rds"))
 
 data <-
   read_rds(here("app",
                 "data",
                 "country_dtf.rds"))
 
-data[data$country_code == "COL", "oecd"] <- 1
+data <-
+  read_rds(here("app",
+                "data",
+                "old_data.rds"))
+
+variable_names <-
+  read_rds(here("app",
+                "data",
+                "variable_names.rds"))
+
+variable_names <-
+  read_rds(here("app",
+                "data",
+                "old_variable_names.rds"))
+
+countries <-
+  read_rds(here("app",
+                "data",
+                "wb_country_list.rds")) %>%
+
+  filter(group %in% c("LAC6", "OECD members") | country_name == "Uruguay") %>%
+  select(country_name) %>%
+  unique %>%
+  unlist
 
 country_level_data <-
   data %>%
-  filter(oecd == 1 | country_name == base_country)
+  filter(country_name %in% countries)
 
 variables <-
   variable_names %>%
-  filter(family_var == family,
+  filter(
+    #    family_name == "Legal institutions",
          var_level == "indicator",
          variable %in% names(data)) %>%
   select(variable) %>%
@@ -60,14 +76,15 @@ vars <-
 benchmark_data <-
   country_level_data %>%
   ungroup %>%
-  select(country_name, all_of(vars),  oecd) %>%
+  select(country_name, all_of(vars), oecd) %>%
   pivot_longer(cols = vars,
                names_to = "variable") %>%
   left_join(variable_names,
             by = "variable") %>%
   filter(!is.na(value)) %>%
-  group_by(country_name, var_name,  oecd) %>%
+  group_by(country_name, family_name, oecd) %>%
   summarise(dtf = mean(value)) %>%
+  rename(var_name = family_name) %>%
   group_by(var_name) %>%
   mutate(
     n = n(),
@@ -120,51 +137,6 @@ benchmark_data <-
           fill = status),
       width = .2,
       alpha = .6
-    ) +
-    geom_point(
-      data = benchmark_data %>%
-        filter(oecd == 1) %>%
-        group_by(var_name) %>%
-        summarise(dtt = median(dtt, na.rm = TRUE)) %>%
-        mutate(group ="OECD Median"),
-      aes(y = var_name,
-          x = dtt,
-          shape = group,
-          fill = group,
-          color = group,
-          alpha = gr),
-      alpha = .5,
-      fill = "white",
-      color = "black",
-      size = 4
-    ) +
-    geom_point(
-      data = benchmark_data %>%
-        filter(lac6 == 1) %>%
-        group_by(var_name) %>%
-        summarise(dtt = median(dtt, na.rm = TRUE)) %>%
-        mutate(group ="LAC6 Median"),
-      aes(y = var_name,
-          x = dtt,
-          shape = group),
-      alpha = .5,
-      fill = "white",
-      color = "black",
-      size = 4
-    ) +
-    geom_point(
-      data = benchmark_data %>%
-        filter(structural == 1) %>%
-        group_by(var_name) %>%
-        summarise(dtt = median(dtt, na.rm = TRUE)) %>%
-        mutate(group ="Structural Median"),
-      aes(y = var_name,
-          x = dtt,
-          shape = group),
-      alpha = .5,
-      fill = "white",
-      color = "black",
-      size = 4
     ) +
     geom_point(
       data = benchmark_data %>% filter(country_name == base_country),
