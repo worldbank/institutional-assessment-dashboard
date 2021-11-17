@@ -2,31 +2,28 @@
 # FUNCTION THAT DEFINES THE QUANTILES BASED ON SELECTED COUNTRY AND COMPARISON GROUP -----------------------
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-def_quantiles <- function(data, base_country, country_list, selected_groups, vars, variable_names) {
+def_quantiles <- function(data, base_country, country_list, selected_groups, vars) {
 
   comparison_list <-
     country_list %>%
-    #filter(group %in% c("OECD members"))
     filter(group %in% selected_groups)
 
   na_indicators <- data %>%
     ungroup() %>%
-    #select(-c(lac,lac6,oecd)) %>%
     filter(country_name == base_country) %>%
     select(where(is.na))
 
-  #%>%
-  #  pivot_longer(cols = 1:ncol(.), names_to = "missing_var")
 
-  na_indicators <- if(length(na_indicators)==0){
-    NULL
-  } else {
-    na_indicators <- na_indicators %>% pivot_longer(cols = 1:ncol(.), names_to = "missing_var")
-  }
+  na_indicators <-
+    if(length(na_indicators)==0) {
+      NULL
+    } else {
+      na_indicators <- na_indicators %>% pivot_longer(cols = 1:ncol(.), names_to = "missing_var")
+    }
 
-  quantiles <- data %>%
+  quantiles <-
+    data %>%
     ungroup() %>%
-    #select(-c(lac,lac6,oecd)) %>%
     filter(
       country_name %in% comparison_list$country_name | country_name == base_country
     ) %>%
@@ -35,7 +32,7 @@ def_quantiles <- function(data, base_country, country_list, selected_groups, var
     )
 
   quantiles_group <- comparison_list %>%
-    select(country_name,group) %>%
+    select(country_name) %>%
     right_join(quantiles, by = c("country_name")) %>%
     pivot_longer(cols = all_of(vars), names_to = "variable") %>%
     filter(! variable %in% na_indicators$missing_var) %>%
@@ -43,10 +40,10 @@ def_quantiles <- function(data, base_country, country_list, selected_groups, var
               by = "variable") %>%
     filter(!is.na(value)) %>%
     group_by(
-      country_name, variable, var_name, group
+      country_name, variable, var_name
     ) %>%
     summarise(dtf = mean(value)) %>%
-    group_by(variable,var_name) %>%
+    group_by(variable, var_name) %>%
     mutate(
       n = n(),
       dtt = percent_rank(dtf),

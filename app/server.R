@@ -188,8 +188,7 @@
               base_country(),
               country_list,
               input$groups,
-              vars_all,
-              variable_names
+              vars_all
             )
         }
       )
@@ -223,14 +222,6 @@
 
           if (input$family == "Overview") {
 
-            variable_names <-
-              variable_names %>%
-              select(family_var,
-                     family_name) %>%
-              rename(var_name = family_name,
-                     variable = family_var) %>%
-              unique
-
             data <-
               family_data(
                 global_data,
@@ -240,10 +231,8 @@
                 base_country(),
                 country_list,
                 input$groups,
-                variable_names$variable,
-                variable_names
-              )  %>%
-              left_join(variable_names)
+                family_names
+              )
 
             data %>%
               static_plot(base_country(),
