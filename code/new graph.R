@@ -19,72 +19,86 @@ shapes <- c(
   "Structural Median" = 24
 )
 
+base_country <- "Uruguay"
+family <- "Political institutions"
+
 # Prepare data --------------------------------------
-
-data <-
-  read_rds(here("app",
-                "data",
-                "country_dtf.rds"))
-
-data <-
-  read_rds(here("app",
-                "data",
-                "old_data.rds"))
 
 variable_names <-
   read_rds(here("app",
                 "data",
                 "variable_names.rds"))
 
-variable_names <-
+country_level_data <-
   read_rds(here("app",
                 "data",
-                "old_variable_names.rds"))
+                "country_dtf.rds")) %>%
+  ungroup %>%
+  select(-c(country_code,
+            steering_capability))
+
+structural <- c("Australia", "Chile", "Greece", "New Zealand", "Spain")
 
 countries <-
   read_rds(here("app",
                 "data",
                 "wb_country_list.rds")) %>%
-
-  filter(group %in% c("LAC6", "OECD members") | country_name == "Uruguay") %>%
+  filter(group %in% c("LAC6", "OECD members") |
+           country_name == base_country |
+           country_name %in% structural ) %>%
   select(country_name) %>%
   unique %>%
   unlist
 
-country_level_data <-
-  data %>%
-  filter(country_name %in% countries)
+oecd <-
+  read_rds(here("app",
+                "data",
+                "wb_country_list.rds")) %>%
+  filter(group == "OECD members") %>%
+  select(country_name) %>%
+  unique %>%
+  unlist
+
+lac6 <-
+  read_rds(here("app",
+                "data",
+                "wb_country_list.rds")) %>%
+  filter(group == "LAC6") %>%
+  select(country_name) %>%
+  unique %>%
+  unlist
 
 variables <-
   variable_names %>%
-  filter(
-    #    family_name == "Legal institutions",
-         var_level == "indicator",
-         variable %in% names(data)) %>%
+  filter(family_name == family,
+          var_level == "indicator",
+         variable %in% names(country_level_data)) %>%
   select(variable) %>%
   unlist %>%
   unname
 
-vars <-
+non_missing <-
   country_level_data %>%
   ungroup %>%
   filter(country_name == base_country) %>%
-  select(all_of(variables)) %>%
   select_if(~ !any(is.na(.))) %>%
   names
 
 benchmark_data <-
   country_level_data %>%
   ungroup %>%
-  select(country_name, all_of(vars), oecd) %>%
-  pivot_longer(cols = vars,
+  pivot_longer(cols = 2:ncol(.),
                names_to = "variable") %>%
   left_join(variable_names,
             by = "variable") %>%
-  filter(!is.na(value)) %>%
-  group_by(country_name, family_name, oecd) %>%
-  summarise(dtf = mean(value)) %>%
-  rename(var_name = family_name) %>%
+  filter(!is.na(value),
+         country_name %in% countries,
+         variable %in% non_missing,
+         variable %in% variables) %>%
+  #mutate(var_name = family_name) %>%
+  #group_by(country_name, var_name) %>%
+  #summarise(dtf = mean(value, na.rm = TRUE)) %>%
+  rename(dtf = value) %>%
   group_by(var_name) %>%
   mutate(
     n = n(),
@@ -102,105 +116,156 @@ benchmark_data <-
       dtf <= q25 ~ "Weak",
       dtf > q25 & dtf <= q50 ~ "Emerging",
       dtf > q50 ~ "Advanced"
-    )
+    ),
+    status_dtt = ifelse(dtt == 1,
+                        "Advanced",
+                        status_dtt),
+    status_dtf = ifelse(dtf == 1,
+                        "Advanced",
+                        status_dtf)
   )
 
-  order <-
-    benchmark_data %>%
-    filter(country_name == base_country) %>%
-    arrange(dtt) %>%
-    select(var_name) %>%
-    unlist
+order <-
+  benchmark_data %>%
+  filter(country_name == base_country) %>%
+  arrange(dtt) %>%
+  select(var_name) %>%
+  unlist
 
-  benchmark_data$var_name = factor(benchmark_data$var_name,
-                                      levels = order,
-                                      ordered = TRUE)
+benchmark_data$var_name = factor(benchmark_data$var_name,
+                                 levels = order,
+                                 ordered = TRUE)
 
-  bar_colors_dtt <-
-    benchmark_data %>%
-    transmute(var_name = var_name,
-              Weak = .25,
-              Emerging = .25,
-              Advanced = .50) %>%
-    unique %>%
-    pivot_longer(cols = c(Weak, Emerging, Advanced),
-                 names_to = "status",
-                 values_to = "dtt")
+bar_colors_dtt <-
+  benchmark_data %>%
+  transmute(var_name = var_name,
+            Weak = .25,
+            Emerging = .25,
+            Advanced = .50) %>%
+  unique %>%
+  pivot_longer(cols = c(Weak, Emerging, Advanced),
+               names_to = "status",
+               values_to = "dtt")
 
-  # By rank with median ---------------------------------------------------
+# By rank with median ---------------------------------------------------
 
-  ggplot() +
-    geom_col(
-      data = bar_colors_dtt,
-      aes(y = var_name,
-          x = dtt,
-          fill = status),
-      width = .2,
-      alpha = .6
-    ) +
-    geom_point(
-      data = benchmark_data %>% filter(country_name == base_country),
-      aes(y = var_name,
-          x = dtt,
-          fill = status_dtf),
-      size = 6,
-      shape = 21,
-      color = "gray0"
-    ) +
-    geom_vline(
-      xintercept = 1,
-      linetype = "dashed",
-      color = colors["Advanced"],
-      size = 1
-    ) +
-    theme_minimal() +
-    theme(legend.position = "top",
-          panel.grid.minor = element_blank(),
-          panel.grid.major = element_blank(),
-          axis.ticks = element_blank(),
-          axis.text = element_text(color = "black"),
-          axis.text.y = element_text(size = 10),
-          legend.box = "vertical") +
-    labs(y = NULL,
-         x = NULL,
-         fill = NULL,
-         shape = NULL) +
-    scale_shape_manual(
-      values = shapes
-    )+
-    scale_fill_manual(
-      values = colors
-    ) +
-    scale_color_manual(
-      values = colors
-    ) +
-    guides(fill = guide_legend(ncol = 3),
-           shape = guide_legend(ncol = 3)) +
-    scale_x_continuous(breaks = c(0, 0.5, 1),
-                       labels = c("Worst ranked",
-                                  "Middle of ranking",
-                                  "Top ranked")) +
-    annotate(
-      geom = "text",
-      size = 3,
-      x = .13,
-      y = .7,
-      label = "Bottom 25%"
-    ) +
-    annotate(
-      geom = "text",
-      size = 3,
-      x = .4,
-      y = .7,
-      label = "25% - 50%"
-    ) +
-    annotate(
-      geom = "text",
-      size = 3,
-      x = .75,
-      y = .7,
-      label = "Top 50%"
-    )
+ggplot() +
+  geom_col(
+    data = bar_colors_dtt,
+    aes(y = var_name,
+        x = dtt,
+        fill = status),
+    width = .2,
+    alpha = .6
+  ) +
+  geom_point(
+    data = benchmark_data %>%
+      filter(country_name %in% oecd) %>%
+      group_by(var_name) %>%
+      summarise(dtt = median(dtt, na.rm = TRUE)) %>%
+      mutate(group ="OECD Median"),
+    aes(y = var_name,
+        x = dtt,
+        shape = group,
+        fill = group,
+        color = group,
+        alpha = gr),
+    alpha = .5,
+    fill = "white",
+    color = "black",
+    size = 4
+  ) +
+  geom_point(
+    data = benchmark_data %>%
+      filter(country_name %in% lac6) %>%
+      group_by(var_name) %>%
+      summarise(dtt = median(dtt, na.rm = TRUE)) %>%
+      mutate(group ="LAC6 Median"),
+    aes(y = var_name,
+        x = dtt,
+        shape = group),
+    alpha = .5,
+    fill = "white",
+    color = "black",
+    size = 4
+  ) +
+  geom_point(
+    data = benchmark_data %>%
+      filter(country_name %in% structural) %>%
+      group_by(var_name) %>%
+      summarise(dtt = median(dtt, na.rm = TRUE)) %>%
+      mutate(group ="Structural Median"),
+    aes(y = var_name,
+        x = dtt,
+        shape = group),
+    alpha = .5,
+    fill = "white",
+    color = "black",
+    size = 4
+  ) +
+  geom_point(
+    data = benchmark_data %>% filter(country_name == base_country),
+    aes(y = var_name,
+        x = dtt,
+        fill = status_dtf),
+    size = 6,
+    shape = 21,
+    color = "gray0"
+  ) +
+  geom_vline(
+    xintercept = 1,
+    linetype = "dashed",
+    color = colors["Advanced"],
+    size = 1
+  ) +
+  theme_minimal() +
+  theme(legend.position = "top",
+        panel.grid.minor = element_blank(),
+        panel.grid.major = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text = element_text(color = "black"),
+        axis.text.y = element_text(size = 10),
+        legend.box = "vertical") +
+  labs(y = NULL,
+       x = NULL,
+       fill = NULL,
+       shape = NULL) +
+  scale_shape_manual(
+    values = shapes
+  )+
+  scale_fill_manual(
+    values = colors
+  ) +
+  scale_color_manual(
+    values = colors
+  ) +
+  guides(fill = guide_legend(ncol = 3),
+         shape = guide_legend(ncol = 3)) +
+  scale_x_continuous(breaks = c(0, 0.5, 1),
+                     labels = c("Worst ranked",
+                                "Middle of ranking",
+                                "Top ranked")) +
+  annotate(
+    geom = "text",
+    size = 3,
+    x = .13,
+    y = .7,
+    label = "Bottom 25%"
+  ) +
+  annotate(
+    geom = "text",
+    size = 3,
+    x = .4,
+    y = .7,
+    label = "25% - 50%"
+  ) +
+  annotate(
+    geom = "text",
+    size = 3,
+    x = .75,
+    y = .7,
+    label = "Top 50%"
+  )
 
 
 # Annotation ----------------------------
