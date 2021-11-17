@@ -534,12 +534,11 @@ data_api <- data_api %>%
   ) %>%
   select(
     country_code,year,
-    all_of(var_api),
-    -c(v2stfisccap, close2, proff1, undue_influ_corrupt)
+    all_of(var_api)
   )
 
 var_matched_api <- data_api %>%
-  select(-c(country_code,country_name,year)) %>%
+  select(-c(country_code, year)) %>%
   skim() %>%
   select(skim_variable) %>%
   .$skim_variable
@@ -550,7 +549,8 @@ data_mixed <- data_original %>%
   left_join(
     data_api,
     by = c("country_code","year")
-  )
+  ) %>%
+  select(-c(v2stfisccap, close2, proff1, undue_influ_corrupt))
 
 # Explore dataset
 #skim(data_selected)
