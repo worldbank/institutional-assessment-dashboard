@@ -360,7 +360,13 @@ data_api_governance <- data_api_governance %>%
   group_by(`Country ISO3`,`Country Name`,Indicator,Period) %>%
   summarise(Observation = mean(Observation, na.rm=T))
 
-data_api <- bind_rows(data_api_1,data_api_2,data_api_3,data_api_governance)
+data_api <-
+  bind_rows(
+    data_api_1,
+    data_api_2,
+    data_api_3,
+    data_api_governance
+  )
 
 data_api <-
   data_api %>%
@@ -528,7 +534,8 @@ data_api <- data_api %>%
   ) %>%
   select(
     country_code,year,
-    all_of(var_api)
+    all_of(var_api),
+    -c(v2stfisccap, close2, proff1, undue_influ_corrupt)
   )
 
 var_matched_api <- data_api %>%
