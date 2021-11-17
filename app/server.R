@@ -60,10 +60,6 @@
     read_rds(file.path("data",
                        "country_dtf.rds"))
 
-  family_level_data <-
-    read_rds(file.path("data",
-                       "dtf_family_level.rds"))
-
   wb_country_geom_fact <-
     read_rds(file.path("data",
                        "wb_country_geom_fact.rds"))
