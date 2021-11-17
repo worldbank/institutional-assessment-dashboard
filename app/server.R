@@ -188,7 +188,8 @@
               base_country(),
               country_list,
               input$groups,
-              vars_all
+              vars_all,
+              variable_names
             )
         }
       )
@@ -225,13 +226,15 @@
             data <-
               family_data(
                 global_data,
-                base_country()
+                base_country(),
+                variable_names
               ) %>%
               def_quantiles(
                 base_country(),
                 country_list,
                 input$groups,
-                family_names
+                family_names,
+                variable_names
               )
 
             data %>%
