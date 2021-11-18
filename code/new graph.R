@@ -20,7 +20,7 @@ shapes <- c(
 )
 
 base_country <- "Uruguay"
-family <- "Political institutions"
+family <- "Business environment and trade institutions"
 
 # Prepare data --------------------------------------
 
@@ -95,34 +95,23 @@ benchmark_data <-
          country_name %in% countries,
          variable %in% non_missing,
          variable %in% variables) %>%
-  #mutate(var_name = family_name) %>%
-  #group_by(country_name, var_name) %>%
-  #summarise(dtf = mean(value, na.rm = TRUE)) %>%
-  rename(dtf = value) %>%
+  # mutate(var_name = family_name) %>%
+  # group_by(country_name, var_name) %>%
+  # summarise(dtf = mean(value, na.rm = TRUE)) %>%
+ rename(dtf = value) %>%
   group_by(var_name) %>%
   mutate(
-    n = n(),
-    dtt = percent_rank(dtf),
+    n = n_distinct(dtf),
+    dtt = cume_dist(dtf),
     q25 = quantile(dtf, c(0.25)),
     q50 = quantile(dtf, c(0.5)),
     r25 = floor(n * .25) / n,
     r50 = floor(n * .5) / n,
-    status_dtt = case_when(
+    status = case_when(
       dtt <= .25 ~ "Weak",
       dtt > .25 & dtt <= .50 ~ "Emerging",
       dtt > .50 ~ "Advanced"
-    ),
-    status_dtf = case_when(
-      dtf <= q25 ~ "Weak",
-      dtf > q25 & dtf <= q50 ~ "Emerging",
-      dtf > q50 ~ "Advanced"
-    ),
-    status_dtt = ifelse(dtt == 1,
-                        "Advanced",
-                        status_dtt),
-    status_dtf = ifelse(dtf == 1,
-                        "Advanced",
-                        status_dtf)
+    )
   )
 
 order <-
@@ -207,7 +196,7 @@ ggplot() +
     data = benchmark_data %>% filter(country_name == base_country),
     aes(y = var_name,
         x = dtt,
-        fill = status_dtf),
+        fill = status),
     size = 6,
     shape = 21,
     color = "gray0"
