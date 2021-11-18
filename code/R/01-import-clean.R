@@ -117,15 +117,32 @@ data_selected <- data_cleaned %>%
 # Additions with indicators that are not on Gov360 ----
 additions <- haven::read_dta(here("data",
                                   "data_raw",
-                                  "new_additions_notGov360.dta"))
+                                  "20211118_new_additions_notGov360.dta"))
+
 additions <- additions %>%
-  filter(year==2020 | year ==2015) %>%
+  filter(year==2020 | year==2015) %>%
   rename(country_code = iso3code) %>%
-  select(-c(countryname,country,ccode)) %>%
+  select(-c(countryname,country,ccode,v2clrspct)) %>%
   mutate(
     year=as.character(year)
   ) %>%
-  labelled::remove_labels()
+  labelled::remove_labels() %>%
+  group_by(country_code) %>%
+  summarise(
+    across(
+      where(is.numeric),
+      mean,
+      na.rm = TRUE
+    )
+  ) %>%
+  mutate(
+    across(
+      where(is.numeric),
+      ~ifelse(is.nan(.x),NA,.x)
+    )
+  ) %>%
+  mutate(year = "2020") %>%
+  relocate(year, .after = country_code)
 
 data_binded <-
   data_selected %>%
@@ -138,7 +155,7 @@ data_binded <-
     by = c("country_code","year")
   ) %>%
   mutate(
-    v2stfisccap = coalesce(v2stfisccap.x, v2stfisccap.y),
+    #v2stfisccap = coalesce(v2stfisccap.x, v2stfisccap.y),
     v2stcritrecadm = coalesce(v2stcritrecadm.x, v2stcritrecadm.y)
   ) %>%
   #select(
@@ -159,7 +176,8 @@ data_original <-
     c(
       country_code,country_name,year,
       gtmi,
-      v2stfisccap,
+      #v2stfisccap,
+      v2clrspct,
       v2stcritrecadm,
       scopeofstateownedenterprises,
       governmentinvolvementinnetworkse,
@@ -550,7 +568,15 @@ data_mixed <- data_original %>%
     data_api,
     by = c("country_code","year")
   ) %>%
-  select(-c(v2stfisccap, close2, proff1, undue_influ_corrupt))
+  select(
+    -c(
+      v2clrspct,
+      v2stfisccap,
+      close2,
+      proff1,
+      undue_influ_corrupt
+    )
+  )
 
 # Explore dataset
 #skim(data_selected)
