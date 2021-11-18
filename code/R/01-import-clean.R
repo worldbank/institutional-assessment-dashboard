@@ -570,7 +570,6 @@ data_mixed <- data_original %>%
   ) %>%
   select(
     -c(
-      v2clrspct,
       v2stfisccap,
       close2,
       proff1,

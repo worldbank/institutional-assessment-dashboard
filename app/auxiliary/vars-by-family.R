@@ -49,7 +49,7 @@
   vars_publ <-
     c(
       "steering_capability",
-      #"v2stfisccap",
+      "v2stfisccap",
       "v2clrspct",
       "v2stcritrecadm",
       "close2",
