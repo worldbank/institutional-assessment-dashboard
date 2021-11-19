@@ -55,7 +55,7 @@ data_cleaned <- data_original %>%
     getting_credit = bl,
     insolvency_framework = resolvinginsolvencystrength,
     credit_registry_cov = gettingcreditcreditregistry,
-    rigorous_impartial_pa = v2clrspct,
+    #rigorous_impartial_pa = v2clrspct,
     barriers_trade_expl = barriers_trade_explicit,
     barriers_trade_oth = barriers_trade_other,
     cbi = lvau,
@@ -120,9 +120,9 @@ additions <- haven::read_dta(here("data",
                                   "20211118_new_additions_notGov360.dta"))
 
 additions <- additions %>%
-  filter(year==2020 | year==2015) %>%
+  filter(year >= 2015) %>%
   rename(country_code = iso3code) %>%
-  select(-c(countryname,country,ccode,v2clrspct)) %>%
+  select(-c(countryname,country,ccode)) %>%
   mutate(
     year=as.character(year)
   ) %>%
@@ -156,13 +156,9 @@ data_binded <-
   ) %>%
   mutate(
     #v2stfisccap = coalesce(v2stfisccap.x, v2stfisccap.y),
+    v2clrspct = coalesce(v2clrspct.x, v2clrspct.y),
     v2stcritrecadm = coalesce(v2stcritrecadm.x, v2stcritrecadm.y)
   ) %>%
-  #select(
-  #  country_name, country_code,
-  #  year,
-  #  all_of(vars_all)
-  #) %>%
   mutate(
     proff1 = proff1*(-1)
   )
@@ -184,8 +180,8 @@ data_original <-
       directcontroloverbusinessenterpr,
       price_controls,
       command_control,
-      proff1,
-      close2,
+      #proff1,
+      #close2,
       efw_free_foreign_curr,
       efw_labor_mkt_reg,
       govreg_burden,
@@ -193,7 +189,7 @@ data_original <-
       open_data_barometer,
       proc_mean_score,
       regulatory_governance,
-      rigorous_impartial_pa,
+      #rigorous_impartial_pa,
       v2juaccnt,
       v2lgfemleg,
       v2pepwrgen,
@@ -235,7 +231,27 @@ var_original <- data_original %>%
 
 var_api <- setdiff(vars_all,var_original)
 
+var_sources <- variable_names %>%
+  filter(var_level=="indicator") %>%
+  mutate(
+    source = ifelse(variable %in% var_original, "Original and additions", "API")
+  ) %>%
+  select(-c(var_level,family_var))
+
+write_csv2(
+  var_sources,
+  here(
+    "data",
+    "data_checking",
+    "variables_sources.csv"
+  )
+)
+
 # GET INDICATORS FROM API 360 ----
+#gov_indicators <- get_metadata360(site="gov", metadata_type = "indicators")
+#tc_indicators <- get_metadata360(site="tc", metadata_type = "indicators")
+
+#indicators_360 <- bind_rows(gov_indicators,tc_indicators)
 
 # IDs from selected indicators
 selected_indicators_1 <- c(
@@ -283,7 +299,7 @@ selected_indicators_2 <- c(
   27900, # Freedom of opinion and expression is effectively guaranteed
   27919, # People can access and afford civil justice
   #28833, #DOING BUSINESS INDICATOR  # Resolving insolvency Outcome
-  28782, #  Steering Capability
+  #28782, #  Steering Capability
   #30823, # Central Bank independence                # NO RECENT DATA
   #31001, #  Efficiency of the banking supervisory authority
   #31003, #  Efficiency of the financial market supervisory authority
@@ -303,7 +319,7 @@ selected_indicators_3 <- c(
   #41189, #  Procurement
   41305, #  Burden of customs procedures, 1-7 (best)
   41619, #  GCI 4.0: Global Competitiveness Index 4.0
-  41629, #  GCI 4.0: 1.E Undue influence and corruption
+  #41629, #  GCI 4.0: 1.E Undue influence and corruption
   41703, #  GCI 4.0: 7.A Domestic competition
   41714, #  GCI 4.0: Efficiency of the clearance process
   41794, #  Absence of corruption (Global States of Democracy)
@@ -427,13 +443,13 @@ data_api <- data_api %>%
         Indicator == "SOE annual report disclosure" ~ "soe_annual_report",
         Indicator == "SOE financial audit requirement" ~ "soe_financial",
         Indicator == "SOE report legislative review requirement" ~ "soe_report_legislative",
-        Indicator == "Steering Capability" ~ "steering_capability",
+        #Indicator == "Steering Capability" ~ "steering_capability",
         Indicator == "Hiring and firing practices, 1-7 (best)" ~ "hiring_pract",
         Indicator == "Freedom of opinion and expression is effectively guaranteed" ~ "opinion_freedom",
         Indicator == "Freedom of academic and cultural expression" ~ "v2clacfree",
         Indicator == "Complaint mechanisms" ~ "complaint_mechan",
         Indicator == "Right to information" ~ "right_to_info",
-        Indicator == "GCI 4.0: 1.E Undue influence and corruption" ~ "undue_influ_corrupt",
+        #Indicator == "GCI 4.0: 1.E Undue influence and corruption" ~ "undue_influ_corrupt",
         Indicator == "CSO entry and exit" ~ "v2cseeorgs",
         Indicator == "3. Undue influence" ~ "undue_incluence",
         Indicator == "Burden of customs procedures, 1-7 (best)" ~ "burden_cust_proc",
@@ -567,14 +583,6 @@ data_mixed <- data_original %>%
   left_join(
     data_api,
     by = c("country_code","year")
-  ) %>%
-  select(
-    -c(
-      v2stfisccap,
-      close2,
-      proff1,
-      undue_influ_corrupt
-    )
   )
 
 # Explore dataset
@@ -591,3 +599,4 @@ write_rds(data_mixed,
                "raw_data.rds"))
 
 rm(data_binded,data_selected,data_cleaned,data_api_2, data_api_3,data_api_1)
+gc()
