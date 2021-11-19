@@ -34,8 +34,7 @@ country_level_data <-
                 "data",
                 "country_dtf.rds")) %>%
   ungroup %>%
-  select(-c(country_code,
-            steering_capability))
+  select(-c(country_code))
 
 structural <- c("Australia", "Chile", "Greece", "New Zealand", "Spain")
 
@@ -84,6 +83,7 @@ non_missing <-
   select_if(~ !any(is.na(.))) %>%
   names
 
+#FAMILY
 benchmark_data <-
   country_level_data %>%
   ungroup %>%
@@ -91,14 +91,18 @@ benchmark_data <-
                names_to = "variable") %>%
   left_join(variable_names,
             by = "variable") %>%
-  filter(!is.na(value),
-         country_name %in% countries,
-         variable %in% non_missing,
-         variable %in% variables) %>%
-  # mutate(var_name = family_name) %>%
-  # group_by(country_name, var_name) %>%
-  # summarise(dtf = mean(value, na.rm = TRUE)) %>%
- rename(dtf = value) %>%
+  filter(
+    !is.na(value),
+    country_name %in% countries,
+    variable %in% non_missing
+    # UNCOMMENT FOR NON OVERVIEW
+    #variable %in% variables
+  ) %>%
+   # OVERVIEW
+   mutate(var_name = family_name) %>%
+   group_by(country_name, var_name) %>%
+   summarise(value = mean(value, na.rm = TRUE)) %>%
+  rename(dtf = value) %>%
   group_by(var_name) %>%
   mutate(
     n = n_distinct(dtf),
@@ -255,7 +259,6 @@ ggplot() +
     y = .7,
     label = "Top 50%"
   )
-
 
 # Annotation ----------------------------
 #
