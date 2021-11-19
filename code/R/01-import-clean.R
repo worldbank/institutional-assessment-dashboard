@@ -164,8 +164,6 @@ data_binded <-
   )
 
 # KEEP ONLY INDICATORS THAT SHOULD BE FROM ORIGINAL DATA AND ADDITIONS ----
-# (THE ONES THAT HAVE NO ISSUE COMING FROM API)
-
 data_original <-
   data_binded %>%
   select(
@@ -195,6 +193,9 @@ data_original <-
       v2pepwrgen,
       v2pepwrses,
       v2pepwrsoc,
+      f1_govpowers,  # POL ISSUE
+      f3_security,   # POL ISSUE
+      f4_rights,     # POL ISSUE
       # VAR ONLY IN ORIGINAL DATA, NOT FOUND IN API
       f5_opengov,
       nontariff_barriers,
@@ -231,21 +232,21 @@ var_original <- data_original %>%
 
 var_api <- setdiff(vars_all,var_original)
 
-var_sources <- variable_names %>%
-  filter(var_level=="indicator") %>%
-  mutate(
-    source = ifelse(variable %in% var_original, "Original and additions", "API")
-  ) %>%
-  select(-c(var_level,family_var))
-
-write_csv2(
-  var_sources,
-  here(
-    "data",
-    "data_checking",
-    "variables_sources.csv"
-  )
-)
+#var_sources <- variable_names %>%
+#  filter(var_level=="indicator") %>%
+#  mutate(
+#    source = ifelse(variable %in% var_original, "Original and additions", "API")
+#  ) %>%
+#  select(-c(var_level,family_var))
+#
+#write_csv2(
+#  var_sources,
+#  here(
+#    "data",
+#    "data_checking",
+#    "variables_sources.csv"
+#  )
+#)
 
 # GET INDICATORS FROM API 360 ----
 #gov_indicators <- get_metadata360(site="gov", metadata_type = "indicators")
@@ -310,7 +311,7 @@ selected_indicators_2 <- c(
   40432 #  Ease of protecting minority investors
   #40822  # 3. Undue influence
   #40985 #  Civil Liberties                    # STRANGE VALUES
-  #40986, # Political Rights                           # STRANGE VALUES
+  #40986, # Political Rights                   # STRANGE VALUES
 )
 
 selected_indicators_3 <- c(
@@ -325,13 +326,13 @@ selected_indicators_3 <- c(
   41794, #  Absence of corruption (Global States of Democracy)
   41827, #  Civil society participation
   41881, #  Engaged society
-  41883, #  Executive constraints
+  #41883, #  Executive constraints          # POLITICAL ISSUE
   41857, #  CSO entry and exit
   41918, #  Freedom of academic and cultural expression
-  41932, #  Fundamental rights
+  #41932, #  Fundamental rights               # POLITICAL ISSUE
   41951, #  Judicial accountability
   #41953 #	Judicial independence       # ONLY ON DEFINITIONS
-  41955, #  Law  and order
+  #41955, #  Law  and order            # POLITICAL ISSUE
   41981, #  Lower chamber female legislators
   42024, #  Power distributed by gender
   42025, #  Power distributed by social group
@@ -492,16 +493,16 @@ data_api <- data_api %>%
         #Indicator == "Efficiency of the financial market supervisory authority" ~ "efficiency_superv_fin",
         #Indicator == "Financial sector: competition regulation" ~ "competition_rules_fin",
         #Indicator == "Burden of government regulation, 1-7 (best)" ~ "govreg_burden",
-        Indicator == "Fundamental rights" ~ "f4_rights",
+        #Indicator == "Fundamental rights" ~ "f4_rights",  # POLITICAL ISSUE
         Indicator == "Judicial accountability" ~ "v2juaccnt",
         Indicator == "Lower chamber female legislators" ~ "v2lgfemleg",
         Indicator == "Power distributed by social group" ~ "v2pepwrsoc",
         Indicator == "Power distributed by socio-economic position" ~ "v2pepwrses",
         #Indicator == "Rigorous and impartial public administration" ~ "rigorous_impartial_pa",
         Indicator == "Revised Combined Polity Score" ~ "e_p_polity",
-        Indicator == "Executive constraints" ~ "f1_govpowers",
+        #Indicator == "Executive constraints" ~ "f1_govpowers",  # POLITICAL ISSUE
         Indicator == "Power distributed by gender" ~ "v2pepwrgen",
-        Indicator == "Law  and order" ~ "f3_security",
+        #Indicator == "Law  and order" ~ "f3_security",  # POLITICAL ISSUE
         Indicator == "Corruption" ~ "e_ti_cpi",
         #Indicator == "Government Online Service Index, 0-1 (best)" ~ "egovernmentindex",
         #Indicator == "Procurement" ~ "proc_mean_score",
