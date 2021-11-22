@@ -377,7 +377,7 @@ ui <-
             collapsible = TRUE,
 
             column(
-              width = 6,
+              width = 12,
               pickerInput(
                 "vars_map",
                 label = NULL,
