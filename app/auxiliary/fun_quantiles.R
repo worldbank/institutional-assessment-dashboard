@@ -63,6 +63,15 @@ def_quantiles <- function(data, base_country, country_list, selected_groups, var
       )
     )
 
+  base_low_var <-
+    quantiles_group %>%
+    filter(country_name == base_country & q25==q50) %>%
+    .$variable
+
+  quantiles_group <-
+    quantiles_group %>%
+    filter(! variable %in% base_low_var)
+
   return(quantiles_group)
 
 }
