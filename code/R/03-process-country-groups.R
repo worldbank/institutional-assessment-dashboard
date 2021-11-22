@@ -51,26 +51,39 @@
            group_name) %>%
     unique
 
-  lac6 <- extra_groups %>%
-    filter(lac6==1) %>%
+  lac6 <-
+    extra_groups %>%
+    filter(lac6 == 1) %>%
     select(country_code,country_name) %>%
     mutate(
-      group_code="LAC6",
-      group="LAC6"
+      group_code = "LAC6",
+      group = "LAC6"
+    )
+
+  structural <-
+    extra_groups %>%
+    filter(structural == 1) %>%
+    select(country_code,country_name) %>%
+    mutate(
+      group_code = "STR",
+      group = "Structural"
     )
 
   country_list <-
     country_list %>%
-    bind_rows(lac6)
+    bind_rows(lac6,
+              structural)
 
-  groups <- groups %>%
+  groups <-
+    groups %>%
     bind_rows(
-      data.frame(group_code=c("LAC6"),group_name=c("LAC6"))
+      data.frame(group_code = c("LAC6", "STR"),
+                 group_name = c("LAC6", "Structural"))
     ) %>%
     mutate(
       group_category = case_when(
         group_code %in% c("HIC","LIC","LMC","LMY","MIC","UMC") ~ "Income",
-        group_code %in% c("OED","LAC6","EUU") ~ "Economic",
+        group_code %in% c("OED","LAC6","EUU", "STR") ~ "Economic",
         TRUE ~ "Region"
       )
     )
