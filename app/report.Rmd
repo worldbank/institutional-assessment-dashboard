@@ -8,7 +8,7 @@ params:
   data: NA
 ---
 
-```{r, setup, include=FALSE}
+```{r, setup, include = FALSE}
 knitr::opts_chunk$set(
   echo = FALSE,
   message = FALSE,
@@ -35,7 +35,7 @@ knitr::opts_chunk$set(
     read_rds(file.path("data",
                        "variable_names.rds"))
   
-    global_data <-
+  global_data <-
     read_rds(file.path("data",
                        "country_dtf.rds"))
 
@@ -50,6 +50,10 @@ knitr::opts_chunk$set(
         rename(var_name = family_name,
                variable = family_var) %>%
         unique
+  
+  definitions <-
+    read_rds(file.path("data",
+                       "indicator_definitions.rds"))
 ```
 
 # Country overview
@@ -57,67 +61,124 @@ knitr::opts_chunk$set(
 Base country: `r params$base_country`
 
 ```{r, echo = FALSE}
-      data <-
-        family_level_data %>%
-        def_quantiles(
-          params$base_country,
-          params$comparison_countries,
-          variable_names$variable
-        )  %>%
-        left_join(variable_names)
-
-      data %>%
-        static_plot(params$base_country,
-                    "Country overview")
+      # data <-
+      #   family_level_data %>%
+#         def_quantiles(  
+#           params$base_country,
+#           params$comparison_countries,
+#           variable_names$variable
+#         ) %>%
+#         left_join(variable_names)
+# 
+#       data %>%
+#         static_plot(params$base_country,
+#                     "Country overview")
 
 ```
 
 # Institutional families
 
 ```{r}
-      params$data %>%
-        filter(variable %in% vars_lab)  %>%
-        static_plot(params$base_country,
-                    "Labor market institutions") 
+params$data %>%
+  filter(variable %in% vars_lab)  %>%
+  static_plot(params$base_country,
+              "Labor market institutions") 
 
-      params$data %>%
-        filter(variable %in% vars_fin)  %>%
-        static_plot(params$base_country,
-                    "Financial market institutions") 
-      
-      params$data %>%
-        filter(variable %in% vars_leg)  %>%
-        static_plot(params$base_country,
-                    "Legal Institutions") 
+params$data %>%
+  filter(variable %in% vars_fin)  %>%
+  static_plot(params$base_country,
+              "Financial market institutions") 
 
-      params$data %>%
-        filter(variable %in% vars_pol)  %>%
-        static_plot(params$base_country,
-                    "Political Institutions") 
-      
-      params$data %>%
-        filter(variable %in% vars_social)  %>%
-        static_plot(params$base_country,
-                    "Social Institutions") 
+params$data %>%
+  filter(variable %in% vars_leg)  %>%
+  static_plot(params$base_country,
+              "Legal Institutions") 
 
-      params$data %>%
-        filter(variable %in% vars_mkt)  %>%
-        static_plot(params$base_country,
-                    "Business environment and trade institutions") 
+params$data %>%
+  filter(variable %in% vars_pol)  %>%
+  static_plot(params$base_country,
+              "Political Institutions") 
 
-      params$data %>%
-        filter(variable %in% vars_publ)  %>%
-        static_plot(params$base_country,
-                    "Public sector performance Institutions") 
+params$data %>%
+  filter(variable %in% vars_social)  %>%
+  static_plot(params$base_country,
+              "Social Institutions") 
 
-      params$data %>%
-        filter(variable %in% vars_service_del)  %>%
-        static_plot(params$base_country,
-                    "Institutions for service delivery") 
-    
-      
-      params$data %>%
-        filter(variable %in% vars_transp)  %>%
-        static_plot(params$base_country,
-                    "Accountability institutions") 
+params$data %>%
+  filter(variable %in% vars_mkt)  %>%
+  static_plot(params$base_country,
+              "Business environment and trade institutions") 
+
+params$data %>%
+  filter(variable %in% vars_publ)  %>%
+  static_plot(params$base_country,
+              "Public sector performance institutions") 
+
+params$data %>%
+  filter(variable %in% vars_service_del)  %>%
+  static_plot(params$base_country,
+              "Institutions for service delivery") 
+
+
+params$data %>%
+  filter(variable %in% vars_transp)  %>%
+  static_plot(params$base_country,
+              "Accountability institutions") 
+```
+
+# Appendix - Indicator definitions
+
+## Labor market institutions
+
+```{r}
+knitr::kable(definitions[["Labor market institutions"]], format = "pipe")
+```
+
+## Financial market institutions
+
+```{r}
+knitr::kable(definitions[["Financial market institutions"]], format = "pipe")
+```
+
+## Legal institutions
+
+```{r}
+knitr::kable(definitions[["Legal institutions"]], format = "pipe")
+```
+
+## Political institutions
+
+```{r}
+knitr::kable(definitions[["Political institutions"]], format = "pipe")
+```
+
+## Social institutions
+
+```{r}
+knitr::kable(definitions[["Social institutions"]], format = "pipe")
+```
+
+## Business environment and trade institutions
+
+```{r}
+knitr::kable(definitions[["Business environment and trade institutions"]], format = "pipe")
+```
+
+
+## Public sector performance institutions
+
+```{r}
+knitr::kable(definitions[["Public sector performance institutions"]], format = "pipe")
+```
+
+## Institutions for service delivery
+
+```{r}
+knitr::kable(definitions[["Institutions for service delivery"]], format = "pipe")
+```
+
+## Accountability institutions
+
+```{r}
+knitr::kable(definitions[["Accountability institutions"]], format = "pipe")
 ```

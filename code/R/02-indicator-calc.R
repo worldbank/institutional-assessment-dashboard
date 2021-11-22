@@ -114,89 +114,13 @@ dtf_vars_global <-
                  dtf) # small adjustments to display a very short bar on the graph, in case dtf = 0
   ) %>%
   pivot_wider(
-    id_cols = c("country_name", "country_code"#,
-                #"lac", "lac6", "oecd", "structural"
-                ),
+    id_cols = c("country_name", "country_code"),
     names_from = "variable",
     values_from = "dtf"
   )
 
-# Calculate closeness to frontier at institutional family level (mean of DTF of each indicator)
-dtf_family_level <-
-  dtf_vars_global %>%
-  ungroup() %>%
-  select(country_code,country_name)
-
-i=1
-
-vars_global_list=list(vars_pol = vars_pol,
-                      vars_social = vars_social,
-                      vars_transp = vars_transp,
-                      vars_publ = vars_publ,
-                      vars_leg = vars_leg,
-                      vars_mkt = vars_mkt,
-                      vars_lab = vars_lab,
-                      vars_fin = vars_fin,
-                      vars_service_del = vars_service_del)
-
-for(group in vars_global_list){
-
-  name_var <- names(vars_global_list[i])
-
-  dtf_family <- dtf_vars_global %>%
-    ungroup() %>%
-    select(
-      country_code,
-      dplyr::contains(group)
-    ) %>%
-    pivot_longer(dplyr::contains(group)) %>%
-    select(-name) %>%
-    group_by(country_code) %>%
-    summarise(
-      "{name_var}" := mean(value,na.rm=T)
-    )
-
-  i=i+1
-
-  dtf_family_level <- left_join(dtf_family_level,
-                                dtf_family,
-                                by="country_code")
-
-}
-
-rm(dtf_family, i, group, vars_minmax, data_country, data_selected, packages,name_var,vars_global_list)
-
-dtf_family_level <- dtf_family_level %>%
-  mutate(
-    across(
-      all_of(family_names),
-      ~ifelse(
-        is.nan(.x),
-        NA,
-        .x
-      )
-    )
-  ) %>%
-  mutate(
-    across(
-      all_of(family_names),
-      ~ifelse(.x == 0,
-              0.01,
-              .x) # small adjustments to display a very short bar on the graph, in case dtf = 0
-    )
-  )
 
 # Save datasets ====================================================
-
-write_rds(dtf_family_level,
-          here("app",
-               "data",
-               "dtf_family_level.rds"))
-
-write_rds(dtf_family_level,
-          here("data",
-               "data_cleaned",
-               "dtf_family_level.rds"))
 
 write_rds(dtf_vars_global,
           here("data",

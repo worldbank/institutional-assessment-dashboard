@@ -45,6 +45,7 @@
 !*.Rmd
 !*.Rproj
 !*.rds
+!*.dta
 !*.css
 .Rproj.user
 

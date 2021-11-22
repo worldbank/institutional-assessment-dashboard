@@ -41,24 +41,25 @@
       "f5_opengov",
       "complaint_mechan",
       "right_to_info",
-      "rigorous_impartial_pa",
+      #"rigorous_impartial_pa",
       "open_data_barometer"
     )
 
   # 4 CENTER OF GOV/PUBLIC SECTOR INSTITUTIONS
   vars_publ <-
     c(
-      "steering_capability",
-      "v2stfisccap",
+      #"steering_capability",
+      #"v2stfisccap",
+      "v2clrspct",
       "v2stcritrecadm",
-      "close2",
-      "proff1",
+      #"close2",
+      #"proff1",
       "f6_regulatoryenf",
       "proc_mean_score",
       "eff_govspending",
       "regulatory_governance",
-      "centregov_mean",
-      "undue_influ_corrupt"
+      "centregov_mean"#,
+      #"undue_influ_corrupt"
     )
 
   # 5 LEGAL INSTITUTIONS

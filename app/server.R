@@ -2,8 +2,8 @@
 # Load packages ###########################################################################
 
   library(shiny)
-  library(shinyjs)
   library(tidyverse)
+  library(haven)
   library(DT)
   library(data.table)
   library(plotly)
@@ -11,11 +11,24 @@
   library(hrbrthemes)
   library(stringr)
   library(grDevices)
+  library(shinyjs)
 
 
 # Inputs ################################################################################
 
-  # Auxiliary functions -----------------------------------------------------------------
+  plotly_remove_buttons <-
+    c("zoomIn2d",
+      "zoomOut2d",
+      "pan2d",
+      "autoScale2d",
+      "lasso2d",
+      "select2d",
+      "toggleSpikelines",
+      "hoverClosest3d",
+      "hoverClosestCartesian",
+      "hoverCompareCartesian")
+
+  ## Auxiliary functions -----------------------------------------------------------------
 
   source(file.path("auxiliary",
                    "vars-by-family.R"))
@@ -27,11 +40,11 @@
   source(file.path("auxiliary",
                    "fun_family_data.R"))
 
+  # Create benchmark graphs
   source(file.path("auxiliary",
                    "plots.R"))
 
-  # Data sets ---------------------------------------------------------------------------
-
+  ## Data sets ---------------------------------------------------------------------------
 
   # Indicator definitions
   definitions <-
@@ -47,12 +60,6 @@
     read_rds(file.path("data",
                        "country_dtf.rds"))
 
-  global_data <- global_data
-
-  family_level_data <-
-    read_rds(file.path("data",
-                       "dtf_family_level.rds"))
-
   wb_country_geom_fact <-
     read_rds(file.path("data",
                        "wb_country_geom_fact.rds"))
@@ -63,11 +70,9 @@
   raw_data <-
     read_rds(file.path("data",
                        "raw_data.rds")) %>%
-    filter(year >= 1990) %>%
+    filter(year >= 1990,
+           rowSums(!is.na(.)) > 3) %>%
     rename(Year = year)
-
-  raw_data <-
-    raw_data[rowSums(!is.na(raw_data)) > 3, ]
 
   # Metadata
   variable_names <-
@@ -88,176 +93,188 @@
 
    # Handle inputs ======================================================================
 
-    # Base country
+    ## Base country ------------------------------------------------------------
     base_country <-
       eventReactive(
         input$select,
         input$country
       )
 
-    observeEvent(input$show_def, {print(input$show_Def)})
+    ## Comparison countries ----------------------------------------------------
+    observeEvent(
+      input$groups,
 
-    # Comparison countries
-    observeEvent(input$groups,
-                  {
-                      selected_groups  <- input$groups
-                      selected_country <- input$country
+      {
+        selected_groups  <- input$groups
+        selected_country <- input$country
 
-                      # Can use character(0) to remove all choices
-                      if (is.null(selected_groups)) {
-                        selected <- NULL
-                      } else {
-                        selected <-
-                          country_list %>%
-                          filter(group %in% selected_groups) %>%
-                          select(country_name) %>%
-                          unique
-
-                        if (!is.null(selected_country)) {
-                          selected <-
-                            selected %>%
-                            filter(country_name != selected_country)
-                        }
-
-                        selected <-
-                          selected %>%
-                          pluck(1)
-
-                      }
-
-                      updatePickerInput(session,
-                                        "countries",
-                                        label = NULL,
-                                        choices = global_data$country_name %>% unique,
-                                        selected = selected
-                      )
-                    },
-
-                    ignoreNULL = FALSE
-      )
-
-
-    # Triggered by comparison countries: names of countries selected and action button
-    observeEvent(input$countries,
-
-                 {
-                   # Can also set the label and select items
-                   toggleState(id = "select",
-                               condition = length(input$countries) >= 10)
-                 },
-
-                 ignoreNULL = FALSE
-    )
-
-
-    observeEvent(input$select,
-                 {
-                   toggleState(id = "report",
-                               condition = input$select == 1)
-                 },
-                 ignoreNULL = FALSE
-    )
-
-    # Benchmark data
-    data <-
-      eventReactive(input$select,
-
-                    {
-                      data <-
-                        global_data %>%
-                        def_quantiles(
-                          base_country(),
-                          country_list,
-                          input$groups,
-                          vars_all,
-                          variable_names
-                        ) #%>%
-                        #left_join(variable_names)
-
-                    }
-      )
-
-    # Browse data
-    browse_data <-
-      eventReactive(input$data,
-
-                    {
-                      selected_data <- input$data
-
-                      if (selected_data=="Closeness to frontier") {
-                        return(global_data)
-                      }
-
-                      if (selected_data=="Compiled indicators") {
-                        return(raw_data)
-                      }
-
-                    }
-      )
-
-   # Plots =============================================================================
-
-    # Overview
-    output$plot <-
-      renderPlotly({
-
-        if (input$family == "Overview") {
-
-          variable_names <-
-            variable_names %>%
-            select(family_var,
-                   family_name) %>%
-            rename(var_name = family_name,
-                   variable = family_var) %>%
+        # Can use character(0) to remove all choices
+        if (is.null(selected_groups)) {
+          selected <- NULL
+        } else {
+          selected <-
+            country_list %>%
+            filter(group %in% selected_groups) %>%
+            select(country_name) %>%
             unique
 
+          if (!is.null(selected_country)) {
+            selected <-
+              selected %>%
+              filter(country_name != selected_country)
+          }
+
+          selected <-
+            selected %>%
+            pluck(1)
+
+        }
+
+        updateCheckboxGroupButtons(
+          session,
+          "countries",
+          label = NULL,
+          choices = global_data$country_name %>% unique %>% sort,
+          checkIcon = list(
+            yes = icon("ok",
+                       lib = "glyphicon")
+          ),
+          selected = selected
+        )
+      },
+
+      ignoreNULL = FALSE
+    )
+
+    ## Validate options -------------------------------------------------------
+    observeEvent(
+      input$countries,
+
+       {
+         toggleState(
+           id = "select",
+           condition = length(input$countries) >= 10
+         )
+       },
+
+       ignoreNULL = FALSE
+    )
+
+
+    observeEvent(
+      input$select,
+
+      {
+        toggleState(
+          id = "report",
+          condition = input$select
+        )
+      },
+
+      ignoreNULL = FALSE
+    )
+
+    # Reactive objects ==============================================
+
+    ## Benchmark data -----------------------------------------------
+    data <-
+      eventReactive(
+        input$select,
+
+        {
           data <-
-            family_data(
-              global_data,
-              base_country(),
-              input$groups
-            ) %>%
+            global_data %>%
             def_quantiles(
               base_country(),
               country_list,
               input$groups,
-              variable_names$variable,
+              vars_all,
               variable_names
-            )  %>%
-            left_join(variable_names)
-
-          data %>%
-            static_plot(base_country(),
-                        input$family) %>%
-            interactive_plot(base_country(),
-                             input$groups,
-                             input$family)
-        } else {
-
-          vars <-
-            if (input$family == "Labor market institutions") {vars_lab} else
-              if (input$family == "Financial market institutions") {vars_fin} else
-                if (input$family == "Legal institutions") {vars_leg} else
-                  if (input$family == "Political institutions") {vars_pol} else
-                    if (input$family == "Social institutions") {vars_social} else
-                      if (input$family == "Business environment and trade institutions") {vars_mkt} else
-                        if (input$family == "Public sector performance institutions") {vars_publ} else
-                          if (input$family == "SOE Corporate Governance") {vars_service_del} else
-                            if (input$family == "Anti-Corruption, Transparency and Accountability institutions") {vars_transp}
-
-          data() %>%
-            filter(variable %in% vars) %>%
-            static_plot(base_country(),
-                        input$family) %>%
-            interactive_plot(base_country(),
-                             input$groups,
-                             input$family)
+            )
         }
-    })
+      )
+
+    ## Browse data -------------------------------------------------------------
+    browse_data <-
+      eventReactive(
+        input$data,
+
+        {
+          selected_data <- input$data
+
+          if (selected_data == "Closeness to frontier") {
+            return(global_data)
+          }
+
+          if (selected_data == "Compiled indicators") {
+            return(raw_data)
+          }
+        }
+      )
+
+   # Benchmark plot ============================================================
+
+    output$plot <-
+      renderPlotly({
+
+        input$select
+
+        isolate(
+
+          if (input$family == "Overview") {
+
+            data <-
+              family_data(
+                global_data,
+                base_country(),
+                variable_names
+              ) %>%
+              def_quantiles(
+                base_country(),
+                country_list,
+                input$groups,
+                family_names,
+                variable_names
+              )
+
+            data %>%
+              static_plot(base_country(),
+                          input$family) %>%
+              interactive_plot(base_country(),
+                               input$groups,
+                               input$family,
+                               plotly_remove_buttons)
+          } else {
+
+            vars <-
+              # case_when()
+              if (input$family == "Labor market institutions") {vars_lab} else
+                if (input$family == "Financial market institutions") {vars_fin} else
+                  if (input$family == "Legal institutions") {vars_leg} else
+                    if (input$family == "Political institutions") {vars_pol} else
+                      if (input$family == "Social institutions") {vars_social} else
+                        if (input$family == "Business environment and trade institutions") {vars_mkt} else
+                          if (input$family == "Public sector performance institutions") {vars_publ} else
+                            if (input$family == "SOE Corporate Governance") {vars_service_del} else
+                              if (input$family == "Anti-Corruption, Transparency and Accountability institutions") {vars_transp}
+
+            data() %>%
+              filter(variable %in% vars) %>%
+              static_plot(base_country(),
+                          input$family) %>%
+              interactive_plot(base_country(),
+                               input$groups,
+                               input$family,
+                               plotly_remove_buttons)
+          }
+        )
+      })
 
 
 
-   # Map =======================================================================================
+
+
+   # Map =======================================================================
 
     output$map <-
       renderPlotly({
@@ -269,43 +286,66 @@
             filter(var_name == input$vars_map) %>%
             .$variable
 
-          map <-
-            ggplot(wb_country_geom_fact) +
-            geom_sf(aes(fill = get(var_selected),
-                        text = paste0(WB_NAME, ": ",
-                                      get(paste0(var_selected, "_value")))),
-                    color="black",
-                    size=0.1
-                    ) +
-            scale_fill_manual(
-              name = NULL,
-              values = c("0.0 - 0.2" = "#D55E00",
-                         "0.2 - 0.4" = "#DD7C00",
-                         "0.4 - 0.6" = "#E69F00",
-                         "0.6 - 0.8" = "#579E47",
-                         "0.8 - 1.0" = "#009E73",
-                         "Not available" = "#808080"),
-              na.value = "#808080",
-              drop=F) +
-            labs(title = paste0("<b>",input$vars_map,"</b>")) +
-            theme_ipsum()
-
-          interactive_map(map, input$vars_map)
+          static_map(wb_country_geom_fact,
+                     var_selected,
+                     input$vars_map) %>%
+          interactive_map(input$vars_map,
+                          plotly_remove_buttons)
         }
 
       })
 
-   # Trends =====================================================================================
+   # Trends plot ===============================================================
 
     var_trends <-
-      eventReactive(input$indicator_trends,
-                    {
-                      var_selected <-
-                        variable_names %>%
-                        filter(var_name == input$indicator_trends) %>%
-                        .$variable
-                    }
+      eventReactive(
+        input$indicator_trends,
+
+        {
+          var_selected <-
+            variable_names %>%
+            filter(var_name == input$indicator_trends) %>%
+            .$variable
+        }
       )
+
+    observeEvent(
+      input$indicator_trends,
+
+      {
+        valid_countries <-
+          raw_data %>%
+          filter(!is.na(get(var_trends()))) %>%
+          select(country_name) %>%
+          unique %>%
+          arrange(country_name) %>%
+          unlist %>%
+          unname
+
+        last_country <-
+          input$country_trends
+
+        updatePickerInput(
+          session,
+          "country_trends",
+          choices = valid_countries,
+          selected = last_country
+        )
+
+        last_countries <-
+          input$countries_trends
+
+        updatePickerInput(
+          session,
+          "countries_trends",
+          choices = valid_countries,
+          selected = last_countries
+        )
+      },
+
+      ignoreNULL = FALSE
+    )
+
 
     data_trends <-
       reactive({
@@ -362,6 +402,7 @@
                    aes_string(x = "Year",
                               y = var_trends(),
                               color = "Country",
+                              group = "Country",
                               alpha = "alpha")) +
             geom_point(aes(text = paste("Country:", Country, "<br>",
                                         "Year:", Year, "<br>",
@@ -391,35 +432,22 @@
           ggplotly(static_plot, tooltip = "text") %>%
             layout(
               legend = list(
-                title=list(text='<b>Country:</b>'),
-                #orientation="h",
-                #yanchor="bottom",
-                y=0.5
-                #xanchor="right",
-                #x=1
+                title = list(text = '<b>Country:</b>'),
+                y = 0.5
               ),
-              margin = list(l=50, r=50, t=75, b=135)
+              margin = list(l = 50, r = 50, t = 75, b = 135)
             ) %>%
             config(
-              modeBarButtonsToRemove = c("zoomIn2d",
-                                         "zoomOut2d",
-                                         "pan2d",
-                                         "autoScale2d",
-                                         "lasso2d",
-                                         "select2d",
-                                         "toggleSpikelines",
-                                         "hoverClosest3d",
-                                         "hoverClosestCartesian",
-                                         "hoverCompareCartesian"),
-              toImageButtonOptions= list(filename = paste0("trends_",
+              modeBarButtonsToRemove = plotly_remove_buttons,
+              toImageButtonOptions = list(filename = paste0("trends_",
                                                            tolower(input$country_trends),"_",
-                                                           tolower(stringr::str_replace_all(input$indicator_trends,"\\s","_"))))
+                                                           tolower(input$indicator_trends)))
             )
         }
 
       })
 
-    # Aggregation of preferences ================================================================================
+    # Aggregation of preferences ===============================================
     observeEvent(input$select_pref,{
 
       variable_names <-
@@ -430,14 +458,6 @@
                variable = family_var) %>%
         unique
 
-      #data <-
-      #  family_level_data %>%
-      #  def_quantiles(
-      #    input$country_pref,
-      #    input$countries,
-      #    variable_names$variable
-      #  )  %>%
-      #  left_join(variable_names) %>%
       data <-
         family_data(
           global_data,
@@ -451,7 +471,6 @@
           variable_names$variable,
           variable_names
         )  %>%
-        #data <- quantiles_group %>%
         filter(country_name == input$country_pref) %>%
         ungroup() %>%
         select(var_name, status_dtf) %>%
@@ -522,7 +541,7 @@
 
     })
 
-   # Data table =================================================================================
+   # Data table ================================================================
 
     output$benchmark_datatable <-
       renderDataTable(server = FALSE, {
@@ -566,12 +585,11 @@
                      as.character(variable_names$var_name),
                      skip_absent = TRUE),
           rownames = FALSE,
-          filter = 'top',
+          filter = 'none',
           options = list(scrollX = TRUE,
-                         pageLength = 13,
-                         fixedColumns = TRUE,
+                         pageLength = 10,
                          autoWidth = TRUE,
-                         dom = "lBtipr"))
+                         dom = "lftipr"))
 
       })
 
@@ -595,7 +613,8 @@
 
             content = function(file) {
               write_csv(browse_data(),
-                        file)
+                        file,
+                        na = "")
             }
           )
 
@@ -615,19 +634,30 @@
    # Report ================================================================================
 
     output$report <- downloadHandler(
-      filename = "instutitional-assessment-report.docx",
+
+      filename = paste0(
+        str_to_lower(input$country),
+        "-instutitional-assessment-report.docx"
+      ),
+
       content = function(file) {
 
-        file.copy("report.Rmd", "tempReport.Rmd", overwrite = TRUE)
+        tempReport <- file.path(tempdir(), "report.Rmd")
+        file.copy("report.Rmd", tempReport, overwrite = TRUE)
 
-        params <- list(base_country = base_country(),
-                       comparison_countries = input$countries,
-                       data = data())
+        params <-
+          list(
+            base_country = base_country(),
+            comparison_countries = input$countries,
+            data = data()
+          )
 
-        rmarkdown::render("tempReport.Rmd",
-                          output_file = file,
-                          params = params,
-                          envir = new.env(parent = globalenv())
+        rmarkdown::render(
+          tempReport,
+          output_file = file,
+          params = params,
+          envir = new.env(parent = globalenv()),
+          knit_root_dir = getwd()
         )
       }
     )
@@ -644,7 +674,8 @@
 
         content = function(file) {
           write_csv(all_indicators,
-                    file)
+                    file,
+                    na = "")
         }
       )
 
