@@ -2,7 +2,7 @@
 
 ## Static plot =================================================================
 static_plot <-
-  function(data, base_country, tab_name) {
+  function(data, base_country, tab_name, title = TRUE) {
 
     data$var_name <-
       factor(
@@ -18,77 +18,86 @@ static_plot <-
         "Advanced\n(top 50%)" = "#238823"
       )
 
-    ggplot() +
-      geom_segment(
-        data = data,
-        aes(
-          y = var_name,
-          yend = var_name,
-          x = 0,
-          xend = q25
-        ),
-        color = "#e47a81",
-        size = 2,
-        alpha = .1
-      ) +
-      geom_vline(
-        xintercept = 1,
-        linetype = "dashed",
-        color = colors["Advanced"],
-        size = 1
-      ) +
-      geom_segment(
-        data = data,
-        aes(
-          y = var_name,
-          yend = var_name,
-          x = q25,
-          xend = q50
-        ),
-        color = "#ffd966",
-        size = 2,
-        alpha = .3
-      ) +
-      geom_segment(
-        data = data,
-        aes(
-          y = var_name,
-          yend = var_name,
-          x = q50,
-          xend = 1
-        ),
-        color = "#8ec18e",
-        size = 2,
-        alpha = .3
-      ) +
-      geom_point(
-        data = data %>% filter(country_name == base_country),
-        aes(
-          y = var_name,
-          x = dtf,
-          fill = status_dtf,
-          text = paste("Country:", base_country,"<br>",
-                       "Closeness to frontier:", round(dtf, 3))
-        ),
-        size = 3,
-        shape = 21,
-        color = "gray0"
-      ) +
-      theme_minimal() +
-      theme(legend.position = "top",
-            panel.grid.minor = element_blank(),
-            axis.ticks = element_blank(),
-            axis.text = element_text(color = "black"),
-            axis.text.y = element_text(size = 12),
-            axis.text.x = element_text(size = 11),
-            legend.box = "vertical") +
-      labs(y = NULL,
-           x = "Closeness to Frontier",
-           fill = NULL) +
-      scale_fill_manual(
-        values = colors
-      ) +
-      labs(title = paste0("<b>", tab_name, "</b>"))
+    plot <-
+      ggplot() +
+        geom_segment(
+          data = data,
+          aes(
+            y = var_name,
+            yend = var_name,
+            x = 0,
+            xend = q25
+          ),
+          color = "#e47a81",
+          size = 2,
+          alpha = .1
+        ) +
+        geom_vline(
+          xintercept = 1,
+          linetype = "dashed",
+          color = colors["Advanced"],
+          size = 1
+        ) +
+        geom_segment(
+          data = data,
+          aes(
+            y = var_name,
+            yend = var_name,
+            x = q25,
+            xend = q50
+          ),
+          color = "#ffd966",
+          size = 2,
+          alpha = .3
+        ) +
+        geom_segment(
+          data = data,
+          aes(
+            y = var_name,
+            yend = var_name,
+            x = q50,
+            xend = 1
+          ),
+          color = "#8ec18e",
+          size = 2,
+          alpha = .3
+        ) +
+        geom_point(
+          data = data %>% filter(country_name == base_country),
+          aes(
+            y = var_name,
+            x = dtf,
+            fill = status,
+            text = paste("Country:", base_country,"<br>",
+                         "Closeness to frontier:", round(dtf, 3))
+          ),
+          size = 3,
+          shape = 21,
+          color = "gray0"
+        ) +
+        theme_minimal() +
+        theme(legend.position = "top",
+              panel.grid.minor = element_blank(),
+              axis.ticks = element_blank(),
+              axis.text = element_text(color = "black"),
+              axis.text.y = element_text(size = 12),
+              axis.text.x = element_text(size = 11),
+              legend.box = "vertical") +
+        labs(y = NULL,
+             x = "Closeness to Frontier",
+             fill = NULL) +
+        scale_fill_manual(
+          values = colors
+        )
+
+    if (title) {
+      plot <-
+        plot +
+        labs(title = paste0("<b>", tab_name, "</b>"))
+    }
+
+    return(plot)
+
 
   }
 

@@ -45,21 +45,13 @@ def_quantiles <- function(data, base_country, country_list, selected_groups, var
     summarise(dtf = mean(value)) %>%
     group_by(variable, var_name) %>%
     mutate(
-      n = n(),
       dtt = percent_rank(dtf),
       q25 = quantile(dtf, c(0.25)),
       q50 = quantile(dtf, c(0.5)),
-      r25 = floor(n * .25) / n,
-      r50 = floor(n * .5) / n,
-      status_dtt = case_when(
+      status = case_when(
         dtt <= .25 ~ "Weak\n(bottom 25%)",
         dtt > .25 & dtt <= .50 ~ "Emerging\n(25% - 50%)",
         dtt > .50 ~ "Advanced\n(top 50%)"
-      ),
-      status_dtf = case_when(
-        dtf <= q25 ~ "Weak\n(bottom 25%)",
-        dtf > q25 & dtf <= q50 ~ "Emerging\n(25% - 50%)",
-        dtf > q50 ~ "Advanced\n(top 50%)"
       )
     )
 
