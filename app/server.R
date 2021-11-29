@@ -641,8 +641,9 @@
     output$report <- downloadHandler(
 
       filename = paste0(
-        str_to_lower(input$country),
-        "-instutitional-assessment-report.docx"
+        "CLIAR-benchmarking-",
+        str_to_lower(base_country()),
+        ".docx"
       ),
 
       content = function(file) {
