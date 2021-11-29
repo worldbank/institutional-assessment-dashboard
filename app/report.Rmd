@@ -1,5 +1,6 @@
 ---
-title: Institutional assessment benchmarking
+title: Country-Level Institutional Assessment and Review (CLIAR)
+subtitle: Institutional Benchmarking
 output: 
   word_document
 params:
