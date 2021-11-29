@@ -105,66 +105,24 @@ for (category in c("Strong", "Emerging", "Weak")) {
   }
 }
 
-params$data %>%
-  filter(variable %in% vars_transp)  %>%
-  static_plot(params$base_country,
-              "Accountability institutions",
-              title = FALSE) 
 ```
 
 # Appendix - Indicator definitions
 
-## Labor market institutions
-
-```{r}
-knitr::kable(definitions[["Labor market institutions"]], format = "pipe")
-```
-
-## Financial market institutions
-
-```{r}
-knitr::kable(definitions[["Financial market institutions"]], format = "pipe")
-```
-
-## Legal institutions
-
-```{r}
-knitr::kable(definitions[["Legal institutions"]], format = "pipe")
-```
-
-## Political institutions
-
-```{r}
-knitr::kable(definitions[["Political institutions"]], format = "pipe")
-```
-
-## Social institutions
-
-```{r}
-knitr::kable(definitions[["Social institutions"]], format = "pipe")
-```
-
-## Business environment and trade institutions
-
-```{r}
-knitr::kable(definitions[["Business environment and trade institutions"]], format = "pipe")
-```
-
-
-## Public sector performance institutions
-
-```{r}
-knitr::kable(definitions[["Public sector performance institutions"]], format = "pipe")
-```
-
-## Institutions for service delivery
-
-```{r}
-knitr::kable(definitions[["Institutions for service delivery"]], format = "pipe")
-```
-
-## Accountability institutions
-
-```{r}
-knitr::kable(definitions[["Accountability institutions"]], format = "pipe")
+```{r,  results = "asis"}
+for (family in names(definitions)) {
+  cat("\n##",
+      family,
+      "\n")
+  
+  print(
+    knitr::kable(
+      definitions[[family]],
+      format = "pipe"
+    )
+  )
+  
+  cat("\n")
+  
+}
 ```

@@ -642,7 +642,7 @@
     output$report <- downloadHandler(
 
       filename = paste0(
-        "CLIAR-benchmarking",
+        "CLIAR-benchmarking-",
         base_country(),
         ".docx"
       ),

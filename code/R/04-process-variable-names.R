@@ -174,7 +174,7 @@ variable_names <-
         variable == "wef_border_admin" ~ "Efficiency and transparency of boarder administration",
         variable == "vars_leg" ~ "Legal institutions",
         variable == "vars_pol" ~ "Political institutions",
-        variable == "vars_publ" ~ "Public sector institutions",
+        variable == "vars_publ" ~ "Public sector performance institutions",
         variable == "vars_social" ~ "Social institutions",
         variable == "vars_transp" ~ "Anti-Corruption, Transparency and Accountability institutions",
         variable == "vars_mkt" ~ "Business environment and trade institutions",
