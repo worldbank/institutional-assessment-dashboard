@@ -32,15 +32,7 @@ knitr::opts_chunk$set(
   variable_names <-
     read_rds(file.path("data",
                        "variable_names.rds"))
-  
-  variable_names <-
-        variable_names %>%
-        select(family_var,
-               family_name) %>%
-        rename(var_name = family_name,
-               variable = family_var) %>%
-        unique
-  
+
   definitions <-
     read_rds(file.path("data",
                        "indicator_definitions.rds"))
@@ -53,7 +45,7 @@ knitr::opts_chunk$set(
 
 # Country overview
 
-```{r, echo = FALSE}
+```{r}
 params$family_data %>%
   static_plot(params$base_country,
               "Country overview", 
@@ -62,55 +54,56 @@ params$family_data %>%
 
 # Institutional families
 
-```{r}
-params$data %>%
-  filter(variable %in% vars_lab)  %>%
-  static_plot(params$base_country,
-              "Labor market institutions", 
-              title = FALSE) 
+```{r,  results = "asis"}
+for (category in c("Strong", "Emerging", "Weak")) {
+  
+  families <-
+    params$family_data %>%
+    filter(country_name == params$base_country,
+           str_detect(status, category)) %>%
+    select(var_name) %>%
+    unlist
+  
+  if (length(families) > 0) {
+    
+    family_names <- 
+      paste(families, collapse = ", ")
 
-params$data %>%
-  filter(variable %in% vars_fin)  %>%
-  static_plot(params$base_country,
-              "Financial market institutions",
-              title = FALSE) 
-
-params$data %>%
-  filter(variable %in% vars_leg)  %>%
-  static_plot(params$base_country,
-              "Legal Institutions",
-              title = FALSE) 
-
-params$data %>%
-  filter(variable %in% vars_pol)  %>%
-  static_plot(params$base_country,
-              "Political Institutions",
-              title = FALSE) 
-
-params$data %>%
-  filter(variable %in% vars_social)  %>%
-  static_plot(params$base_country,
-              "Social Institutions",
-              title = FALSE) 
-
-params$data %>%
-  filter(variable %in% vars_mkt)  %>%
-  static_plot(params$base_country,
-              "Business environment and trade institutions",
-              title = FALSE) 
-
-params$data %>%
-  filter(variable %in% vars_publ)  %>%
-  static_plot(params$base_country,
-              "Public sector performance institutions",
-              title = FALSE) 
-
-params$data %>%
-  filter(variable %in% vars_service_del)  %>%
-  static_plot(params$base_country,
-              "Institutions for service delivery",
-              title = FALSE) 
-
+    cat("\n##",
+        category,
+        "institutional capital:",
+        family_names, 
+        " \n")
+  
+    for (family in families) {
+    
+      vars <-
+        variable_names %>%
+        filter(family_name == family) %>%
+        select(var_name) %>%
+        unlist
+    
+      cat(
+        "\n###",
+        family,
+        " \n"
+      )
+      
+      plot(
+        params$data %>%
+          filter(var_name %in% vars) %>%
+          static_plot(
+            params$base_country,
+            family,
+            title = FALSE
+          )
+      )
+      
+      cat("\n")
+    }
+    
+  }
+}
 
 params$data %>%
   filter(variable %in% vars_transp)  %>%
