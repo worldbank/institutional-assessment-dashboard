@@ -15,7 +15,7 @@ static_plot <-
     colors <-
       c("Weak\n(bottom 25%)" = "#D2222D",
         "Emerging\n(25% - 50%)" = "#FFBF00",
-        "Advanced\n(top 50%)" = "#238823"
+        "Strong\n(top 50%)" = "#238823"
       )
 
     plot <-
