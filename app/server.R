@@ -97,7 +97,8 @@
     base_country <-
       eventReactive(
         input$select,
-        input$country
+        input$country,
+        ignoreNULL = FALSE
       )
 
     ## Comparison countries ----------------------------------------------------
@@ -641,8 +642,8 @@
     output$report <- downloadHandler(
 
       filename = paste0(
-        "CLIAR-benchmarking-",
-        str_to_lower(base_country()),
+        "CLIAR-benchmarking",
+        base_country(),
         ".docx"
       ),
 
