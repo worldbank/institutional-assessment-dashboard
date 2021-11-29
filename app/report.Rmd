@@ -46,10 +46,12 @@ knitr::opts_chunk$set(
                        "indicator_definitions.rds"))
 ```
 
+**Base country:** `r params$base_country`
+
+
+**Comparison countries:** `r paste(params$comparison_countries, collapse = ", ")`
+
 # Country overview
-
-Base country: `r params$base_country`
-
 
 ```{r, echo = FALSE}
 params$family_data %>%
