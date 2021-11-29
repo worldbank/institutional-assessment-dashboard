@@ -7,6 +7,7 @@ params:
   base_country: NA
   comparison_countries: NA
   data: NA
+  family_data: NA
 ---
 
 ```{r, setup, include = FALSE}
@@ -25,24 +26,12 @@ knitr::opts_chunk$set(
   source(file.path("auxiliary",
                    "vars-by-family.R"))
 
-  # Function that defines quantiles based on country, comparison and variables
-  source(file.path("auxiliary",
-                   "fun_quantiles.R"))
-
   source(file.path("auxiliary",
                    "plots.R"))
 
   variable_names <-
     read_rds(file.path("data",
                        "variable_names.rds"))
-  
-  global_data <-
-    read_rds(file.path("data",
-                       "country_dtf.rds"))
-
-  family_level_data <-
-    read_rds(file.path("data",
-                       "dtf_family_level.rds"))
   
   variable_names <-
         variable_names %>%
@@ -61,20 +50,12 @@ knitr::opts_chunk$set(
 
 Base country: `r params$base_country`
 
-```{r, echo = FALSE}
-      # data <-
-      #   family_level_data %>%
-#         def_quantiles(  
-#           params$base_country,
-#           params$comparison_countries,
-#           variable_names$variable
-#         ) %>%
-#         left_join(variable_names)
-# 
-#       data %>%
-#         static_plot(params$base_country,
-#                     "Country overview")
 
+```{r, echo = FALSE}
+params$family_data %>%
+  static_plot(params$base_country,
+              "Country overview", 
+              title = FALSE)
 ```
 
 # Institutional families

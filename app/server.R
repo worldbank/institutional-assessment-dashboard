@@ -182,13 +182,32 @@
         input$select,
 
         {
-          data <-
-            global_data %>%
+          global_data %>%
             def_quantiles(
               base_country(),
               country_list,
               input$groups,
               vars_all,
+              variable_names
+            )
+        }
+      )
+
+    data_family <-
+      eventReactive(
+        input$select,
+
+        {
+          family_data(
+            global_data,
+            base_country(),
+            variable_names
+          ) %>%
+            def_quantiles(
+              base_country(),
+              country_list,
+              input$groups,
+              family_names,
               variable_names
             )
         }
@@ -223,21 +242,7 @@
 
           if (input$family == "Overview") {
 
-            data <-
-              family_data(
-                global_data,
-                base_country(),
-                variable_names
-              ) %>%
-              def_quantiles(
-                base_country(),
-                country_list,
-                input$groups,
-                family_names,
-                variable_names
-              )
-
-            data %>%
+            data_family() %>%
               static_plot(base_country(),
                           input$family) %>%
               interactive_plot(base_country(),
@@ -649,7 +654,8 @@
           list(
             base_country = base_country(),
             comparison_countries = input$countries,
-            data = data()
+            data = data(),
+            family_data = data_family()
           )
 
         rmarkdown::render(
