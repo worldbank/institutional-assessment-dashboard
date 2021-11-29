@@ -66,48 +66,57 @@ params$family_data %>%
 params$data %>%
   filter(variable %in% vars_lab)  %>%
   static_plot(params$base_country,
-              "Labor market institutions") 
+              "Labor market institutions", 
+              title = FALSE) 
 
 params$data %>%
   filter(variable %in% vars_fin)  %>%
   static_plot(params$base_country,
-              "Financial market institutions") 
+              "Financial market institutions",
+              title = FALSE) 
 
 params$data %>%
   filter(variable %in% vars_leg)  %>%
   static_plot(params$base_country,
-              "Legal Institutions") 
+              "Legal Institutions",
+              title = FALSE) 
 
 params$data %>%
   filter(variable %in% vars_pol)  %>%
   static_plot(params$base_country,
-              "Political Institutions") 
+              "Political Institutions",
+              title = FALSE) 
 
 params$data %>%
   filter(variable %in% vars_social)  %>%
   static_plot(params$base_country,
-              "Social Institutions") 
+              "Social Institutions",
+              title = FALSE) 
 
 params$data %>%
   filter(variable %in% vars_mkt)  %>%
   static_plot(params$base_country,
-              "Business environment and trade institutions") 
+              "Business environment and trade institutions",
+              title = FALSE) 
 
 params$data %>%
   filter(variable %in% vars_publ)  %>%
   static_plot(params$base_country,
-              "Public sector performance institutions") 
+              "Public sector performance institutions",
+              title = FALSE) 
 
 params$data %>%
   filter(variable %in% vars_service_del)  %>%
   static_plot(params$base_country,
-              "Institutions for service delivery") 
+              "Institutions for service delivery",
+              title = FALSE) 
 
 
 params$data %>%
   filter(variable %in% vars_transp)  %>%
   static_plot(params$base_country,
-              "Accountability institutions") 
+              "Accountability institutions",
+              title = FALSE) 
 ```
 
 # Appendix - Indicator definitions
