@@ -264,7 +264,7 @@ ui <-
           bs4Card(
             title = "Indicator definitions",
             collapsible = TRUE,
-            collapsed = TRUE,
+            collapsed = FALSE,
             status = "secondary",
             solidHeader = TRUE,
             width = 12,
