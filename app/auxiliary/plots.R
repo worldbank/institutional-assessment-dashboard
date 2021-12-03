@@ -1,5 +1,8 @@
 # Benchmark plots ##############################################################
 
+note_size <- 11
+note_chars <- 220
+
 ## Static plot =================================================================
 static_plot <-
   function(data, base_country, tab_name, title = TRUE, note = NULL) {
@@ -109,18 +112,38 @@ static_plot <-
 
 interactive_plot <-
   function(x, y, z, tab_name, buttons) {
+
+    notes <-
+      paste0(
+        "<b>Notes:</b> ",
+        y,
+        " compared to ",
+        paste(z, collapse = ", "),
+        "."
+      )
+
+    if (tab_name == "Overview") {
+      notes <-
+        paste(
+          notes,
+          "Family-level closeness to frontier is calculated by taking the average closeness to frontier for all the latest available indicators in each family."
+        )
+    }
+
     x %>%
       ggplotly(tooltip = "text") %>%
       layout(
         margin = list(l = 50, r = 50, t = 75, b = 150),
         annotations =
-          list(x = 0, y = -0.4,
-               text = paste0("<b>Notes:</b> ", y, " compared to ", paste(z, collapse = ", "), "."),
-               showarrow = F,
-               xref = 'paper',
-               yref = 'paper',
-               align = 'left',
-               font = list(size = 13)
+          list(
+            x = 0,
+            y = -0.5,
+            text = HTML(str_wrap(notes, 160)),
+            showarrow = F,
+            xref = 'paper',
+            yref = 'paper',
+            align = 'left',
+            font = list(size = note_size)
           )
       ) %>%
       config(
@@ -188,28 +211,33 @@ interactive_map <-
         xaxis = list(visible = FALSE),
         yaxis = list(visible = FALSE),
         annotations =
-          list(x = 0, y = -0.2,
+          list(x = 0,
+               y = -0.2,
                text = HTML(
                  paste(
                    str_wrap(
                      "<b>Disclaimer:</b> Country borders or names do not necessarily reflect the World Bank Group's official position.
                      This map is for illustrative purposes and does not imply the expression of any opinion on the part of the World Bank,
                      concerning the legal status of any country or territory or concerning the delimitation of frontiers or boundaries.",
-                     180
+                     note_chars
                    ),
                    str_wrap(
                      paste(
                        "<b>Definition:</b>",
                        def$Description
                      ),
-                     180
+                     note_chars
                    ),
                    str_wrap(
                      paste(
                        "<b>Source:</b>",
                        def$Source
                      ),
-                     180
+                     note_chars
+                   ),
+                   str_wrap(
+                     "<b>Note:</b> The color illustrates the latest value of the indicator available for each country.",
+                     note_chars
                    ),
                    sep = "<br>"
                  )
@@ -218,7 +246,7 @@ interactive_map <-
                xref = 'paper',
                yref = 'paper',
                align = 'left',
-               font = list(size = 13)
+               font = list(size = note_size)
           )
       ) %>%
       config(
@@ -324,14 +352,14 @@ trends_plot <- function(raw_data,
                      "<b>Definition:</b>",
                      def$Description
                    ),
-                   180
+                   note_chars
                  ),
                  str_wrap(
                    paste(
                      "<b>Source:</b>",
                      def$Source
                    ),
-                   180
+                   note_chars
                  ),
                  sep = "<br>"
                )
@@ -340,7 +368,7 @@ trends_plot <- function(raw_data,
              xref = 'paper',
              yref = 'paper',
              align = 'left',
-             font = list(size = 13)
+             font = list(size = note_size)
         )
     ) %>%
     config(
