@@ -296,6 +296,7 @@
                      var_selected,
                      input$vars_map) %>%
           interactive_map(input$vars_map,
+                          definitions,
                           plotly_remove_buttons)
         }
 

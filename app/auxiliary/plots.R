@@ -68,7 +68,7 @@ static_plot <-
             y = var_name,
             x = dtf,
             fill = status,
-            text = paste("Country:", base_country,"<br>",
+            text = paste(" Country:", base_country,"<br>",
                          "Closeness to frontier:", round(dtf, 3))
           ),
           size = 3,
@@ -169,7 +169,13 @@ static_map <-
 ## Interactive map =============================================================
 
 interactive_map <-
-  function(x, title, buttons) {
+  function(x, var, definitions, buttons) {
+
+    def <-
+      definitions %>%
+      bind_rows %>%
+      filter(Indicator == var) %>%
+      select(-Indicator)
 
     x %>%
       ggplotly(tooltip = "text") %>%
@@ -183,9 +189,31 @@ interactive_map <-
         yaxis = list(visible = FALSE),
         annotations =
           list(x = 0, y = -0.2,
-               text = map(paste0("<b>Disclaimer:</b> Country borders or names do not necessarily reflect the World Bank Group's official position.",
-                                 "<br>This map is for illustrative purposes and does not imply the expression of any opinion on the part of the World Bank,",
-                                 "<br>concerning the legal status of any country or territory or concerning the delimitation of frontiers or boundaries."), HTML),
+               text = HTML(
+                 paste(
+                   str_wrap(
+                     "<b>Disclaimer:</b> Country borders or names do not necessarily reflect the World Bank Group's official position.
+                     This map is for illustrative purposes and does not imply the expression of any opinion on the part of the World Bank,
+                     concerning the legal status of any country or territory or concerning the delimitation of frontiers or boundaries.",
+                     180
+                   ),
+                   str_wrap(
+                     paste(
+                       "<b>Definition:</b>",
+                       def$Description
+                     ),
+                     180
+                   ),
+                   str_wrap(
+                     paste(
+                       "<b>Source:</b>",
+                       def$Source
+                     ),
+                     180
+                   ),
+                   sep = "<br>"
+                 )
+               ),
                showarrow = F,
                xref = 'paper',
                yref = 'paper',
@@ -196,7 +224,7 @@ interactive_map <-
       config(
         modeBarButtonsToRemove = buttons,
         toImageButtonOptions = list(
-          filename = paste0(tolower(stringr::str_replace_all(title,"\\s","_")),"_map"),
+          filename = paste0(tolower(stringr::str_replace_all(var,"\\s","_")),"_map"),
           width = 1050,
           height =  675
         )
