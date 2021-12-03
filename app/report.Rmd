@@ -36,6 +36,20 @@ knitr::opts_chunk$set(
   definitions <-
     read_rds(file.path("data",
                        "indicator_definitions.rds"))
+  
+  source <- 
+    "Source: Authors’ elaboration using CLIAR’s Interactive Online Dashboard."
+  
+  note <- 
+    paste0(
+      "Note: ",
+      "The bar reflects the simple average of the score for all subindicators included in a given institutional cluster. For each cluster, the x-axis shows the closeness to frontier \n
+      (length of the bar), which captures the gap between a country’s performance and the best performer among countries for which data are available (global frontier). The large circles show ",
+      params$base_country,
+      "'s performance. The traffic lights coloring indicates areas where the largest institutional gaps exist in ",
+      params$base_country,
+      " relative to comparator countries, as follows: red = weak institutional capital (bottom 25 percent); yellow = emerging institutional capital (25 percent–50 percent); green = strong institutional capital (top 50 percent). See World Bank (2021) for a detailed discussion on the methodology as well as a detail description and sources of indicators in each institutional cluster."
+    )
 ```
 
 **Base country:** `r params$base_country`
@@ -47,9 +61,16 @@ knitr::opts_chunk$set(
 
 ```{r}
 params$family_data %>%
-  static_plot(params$base_country,
-              "Country overview", 
-              title = FALSE)
+  static_plot(
+    params$base_country,
+    "Country overview", 
+    title = FALSE,
+    note = paste(
+      source,
+      str_wrap(note, 174),
+      sep = "\n"
+    )
+  )
 ```
 
 # Institutional families
@@ -95,7 +116,8 @@ for (category in c("Strong", "Emerging", "Weak")) {
           static_plot(
             params$base_country,
             family,
-            title = FALSE
+            title = FALSE,
+            note = source
           )
       )
       

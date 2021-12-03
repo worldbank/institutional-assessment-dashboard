@@ -2,7 +2,7 @@
 
 ## Static plot =================================================================
 static_plot <-
-  function(data, base_country, tab_name, title = TRUE) {
+  function(data, base_country, tab_name, title = TRUE, note = NULL) {
 
     data$var_name <-
       factor(
@@ -82,11 +82,15 @@ static_plot <-
               axis.text = element_text(color = "black"),
               axis.text.y = element_text(size = 12),
               axis.text.x = element_text(size = 11),
-              legend.box = "vertical") +
+              legend.box = "vertical",
+              plot.caption = element_text(size = 8,
+                                          hjust = 0),
+              plot.caption.position =  "plot") +
         labs(y = NULL,
              x = "Closeness to Frontier",
-             fill = NULL) +
-        scale_fill_manual(
+             fill = NULL,
+             caption = note) +
+          scale_fill_manual(
           values = colors
         )
 
