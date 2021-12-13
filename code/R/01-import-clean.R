@@ -232,22 +232,6 @@ var_original <- data_original %>%
 
 var_api <- setdiff(vars_all,var_original)
 
-#var_sources <- variable_names %>%
-#  filter(var_level=="indicator") %>%
-#  mutate(
-#    source = ifelse(variable %in% var_original, "Original and additions", "API")
-#  ) %>%
-#  select(-c(var_level,family_var))
-#
-#write_csv2(
-#  var_sources,
-#  here(
-#    "data",
-#    "data_checking",
-#    "variables_sources.csv"
-#  )
-#)
-
 # GET INDICATORS FROM API 360 ----
 #gov_indicators <- get_metadata360(site="gov", metadata_type = "indicators")
 #tc_indicators <- get_metadata360(site="tc", metadata_type = "indicators")
