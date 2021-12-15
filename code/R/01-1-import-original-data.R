@@ -1,8 +1,6 @@
 # Load packages ----
 packages <- c("tidyverse",
-              "here",
-              "data360r",
-              "skimr")
+              "here")
 
 pacman::p_load(packages,
                character.only = TRUE)
