@@ -32,7 +32,9 @@ additions <- haven::read_dta(here("data",
   ) %>%
   mutate(
     year = "2020",
-    proff1 = proff1*(-1)
+    proff1 = proff1*(-1),
+    country_code=as.character(country_code),
+    year=as.character(year)
   ) %>%
   relocate(year, .after = country_code) %>%
   ## Keep only indicators from original data ----
