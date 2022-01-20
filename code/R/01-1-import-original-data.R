@@ -81,7 +81,9 @@ data_cleaned <- data_original %>%
       ~ifelse(year==2018, NA, .x)
     ),
     country_name = ifelse(country_name == "ksv", "Kosovo", country_name),
-    country_name = ifelse(country_name == "tmp", "Timor-Leste", country_name)
+    country_name = ifelse(country_name == "tmp", "Timor-Leste", country_name),
+    country_code=as.character(country_code),
+    year=as.character(year)
   ) %>%
   ## Keep only indicators from original data ----
   select(
@@ -89,7 +91,8 @@ data_cleaned <- data_original %>%
     country_code,
     year,
     all_of(vars_original)
-  )
+  ) %>%
+  labelled::remove_labels()
 
-# Drop original data and save selected cleaned ----
+# Drop original data ----
 rm(data_original)
