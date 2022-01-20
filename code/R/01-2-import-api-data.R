@@ -4,6 +4,9 @@ packages <- c("tidyverse",
               "data360r",
               "skimr")
 
+pacman::p_load(packages,
+               character.only = TRUE)
+
 # GET INDICATORS FROM API 360 ----
 #gov_indicators <- get_metadata360(site="gov", metadata_type = "indicators")
 #tc_indicators <- get_metadata360(site="tc", metadata_type = "indicators")
@@ -115,19 +118,19 @@ governance_data <- c(
 )
 
 # Get data360
-data_api_1 <- get_data360(
+data_api_1 <- data360r::get_data360(
   indicator_id = selected_indicators_1,
   output_type = 'long')
 
-data_api_2 <- get_data360(
+data_api_2 <- data360r::get_data360(
   indicator_id = selected_indicators_2,
   output_type = 'long')
 
-data_api_3 <- get_data360(
+data_api_3 <- data360r::get_data360(
   indicator_id = selected_indicators_3,
   output_type = 'long')
 
-data_api_governance <- get_data360(
+data_api_governance <- data360r::get_data360(
   indicator_id = governance_data,
   output_type = 'long')
 
@@ -318,7 +321,9 @@ data_api <- data_api %>%
         barriers_trade_oth
       ),
       ~(6 - .x)
-    )
+    ),
+    country_code=as.character(country_code),
+    year=as.character(year)
   ) %>%
   filter(
     year >= 1950   # variable e_p_polity has values since 1800, filter to reduce # of rows
@@ -328,3 +333,6 @@ data_api <- data_api %>%
     year,
     all_of(vars_api)
   )
+
+# Drop partial data ----
+rm(data_api_1,data_api_2,data_api_3,data_api_governance,selected_indicators_1,selected_indicators_2,selected_indicators_3)
