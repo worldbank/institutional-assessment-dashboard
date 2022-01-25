@@ -7,14 +7,6 @@ packages <- c("tidyverse",
 pacman::p_load(packages,
                character.only = TRUE)
 
-data_selected <-
-  read_rds(here("data",
-                "data_cleaned",
-                "selected_vars.rds"))
-
-source(file.path("app/auxiliary",
-                 "vars-by-family.R"))
-
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # CALCULATE GLOBAL CLOSENESS TO FRONTIER FOR EACH INDICATOR AND FOR EACH COUNTRY -----------------------
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -31,7 +23,7 @@ source(file.path("app/auxiliary",
 
 # Get min and max for each variable
 vars_minmax <-
-  data_selected %>%
+  data_binded %>%
   summarise(
     across(
       all_of(vars_all),
@@ -77,7 +69,7 @@ vars_minmax <-
 # Collapse at country level. for each country, keep only the average since 2013
 # SC: in the long term, this step should be flexibly adjusted in the dashboard (keep last 7 years, given the present time)
 data_country <-
-  data_selected %>%
+  data_binded %>%
   group_by(country_name,
            country_code#,
            #lac,lac6,oecd,
