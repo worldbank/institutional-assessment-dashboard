@@ -30,8 +30,15 @@
 
   ## Auxiliary functions -----------------------------------------------------------------
 
+  #source(file.path("auxiliary",
+  #                 "vars-by-family.R"))
+
   source(file.path("auxiliary",
-                   "vars-by-family.R"))
+                   "vars-control.R"))
+
+  db_variables <-
+    db_variables %>%
+    filter(variable %in% vars_all)
 
   # Function that defines quantiles based on country, comparison and variables
   source(file.path("auxiliary",
@@ -47,13 +54,13 @@
   ## Data sets ---------------------------------------------------------------------------
 
   # Indicator definitions
-  definitions <-
-    read_rds(file.path("data",
-                       "indicator_definitions.rds"))
+  #definitions <-
+  #  read_rds(file.path("data",
+  #                     "indicator_definitions.rds"))
 
-  all_indicators <-
-    read_rds(file.path("data",
-                       "list_of_indicators.rds"))
+  #all_indicators <-
+  #  read_rds(file.path("data",
+  #                     "list_of_indicators.rds"))
 
   # Closeness to frontier data
   global_data <-
@@ -76,8 +83,8 @@
 
   # Metadata
   variable_names <-
-    read_rds(file.path("data",
-                       "variable_names.rds"))
+    db_variables %>%
+    select(variable,var_level,var_name,family_var,family_name)
 
   country_list <-
     read_rds(file.path("data",
@@ -665,7 +672,7 @@
    # Definitions ===========================================================================
 
     output$definition <-
-      renderTable(definitions[[input$family]])
+      renderTable(db_variables %>% select(var_name,family_name,description,source))
 
     # Download csv with definitions
     output$download_indicators <-
@@ -673,7 +680,7 @@
         filename = "Institutional assessment indicators.csv",
 
         content = function(file) {
-          write_csv(all_indicators,
+          write_csv(db_variables %>% select(var_name,family_name,description,source),
                     file,
                     na = "")
         }
