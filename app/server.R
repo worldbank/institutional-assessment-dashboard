@@ -38,7 +38,7 @@
 
   db_variables <-
     db_variables %>%
-    filter(variable %in% vars_all)
+    filter(variable %in% vars_all | var_level == "family")
 
   # Function that defines quantiles based on country, comparison and variables
   source(file.path("auxiliary",
@@ -672,7 +672,12 @@
    # Definitions ===========================================================================
 
     output$definition <-
-      renderTable(db_variables %>% select(var_name,family_name,description,source))
+      renderTable(
+        db_variables %>%
+          filter(family_name == input$family) %>%
+          select(Indicator=var_name,Family=family_name,Description=description,Source=source)
+        )
+      #renderTable(definitions[[input$family]])
 
     # Download csv with definitions
     output$download_indicators <-
@@ -680,7 +685,7 @@
         filename = "Institutional assessment indicators.csv",
 
         content = function(file) {
-          write_csv(db_variables %>% select(var_name,family_name,description,source),
+          write_csv(db_variables %>% select(indicador=var_name,family=family_name,description,source),
                     file,
                     na = "")
         }
