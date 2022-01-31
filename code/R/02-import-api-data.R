@@ -13,95 +13,6 @@ pacman::p_load(packages,
 
 #indicators_360 <- bind_rows(gov_indicators,tc_indicators)
 
-# IDs from selected indicators
-selected_indicators_1 <- c(
-  290,   # Corruption / Percent of firms identifying the courts system as a major constraint
-  #464, #DOING BUSINESS INDICATOR  #  Dealing with construction permits: Procedures
-  #472, #DOING BUSINESS INDICATOR  # Registering property: Cost
-  #477,	#DOING BUSINESS INDICATOR  # Enforcing contracts: Cost
-  #482	Resolving insolvency: Cost                    # ONLY ON DEFINITIONS
-  519,   # Extent of market dominance
-  633,   # Property rights (WEF)
-  663,   # Diversion of public funds
-  665,   # Public trust in politicians
-  667,   # Irregular payments and bribes
-  671,   # Favoritism in decisions of government officials
-  683,   # Wastefulness of government spending
-  685,   # Efficiency of legal framework in settling disputes
-  687,   # Transparency of government policymaking
-  691,   #	Efficiency of legal framework in challenging regs
-  697,   #	Effectiveness of antimonopoly policy
-  #719,  #	Prevalence of trade barriers
-  723,	 # Burden of customs procedures
-  #747,   # Index of economic freedom score          # ONLY ON DEFINITIONS
-  3276,  # Corruption
-  #3285,	 # Foreign Currency Regulations               # DIFFERENT VALUES
-  3289,	 # Restrictive Labor Regulations
-  3305,	 # Administrative burdens on startups
-  3307,	 # Explicit barriers to trade and investment
-  3308,	 # Other barriers to trade and investment
-  3310,  #  Use of command and control regulation
-  3311,	 # Price controls
-  3323	 # Complexity of regulatory procedures
-)
-
-# API WASNT ABLE TO GET ALL TOGETHER
-selected_indicators_2 <- c(
-  3326,	 # Governance of state-owned enterprises
-  3328,	 # Regulatory protection of incumbents
-  #3451,  # Government Online Service Index
-  #3469,  # E-Participation Index, 0-1 (best)
-  #24840, #DOING BUSINESS INDICATOR # Paying taxes: Time
-  27470, # Revised Combined Polity Score
-  #27885, # Publicized laws and government data
-  27889, # Right to information
-  27894, # Complaint mechanisms
-  27900, # Freedom of opinion and expression is effectively guaranteed
-  27919, # People can access and afford civil justice
-  #28833, #DOING BUSINESS INDICATOR  # Resolving insolvency Outcome
-  #28782, #  Steering Capability
-  #30823, # Central Bank independence                # NO RECENT DATA
-  #31001, #  Efficiency of the banking supervisory authority
-  #31003, #  Efficiency of the financial market supervisory authority
-  #31088, #  Financial sector: competition regulation # ID NOT FOUND 24-09-2021
-  #31115, #  Freedom of entry for foreigners # ID NOT FOUND 24-09-2021
-  40294, #  Ease of starting a business
-  40418, #  Ease of getting credit
-  40432 #  Ease of protecting minority investors
-  #40822  # 3. Undue influence
-  #40985 #  Civil Liberties                    # STRANGE VALUES
-  #40986, # Political Rights                   # STRANGE VALUES
-)
-
-selected_indicators_3 <- c(
-  #41008, #	Burden of government regulation, 1-7 (best)
-  41031, #  Regulatory governance score
-  #41189, #  Procurement
-  41305, #  Burden of customs procedures, 1-7 (best)
-  41619, #  GCI 4.0: Global Competitiveness Index 4.0
-  #41629, #  GCI 4.0: 1.E Undue influence and corruption
-  41703, #  GCI 4.0: 7.A Domestic competition
-  41714, #  GCI 4.0: Efficiency of the clearance process
-  41794, #  Absence of corruption (Global States of Democracy)
-  41827, #  Civil society participation
-  41881, #  Engaged society
-  #41883, #  Executive constraints          # POLITICAL ISSUE
-  41857, #  CSO entry and exit
-  41918, #  Freedom of academic and cultural expression
-  #41932, #  Fundamental rights               # POLITICAL ISSUE
-  41951, #  Judicial accountability
-  #41953 #	Judicial independence       # ONLY ON DEFINITIONS
-  #41955, #  Law  and order            # POLITICAL ISSUE
-  41981, #  Lower chamber female legislators
-  42024, #  Power distributed by gender
-  42025, #  Power distributed by social group
-  42026, #  Power distributed by socio-economic position
-  #42084, #	Rigorous and impartial public administration
-  #42602, #DOING BUSINESS INDICATOR #  Resolving insolvency: Strength of insolvency framework index
-  43034, #  Hiring and firing practices, 1-7 (best)
-  43050  #  GCI 4.0: Border clearance efficiency
-)
-
 governance_data <- c(
   42099, # SOE board of directors independence (Mining)
   42100, # SOE board of directors independence (Oil & Gas)
@@ -118,17 +29,30 @@ governance_data <- c(
 )
 
 # Get data360
-data_api_1 <- data360r::get_data360(
-  indicator_id = selected_indicators_1,
-  output_type = 'long')
+indicator_ids <-
+  db_variables %>%
+    filter(
+      select==1 &
+      !is.na(api_id)
+    ) %>%
+    .$api_id
 
-data_api_2 <- data360r::get_data360(
-  indicator_id = selected_indicators_2,
-  output_type = 'long')
+indicator_ids <- split(indicator_ids,
+  ceiling(
+    seq_along(indicator_ids)/10
+  )
+)
 
-data_api_3 <- data360r::get_data360(
-  indicator_id = selected_indicators_3,
-  output_type = 'long')
+datalist = list()
+
+for(i in 1:length(indicator_ids)){
+  datalist[[i]] <- data360r::get_data360(
+           indicator_id = c(indicator_ids[[i]]),
+           output_type = 'long'
+          )
+}
+
+data_api_raw = do.call(dplyr::bind_rows , datalist)
 
 data_api_governance <- data360r::get_data360(
   indicator_id = governance_data,
@@ -156,14 +80,9 @@ data_api_governance <- data_api_governance %>%
 
 data_api <-
   bind_rows(
-    data_api_1,
-    data_api_2,
-    data_api_3,
+    data_api_raw,
     data_api_governance
-  )
-
-data_api <-
-  data_api %>%
+  ) %>%
   mutate(
     Indicator = str_trim(Indicator)
   )
@@ -195,6 +114,16 @@ data_api <- data_api %>%
     nesting(Indicator, year),
     fill = list(value = NA)
   ) %>%
+  #left_join(
+  #  db_variables %>%
+  #    filter(
+  #      select==1 &
+  #      data_source == "api" &
+  #      !is.na(api_id)
+  #    ) %>%
+  #    select(var_name,variable),
+  #  by=c("Indicator"="var_name")
+  #) %>%
   mutate(
     var = case_when(
       Indicator == "SOE board of directors independence" ~ "soe_board",
@@ -282,9 +211,11 @@ data_api <- data_api %>%
       TRUE ~ NA_character_
     )
   ) %>%
+  filter(!is.na(var)) %>%
   pivot_wider(
     id_cols = c(country_name,country_code,year),
-    names_from = var
+    names_from = var#,
+    #values_from = value
   ) %>%
   # SC: methodological note for PRM indicates that 1998 and 2013 indicators are comparable, but not with 2018 due to change in methodology
   # --> drop if year ==2018
@@ -307,6 +238,9 @@ data_api <- data_api %>%
   mutate(
     e_p_polity = ifelse(e_p_polity < -10, NA, e_p_polity)
   ) %>%
+  filter(
+    year >= 1950   # variable e_p_polity has values since 1800, filter to reduce # of rows
+  ) %>%
   # PRM indicators: Countries are graded between 0 (less control/involvement) and 6 (more control/involvement)
   mutate(
     across(
@@ -325,9 +259,6 @@ data_api <- data_api %>%
     country_code=as.character(country_code),
     year=as.character(year)
   ) %>%
-  filter(
-    year >= 1950   # variable e_p_polity has values since 1800, filter to reduce # of rows
-  ) %>%
   select(
     country_code,
     year,
@@ -335,4 +266,4 @@ data_api <- data_api %>%
   )
 
 # Drop partial data ----
-rm(data_api_1,data_api_2,data_api_3,data_api_governance,selected_indicators_1,selected_indicators_2,selected_indicators_3)
+rm(datalist,data_api_raw,data_api_governance,indicator_ids,i)
