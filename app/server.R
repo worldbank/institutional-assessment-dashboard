@@ -673,10 +673,18 @@
 
     output$definition <-
       renderTable(
+
+        if(input$family == "Overview"){
+          db_variables %>%
+            select(Indicator=var_name,Family=family_name,Description=description,Source=source)
+        } else {
+
         db_variables %>%
           filter(family_name == input$family) %>%
           select(Indicator=var_name,Family=family_name,Description=description,Source=source)
-        )
+
+        }
+      )
       #renderTable(definitions[[input$family]])
 
     # Download csv with definitions
