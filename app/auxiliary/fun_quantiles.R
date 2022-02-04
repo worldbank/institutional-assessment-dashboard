@@ -2,12 +2,13 @@
 # FUNCTION THAT DEFINES THE QUANTILES BASED ON SELECTED COUNTRY AND COMPARISON GROUP -----------------------
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-def_quantiles <- function(data, base_country, country_list, selected_groups, vars, variable_names) {
+def_quantiles <- function(data, base_country, country_list, comparison_countries, vars, variable_names) {
 
 
+  print(comparison_countries)
   comparison_list <-
     country_list %>%
-    filter(group %in% selected_groups)
+    filter(country_name %in% comparison_countries)
 
   na_indicators <-
     data %>%

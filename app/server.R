@@ -58,7 +58,12 @@
   # Closeness to frontier data
   global_data <-
     read_rds(file.path("data",
-                       "country_dtf.rds"))
+                       "country_dtf.rds")) %>%
+    mutate(country_name =
+             country_name %>%
+             str_replace_all("Macedonia", "North Macedonia") %>%
+             str_replace_all("Swaziland", "Eswatini")
+    )
 
   wb_country_geom_fact <-
     read_rds(file.path("data",
@@ -187,7 +192,7 @@
             def_quantiles(
               base_country(),
               country_list,
-              input$groups,
+              input$countries,
               vars_all,
               variable_names
             )
@@ -207,7 +212,7 @@
             def_quantiles(
               base_country(),
               country_list,
-              input$groups,
+              input$countries,
               family_names,
               variable_names
             )
