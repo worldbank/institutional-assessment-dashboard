@@ -36,12 +36,24 @@
   source(file.path("auxiliary",
                    "vars-control.R"))
 
+  # Load data with min max year for info available
+  period_info_available <- read_rds(file.path("data",
+                                              "period_info_available.rds"))
+
+  period_info_by_variable <- read_rds(file.path("data",
+                                                "period_info_by_variable.rds"))
+
+  # Load data control
   db_variables <-
     db_variables %>%
     filter(variable %in% vars_all | var_level == "family") %>%
     mutate(
       description = str_replace_all(description, "[[:punct:]]", " ")
-    )
+    ) %>%
+    left_join(
+      period_info_by_variable, by = c("variable"="variable")
+    ) %>%
+    mutate(range=paste0(min,"-",max))
 
   # Function that defines quantiles based on country, comparison and variables
   source(file.path("auxiliary",
@@ -99,10 +111,6 @@
                        "wb_country_list.rds"))
 
   color_groups <- colorRampPalette(c("#053E5D", "#60C2F7"))
-
-  # Load data with min max year for info available
-  period_info_available <- read_rds(file.path("data",
-                                              "period_info_available.rds"))
 
 # Server ################################################################################
 
@@ -691,12 +699,12 @@
 
         if(input$family == "Overview"){
           db_variables %>%
-            select(Indicator=var_name,Family=family_name,Description=description,Source=source)
+            select(Indicator=var_name,Family=family_name,Description=description,Source=source,Period=range)
         } else {
 
         db_variables %>%
           filter(family_name == input$family) %>%
-          select(Indicator=var_name,Family=family_name,Description=description,Source=source)
+          select(Indicator=var_name,Family=family_name,Description=description,Source=source,Period=range)
 
         }
       )
@@ -708,7 +716,7 @@
         filename = "Institutional assessment indicators.csv",
 
         content = function(file) {
-          write_csv(db_variables %>% select(indicador=var_name,family=family_name,description,source),
+          write_csv(db_variables %>% select(indicador=var_name,family=family_name,description,source,range),
                     file,
                     na = "")
         }

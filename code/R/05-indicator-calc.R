@@ -9,7 +9,7 @@ pacman::p_load(packages,
 
 # GET MIN AND MAX YEAR FOR EACH INDICATOR BY COUNTRY -------------------------
 period_info_by_country_variable <- data_binded %>%
-  pivot_longer(cols = 4:86) %>%
+  pivot_longer(cols = 4:ncol(.)) %>%
   filter(!is.na(value)) %>%
   arrange(country_code,country_name,name,year) %>%
   group_by(country_code,country_name,name) %>%
@@ -17,6 +17,18 @@ period_info_by_country_variable <- data_binded %>%
   summarise(
       min = min(year, na.rm = T),
       max = max(year, na.rm = T)
+  )
+
+# PERIOD INFO AVAILABLE BY INDICATOR ----
+period_info_by_variable <- data_binded %>%
+  pivot_longer(cols = 4:ncol(.)) %>%
+  filter(!is.na(value)) %>%
+  arrange(country_code,country_name,name,year) %>%
+  group_by(name) %>%
+  rename(variable=name) %>%
+  summarise(
+    min = min(year, na.rm = T),
+    max = max(year, na.rm = T)
   )
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -140,3 +152,8 @@ write_rds(period_info_by_country_variable,
           here("app",
                "data",
                "period_info_available.rds"))
+
+write_rds(period_info_by_variable,
+          here("app",
+               "data",
+               "period_info_by_variable.rds"))
