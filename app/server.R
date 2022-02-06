@@ -419,9 +419,9 @@
                               color = "Country",
                               group = "Country",
                               alpha = "alpha")) +
-            geom_point(aes(text = paste("Country:", Country, "<br>",
-                                        "Year:", Year, "<br>",
-                                        "Value:", get(var_trends()))),
+            geom_point(aes(text = paste0("Country: ", Country, "<br>",
+                                        "Year: ", Year, "<br>",
+                                        "Value: ", get(var_trends()))),
                        size = 3) +
             geom_line() +
             theme_ipsum() +
