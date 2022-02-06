@@ -73,7 +73,7 @@ wb_country_geom_fact <-
                         . > 0.4 & . <= 0.6 ~ "0.4 - 0.6",
                         . > 0.6 & . <= 0.8 ~ "0.6 - 0.8",
                         . > 0.8 ~ "0.8 - 1.0",
-                        is.na(.) ~ "Not avaiable") %>%
+                        is.na(.) ~ "Not available") %>%
               as.factor
   )
 
