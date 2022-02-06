@@ -100,6 +100,9 @@
 
   color_groups <- colorRampPalette(c("#053E5D", "#60C2F7"))
 
+  # Load data with min max year for info available
+  period_info_available <- read_rds(file.path("data",
+                                              "period_info_available.rds"))
 
 # Server ################################################################################
 
@@ -301,8 +304,12 @@
             filter(var_name == input$vars_map) %>%
             .$variable
 
+          latest_year <- period_info_available %>%
+            filter(variable == var_selected)
+
           static_map(wb_country_geom_fact,
                      var_selected,
+                     latest_year,
                      input$vars_map) %>%
           interactive_map(input$vars_map,
                           plotly_remove_buttons)

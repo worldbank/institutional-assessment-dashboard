@@ -13,7 +13,7 @@ period_info_by_country_variable <- data_binded %>%
   filter(!is.na(value)) %>%
   arrange(country_code,country_name,name,year) %>%
   group_by(country_code,country_name,name) %>%
-  rename(variabel=name) %>%
+  rename(variable=name) %>%
   summarise(
       min = min(year, na.rm = T),
       max = max(year, na.rm = T)
