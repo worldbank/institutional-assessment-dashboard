@@ -7,6 +7,18 @@ packages <- c("tidyverse",
 pacman::p_load(packages,
                character.only = TRUE)
 
+# GET MIN AND MAX YEAR FOR EACH INDICATOR BY COUNTRY -------------------------
+period_info_by_country_variable <- data_binded %>%
+  pivot_longer(cols = 4:86) %>%
+  filter(!is.na(value)) %>%
+  arrange(country_code,country_name,name,year) %>%
+  group_by(country_code,country_name,name) %>%
+  rename(variabel=name) %>%
+  summarise(
+      min = min(year, na.rm = T),
+      max = max(year, na.rm = T)
+  )
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # CALCULATE GLOBAL CLOSENESS TO FRONTIER FOR EACH INDICATOR AND FOR EACH COUNTRY -----------------------
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -123,3 +135,8 @@ write_rds(dtf_vars_global,
           here("app",
                "data",
                "country_dtf.rds"))
+
+write_rds(period_info_by_country_variable,
+          here("app",
+               "data",
+               "period_info_available.rds"))
