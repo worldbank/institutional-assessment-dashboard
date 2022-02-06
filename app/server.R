@@ -38,7 +38,10 @@
 
   db_variables <-
     db_variables %>%
-    filter(variable %in% vars_all | var_level == "family")
+    filter(variable %in% vars_all | var_level == "family") %>%
+    mutate(
+      description = str_replace_all(description, "[[:punct:]]", " ")
+    )
 
   # Function that defines quantiles based on country, comparison and variables
   source(file.path("auxiliary",
