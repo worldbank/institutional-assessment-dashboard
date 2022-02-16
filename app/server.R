@@ -16,32 +16,26 @@
 
 # Inputs ################################################################################
 
-  plotly_remove_buttons <-
-    c("zoomIn2d",
-      "zoomOut2d",
-      "pan2d",
-      "autoScale2d",
-      "lasso2d",
-      "select2d",
-      "toggleSpikelines",
-      "hoverClosest3d",
-      "hoverClosestCartesian",
-      "hoverCompareCartesian")
-
   ## Auxiliary functions -----------------------------------------------------------------
-
-  #source(file.path("auxiliary",
-  #                 "vars-by-family.R"))
 
   source(file.path("auxiliary",
                    "vars-control.R"))
 
   # Load data with min max year for info available
-  period_info_available <- read_rds(file.path("data",
-                                              "period_info_available.rds"))
+  period_info_available <-
+    read_rds(
+      file.path(
+        "data",
+        "period_info_available.rds")
+    )
 
-  period_info_by_variable <- read_rds(file.path("data",
-                                                "period_info_by_variable.rds"))
+  period_info_by_variable <-
+    read_rds(
+      file.path(
+        "data",
+        "period_info_by_variable.rds"
+      )
+    )
 
   # Load data control
   db_variables <-
@@ -51,9 +45,17 @@
       description = str_replace_all(description, "[[:punct:]]", " ")
     ) %>%
     left_join(
-      period_info_by_variable, by = c("variable"="variable")
+      period_info_by_variable,
+      by = "variable"
     ) %>%
-    mutate(range=paste0(min,"-",max))
+    mutate(
+      range =
+        ifelse(
+          var_level == "family",
+          NA,
+          paste0(min, "-", max)
+        )
+    )
 
   # Function that defines quantiles based on country, comparison and variables
   source(file.path("auxiliary",
@@ -67,15 +69,6 @@
                    "plots.R"))
 
   ## Data sets ---------------------------------------------------------------------------
-
-  # Indicator definitions
-  #definitions <-
-  #  read_rds(file.path("data",
-  #                     "indicator_definitions.rds"))
-
-  #all_indicators <-
-  #  read_rds(file.path("data",
-  #                     "list_of_indicators.rds"))
 
   # Closeness to frontier data
   global_data <-
@@ -109,8 +102,6 @@
   country_list <-
     read_rds(file.path("data",
                        "wb_country_list.rds"))
-
-  color_groups <- colorRampPalette(c("#053E5D", "#60C2F7"))
 
 # Server ################################################################################
 
@@ -326,7 +317,7 @@
                      latest_year,
                      input$vars_map) %>%
           interactive_map(input$vars_map,
-                          definitions,
+                          db_variables,
                           plotly_remove_buttons)
         }
 
@@ -396,7 +387,7 @@
             input$countries_trends,
             country_list,
             input$group_trends,
-            definitions
+            db_variables
           )
         }
 
@@ -622,20 +613,29 @@
    # Definitions ===========================================================================
 
     output$definition <-
-      renderTable(
+      renderTable({
 
-        if(input$family == "Overview"){
+        variables <-
           db_variables %>%
-            select(Indicator=var_name,Family=family_name,Description=description,Source=source,Period=range)
-        } else {
+          filter(var_level == "indicator")
 
-        db_variables %>%
-          filter(family_name == input$family) %>%
-          select(Indicator=var_name,Family=family_name,Description=description,Source=source,Period=range)
-
+        if (input$family != "Overview") {
+          variables <-
+            variables %>%
+            filter(family_name == input$family)
         }
-      )
-      #renderTable(definitions[[input$family]])
+
+        variables %>%
+          select(
+            Indicator = var_name,
+            Family = family_name,
+            Description = description,
+            Source = source,
+            Period = range
+          )
+
+      })
+
 
     # Download csv with definitions
     output$download_indicators <-
@@ -643,9 +643,18 @@
         filename = "Institutional assessment indicators.csv",
 
         content = function(file) {
-          write_csv(db_variables %>% select(indicador=var_name,family=family_name,description,source,range),
-                    file,
-                    na = "")
+          write_csv(
+            db_variables %>%
+              select(
+                indicator = var_name,
+                family = family_name,
+                description,
+                source,
+                range
+              ),
+              file,
+              na = ""
+          )
         }
       )
 

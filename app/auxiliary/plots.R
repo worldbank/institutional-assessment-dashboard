@@ -2,6 +2,20 @@
 
 note_size <- 11
 note_chars <- 220
+color_groups <- colorRampPalette(c("#053E5D", "#60C2F7"))
+
+plotly_remove_buttons <-
+  c("zoomIn2d",
+    "zoomOut2d",
+    "pan2d",
+    "autoScale2d",
+    "lasso2d",
+    "select2d",
+    "toggleSpikelines",
+    "hoverClosest3d",
+    "hoverClosestCartesian",
+    "hoverCompareCartesian")
+
 
 ## Static plot =================================================================
 static_plot <-
@@ -199,9 +213,7 @@ interactive_map <-
 
     def <-
       definitions %>%
-      bind_rows %>%
-      filter(Indicator == var) %>%
-      select(-Indicator)
+      filter(var_name == var)
 
     x %>%
       ggplotly(tooltip = "text") %>%
@@ -227,14 +239,14 @@ interactive_map <-
                    str_wrap(
                      paste(
                        "<b>Definition:</b>",
-                       def$Description
+                       def$description
                      ),
                      note_chars
                    ),
                    str_wrap(
                      paste(
                        "<b>Source:</b>",
-                       def$Source
+                       def$source
                      ),
                      note_chars
                    ),
@@ -272,9 +284,7 @@ trends_plot <- function(raw_data,
 
   def <-
     definitions %>%
-    bind_rows %>%
-    filter(Indicator == indicator_name) %>%
-    select(-Indicator)
+    filter(var_name == indicator_name)
 
   indicator_data <-
     raw_data %>%
@@ -353,14 +363,14 @@ trends_plot <- function(raw_data,
                  str_wrap(
                    paste(
                      "<b>Definition:</b>",
-                     def$Description
+                     def$description
                    ),
                    note_chars
                  ),
                  str_wrap(
                    paste(
                      "<b>Source:</b>",
-                     def$Source
+                     def$source
                    ),
                    note_chars
                  ),
