@@ -123,7 +123,8 @@
     base_country <-
       eventReactive(
         input$select,
-        input$country
+        input$country,
+        ignoreNULL = FALSE
       )
 
     ## Comparison countries ----------------------------------------------------
@@ -208,13 +209,32 @@
         input$select,
 
         {
-          data <-
-            global_data %>%
+          global_data %>%
             def_quantiles(
               base_country(),
               country_list,
               input$countries,
               vars_all,
+              variable_names
+            )
+        }
+      )
+
+    data_family <-
+      eventReactive(
+        input$select,
+
+        {
+          family_data(
+            global_data,
+            base_country(),
+            variable_names
+          ) %>%
+            def_quantiles(
+              base_country(),
+              country_list,
+              input$countries,
+              family_names,
               variable_names
             )
         }
@@ -249,21 +269,7 @@
 
           if (input$family == "Overview") {
 
-            data <-
-              family_data(
-                global_data,
-                base_country(),
-                variable_names
-              ) %>%
-              def_quantiles(
-                base_country(),
-                country_list,
-                input$countries,
-                family_names,
-                variable_names
-              )
-
-            data %>%
+            data_family() %>%
               static_plot(base_country(),
                           input$family) %>%
               interactive_plot(base_country(),
@@ -320,6 +326,7 @@
                      latest_year,
                      input$vars_map) %>%
           interactive_map(input$vars_map,
+                          definitions,
                           plotly_remove_buttons)
         }
 
@@ -376,103 +383,21 @@
       ignoreNULL = FALSE
     )
 
-
-    data_trends <-
-      reactive({
-
-        data <-
-          raw_data %>%
-          filter(country_name %in% c(input$country_trends)) %>%
-          mutate(alpha = .8,
-                 shape = 19)
-
-        if (!is.null(input$countries_trends)) {
-
-          data <-
-            raw_data %>%
-            filter(country_name %in% c(input$countries_trends)) %>%
-            mutate(alpha = .5,
-                   shape = 18) %>%
-            bind_rows(data)
-        }
-
-        if (!is.null(input$group_trends)) {
-
-          indicator <-
-            raw_data %>%
-            select(country_name, Year, all_of(var_trends()))
-
-          data <-
-            country_list %>%
-            filter(group %in% input$group_trends) %>%
-            select(group, country_name) %>%
-            mutate(country_name = as.character(country_name)) %>%
-            left_join(indicator) %>%
-            group_by(Year, group) %>%
-            summarise_all(~ mean(., na.rm = TRUE)) %>%
-            mutate(country_name = as.character(group),
-                   alpha = .5,
-                   shape = 19) %>%
-            bind_rows(data)
-        }
-
-        data %>%
-          rename(Country = country_name) %>%
-          select(Country, Year, all_of(var_trends()), alpha) %>%
-          mutate_at(vars(all_of(var_trends())),
-                    ~ round(., 3))
-      })
-
     output$time_series <-
       renderPlotly({
 
         if (input$indicator_trends != "") {
-          static_plot <-
-            ggplot(data_trends(),
-                   aes_string(x = "Year",
-                              y = var_trends(),
-                              color = "Country",
-                              group = "Country",
-                              alpha = "alpha")) +
-            geom_point(aes(text = paste0("Country: ", Country, "<br>",
-                                        "Year: ", Year, "<br>",
-                                        "Value: ", get(var_trends()))),
-                       size = 3) +
-            geom_line() +
-            theme_ipsum() +
-            labs(
-              x = "Year",
-              y = "Indicator value",
-              title = paste0("<b>",input$indicator_trends,"</b>")
-            ) +
-            scale_color_manual(
-              name = NULL,
-              values = c("#FB8500",
-                         gray.colors(length(input$countries_trends)),
-                         color_groups(length(input$group_trends))),
-              breaks = c(input$country_trends,
-                         input$countries_trends,
-                         input$group_trends)
-            ) +
-            scale_alpha_identity() +
-            theme(
-              axis.text.x = element_text(angle = 90)
-            )
 
-          ggplotly(static_plot, tooltip = "text") %>%
-            layout(
-              legend = list(
-                title = list(text = '<b>Country:</b>'),
-                y = 0.5
-              ),
-              margin = list(l = 50, r = 50, t = 75, b = 135)
-            ) %>%
-            config(
-              modeBarButtonsToRemove = plotly_remove_buttons,
-              toImageButtonOptions = list(filename = paste0("trends_",
-                                                           tolower(input$country_trends),"_",
-                                                           tolower(input$indicator_trends)))
-            )
+          trends_plot(
+            raw_data,
+            var_trends(),
+            input$indicator_trends,
+            input$country_trends,
+            input$countries_trends,
+            country_list,
+            input$group_trends,
+            definitions
+          )
         }
 
       })
@@ -666,8 +591,9 @@
     output$report <- downloadHandler(
 
       filename = paste0(
-        str_to_lower(input$country),
-        "-instutitional-assessment-report.docx"
+        "CLIAR-benchmarking-",
+        base_country(),
+        ".docx"
       ),
 
       content = function(file) {
@@ -679,7 +605,8 @@
           list(
             base_country = base_country(),
             comparison_countries = input$countries,
-            data = data()
+            data = data(),
+            family_data = data_family()
           )
 
         rmarkdown::render(

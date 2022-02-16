@@ -1,8 +1,11 @@
 # Benchmark plots ##############################################################
 
+note_size <- 11
+note_chars <- 220
+
 ## Static plot =================================================================
 static_plot <-
-  function(data, base_country, tab_name) {
+  function(data, base_country, tab_name, title = TRUE, note = NULL) {
 
     data$var_name <-
       factor(
@@ -15,80 +18,93 @@ static_plot <-
     colors <-
       c("Weak\n(bottom 25%)" = "#D2222D",
         "Emerging\n(25% - 50%)" = "#FFBF00",
-        "Advanced\n(top 50%)" = "#238823"
+        "Strong\n(top 50%)" = "#238823"
       )
 
-    ggplot() +
-      geom_segment(
-        data = data,
-        aes(
-          y = var_name,
-          yend = var_name,
-          x = 0,
-          xend = q25
-        ),
-        color = "#e47a81",
-        size = 2,
-        alpha = .1
-      ) +
-      geom_vline(
-        xintercept = 1,
-        linetype = "dashed",
-        color = colors["Advanced"],
-        size = 1
-      ) +
-      geom_segment(
-        data = data,
-        aes(
-          y = var_name,
-          yend = var_name,
-          x = q25,
-          xend = q50
-        ),
-        color = "#ffd966",
-        size = 2,
-        alpha = .3
-      ) +
-      geom_segment(
-        data = data,
-        aes(
-          y = var_name,
-          yend = var_name,
-          x = q50,
-          xend = 1
-        ),
-        color = "#8ec18e",
-        size = 2,
-        alpha = .3
-      ) +
-      geom_point(
-        data = data %>% filter(country_name == base_country),
-        aes(
-          y = var_name,
-          x = dtf,
-          fill = status_dtf,
-          text = paste("Country:", base_country,"<br>",
-                       "Closeness to frontier:", round(dtf, 3))
-        ),
-        size = 3,
-        shape = 21,
-        color = "gray0"
-      ) +
-      theme_minimal() +
-      theme(legend.position = "top",
-            panel.grid.minor = element_blank(),
-            axis.ticks = element_blank(),
-            axis.text = element_text(color = "black"),
-            axis.text.y = element_text(size = 12),
-            axis.text.x = element_text(size = 11),
-            legend.box = "vertical") +
-      labs(y = NULL,
-           x = "Closeness to Frontier",
-           fill = NULL) +
-      scale_fill_manual(
-        values = colors
-      ) +
-      labs(title = paste0("<b>", tab_name, "</b>"))
+    plot <-
+      ggplot() +
+        geom_segment(
+          data = data,
+          aes(
+            y = var_name,
+            yend = var_name,
+            x = 0,
+            xend = q25
+          ),
+          color = "#e47a81",
+          size = 2,
+          alpha = .1
+        ) +
+        geom_vline(
+          xintercept = 1,
+          linetype = "dashed",
+          color = colors["Advanced"],
+          size = 1
+        ) +
+        geom_segment(
+          data = data,
+          aes(
+            y = var_name,
+            yend = var_name,
+            x = q25,
+            xend = q50
+          ),
+          color = "#ffd966",
+          size = 2,
+          alpha = .3
+        ) +
+        geom_segment(
+          data = data,
+          aes(
+            y = var_name,
+            yend = var_name,
+            x = q50,
+            xend = 1
+          ),
+          color = "#8ec18e",
+          size = 2,
+          alpha = .3
+        ) +
+        geom_point(
+          data = data %>% filter(country_name == base_country),
+          aes(
+            y = var_name,
+            x = dtf,
+            fill = status,
+            text = paste(" Country:", base_country,"<br>",
+                         "Closeness to frontier:", round(dtf, 3))
+          ),
+          size = 3,
+          shape = 21,
+          color = "gray0"
+        ) +
+        theme_minimal() +
+        theme(legend.position = "top",
+              panel.grid.minor = element_blank(),
+              axis.ticks = element_blank(),
+              axis.text = element_text(color = "black"),
+              axis.text.y = element_text(size = 12),
+              axis.text.x = element_text(size = 11),
+              legend.box = "vertical",
+              plot.caption = element_text(size = 8,
+                                          hjust = 0),
+              plot.caption.position =  "plot") +
+        labs(y = NULL,
+             x = "Closeness to Frontier",
+             fill = NULL,
+             caption = note) +
+          scale_fill_manual(
+          values = colors
+        )
+
+    if (title) {
+      plot <-
+        plot +
+        labs(title = paste0("<b>", tab_name, "</b>"))
+    }
+
+    return(plot)
+
 
   }
 
@@ -96,18 +112,38 @@ static_plot <-
 
 interactive_plot <-
   function(x, y, z, tab_name, buttons) {
+
+    notes <-
+      paste0(
+        "<b>Notes:</b> ",
+        y,
+        " compared to ",
+        paste(z, collapse = ", "),
+        "."
+      )
+
+    if (tab_name == "Overview") {
+      notes <-
+        paste(
+          notes,
+          "Family-level closeness to frontier is calculated by taking the average closeness to frontier for all the latest available indicators in each family."
+        )
+    }
+
     x %>%
       ggplotly(tooltip = "text") %>%
       layout(
         margin = list(l = 50, r = 50, t = 75, b = 150),
         annotations =
-          list(x = 0, y = -0.4,
-               text = paste0("<b>Notes:</b> ", y, " compared to ", paste(z, collapse = ", "), "."),
-               showarrow = F,
-               xref = 'paper',
-               yref = 'paper',
-               align = 'left',
-               font = list(size = 13)
+          list(
+            x = 0,
+            y = -0.5,
+            text = HTML(str_wrap(notes, 160)),
+            showarrow = F,
+            xref = 'paper',
+            yref = 'paper',
+            align = 'left',
+            font = list(size = note_size)
           )
       ) %>%
       config(
@@ -159,7 +195,13 @@ static_map <-
 ## Interactive map =============================================================
 
 interactive_map <-
-  function(x, title, buttons) {
+  function(x, var, definitions, buttons) {
+
+    def <-
+      definitions %>%
+      bind_rows %>%
+      filter(Indicator == var) %>%
+      select(-Indicator)
 
     x %>%
       ggplotly(tooltip = "text") %>%
@@ -172,21 +214,48 @@ interactive_map <-
         xaxis = list(visible = FALSE),
         yaxis = list(visible = FALSE),
         annotations =
-          list(x = 0, y = -0.2,
-               text = map(paste0("<b>Disclaimer:</b> Country borders or names do not necessarily reflect the World Bank Group's official position.",
-                                 "<br>This map is for illustrative purposes and does not imply the expression of any opinion on the part of the World Bank,",
-                                 "<br>concerning the legal status of any country or territory or concerning the delimitation of frontiers or boundaries."), HTML),
+          list(x = 0,
+               y = -0.2,
+               text = HTML(
+                 paste(
+                   str_wrap(
+                     "<b>Disclaimer:</b> Country borders or names do not necessarily reflect the World Bank Group's official position.
+                     This map is for illustrative purposes and does not imply the expression of any opinion on the part of the World Bank,
+                     concerning the legal status of any country or territory or concerning the delimitation of frontiers or boundaries.",
+                     note_chars
+                   ),
+                   str_wrap(
+                     paste(
+                       "<b>Definition:</b>",
+                       def$Description
+                     ),
+                     note_chars
+                   ),
+                   str_wrap(
+                     paste(
+                       "<b>Source:</b>",
+                       def$Source
+                     ),
+                     note_chars
+                   ),
+                   str_wrap(
+                     "<b>Note:</b> The color illustrates the latest value of the indicator available for each country.",
+                     note_chars
+                   ),
+                   sep = "<br>"
+                 )
+               ),
                showarrow = F,
                xref = 'paper',
                yref = 'paper',
                align = 'left',
-               font = list(size = 13)
+               font = list(size = note_size)
           )
       ) %>%
       config(
         modeBarButtonsToRemove = buttons,
         toImageButtonOptions = list(
-          filename = paste0(tolower(stringr::str_replace_all(title,"\\s","_")),"_map"),
+          filename = paste0(tolower(stringr::str_replace_all(var,"\\s","_")),"_map"),
           width = 1050,
           height =  675
         )
@@ -194,4 +263,122 @@ interactive_map <-
 
   }
 
+# Time series ###################################################################
 
+trends_plot <- function(raw_data,
+                        indicator, indicator_name,
+                        base_country, comparison_countries, country_list, groups,
+                        definitions) {
+
+  def <-
+    definitions %>%
+    bind_rows %>%
+    filter(Indicator == indicator_name) %>%
+    select(-Indicator)
+
+  indicator_data <-
+    raw_data %>%
+    select(Year, country_name, all_of(indicator))
+
+  data_groups <-
+    if (!is.null(groups)) {
+      country_list %>%
+        filter(group %in% groups) %>%
+        left_join(indicator_data) %>%
+        group_by(Year, group) %>%
+        summarise_at(vars(all_of(indicator)),
+                     ~ mean(., na.rm = TRUE)) %>%
+        rename(country_name = group) %>%
+        mutate(country_name = paste(country_name, "average"))
+    } else {
+      NULL
+    }
+
+  data <-
+    indicator_data %>%
+    filter(country_name == base_country |
+             country_name %in% comparison_countries) %>%
+    bind_rows(data_groups) %>%
+    mutate_at(vars(all_of(indicator)),
+              ~ round(., 3)) %>%
+    mutate(alpha = ifelse(country_name == base_country, .8, .5)) %>%
+    rename(Country = country_name)
+
+  static_plot <-
+    ggplot(data,
+           aes_string(x = "Year",
+                      y = indicator,
+                      color = "Country",
+                      group = "Country",
+                      alpha = "alpha")) +
+    geom_point(aes(text = paste("Country:", Country, "<br>",
+                                "Year:", Year, "<br>",
+                                "Value:", get(indicator))),
+               size = 3) +
+    geom_line() +
+    theme_ipsum() +
+    labs(
+      x = "Year",
+      y = "Indicator value",
+      title = paste0("<b>",indicator_name,"</b>")
+    ) +
+    scale_color_manual(
+      name = NULL,
+      values = c("#FB8500",
+                 gray.colors(length(country_list)),
+                 color_groups(length(groups))),
+      breaks = c(base_country,
+                 country_list,
+                 paste(groups, "average"))
+    ) +
+    scale_alpha_identity() +
+    theme(
+      axis.text.x = element_text(angle = 90)
+    )
+
+  ggplotly(
+    static_plot,
+    tooltip = "text"
+  ) %>%
+    layout(
+      legend = list(
+        title = list(text = '<b>Country:</b>'),
+        y = 0.5
+      ),
+      margin = list(l = 50, r = 50, t = 75, b = 135),
+      annotations =
+        list(x = 0, y = -0.2,
+             text = HTML(
+               paste(
+                 str_wrap(
+                   paste(
+                     "<b>Definition:</b>",
+                     def$Description
+                   ),
+                   note_chars
+                 ),
+                 str_wrap(
+                   paste(
+                     "<b>Source:</b>",
+                     def$Source
+                   ),
+                   note_chars
+                 ),
+                 sep = "<br>"
+               )
+             ),
+             showarrow = F,
+             xref = 'paper',
+             yref = 'paper',
+             align = 'left',
+             font = list(size = note_size)
+        )
+    ) %>%
+    config(
+      modeBarButtonsToRemove = plotly_remove_buttons,
+      toImageButtonOptions = list(filename = paste(tolower(base_country),
+                                                   "- trends",
+                                                   tolower(indicator_name)))
+    )
+
+}

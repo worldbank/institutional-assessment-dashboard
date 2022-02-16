@@ -1,11 +1,13 @@
 ---
-title: Institutional assessment benchmarking
+title: Country-Level Institutional Assessment and Review (CLIAR)
+subtitle: Institutional Benchmarking
 output: 
   word_document
 params:
   base_country: NA
   comparison_countries: NA
   data: NA
+  family_data: NA
 ---
 
 ```{r, setup, include = FALSE}
@@ -24,161 +26,125 @@ knitr::opts_chunk$set(
   source(file.path("auxiliary",
                    "vars-by-family.R"))
 
-  # Function that defines quantiles based on country, comparison and variables
-  source(file.path("auxiliary",
-                   "fun_quantiles.R"))
-
   source(file.path("auxiliary",
                    "plots.R"))
 
   variable_names <-
     read_rds(file.path("data",
                        "variable_names.rds"))
-  
-  global_data <-
-    read_rds(file.path("data",
-                       "country_dtf.rds"))
 
-  family_level_data <-
-    read_rds(file.path("data",
-                       "dtf_family_level.rds"))
-  
-  variable_names <-
-        variable_names %>%
-        select(family_var,
-               family_name) %>%
-        rename(var_name = family_name,
-               variable = family_var) %>%
-        unique
-  
   definitions <-
     read_rds(file.path("data",
                        "indicator_definitions.rds"))
+  
+  source <- 
+    "Source: Authors’ elaboration using CLIAR’s Interactive Online Dashboard."
+  
+  note <- 
+    paste0(
+      "Note: ",
+      "The bar reflects the simple average of the score for all subindicators included in a given institutional cluster. For each cluster, the x-axis shows the closeness to frontier \n
+      (length of the bar), which captures the gap between a country’s performance and the best performer among countries for which data are available (global frontier). The large circles show ",
+      params$base_country,
+      "'s performance. The traffic lights coloring indicates areas where the largest institutional gaps exist in ",
+      params$base_country,
+      " relative to comparator countries, as follows: red = weak institutional capital (bottom 25 percent); yellow = emerging institutional capital (25 percent–50 percent); green = strong institutional capital (top 50 percent). See World Bank (2021) for a detailed discussion on the methodology as well as a detail description and sources of indicators in each institutional cluster."
+    )
 ```
+
+**Base country:** `r params$base_country`
+
+
+**Comparison countries:** `r paste(params$comparison_countries, collapse = ", ")`
 
 # Country overview
 
-Base country: `r params$base_country`
-
-```{r, echo = FALSE}
-      # data <-
-      #   family_level_data %>%
-#         def_quantiles(  
-#           params$base_country,
-#           params$comparison_countries,
-#           variable_names$variable
-#         ) %>%
-#         left_join(variable_names)
-# 
-#       data %>%
-#         static_plot(params$base_country,
-#                     "Country overview")
-
+```{r}
+params$family_data %>%
+  static_plot(
+    params$base_country,
+    "Country overview", 
+    title = FALSE,
+    note = paste(
+      source,
+      str_wrap(note, 174),
+      sep = "\n"
+    )
+  )
 ```
 
 # Institutional families
 
-```{r}
-params$data %>%
-  filter(variable %in% vars_lab)  %>%
-  static_plot(params$base_country,
-              "Labor market institutions") 
+```{r,  results = "asis"}
+for (category in c("Strong", "Emerging", "Weak")) {
+  
+  families <-
+    params$family_data %>%
+    filter(country_name == params$base_country,
+           str_detect(status, category)) %>%
+    select(var_name) %>%
+    unlist
+  
+  if (length(families) > 0) {
+    
+    family_names <- 
+      paste(families, collapse = ", ")
 
-params$data %>%
-  filter(variable %in% vars_fin)  %>%
-  static_plot(params$base_country,
-              "Financial market institutions") 
+    cat("\n##",
+        category,
+        "institutional capital:",
+        family_names, 
+        " \n")
+  
+    for (family in families) {
+    
+      vars <-
+        variable_names %>%
+        filter(family_name == family) %>%
+        select(var_name) %>%
+        unlist
+    
+      cat(
+        "\n###",
+        family,
+        " \n"
+      )
+      
+      plot(
+        params$data %>%
+          filter(var_name %in% vars) %>%
+          static_plot(
+            params$base_country,
+            family,
+            title = FALSE,
+            note = source
+          )
+      )
+      
+      cat("\n")
+    }
+    
+  }
+}
 
-params$data %>%
-  filter(variable %in% vars_leg)  %>%
-  static_plot(params$base_country,
-              "Legal Institutions") 
-
-params$data %>%
-  filter(variable %in% vars_pol)  %>%
-  static_plot(params$base_country,
-              "Political Institutions") 
-
-params$data %>%
-  filter(variable %in% vars_social)  %>%
-  static_plot(params$base_country,
-              "Social Institutions") 
-
-params$data %>%
-  filter(variable %in% vars_mkt)  %>%
-  static_plot(params$base_country,
-              "Business environment and trade institutions") 
-
-params$data %>%
-  filter(variable %in% vars_publ)  %>%
-  static_plot(params$base_country,
-              "Public sector performance institutions") 
-
-params$data %>%
-  filter(variable %in% vars_service_del)  %>%
-  static_plot(params$base_country,
-              "Institutions for service delivery") 
-
-
-params$data %>%
-  filter(variable %in% vars_transp)  %>%
-  static_plot(params$base_country,
-              "Accountability institutions") 
 ```
 
 # Appendix - Indicator definitions
 
-## Labor market institutions
-
-```{r}
-knitr::kable(definitions[["Labor market institutions"]], format = "pipe")
-```
-
-## Financial market institutions
-
-```{r}
-knitr::kable(definitions[["Financial market institutions"]], format = "pipe")
-```
-
-## Legal institutions
-
-```{r}
-knitr::kable(definitions[["Legal institutions"]], format = "pipe")
-```
-
-## Political institutions
-
-```{r}
-knitr::kable(definitions[["Political institutions"]], format = "pipe")
-```
-
-## Social institutions
-
-```{r}
-knitr::kable(definitions[["Social institutions"]], format = "pipe")
-```
-
-## Business environment and trade institutions
-
-```{r}
-knitr::kable(definitions[["Business environment and trade institutions"]], format = "pipe")
-```
-
-
-## Public sector performance institutions
-
-```{r}
-knitr::kable(definitions[["Public sector performance institutions"]], format = "pipe")
-```
-
-## Institutions for service delivery
-
-```{r}
-knitr::kable(definitions[["Institutions for service delivery"]], format = "pipe")
-```
-
-## Accountability institutions
-
-```{r}
-knitr::kable(definitions[["Accountability institutions"]], format = "pipe")
+```{r,  results = "asis"}
+for (family in names(definitions)) {
+  cat("\n##",
+      family,
+      "\n")
+  
+  print(
+    knitr::kable(
+      definitions[[family]],
+      format = "pipe"
+    )
+  )
+  
+  cat("\n")
+  
+}
 ```

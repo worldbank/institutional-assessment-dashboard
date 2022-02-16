@@ -4,11 +4,14 @@
 
 def_quantiles <- function(data, base_country, country_list, comparison_countries, vars, variable_names) {
 
+
+  print(comparison_countries)
   comparison_list <-
     country_list %>%
     filter(country_name %in% comparison_countries)
 
-  na_indicators <- data %>%
+  na_indicators <-
+    data %>%
     ungroup() %>%
     filter(country_name == base_country) %>%
     select(where(is.na))
@@ -30,7 +33,8 @@ def_quantiles <- function(data, base_country, country_list, comparison_countries
       country_name, all_of(vars)
     )
 
-  quantiles_group <- comparison_list %>%
+  quantiles_group <-
+    comparison_list %>%
     select(country_name) %>%
     right_join(quantiles, by = c("country_name")) %>%
     pivot_longer(cols = all_of(vars), names_to = "variable") %>%
@@ -44,23 +48,16 @@ def_quantiles <- function(data, base_country, country_list, comparison_countries
     summarise(dtf = mean(value)) %>%
     group_by(variable, var_name) %>%
     mutate(
-      n = n(),
       dtt = percent_rank(dtf),
       q25 = quantile(dtf, c(0.25)),
       q50 = quantile(dtf, c(0.5)),
-      r25 = floor(n * .25) / n,
-      r50 = floor(n * .5) / n,
-      status_dtt = case_when(
+      status = case_when(
         dtt <= .25 ~ "Weak\n(bottom 25%)",
         dtt > .25 & dtt <= .50 ~ "Emerging\n(25% - 50%)",
-        dtt > .50 ~ "Advanced\n(top 50%)"
-      ),
-      status_dtf = case_when(
-        dtf <= q25 ~ "Weak\n(bottom 25%)",
-        dtf > q25 & dtf <= q50 ~ "Emerging\n(25% - 50%)",
-        dtf > q50 ~ "Advanced\n(top 50%)"
+        dtt > .50 ~ "Strong\n(top 50%)"
       )
-    )
+    ) %>%
+    ungroup
 
   base_low_var <-
     quantiles_group %>%
