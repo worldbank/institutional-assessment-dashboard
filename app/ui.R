@@ -2,19 +2,16 @@
 
 ## Packages --------------------------------------------------------------------
 
+library(tidyverse)
+library(DT)
+library(plotly)
 library(shiny)
 library(shinyjs)
 library(shinyBS)
-library(shinydashboard)
 library(shinycssloaders)
 library(shinyWidgets)
 library(bs4Dash)
 library(fresh)
-
-library(DT)
-library(plotly)
-library(tidyverse)
-
 
 # Inputs ################################################################################
 

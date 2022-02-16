@@ -16,7 +16,6 @@ def_quantiles <- function(data, base_country, country_list, comparison_countries
     filter(country_name == base_country) %>%
     select(where(is.na))
 
-
   na_indicators <-
     if(length(na_indicators)==0) {
       NULL
