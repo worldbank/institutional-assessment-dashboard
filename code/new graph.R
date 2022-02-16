@@ -14,9 +14,9 @@ colors <-
   )
 
 shapes <- c(
-  "LAC6 Median" = 22,
-  "OECD Median" = 23,
-  "Structural Median" = 24
+  "LAC6" = 22,
+  "OECD" = 23,
+  "Structural" = 24
 )
 
 base_country <- "Uruguay"
@@ -162,7 +162,7 @@ ggplot() +
       filter(country_name %in% oecd) %>%
       group_by(var_name) %>%
       summarise(dtt = median(dtt, na.rm = TRUE)) %>%
-      mutate(group ="OECD Median"),
+      mutate(group ="OECD"),
     aes(y = var_name,
         x = dtt,
         shape = group,
@@ -179,7 +179,7 @@ ggplot() +
       filter(country_name %in% lac6) %>%
       group_by(var_name) %>%
       summarise(dtt = median(dtt, na.rm = TRUE)) %>%
-      mutate(group ="LAC6 Median"),
+      mutate(group ="LAC6"),
     aes(y = var_name,
         x = dtt,
         shape = group),
@@ -193,7 +193,7 @@ ggplot() +
       filter(country_name %in% structural) %>%
       group_by(var_name) %>%
       summarise(dtt = median(dtt, na.rm = TRUE)) %>%
-      mutate(group ="Structural Median"),
+      mutate(group ="Structural"),
     aes(y = var_name,
         x = dtt,
         shape = group),
@@ -221,14 +221,16 @@ ggplot() +
         legend.box = "vertical") +
   labs(y = NULL,
        x = NULL,
-       title = family,
+       title = NULL,
        fill = NULL,
        shape = NULL) +
   scale_shape_manual(
-    values = shapes
+    values = shapes,
+    name = "Comparison group median"
   )+
   scale_fill_manual(
-    values = colors
+    values = colors,
+    name = "Comparative status"
   ) +
   scale_color_manual(
     values = colors
@@ -242,14 +244,14 @@ ggplot() +
   annotate(
     geom = "text",
     size = 3,
-    x = .13,
+    x = .125,
     y = .7,
     label = "Bottom 25%"
   ) +
   annotate(
     geom = "text",
     size = 3,
-    x = .4,
+    x = .375,
     y = .7,
     label = "25% - 50%"
   ) +
@@ -259,81 +261,43 @@ ggplot() +
     x = .75,
     y = .7,
     label = "Top 50%"
-  )
-
-# Annotation ----------------------------
-#
-#   benchmark_graph +
-#      annotate(
-#        geom = "text",
-#        x = .86,
-#        y = 9.5,
-#        label = "Frontier",
-#        fontface = 2
-#       ) +
-#      annotate(
-#        geom = "curve",
-#        xend = .91,
-#        yend =  9.45,
-#        x = 1,
-#        y = 9.3,
-#        curvature = .2,
-#        arrow = arrow(length = unit(2, "mm")),
-#        color = "#009E73",
-#        size = .8
-#      ) +
-#      annotate(
-#        geom = "text",
-#        x = .42,
-#        y = 5.5,
-#        label = "Base country",
-#        fontface =2
-#      ) +
-#      annotate(
-#        geom = "curve",
-#        xend = .33,
-#        yend =  5.45,
-#        x = .27,
-#        y = 5,
-#        curvature = -.4,
-#        arrow = arrow(length = unit(2, "mm")),
-#        color = "#D55E00",
-#        size = .8
-#      ) +
-#      annotate(
-#        geom = "text",
-#        x = .26,
-#        y = 1.5,
-#        label = "Comparison group average",
-#        fontface = 2
-#      ) +
-#     annotate(
-#       geom = "curve",
-#       xend = .43,
-#       yend =  1.45,
-#       x = .465,
-#       y = 1.1,
-#       curvature = .4,
-#       arrow = arrow(length = unit(2, "mm")),
-#       size = .8
-#     ) +
-#      annotate(
-#        geom = "text",
-#        x = .5,
-#        y = 3.5,
-#        label = "Comparison countries",
-#        fontface = 2
-#      ) +
-#     annotate(
-#       geom = "curve",
-#       xend = .64,
-#       yend =  3.45,
-#       x = .68,
-#       y = 3.9,
-#       curvature = -.4,
-#       arrow = arrow(length = unit(2, "mm")),
-#       size = .8
-#     )
+  )  +
+   annotate(
+     geom = "text",
+     x = .84,
+     y = 7.5,
+     label = "Frontier",
+     fontface = 2
+    ) +
+   annotate(
+     geom = "curve",
+     xend = .91,
+     yend =  7.45,
+     x = 1,
+     y = 7.2,
+     curvature = .2,
+     arrow = arrow(length = unit(2, "mm")),
+     color = colors[3],
+     size = .8
+   ) +
+   annotate(
+     geom = "text",
+     x = .68,
+     y = 6.5,
+     label = "Uruguay",
+     fontface =2
+   ) +
+   annotate(
+     geom = "curve",
+     xend = .6,
+     yend =  6.45,
+     x = .5,
+     y = 6,
+     curvature = -.4,
+     arrow = arrow(length = unit(2, "mm")),
+     color = colors[2],
+     size = .8
+   )
 
 # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # #
