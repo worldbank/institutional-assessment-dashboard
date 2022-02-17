@@ -24,8 +24,9 @@ country_groups <-
                      "wb_country_groups.rds"))
 
 definitions <-
-  read_rds(file.path("data",
-                     "indicator_definitions.rds"))
+  read_csv(
+
+  )
 
 country_list <-
   read_rds(file.path("data",
@@ -76,7 +77,7 @@ ui <-
       sidebarMenu(
         menuItem("Home", tabName = "home", icon = icon("home")),
         menuItem("Country benchmarking", tabName = "country", icon = icon("sort-amount-up")),
-        menuItem("Aggregation of preferences", tabName = "heatmap", icon = icon("comments")),
+        # menuItem("Aggregation of preferences", tabName = "heatmap", icon = icon("comments")),
         menuItem("World map", tabName = "world_map", icon = icon("globe-americas")),
         menuItem("Time trends", tabName = "trends", icon = icon("chart-line")),
         menuItem("Data", tabName = "data", icon = icon("table")),
