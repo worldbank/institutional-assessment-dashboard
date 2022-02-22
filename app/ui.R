@@ -24,9 +24,8 @@ country_groups <-
                      "wb_country_groups.rds"))
 
 definitions <-
-  read_csv(
-
-  )
+  read_rds(file.path("data",
+                     "indicator_definitions.rds"))
 
 country_list <-
   read_rds(file.path("data",
