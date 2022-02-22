@@ -97,7 +97,13 @@
   # Metadata
   variable_names <-
     db_variables %>%
-    select(variable,var_level,var_name,family_var,family_name)
+    select(
+      variable,
+      var_level,
+      var_name,
+      family_var,
+      family_name
+    )
 
   country_list <-
     read_rds(file.path("data",
@@ -393,100 +399,6 @@
 
       })
 
-    # Aggregation of preferences ===============================================
-    observeEvent(input$select_pref,{
-
-      variable_names <-
-        variable_names %>%
-        select(family_var,
-               family_name) %>%
-        rename(var_name = family_name,
-               variable = family_var) %>%
-        unique
-
-      data <-
-        family_data(
-          global_data,
-          input$country_pref,
-          input$groups
-        ) %>%
-        def_quantiles(
-          input$country_pref,
-          country_list,
-          input$groups,
-          variable_names$variable,
-          variable_names
-        )  %>%
-        filter(country_name == input$country_pref) %>%
-        ungroup() %>%
-        select(var_name, status_dtf) %>%
-        unique %>%
-        filter(status_dtf %in% c("Weak","Emerging")) %>%
-        mutate(
-          development_change_1 = 0,
-          development_change_2 = 1,
-          development_change_3 = 2,
-          development_change_4 = 3
-        ) %>%
-        as.data.frame()
-
-      output$comparison_countries <-
-        renderText({
-          paste0(" <b>Comparison countries: </b>", paste(input$countries, collapse = ", "))
-        })
-
-      output$table_legend <-
-        renderText({
-          paste0("<b>Legend:</b> For the institutional challenges, the coloring reflects the institutional areas in need of development (orange) and those that are emerging/transitioning (yellow). For the SCD development challenges, the cells are shaded to reflect the following relation ship: top tier/substantial (<b>3</b>); mid-tier or moderate (<b>2</b>); low-tier or marginal (<b>1</b>).")
-        })
-
-      output$matrix <-
-        renderDT({
-
-          data %>%
-            datatable(
-              rownames = FALSE,
-              colnames = c("Institutional dimension in which the country lags most","Classification",
-                           "Development Change #1","Development Change #2","Development Change #3","Development Change #4"),
-              editable = list(target = "cell", disable = list(columns = c(0,1))),
-              extensions = c('Buttons','Responsive'),
-              selection = 'none',
-              options = list(
-                columnDefs = list(list(targets = 1, visible = FALSE)),
-                paging = FALSE,
-                searching = FALSE,
-                dom = "lBtpr",
-                buttons = c('csv', 'excel', 'pdf')
-              )
-            ) %>%
-            formatStyle("var_name","status_dtf",
-                        color = "black",
-                        backgroundColor = styleEqual(c("Weak","Emerging"), c('#D2222D', '#FFBF00')),
-                        fontSize = '90%', fontWeight = 'bold') %>%
-            formatStyle(
-              c(3:6),
-              fontSize = '110%', fontWeight = 'bold',
-              backgroundColor = styleEqual(c(0,1,2,3), c('#bababa','#d9f2d9','#7ad17a',"#349834"))
-            )
-
-        })
-
-      proxy <- dataTableProxy('matrix')
-
-      observeEvent(input$matrix_cell_edit, {
-
-        data <<-
-          editData(data,
-                   input$matrix_cell_edit,
-                   proxy = proxy,
-                   resetPaging = FALSE,
-                   rownames = FALSE
-          )
-
-      })
-
-    })
-
    # Data table ================================================================
 
     output$benchmark_datatable <-
@@ -581,11 +493,15 @@
 
     output$report <- downloadHandler(
 
-      filename = paste0(
-        "CLIAR-benchmarking-",
-        base_country(),
-        ".docx"
-      ),
+      filename =
+        reactive(
+          paste0(
+            "CLIAR-benchmarking-",
+            base_country(),
+            ".docx"
+          )
+        )
+      ,
 
       content = function(file) {
 
@@ -597,7 +513,8 @@
             base_country = base_country(),
             comparison_countries = input$countries,
             data = data(),
-            family_data = data_family()
+            family_data = data_family(),
+            definitions = db_variables
           )
 
         rmarkdown::render(
