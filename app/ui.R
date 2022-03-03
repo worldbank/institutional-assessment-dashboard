@@ -182,7 +182,7 @@ ui <-
                     `Region` = c(country_groups %>% filter(group_category=="Region") %>% .$group_name),
                     `Income` = c(country_groups %>% filter(group_category=="Income") %>% .$group_name)
                   ),
-                  selected = c("OECD members", "LAC6"),
+                  selected = c("OECD members"),
                   multiple = TRUE,
                   options = list(
                     size = 15

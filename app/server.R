@@ -402,37 +402,39 @@
    # Data table ================================================================
 
     output$benchmark_datatable <-
-      renderDataTable(server = FALSE, {
+      renderDataTable(
+        server = FALSE,
+        {
 
-        vars <-
-          variable_names %>%
-          filter(family_name %in% input$vars,
-                 var_level == "indicator") %>%
-          .$variable %>%
-          unlist
+          vars <-
+            variable_names %>%
+            filter(family_name %in% input$vars,
+                   var_level == "indicator") %>%
+            .$variable %>%
+            unlist
 
-        if (input$data == "Compiled indicators") {
-          vars_table <- c("Country", "Year", vars)
-        } else {
-          vars_table <- c("Country", vars)
-        }
-
-        data <-
-          browse_data() %>%
-          rename(Country = country_name) %>%
-          ungroup() %>%
-          select(all_of(vars_table)) %>%
-          mutate(across(where(is.numeric),
-                        round, 3))
-
-        if(input$show_rank){
+          if (input$data == "Compiled indicators") {
+            vars_table <- c("Country", "Year", vars)
+          } else {
+            vars_table <- c("Country", vars)
+          }
 
           data <-
-            data %>%
-            mutate_at(vars(all_of(vars)),
-                      ~ dense_rank(desc(.)
+            browse_data() %>%
+            rename(Country = country_name) %>%
+            ungroup() %>%
+            select(all_of(vars_table)) %>%
+            mutate(across(where(is.numeric),
+                          round, 3))
+
+          if(input$show_rank){
+
+            data <-
+              data %>%
+              mutate_at(vars(all_of(vars)),
+                        ~ dense_rank(desc(.)
+                )
               )
-            )
 
         }
 
