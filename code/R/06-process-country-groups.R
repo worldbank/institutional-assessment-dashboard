@@ -11,16 +11,21 @@
 
 # 1.2 Inputs ====================================================================================
 
+  global_data <-
+    read_rds(
+      here(
+        "app",
+        "data",
+        "country_dtf.rds"
+      )
+    )
+
   country_list <-
     read_csv(here("data",
                   "data_raw",
                   "wb_country_list.csv")) %>%
-    rename(country_name = country)
-
-  extra_groups <- read_rds(here("data",
-                                "data_cleaned",
-                                "extra_groups.rds")) %>%
-    labelled::remove_labels()
+    rename(country_name = country) %>%
+    filter(country_name %in% global_data$country_name)
 
 
   group_codes <-
@@ -51,39 +56,12 @@
            group_name) %>%
     unique
 
-  lac6 <-
-    extra_groups %>%
-    filter(lac6 == 1) %>%
-    select(country_code,country_name) %>%
-    mutate(
-      group_code = "LAC6",
-      group = "LAC6"
-    )
-
-  structural <-
-    extra_groups %>%
-    filter(structural == 1) %>%
-    select(country_code,country_name) %>%
-    mutate(
-      group_code = "STR",
-      group = "Structural"
-    )
-
-  country_list <-
-    country_list %>%
-    bind_rows(lac6,
-              structural)
-
   groups <-
     groups %>%
-    bind_rows(
-      data.frame(group_code = c("LAC6", "STR"),
-                 group_name = c("LAC6", "Structural"))
-    ) %>%
     mutate(
       group_category = case_when(
         group_code %in% c("HIC","LIC","LMC","LMY","MIC","UMC") ~ "Income",
-        group_code %in% c("OED","LAC6","EUU", "STR") ~ "Economic",
+        group_code %in% c("OED","EUU") ~ "Economic",
         TRUE ~ "Region"
       )
     )
