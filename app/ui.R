@@ -2,19 +2,16 @@
 
 ## Packages --------------------------------------------------------------------
 
+library(tidyverse)
+library(DT)
+library(plotly)
 library(shiny)
 library(shinyjs)
 library(shinyBS)
-library(shinydashboard)
 library(shinycssloaders)
 library(shinyWidgets)
 library(bs4Dash)
 library(fresh)
-
-library(DT)
-library(plotly)
-library(tidyverse)
-
 
 # Inputs ################################################################################
 
@@ -79,7 +76,7 @@ ui <-
       sidebarMenu(
         menuItem("Home", tabName = "home", icon = icon("home")),
         menuItem("Country benchmarking", tabName = "country", icon = icon("sort-amount-up")),
-        menuItem("Aggregation of preferences", tabName = "heatmap", icon = icon("comments")),
+        # menuItem("Aggregation of preferences", tabName = "heatmap", icon = icon("comments")),
         menuItem("World map", tabName = "world_map", icon = icon("globe-americas")),
         menuItem("Time trends", tabName = "trends", icon = icon("chart-line")),
         menuItem("Data", tabName = "data", icon = icon("table")),
@@ -185,7 +182,7 @@ ui <-
                     `Region` = c(country_groups %>% filter(group_category=="Region") %>% .$group_name),
                     `Income` = c(country_groups %>% filter(group_category=="Income") %>% .$group_name)
                   ),
-                  selected = c("OECD members", "LAC6"),
+                  selected = c("OECD members"),
                   multiple = TRUE,
                   options = list(
                     size = 15
@@ -264,7 +261,7 @@ ui <-
           bs4Card(
             title = "Indicator definitions",
             collapsible = TRUE,
-            collapsed = TRUE,
+            collapsed = FALSE,
             status = "secondary",
             solidHeader = TRUE,
             width = 12,

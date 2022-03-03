@@ -5,6 +5,7 @@ output:
   word_document
 params:
   base_country: NA
+  definitions: NA
   comparison_countries: NA
   data: NA
   family_data: NA
@@ -77,53 +78,59 @@ params$family_data %>%
 
 ```{r,  results = "asis"}
 for (category in c("Strong", "Emerging", "Weak")) {
-  
+
   families <-
     params$family_data %>%
     filter(country_name == params$base_country,
            str_detect(status, category)) %>%
     select(var_name) %>%
     unlist
-  
+
   if (length(families) > 0) {
-    
-    family_names <- 
+
+    family_names <-
       paste(families, collapse = ", ")
 
     cat("\n##",
         category,
         "institutional capital:",
-        family_names, 
+        family_names,
         " \n")
-  
+
     for (family in families) {
-    
+
       vars <-
         variable_names %>%
         filter(family_name == family) %>%
         select(var_name) %>%
         unlist
-    
+
       cat(
         "\n###",
         family,
         " \n"
       )
-      
-      plot(
+
+      data <-
         params$data %>%
-          filter(var_name %in% vars) %>%
+          filter(var_name %in% vars)
+
+      try(
+        plot(
           static_plot(
+            data,
             params$base_country,
             family,
             title = FALSE,
             note = source
           )
+        )
       )
       
+
       cat("\n")
     }
-    
+
   }
 }
 

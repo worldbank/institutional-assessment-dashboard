@@ -16,22 +16,46 @@
 
 # Inputs ################################################################################
 
-  plotly_remove_buttons <-
-    c("zoomIn2d",
-      "zoomOut2d",
-      "pan2d",
-      "autoScale2d",
-      "lasso2d",
-      "select2d",
-      "toggleSpikelines",
-      "hoverClosest3d",
-      "hoverClosestCartesian",
-      "hoverCompareCartesian")
-
   ## Auxiliary functions -----------------------------------------------------------------
 
   source(file.path("auxiliary",
-                   "vars-by-family.R"))
+                   "vars-control.R"))
+
+  # Load data with min max year for info available
+  period_info_available <-
+    read_rds(
+      file.path(
+        "data",
+        "period_info_available.rds")
+    )
+
+  period_info_by_variable <-
+    read_rds(
+      file.path(
+        "data",
+        "period_info_by_variable.rds"
+      )
+    )
+
+  # Load data control
+  db_variables <-
+    db_variables %>%
+    filter(variable %in% vars_all | var_level == "family") %>%
+    mutate(
+      description = str_replace_all(description, "[[:punct:]]", " ")
+    ) %>%
+    left_join(
+      period_info_by_variable,
+      by = "variable"
+    ) %>%
+    mutate(
+      range =
+        ifelse(
+          var_level == "family",
+          NA,
+          paste0(min, "-", max)
+        )
+    )
 
   # Function that defines quantiles based on country, comparison and variables
   source(file.path("auxiliary",
@@ -46,19 +70,15 @@
 
   ## Data sets ---------------------------------------------------------------------------
 
-  # Indicator definitions
-  definitions <-
-    read_rds(file.path("data",
-                       "indicator_definitions.rds"))
-
-  all_indicators <-
-    read_rds(file.path("data",
-                       "list_of_indicators.rds"))
-
   # Closeness to frontier data
   global_data <-
     read_rds(file.path("data",
-                       "country_dtf.rds"))
+                       "country_dtf.rds")) %>%
+    mutate(
+      country_name = country_name %>%
+      str_replace_all("Macedonia", "North Macedonia") %>%
+      str_replace_all("Swaziland", "Eswatini")
+    )
 
   wb_country_geom_fact <-
     read_rds(file.path("data",
@@ -76,15 +96,18 @@
 
   # Metadata
   variable_names <-
-    read_rds(file.path("data",
-                       "variable_names.rds"))
+    db_variables %>%
+    select(
+      variable,
+      var_level,
+      var_name,
+      family_var,
+      family_name
+    )
 
   country_list <-
     read_rds(file.path("data",
                        "wb_country_list.rds"))
-
-  color_groups <- colorRampPalette(c("#053E5D", "#60C2F7"))
-
 
 # Server ################################################################################
 
@@ -187,7 +210,7 @@
             def_quantiles(
               base_country(),
               country_list,
-              input$groups,
+              input$countries,
               vars_all,
               variable_names
             )
@@ -207,7 +230,7 @@
             def_quantiles(
               base_country(),
               country_list,
-              input$groups,
+              input$countries,
               family_names,
               variable_names
             )
@@ -292,10 +315,15 @@
             filter(var_name == input$vars_map) %>%
             .$variable
 
+          latest_year <- period_info_available %>%
+            filter(variable == var_selected)
+
           static_map(wb_country_geom_fact,
                      var_selected,
+                     latest_year,
                      input$vars_map) %>%
           interactive_map(input$vars_map,
+                          db_variables,
                           plotly_remove_buttons)
         }
 
@@ -352,235 +380,61 @@
       ignoreNULL = FALSE
     )
 
-
-    data_trends <-
-      reactive({
-
-        data <-
-          raw_data %>%
-          filter(country_name %in% c(input$country_trends)) %>%
-          mutate(alpha = .8,
-                 shape = 19)
-
-        if (!is.null(input$countries_trends)) {
-
-          data <-
-            raw_data %>%
-            filter(country_name %in% c(input$countries_trends)) %>%
-            mutate(alpha = .5,
-                   shape = 18) %>%
-            bind_rows(data)
-        }
-
-        if (!is.null(input$group_trends)) {
-
-          indicator <-
-            raw_data %>%
-            select(country_name, Year, all_of(var_trends()))
-
-          data <-
-            country_list %>%
-            filter(group %in% input$group_trends) %>%
-            select(group, country_name) %>%
-            mutate(country_name = as.character(country_name)) %>%
-            left_join(indicator) %>%
-            group_by(Year, group) %>%
-            summarise_all(~ mean(., na.rm = TRUE)) %>%
-            mutate(country_name = as.character(group),
-                   alpha = .5,
-                   shape = 19) %>%
-            bind_rows(data)
-        }
-
-        data %>%
-          rename(Country = country_name) %>%
-          select(Country, Year, all_of(var_trends()), alpha) %>%
-          mutate_at(vars(all_of(var_trends())),
-                    ~ round(., 3))
-      })
-
     output$time_series <-
       renderPlotly({
 
         if (input$indicator_trends != "") {
-          static_plot <-
-            ggplot(data_trends(),
-                   aes_string(x = "Year",
-                              y = var_trends(),
-                              color = "Country",
-                              group = "Country",
-                              alpha = "alpha")) +
-            geom_point(aes(text = paste("Country:", Country, "<br>",
-                                        "Year:", Year, "<br>",
-                                        "Value:", get(var_trends()))),
-                       size = 3) +
-            geom_line() +
-            theme_ipsum() +
-            labs(
-              x = "Year",
-              y = "Indicator value",
-              title = paste0("<b>",input$indicator_trends,"</b>")
-            ) +
-            scale_color_manual(
-              name = NULL,
-              values = c("#FB8500",
-                         gray.colors(length(input$countries_trends)),
-                         color_groups(length(input$group_trends))),
-              breaks = c(input$country_trends,
-                         input$countries_trends,
-                         input$group_trends)
-            ) +
-            scale_alpha_identity() +
-            theme(
-              axis.text.x = element_text(angle = 90)
-            )
 
-          ggplotly(static_plot, tooltip = "text") %>%
-            layout(
-              legend = list(
-                title = list(text = '<b>Country:</b>'),
-                y = 0.5
-              ),
-              margin = list(l = 50, r = 50, t = 75, b = 135)
-            ) %>%
-            config(
-              modeBarButtonsToRemove = plotly_remove_buttons,
-              toImageButtonOptions = list(filename = paste0("trends_",
-                                                           tolower(input$country_trends),"_",
-                                                           tolower(input$indicator_trends)))
-            )
+          trends_plot(
+            raw_data,
+            var_trends(),
+            input$indicator_trends,
+            input$country_trends,
+            input$countries_trends,
+            country_list,
+            input$group_trends,
+            db_variables
+          )
         }
 
       })
-
-    # Aggregation of preferences ===============================================
-    observeEvent(input$select_pref,{
-
-      variable_names <-
-        variable_names %>%
-        select(family_var,
-               family_name) %>%
-        rename(var_name = family_name,
-               variable = family_var) %>%
-        unique
-
-      data <-
-        family_data(
-          global_data,
-          input$country_pref,
-          input$groups
-        ) %>%
-        def_quantiles(
-          input$country_pref,
-          country_list,
-          input$groups,
-          variable_names$variable,
-          variable_names
-        )  %>%
-        filter(country_name == input$country_pref) %>%
-        ungroup() %>%
-        select(var_name, status_dtf) %>%
-        unique %>%
-        filter(status_dtf %in% c("Weak","Emerging")) %>%
-        mutate(
-          development_change_1 = 0,
-          development_change_2 = 1,
-          development_change_3 = 2,
-          development_change_4 = 3
-        ) %>%
-        as.data.frame()
-
-      output$comparison_countries <-
-        renderText({
-          paste0(" <b>Comparison countries: </b>", paste(input$countries, collapse = ", "))
-        })
-
-      output$table_legend <-
-        renderText({
-          paste0("<b>Legend:</b> For the institutional challenges, the coloring reflects the institutional areas in need of development (orange) and those that are emerging/transitioning (yellow). For the SCD development challenges, the cells are shaded to reflect the following relation ship: top tier/substantial (<b>3</b>); mid-tier or moderate (<b>2</b>); low-tier or marginal (<b>1</b>).")
-        })
-
-      output$matrix <-
-        renderDT({
-
-          data %>%
-            datatable(
-              rownames = FALSE,
-              colnames = c("Institutional dimension in which the country lags most","Classification",
-                           "Development Change #1","Development Change #2","Development Change #3","Development Change #4"),
-              editable = list(target = "cell", disable = list(columns = c(0,1))),
-              extensions = c('Buttons','Responsive'),
-              selection = 'none',
-              options = list(
-                columnDefs = list(list(targets = 1, visible = FALSE)),
-                paging = FALSE,
-                searching = FALSE,
-                dom = "lBtpr",
-                buttons = c('csv', 'excel', 'pdf')
-              )
-            ) %>%
-            formatStyle("var_name","status_dtf",
-                        color = "black",
-                        backgroundColor = styleEqual(c("Weak","Emerging"), c('#D2222D', '#FFBF00')),
-                        fontSize = '90%', fontWeight = 'bold') %>%
-            formatStyle(
-              c(3:6),
-              fontSize = '110%', fontWeight = 'bold',
-              backgroundColor = styleEqual(c(0,1,2,3), c('#bababa','#d9f2d9','#7ad17a',"#349834"))
-            )
-
-        })
-
-      proxy <- dataTableProxy('matrix')
-
-      observeEvent(input$matrix_cell_edit, {
-
-        data <<-
-          editData(data,
-                   input$matrix_cell_edit,
-                   proxy = proxy,
-                   resetPaging = FALSE,
-                   rownames = FALSE
-          )
-
-      })
-
-    })
 
    # Data table ================================================================
 
     output$benchmark_datatable <-
-      renderDataTable(server = FALSE, {
+      renderDataTable(
+        server = FALSE,
+        {
 
-        vars <-
-          variable_names %>%
-          filter(family_name %in% input$vars,
-                 var_level == "indicator") %>%
-          .$variable %>%
-          unlist
+          vars <-
+            variable_names %>%
+            filter(family_name %in% input$vars,
+                   var_level == "indicator") %>%
+            .$variable %>%
+            unlist
 
-        if (input$data == "Compiled indicators") {
-          vars_table <- c("Country", "Year", vars)
-        } else {
-          vars_table <- c("Country", vars)
-        }
-
-        data <-
-          browse_data() %>%
-          rename(Country = country_name) %>%
-          ungroup() %>%
-          select(all_of(vars_table)) %>%
-          mutate(across(where(is.numeric),
-                        round, 3))
-
-        if(input$show_rank){
+          if (input$data == "Compiled indicators") {
+            vars_table <- c("Country", "Year", vars)
+          } else {
+            vars_table <- c("Country", vars)
+          }
 
           data <-
-            data %>%
-            mutate_at(vars(all_of(vars)),
-                      ~ dense_rank(desc(.)
+            browse_data() %>%
+            rename(Country = country_name) %>%
+            ungroup() %>%
+            select(all_of(vars_table)) %>%
+            mutate(across(where(is.numeric),
+                          round, 3))
+
+          if(input$show_rank){
+
+            data <-
+              data %>%
+              mutate_at(vars(all_of(vars)),
+                        ~ dense_rank(desc(.)
+                )
               )
-            )
 
         }
 
@@ -641,11 +495,15 @@
 
     output$report <- downloadHandler(
 
-      filename = paste0(
-        "CLIAR-benchmarking-",
-        base_country(),
-        ".docx"
-      ),
+      filename =
+        reactive(
+          paste0(
+            "CLIAR-benchmarking-",
+            base_country(),
+            ".docx"
+          )
+        )
+      ,
 
       content = function(file) {
 
@@ -657,7 +515,8 @@
             base_country = base_country(),
             comparison_countries = input$countries,
             data = data(),
-            family_data = data_family()
+            family_data = data_family(),
+            definitions = db_variables
           )
 
         rmarkdown::render(
@@ -673,7 +532,29 @@
    # Definitions ===========================================================================
 
     output$definition <-
-      renderTable(definitions[[input$family]])
+      renderTable({
+
+        variables <-
+          db_variables %>%
+          filter(var_level == "indicator")
+
+        if (input$family != "Overview") {
+          variables <-
+            variables %>%
+            filter(family_name == input$family)
+        }
+
+        variables %>%
+          select(
+            Indicator = var_name,
+            Family = family_name,
+            Description = description,
+            Source = source,
+            Period = range
+          )
+
+      })
+
 
     # Download csv with definitions
     output$download_indicators <-
@@ -681,9 +562,18 @@
         filename = "Institutional assessment indicators.csv",
 
         content = function(file) {
-          write_csv(all_indicators,
-                    file,
-                    na = "")
+          write_csv(
+            db_variables %>%
+              select(
+                indicator = var_name,
+                family = family_name,
+                description,
+                source,
+                range
+              ),
+              file,
+              na = ""
+          )
         }
       )
 
