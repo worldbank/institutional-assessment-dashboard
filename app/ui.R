@@ -210,6 +210,11 @@ ui <-
                   icon = icon("check"),
                   class = "btn-success",
                   width = "100%"
+                ),
+                tippy::tippy_this(
+                  "select",
+                  "Select at least 10 countries to apply selection",
+                  theme = "light"
                 )
               ),
 
