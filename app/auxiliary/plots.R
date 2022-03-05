@@ -125,16 +125,35 @@ static_plot <-
 ## Interactive plot ============================================================
 
 interactive_plot <-
-  function(x, y, z, tab_name, buttons) {
+  function(x, y, z, tab_name, buttons, miss_var) {
 
-    notes <-
-      paste0(
-        "<b>Notes:</b> ",
-        y,
-        " compared to ",
-        paste(z, collapse = ", "),
-        "."
-      )
+    if (length(miss_var) > 0) {
+
+      notes <-
+        paste0(
+          "<b>Notes:</b> ",
+          y,
+          " compared to ",
+          paste(z, collapse = ", "),
+          ". Indicators not considered because base country has no information: ",
+          paste(miss_var, collapse = ", "),
+          "."
+        )
+
+    }
+
+    if (length(miss_var) == 0) {
+
+      notes <-
+        paste0(
+          "<b>Notes:</b> ",
+          y,
+          " compared to ",
+          paste(z, collapse = ", "),
+          "."
+        )
+
+    }
 
     if (tab_name == "Overview") {
       notes <-

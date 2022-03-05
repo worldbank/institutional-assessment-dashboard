@@ -64,6 +64,9 @@
   source(file.path("auxiliary",
                    "fun_family_data.R"))
 
+  source(file.path("auxiliary",
+                   "fun_missing_var.R"))
+
   # Create benchmark graphs
   source(file.path("auxiliary",
                    "plots.R"))
@@ -266,13 +269,27 @@
 
           if (input$family == "Overview") {
 
+            missing_variables <-
+              global_data %>%
+              missing_var(
+                base_country(),
+                country_list,
+                input$countries,
+                vars_all,
+                variable_names
+              )
+
             data_family() %>%
               static_plot(base_country(),
                           input$family) %>%
-              interactive_plot(base_country(),
-                               input$groups,
-                               input$family,
-                               plotly_remove_buttons)
+              interactive_plot(
+                base_country(),
+                input$groups,
+                input$family,
+                plotly_remove_buttons,
+                missing_variables
+              )
+
           } else {
 
             vars <-
@@ -287,14 +304,27 @@
                             if (input$family == "SOE Corporate Governance") {vars_service_del} else
                               if (input$family == "Anti-Corruption, Transparency and Accountability institutions") {vars_transp}
 
+            missing_variables <-
+              global_data %>%
+              missing_var(
+                base_country(),
+                country_list,
+                input$countries,
+                vars,
+                variable_names
+              )
+
             data() %>%
               filter(variable %in% vars) %>%
               static_plot(base_country(),
                           input$family) %>%
-              interactive_plot(base_country(),
-                               input$groups,
-                               input$family,
-                               plotly_remove_buttons)
+              interactive_plot(
+                base_country(),
+                input$groups,
+                input$family,
+                plotly_remove_buttons,
+                missing_variables
+              )
           }
         )
       })
