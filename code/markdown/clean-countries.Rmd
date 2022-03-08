@@ -1,0 +1,122 @@
+# Clean list of contries
+
+```{r}
+  packages <-
+    c("tidyverse",
+      "here")
+
+  pacman::p_load(packages,
+                 character.only = TRUE)
+```
+
+
+## Inputs
+
+```{r}
+  ctf <-
+    read_rds(
+      here(
+        "data",
+        "final",
+        "closeness_to_frontier.rds"
+      )
+    )
+
+  country_list <-
+    read_csv(
+      here(
+        "data",
+        "raw",
+        "wb_country_list.csv"
+      )
+    ) %>%
+    rename(country_name = country)
+```
+
+List all relevant groups
+
+```{r}
+  group_codes <-
+    c(
+      "EUU",
+      "ARB",
+      "CEB",
+      "HIC",
+      "LIC",
+      "LMC",
+      "LMY",
+      "MIC",
+      "OED",
+      "UMC",
+      "EAS",
+      "ECS",
+      "LCN",
+      "MEA",
+      "NAC",
+      "SAS",
+      "SSF"
+    )
+```
+
+
+## Subset country list
+
+The only relevant countries are those we have some data for
+
+```{r}
+country_list <-
+  country_list %>%
+  filter(country_name %in% ctf$country_name)
+```
+
+The only relevant groups are those we have already listed
+
+```{r}  
+  groups <-
+    country_list %>%
+    filter(group_code %in% group_codes) %>%
+    rename(group_name = group) %>%
+    select(
+      group_code,
+      group_name
+    ) %>%
+    unique
+
+  groups <-
+    groups %>%
+    mutate(
+      group_category = case_when(
+        group_code %in% c("HIC","LIC","LMC","LMY","MIC","UMC") ~ "Income",
+        group_code %in% c("OED","EUU") ~ "Economic",
+        TRUE ~ "Region"
+      )
+    )
+```
+
+## Save datasets
+
+Dataset with list of countries in our sample
+
+```{r}
+write_rds(
+  country_list,
+  here(
+    "app",
+    "data",
+    "wb_country_list.rds"
+  )
+)
+```
+
+Dataset of relvant country groups
+
+```{r}
+write_rds(
+  groups,
+  here(
+    "app",
+    "data",
+    "wb_country_groups.rds"
+  )
+)
+```
