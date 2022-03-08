@@ -240,6 +240,28 @@
         }
       )
 
+
+    ## Median plot ------------------------------------------------------------
+
+    median_data <-
+      eventReactive(
+        input$add_median,
+
+        {
+
+          quantiles_group <- country_list %>%
+            select(country_name,group) %>%
+            right_join(data(), by = c("country_name")) %>%
+            filter(! variable %in% na_indicators) %>%
+            group_by(group, var_name) %>%
+            summarise(dtf = median(dtf, na.rm = TRUE)) %>%
+            mutate(group_med = paste0(group," Median")) %>%
+            rename(country_name = group_med) %>%
+            bind_rows(data())
+
+        }
+      )
+
     ## Browse data -------------------------------------------------------------
     browse_data <-
       eventReactive(
