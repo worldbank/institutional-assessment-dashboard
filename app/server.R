@@ -241,16 +241,36 @@
       )
 
 
-    ## Median plot ------------------------------------------------------------
+    ## Median data ------------------------------------------------------------
 
-    median_data <-
+    median_comparison_data <-
       eventReactive(
         input$add_median,
 
         {
 
-          quantiles_group <- country_list %>%
+          data() %>%
+            filter(country_name != input$country) %>%
+            filter(! variable %in% na_indicators) %>%
+            mutate(group = "Comparison group") %>%
+            group_by(group, var_name) %>%
+            summarise(dtf = median(dtf, na.rm = TRUE)) %>%
+            mutate(group_med = paste0(group," Median")) %>%
+            rename(country_name = group_med) %>%
+            bind_rows(data())
+
+        }
+      )
+
+    median_group_data <-
+      eventReactive(
+        input$add_median,
+
+        {
+
+          country_list %>%
             select(country_name,group) %>%
+            filter(group %in% input$group_medians) %>%
             right_join(data(), by = c("country_name")) %>%
             filter(! variable %in% na_indicators) %>%
             group_by(group, var_name) %>%
