@@ -225,8 +225,8 @@ ui <-
                   "Download editable report",
                   style = "width:100%; background-color: #204d74; color: white"
                 )
-
               )
+
             )
 
           ),
@@ -256,11 +256,55 @@ ui <-
 
             conditionalPanel(
               "input.select !== 0",
-              plotlyOutput(
-                "plot",
-                height = paste0(plot_height * .75, "px")
+
+              fluidRow(
+
+                column(
+                  width = 2,
+                  actionButton(
+                    "add_median",
+                    "Add group medians",
+                    icon = icon("line-chart"),
+                    #class = "btn-success",
+                    width = "100%"
+                  )
+                ),
+                column(
+                  width = 3,
+                  pickerInput(
+                    inputId = "group_medians",
+                    label = NULL,
+                    choices = list(
+                      "Comparison group",
+                      `Economic` = c(country_groups %>% filter(group_category=="Economic") %>% .$group_name),
+                      `Region` = c(country_groups %>% filter(group_category=="Region") %>% .$group_name),
+                      `Income` = c(country_groups %>% filter(group_category=="Income") %>% .$group_name)
+                    ),
+                    selected = c("Comparison group"),
+                    multiple = TRUE,
+                    options = pickerOptions(
+                      maxOptions = 3,
+                      size = 10
+                    )
+                  )
+                )
+
+              ),
+
+              fluidRow(
+
+                column(
+                  width = 12,
+                  plotlyOutput(
+                    "plot",
+                    height = paste0(plot_height * .75, "px")
+                  )
+                )
+
               )
+
             )
+
           ),
 
           bs4Card(
