@@ -280,7 +280,7 @@ ui <-
                       `Region` = c(country_groups %>% filter(group_category=="Region") %>% .$group_name),
                       `Income` = c(country_groups %>% filter(group_category=="Income") %>% .$group_name)
                     ),
-                    selected = c("Comparison group"),
+                    selected = c("Comparison group", "OECD members"),
                     multiple = TRUE,
                     options = pickerOptions(
                       maxOptions = 3,
