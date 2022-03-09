@@ -240,6 +240,21 @@
         }
       )
 
+    na_indicators <-
+      eventReactive(
+        input$select,
+
+        {
+
+          global_data %>%
+            ungroup() %>%
+            filter(country_name == input$country) %>%
+            select(where(is.na)) %>%
+            names
+
+        }
+      )
+
 
     ## Median data ------------------------------------------------------------
 
@@ -251,7 +266,7 @@
 
           data() %>%
             filter(country_name != input$country) %>%
-            filter(! variable %in% na_indicators) %>%
+            filter(! variable %in% na_indicators()) %>%
             mutate(group = "Comparison group") %>%
             group_by(group, var_name) %>%
             summarise(dtf = median(dtf, na.rm = TRUE)) %>%
@@ -270,9 +285,9 @@
 
           country_list %>%
             select(country_name,group) %>%
-            filter(group %in% input$group_medians) %>%
             right_join(data(), by = c("country_name")) %>%
-            filter(! variable %in% na_indicators) %>%
+            filter(group %in% input$group_medians) %>%
+            filter(! variable %in% na_indicators()) %>%
             group_by(group, var_name) %>%
             summarise(dtf = median(dtf, na.rm = TRUE)) %>%
             mutate(group_med = paste0(group," Median")) %>%
@@ -281,6 +296,22 @@
 
         }
       )
+
+    median_data <-
+      eventReactive(
+        input$add_median,
+
+        {
+            bind_rows(
+              median_comparison_data(),
+              median_group_data()
+            ) %>%
+            select(-c(variable,family_name)) %>%
+            left_join(variable_names %>% select(var_name,variable,family_name), by="var_name")
+
+        }
+      )
+
 
     ## Browse data -------------------------------------------------------------
     browse_data <-
@@ -322,8 +353,10 @@
               )
 
             data_family() %>%
-              static_plot(base_country(),
-                          input$family) %>%
+              static_plot(
+                base_country(),
+                input$family
+              ) %>%
               interactive_plot(
                 base_country(),
                 input$groups,
@@ -358,8 +391,10 @@
 
             data() %>%
               filter(variable %in% vars) %>%
-              static_plot(base_country(),
-                          input$family) %>%
+              static_plot(
+                base_country(),
+                input$family
+              ) %>%
               interactive_plot(
                 base_country(),
                 input$groups,
@@ -370,6 +405,89 @@
           }
         )
       })
+
+    observeEvent(
+      input$add_median,
+
+      {
+
+        output$plot <-
+          renderPlotly({
+
+            input$select
+
+            isolate(
+
+              if (input$family == "Overview") {
+
+                missing_variables <-
+                  global_data %>%
+                  missing_var(
+                    base_country(),
+                    country_list,
+                    input$countries,
+                    vars_all,
+                    variable_names
+                  )
+
+                data_family() %>%
+                  static_plot(
+                    base_country(),
+                    input$family
+                  ) %>%
+                  interactive_plot(
+                    base_country(),
+                    input$groups,
+                    input$family,
+                    plotly_remove_buttons,
+                    missing_variables
+                  )
+
+              } else {
+
+                vars <-
+                  # case_when()
+                  if (input$family == "Labor market institutions") {vars_lab} else
+                    if (input$family == "Financial market institutions") {vars_fin} else
+                      if (input$family == "Legal institutions") {vars_leg} else
+                        if (input$family == "Political institutions") {vars_pol} else
+                          if (input$family == "Social institutions") {vars_social} else
+                            if (input$family == "Business environment and trade institutions") {vars_mkt} else
+                              if (input$family == "Public sector performance institutions") {vars_publ} else
+                                if (input$family == "SOE Corporate Governance") {vars_service_del} else
+                                  if (input$family == "Anti-Corruption, Transparency and Accountability institutions") {vars_transp}
+
+                missing_variables <-
+                  global_data %>%
+                  missing_var(
+                    base_country(),
+                    country_list,
+                    input$countries,
+                    vars,
+                    variable_names
+                  )
+
+                median_data() %>%
+                  filter(variable %in% vars) %>%
+                  median_static_plot(
+                    base_country(),
+                    input$group_medians,
+                    input$family
+                  ) %>%
+                  interactive_plot(
+                    base_country(),
+                    input$groups,
+                    input$family,
+                    plotly_remove_buttons,
+                    missing_variables
+                  )
+
+              }
+            )
+          })
+
+      }
+    )
 
 
 
