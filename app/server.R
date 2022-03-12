@@ -282,17 +282,39 @@
         input$add_median,
 
         {
-
-          country_list %>%
-            select(country_name,group) %>%
-            right_join(data(), by = c("country_name")) %>%
-            filter(group %in% input$group_medians) %>%
-            filter(! variable %in% na_indicators()) %>%
-            group_by(group, var_name) %>%
-            summarise(dtf = median(dtf, na.rm = TRUE)) %>%
-            mutate(group_med = paste0(group," Median")) %>%
-            rename(country_name = group_med) %>%
-            bind_rows(data())
+            country_list %>%
+              select(country_name,group) %>%
+              filter(group %in% c(input$group_medians)) %>%
+              left_join(global_data, by = c("country_name")) %>%
+              pivot_longer(
+                cols = all_of(vars_all),
+                names_to = "variable"
+              ) %>%
+              filter(variable %in% variables) %>%
+              filter(! variable %in% na_indicators()) %>%
+              left_join(
+                variable_names,
+                by = "variable"
+              ) %>%
+              filter(!is.na(value)) %>%
+              group_by(variable, var_name) %>%
+              mutate(
+                dtt = percent_rank(value),
+                q25 = quantile(value, c(0.25)),
+                q50 = quantile(value, c(0.5)),
+                status = case_when(
+                  dtt <= .25 ~ "Weak\n(bottom 25%)",
+                  dtt > .25 & dtt <= .50 ~ "Emerging\n(25% - 50%)",
+                  dtt > .50 ~ "Strong\n(top 50%)"
+                )
+              ) %>%
+              ungroup %>%
+              rename(dtf = value) %>%
+              group_by(group, var_name) %>%
+              summarise(dtf = median(dtf, na.rm = TRUE)) %>%
+              mutate(group_med = paste0(group," Median")) %>%
+              rename(country_name = group_med) %>%
+              bind_rows(data())
 
         }
       )
