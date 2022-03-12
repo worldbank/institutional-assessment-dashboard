@@ -204,6 +204,24 @@
     # Reactive objects ==============================================
 
     ## Benchmark data -----------------------------------------------
+    vars <-  eventReactive(
+      input$select,
+
+      {
+
+        if (input$family == "Labor market institutions") {vars_lab} else
+          if (input$family == "Financial market institutions") {vars_fin} else
+            if (input$family == "Legal institutions") {vars_leg} else
+              if (input$family == "Political institutions") {vars_pol} else
+                if (input$family == "Social institutions") {vars_social} else
+                  if (input$family == "Business environment and trade institutions") {vars_mkt} else
+                    if (input$family == "Public sector performance institutions") {vars_publ} else
+                      if (input$family == "SOE Corporate Governance") {vars_service_del} else
+                        if (input$family == "Anti-Corruption, Transparency and Accountability institutions") {vars_transp}
+
+      }
+    )
+
     data <-
       eventReactive(
         input$select,
@@ -237,6 +255,20 @@
               family_names,
               variable_names
             )
+        }
+      )
+
+    low_variance_indicators <-
+      eventReactive(
+        input$select,
+
+        {
+
+          data() %>%
+            filter(country_name == base_country() & q25==q50) %>%
+            select(variable) %>%
+            unlist
+
         }
       )
 
@@ -290,8 +322,9 @@
                 cols = all_of(vars_all),
                 names_to = "variable"
               ) %>%
-              filter(variable %in% variables) %>%
+              filter(variable %in% vars()) %>%
               filter(! variable %in% na_indicators()) %>%
+              filter(! variable %in% low_variance_indicators()) %>%
               left_join(
                 variable_names,
                 by = "variable"
@@ -313,8 +346,8 @@
               group_by(group, var_name) %>%
               summarise(dtf = median(dtf, na.rm = TRUE)) %>%
               mutate(group_med = paste0(group," Median")) %>%
-              rename(country_name = group_med) %>%
-              bind_rows(data())
+              rename(country_name = group_med) #%>%
+              #bind_rows(data())
 
         }
       )
@@ -389,30 +422,18 @@
 
           } else {
 
-            vars <-
-              # case_when()
-              if (input$family == "Labor market institutions") {vars_lab} else
-                if (input$family == "Financial market institutions") {vars_fin} else
-                  if (input$family == "Legal institutions") {vars_leg} else
-                    if (input$family == "Political institutions") {vars_pol} else
-                      if (input$family == "Social institutions") {vars_social} else
-                        if (input$family == "Business environment and trade institutions") {vars_mkt} else
-                          if (input$family == "Public sector performance institutions") {vars_publ} else
-                            if (input$family == "SOE Corporate Governance") {vars_service_del} else
-                              if (input$family == "Anti-Corruption, Transparency and Accountability institutions") {vars_transp}
-
             missing_variables <-
               global_data %>%
               missing_var(
                 base_country(),
                 country_list,
                 input$countries,
-                vars,
+                vars(),
                 variable_names
               )
 
             data() %>%
-              filter(variable %in% vars) %>%
+              filter(variable %in% vars()) %>%
               static_plot(
                 base_country(),
                 input$family
@@ -432,6 +453,8 @@
       input$add_median,
 
       {
+
+        print(low_variance_indicators())
 
         output$plot <-
           renderPlotly({
@@ -467,30 +490,18 @@
 
               } else {
 
-                vars <-
-                  # case_when()
-                  if (input$family == "Labor market institutions") {vars_lab} else
-                    if (input$family == "Financial market institutions") {vars_fin} else
-                      if (input$family == "Legal institutions") {vars_leg} else
-                        if (input$family == "Political institutions") {vars_pol} else
-                          if (input$family == "Social institutions") {vars_social} else
-                            if (input$family == "Business environment and trade institutions") {vars_mkt} else
-                              if (input$family == "Public sector performance institutions") {vars_publ} else
-                                if (input$family == "SOE Corporate Governance") {vars_service_del} else
-                                  if (input$family == "Anti-Corruption, Transparency and Accountability institutions") {vars_transp}
-
                 missing_variables <-
                   global_data %>%
                   missing_var(
                     base_country(),
                     country_list,
                     input$countries,
-                    vars,
+                    vars(),
                     variable_names
                   )
 
                 median_data() %>%
-                  filter(variable %in% vars) %>%
+                  filter(variable %in% vars()) %>%
                   median_static_plot(
                     base_country(),
                     input$group_medians,
@@ -510,10 +521,6 @@
 
       }
     )
-
-
-
-
 
    # Map =======================================================================
 
