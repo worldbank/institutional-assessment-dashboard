@@ -220,7 +220,9 @@
                   if (input$family == "Business environment and trade institutions") {vars_mkt} else
                     if (input$family == "Public sector performance institutions") {vars_publ} else
                       if (input$family == "SOE Corporate Governance") {vars_service_del} else
-                        if (input$family == "Anti-Corruption, Transparency and Accountability institutions") {vars_transp}
+                        if (input$family == "Anti-Corruption, Transparency and Accountability institutions") {vars_transp} else
+
+        if (input$family == "Overview") {vars_all}
 
       }
     )
@@ -235,7 +237,7 @@
               base_country(),
               country_list,
               input$countries,
-              vars_all,
+              vars(),
               variable_names
             )
         }
@@ -277,6 +279,7 @@
         }
       )
 
+    # Missing variables from base country
     na_indicators <-
       eventReactive(
         input$select,
@@ -291,7 +294,6 @@
 
         }
       )
-
 
     ## Median data ------------------------------------------------------------
 
@@ -412,6 +414,15 @@
                 variable_names
               )
 
+            low_variance_variables <-
+              low_variance_indicators() %>%
+              data.frame() %>%
+              rename("variable"=".") %>%
+              left_join(variable_names %>% select(variable,var_name), by = "variable") %>%
+              .$var_name
+
+            missing_variables <- c(missing_variables,low_variance_variables)
+
             data_family() %>%
               static_plot(
                 base_country(),
@@ -436,6 +447,15 @@
                 vars(),
                 variable_names
               )
+
+            low_variance_variables <-
+              low_variance_indicators() %>%
+              data.frame() %>%
+              rename("variable"=".") %>%
+              left_join(variable_names %>% select(variable,var_name), by = "variable") %>%
+              .$var_name
+
+            missing_variables <- c(missing_variables,low_variance_variables)
 
             data() %>%
               filter(variable %in% vars()) %>%
@@ -480,6 +500,15 @@
                     variable_names
                   )
 
+                low_variance_variables <-
+                  low_variance_indicators() %>%
+                  data.frame() %>%
+                  rename("variable"=".") %>%
+                  left_join(variable_names %>% select(variable,var_name), by = "variable") %>%
+                  .$var_name
+
+                missing_variables <- c(missing_variables,low_variance_variables)
+
                 data_family() %>%
                   static_plot(
                     base_country(),
@@ -504,6 +533,15 @@
                     vars(),
                     variable_names
                   )
+
+                low_variance_variables <-
+                  low_variance_indicators() %>%
+                  data.frame() %>%
+                  rename("variable"=".") %>%
+                  left_join(variable_names %>% select(variable,var_name), by = "variable") %>%
+                  .$var_name
+
+                missing_variables <- c(missing_variables,low_variance_variables)
 
                 median_data() %>%
                   filter(variable %in% vars()) %>%

@@ -76,7 +76,7 @@ def_quantiles <- function(data, base_country, country_list, comparison_countries
     ungroup %>%
     rename(dtf = value)
 
-# Remove indicators where there is too little variance
+  # Remove indicators where there is too little variance
   low_variance_indicators <-
     quantiles %>%
     filter(country_name == base_country & q25==q50) %>%

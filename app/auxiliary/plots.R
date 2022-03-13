@@ -257,7 +257,7 @@ interactive_plot <-
           y,
           " compared to ",
           paste(z, collapse = ", "),
-          ". Indicators not considered because base country has no information: ",
+          ". Indicators not considered because base country has no information or because of low variance: ",
           paste(miss_var, collapse = ", "),
           "."
         )
@@ -292,7 +292,7 @@ interactive_plot <-
         annotations =
           list(
             x = 0,
-            y = -0.5,
+            y = -0.6,
             text = HTML(str_wrap(notes, 160)),
             showarrow = F,
             xref = 'paper',
