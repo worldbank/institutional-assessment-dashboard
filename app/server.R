@@ -67,6 +67,9 @@
   source(file.path("auxiliary",
                    "fun_missing_var.R"))
 
+  source(file.path("auxiliary",
+                   "fun_low_variance.R"))
+
   # Create benchmark graphs
   source(file.path("auxiliary",
                    "plots.R"))
@@ -222,6 +225,22 @@
       }
     )
 
+    low_variance_indicators <-
+      eventReactive(
+        input$select,
+
+        {
+          global_data %>%
+            low_variance(
+              base_country(),
+              country_list,
+              input$countries,
+              vars_all,
+              variable_names
+            )
+        }
+      )
+
     data <-
       eventReactive(
         input$select,
@@ -255,20 +274,6 @@
               family_names,
               variable_names
             )
-        }
-      )
-
-    low_variance_indicators <-
-      eventReactive(
-        input$select,
-
-        {
-
-          data() %>%
-            filter(country_name == base_country() & q25==q50) %>%
-            select(variable) %>%
-            unlist
-
         }
       )
 
@@ -454,7 +459,7 @@
 
       {
 
-        print(low_variance_indicators())
+
 
         output$plot <-
           renderPlotly({
