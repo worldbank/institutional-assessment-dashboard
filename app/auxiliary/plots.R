@@ -386,7 +386,7 @@ trends_plot <- function(raw_data,
 
 static_bar <-
   function(data, country_list,
-           base_country, comparison_countries, groups,
+           base_country, comparison_countries,
            var, variable_names) {
 
     data <-
