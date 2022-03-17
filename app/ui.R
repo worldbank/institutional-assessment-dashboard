@@ -75,7 +75,8 @@ ui <-
 
       sidebarMenu(
         menuItem("Home", tabName = "home", icon = icon("home")),
-        menuItem("Country benchmarking", tabName = "country", icon = icon("sort-amount-up")),
+        menuItem("Country benchmarking", tabName = "benchmark", icon = icon("sort-amount-up")),
+        menuItem("Cross-country comparison", tabName = "country", icon = icon("chart-bar")),
         # menuItem("Aggregation of preferences", tabName = "heatmap", icon = icon("comments")),
         menuItem("World map", tabName = "world_map", icon = icon("globe-americas")),
         menuItem("Time trends", tabName = "trends", icon = icon("chart-line")),
@@ -150,7 +151,7 @@ ui <-
         ## Country benchmark tab -------------------------------------------------------
 
         tabItem(
-          tabName = "country",
+          tabName = "benchmark",
           useShinyjs(),
 
           bs4Card(
@@ -267,6 +268,75 @@ ui <-
             width = 12,
 
             tableOutput('definition')
+          )
+        ),
+
+        ## Country comparison ----------------------------------------------------
+
+        tabItem(
+          tabName = "country",
+
+          bs4Card(
+            title = "Select information to display",
+            status = "success",
+            solidHeader = TRUE,
+            width = 12,
+
+            fluidRow(
+
+              column(
+                width = 4,
+                pickerInput(
+                  "vars_bar",
+                  label = "Select indicator",
+                  choices = list(
+                    `Anti-Corruption, Transparency and Accountability institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
+                    `Business environment and trade institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_mkt") %>% .$var_name),
+                    `Financial market institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
+                    `SOE Corporate Governance` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_service_del") %>% .$var_name),
+                    `Labor market institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_lab") %>% .$var_name),
+                    `Legal institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_leg") %>% .$var_name),
+                    `Political institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_pol") %>% .$var_name),
+                    `Public sector institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_publ") %>% .$var_name),
+                    `Social institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_social") %>% .$var_name)
+                  ),
+                  selected = "Capital controls",
+                  options = list(
+                    `live-search` = TRUE,
+                    size = 25,
+                    title = "Click to select family or indicator"
+                  ),
+                  width = "100%"
+                )
+              ),
+
+              column(
+                width = 2,
+                pickerInput(
+                  "country_bar",
+                  label = "Select a base country",
+                  choices = c("", country_list$country_name %>% unique %>% sort),
+                  selected = "Uruguay",
+                  multiple = FALSE
+                )
+              ),
+
+              column(
+                width = 6,
+                pickerInput(
+                  inputId = "countries_bar",
+                  label = "Select comparison countries",
+                  choices = global_data$country_name %>% unique %>% sort,
+                  selected = c("Brazil", "Argentina", "Paraguay"),
+                  multiple = TRUE
+                )
+              )
+            ),
+
+            plotlyOutput(
+              "bar_plot",
+              height = paste0(plot_height * .75, "px")
+            )
           )
         ),
 

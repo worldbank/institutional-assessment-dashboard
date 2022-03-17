@@ -299,9 +299,28 @@
         )
       })
 
+   # Bar plot ==================================================================
 
+    output$bar_plot <-
 
+      renderPlotly(
+        {
+          static_bar(
+            global_data,
+            country_list,
+            input$country_bar,
+            input$countries_bar,
+            input$vars_bar,
+            variable_names
+          ) %>%
+            interactive_bar(
+              input$vars_bar,
+              db_variables,
+              plotly_remove_buttons
+            )
 
+        }
+      )
 
    # Map =======================================================================
 
@@ -554,6 +573,24 @@
           )
 
       })
+
+      output$definition_bar <-
+        renderTable({
+
+          variables <-
+            db_variables %>%
+            filter(
+              var_name == input$vars_bar
+            ) %>%
+            select(
+              Indicator = var_name,
+              Family = family_name,
+              Description = description,
+              Source = source,
+              Period = range
+            )
+
+        })
 
 
     # Download csv with definitions
