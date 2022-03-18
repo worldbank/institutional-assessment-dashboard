@@ -21,6 +21,19 @@ plotly_remove_buttons <-
 static_plot <-
   function(data, base_country, tab_name, title = TRUE, note = NULL) {
 
+    data$var_name <-
+      factor(
+        data$var_name,
+        levels = sort(unique(data$var_name),
+                      decreasing = TRUE),
+        ordered = TRUE
+      )
+
+    colors <-
+      c("Weak\n(bottom 25%)" = "#D2222D",
+        "Emerging\n(25% - 50%)" = "#FFBF00",
+        "Strong\n(top 50%)" = "#238823"
+      )
 
     plot <-
       ggplot() +
