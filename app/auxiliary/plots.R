@@ -535,3 +535,127 @@ interactive_bar <-
       )
 
   }
+
+# Bivariate correlation #####################################################
+
+static_scatter <-
+  function(data,
+           x_scatter, y_scatter,
+           variable_names) {
+
+    x <-
+      variable_names %>%
+      filter(var_name == x_scatter) %>%
+      select(variable) %>%
+      unlist %>%
+      unname
+
+    y <-
+      variable_names %>%
+      filter(var_name == y_scatter) %>%
+      select(variable) %>%
+      unlist %>%
+      unname
+
+    data <-
+      data %>%
+      mutate(
+        label = paste0(
+          "Country: ", country_name, "<br>",
+          x_scatter, ": ", get(x) %>% round(3), "<br>",
+          y_scatter, ": ", get(y) %>% round(3)
+        )
+      )
+
+    ggplot(
+      data,
+      aes_string(
+        x = x,
+        y = y,
+        text = "label"
+      )
+    ) +
+      geom_point(
+        color = "#001f3f",
+        size = 2
+      ) +
+      theme_minimal() +
+      theme(
+        legend.position = "none",
+        axis.ticks = element_blank(),
+        axis.text = element_text(color = "black"),
+        axis.text.y = element_text(size = 12),
+        axis.text.x = element_text(size = 11),
+        plot.caption = element_text(size = 8,
+                                    hjust = 0),
+        plot.caption.position =  "plot"
+      ) +
+      labs(
+        y = paste0("<b>", y_scatter, "</b>"),
+        x = paste0("<b>", x_scatter, "</b>")
+      )
+  }
+
+interactive_scatter <-
+  function(plot,
+           x_scatter, y_scatter,
+           definitions,
+           buttons) {
+
+    x <-
+      definitions %>%
+      filter(var_name == x_scatter)
+
+    y <-
+      definitions %>%
+      filter(var_name == y_scatter)
+
+    plot %>%
+      ggplotly(tooltip = "text") %>%
+      layout(
+        margin = list(
+          t = 50,
+          b = 200
+        ),
+        annotations = list(
+          x = -0.03,
+          y = -0.4,
+          text = HTML(
+            paste(
+              str_wrap(
+                paste0(
+                  "<b>Definitions:</b>",
+                  "<br>", "<em>", x$var_name, ":</em> ", x$description, " (Source: ", x$source, ")",
+                  "<br>", "<em>", y$var_name, ":</em> ", y$description, " (Source: ", y$source, ")"
+                ),
+                note_chars
+              )
+            )
+          ),
+          showarrow = F,
+          xref = 'paper',
+          yref = 'paper',
+          align = 'left',
+          font = list(size = note_size)
+        )
+      ) %>%
+        config(
+          modeBarButtonsToRemove = buttons,
+          toImageButtonOptions = list(
+            filename = paste(x_scatter, "x", y_scatter),
+            width = 1050,
+            height =  675
+          )
+      )
+   }
+
+annotations =
+  list(
+    x = -.1,
+    y = -.4,
+    showarrow = F,
+    xref = 'paper',
+    yref = 'paper',
+    align = 'left',
+    font = list(size = note_size)
+  )
