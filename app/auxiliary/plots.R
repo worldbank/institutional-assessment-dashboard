@@ -21,19 +21,6 @@ plotly_remove_buttons <-
 static_plot <-
   function(data, base_country, tab_name, title = TRUE, note = NULL) {
 
-    data$var_name <-
-      factor(
-        data$var_name,
-        levels = sort(unique(data$var_name),
-                      decreasing = TRUE),
-        ordered = TRUE
-      )
-
-    colors <-
-      c("Weak\n(bottom 25%)" = "#D2222D",
-        "Emerging\n(25% - 50%)" = "#FFBF00",
-        "Strong\n(top 50%)" = "#238823"
-      )
 
     plot <-
       ggplot() +
@@ -533,3 +520,283 @@ trends_plot <- function(raw_data,
     )
 
 }
+
+# Cross-country comparison #####################################################
+
+## Bar graph -------------------------------------------------------------------
+
+static_bar <-
+  function(data, country_list,
+           base_country, comparison_countries,
+           var, variable_names) {
+
+    data <-
+      data %>%
+      def_quantiles(
+        base_country,
+        country_list,
+        comparison_countries,
+        vars_all,
+        variable_names
+      ) %>%
+      filter(var_name == var)
+
+
+    median <-
+      data %>%
+      filter(
+        country_name %in% comparison_countries
+      ) %>%
+      group_by(var_name) %>%
+      summarise(
+        country_name = "Comparison group median",
+        dtf = median(dtf, na.rm = TRUE)
+      )
+
+    data <-
+      data %>%
+      bind_rows(median) %>%
+      mutate(
+        color =
+          case_when(
+            country_name == base_country ~ 1,
+            country_name %in% comparison_countries ~ 2,
+            TRUE ~ 3
+          ),
+        order = fct_reorder(
+          country_name,
+          -dtf
+        )
+      ) %>%
+      select(dtf, order, color)
+
+    ggplot(
+      data = data,
+      aes(
+        x = dtf,
+        y = order
+      )
+    ) +
+      geom_col(
+        aes(
+          fill = factor(color)
+        )
+      ) +
+      geom_text(
+        aes(
+          x = dtf + .03,
+          label = round(dtf, 3)
+        )
+      ) +
+      geom_vline(
+        xintercept = 1,
+        linetype = "dashed",
+        color = "#238823",
+        size = 1
+      ) +
+      theme_minimal() +
+      theme(
+        legend.position = "none",
+        panel.grid.minor = element_blank(),
+        panel.grid.major.y = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text = element_text(color = "black"),
+        axis.text.y = element_text(size = 12),
+        axis.text.x = element_text(size = 11),
+        plot.caption = element_text(size = 8,
+                                    hjust = 0),
+        plot.caption.position =  "plot"
+      ) +
+      labs(
+        y = NULL,
+        x = "Closeness to Frontier",
+        fill = NULL,
+        title = paste0("<b>", var, "</b>")
+      ) +
+      scale_fill_manual(
+        values = c("#EC7663", "#001f3f", "#6c757d")
+      )
+
+  }
+
+
+## Interactive bar graph -------------------------------------------------------
+
+interactive_bar <-
+  function(x, var, definitions, buttons) {
+
+    def <-
+      definitions %>%
+      filter(var_name == var)
+
+    x %>%
+      ggplotly(tooltip = "text") %>%
+      layout(
+        legend = list(
+          title = list(text = '<b>Closeness to\nfrontier:</b>'),
+          y = 0.5
+        ),
+        margin = list(t = 75, b = 125),
+        annotations =
+          list(x = -.1,
+               y = -.4,
+               text = HTML(
+                 paste(
+                   str_wrap(
+                     paste(
+                       "<b>Definition:</b>",
+                       def$description
+                     ),
+                     note_chars
+                   ),
+                   str_wrap(
+                     paste(
+                       "<b>Source:</b>",
+                       def$source
+                     ),
+                     note_chars
+                   ),
+                   sep = "<br>"
+                 )
+               ),
+               showarrow = F,
+               xref = 'paper',
+               yref = 'paper',
+               align = 'left',
+               font = list(size = note_size)
+          )
+      ) %>%
+      config(
+        modeBarButtonsToRemove = buttons,
+        toImageButtonOptions = list(
+          filename = paste0(tolower(stringr::str_replace_all(var,"\\s","_")),"_map"),
+          width = 1050,
+          height =  675
+        )
+      )
+
+  }
+
+# Bivariate correlation #####################################################
+
+static_scatter <-
+  function(data,
+           x_scatter, y_scatter,
+           variable_names) {
+
+    x <-
+      variable_names %>%
+      filter(var_name == x_scatter) %>%
+      select(variable) %>%
+      unlist %>%
+      unname
+
+    y <-
+      variable_names %>%
+      filter(var_name == y_scatter) %>%
+      select(variable) %>%
+      unlist %>%
+      unname
+
+    data <-
+      data %>%
+      mutate(
+        label = paste0(
+          "Country: ", country_name, "<br>",
+          x_scatter, ": ", get(x) %>% round(3), "<br>",
+          y_scatter, ": ", get(y) %>% round(3)
+        )
+      )
+
+    ggplot(
+      data,
+      aes_string(
+        x = x,
+        y = y,
+        text = "label"
+      )
+    ) +
+      geom_point(
+        color = "#001f3f",
+        size = 2
+      ) +
+      theme_minimal() +
+      theme(
+        legend.position = "none",
+        axis.ticks = element_blank(),
+        axis.text = element_text(color = "black"),
+        axis.text.y = element_text(size = 12),
+        axis.text.x = element_text(size = 11),
+        plot.caption = element_text(size = 8,
+                                    hjust = 0),
+        plot.caption.position =  "plot"
+      ) +
+      labs(
+        y = paste0("<b>", y_scatter, "</b>"),
+        x = paste0("<b>", x_scatter, "</b>")
+      )
+  }
+
+interactive_scatter <-
+  function(plot,
+           x_scatter, y_scatter,
+           definitions,
+           buttons) {
+
+    x <-
+      definitions %>%
+      filter(var_name == x_scatter)
+
+    y <-
+      definitions %>%
+      filter(var_name == y_scatter)
+
+    plot %>%
+      ggplotly(tooltip = "text") %>%
+      layout(
+        margin = list(
+          t = 50,
+          b = 200
+        ),
+        annotations = list(
+          x = -0.03,
+          y = -0.4,
+          text = HTML(
+            paste(
+              str_wrap(
+                paste0(
+                  "<b>Definitions:</b>",
+                  "<br>", "<em>", x$var_name, ":</em> ", x$description, " (Source: ", x$source, ")",
+                  "<br>", "<em>", y$var_name, ":</em> ", y$description, " (Source: ", y$source, ")"
+                ),
+                note_chars
+              )
+            )
+          ),
+          showarrow = F,
+          xref = 'paper',
+          yref = 'paper',
+          align = 'left',
+          font = list(size = note_size)
+        )
+      ) %>%
+        config(
+          modeBarButtonsToRemove = buttons,
+          toImageButtonOptions = list(
+            filename = paste(x_scatter, "x", y_scatter),
+            width = 1050,
+            height =  675
+          )
+      )
+   }
+
+annotations =
+  list(
+    x = -.1,
+    y = -.4,
+    showarrow = F,
+    xref = 'paper',
+    yref = 'paper',
+    align = 'left',
+    font = list(size = note_size)
+  )
