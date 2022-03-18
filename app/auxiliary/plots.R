@@ -1,7 +1,6 @@
-# Benchmark plots ##############################################################
 
 note_size <- 11
-note_chars <- 220
+note_chars <- 170
 color_groups <- colorRampPalette(c("#053E5D", "#60C2F7"))
 
 plotly_remove_buttons <-
@@ -16,10 +15,10 @@ plotly_remove_buttons <-
     "hoverClosestCartesian",
     "hoverCompareCartesian")
 
+# Benchmark plots ##############################################################
 
-## Static plot =================================================================
 static_plot <-
-  function(data, base_country, tab_name, title = TRUE, note = NULL) {
+  function(data, base_country, tab_name, title = TRUE) {
 
     data$var_name <-
       factor(
@@ -105,8 +104,7 @@ static_plot <-
               plot.caption.position =  "plot") +
         labs(y = NULL,
              x = "Closeness to Frontier",
-             fill = NULL,
-             caption = note) +
+             fill = NULL) +
           scale_fill_manual(
           values = colors
         )
@@ -122,19 +120,157 @@ static_plot <-
 
   }
 
-## Interactive plot ============================================================
+median_static_plot <-
+  function(data, base_country, group_medians, tab_name, title = TRUE, note = NULL) {
+
+    data$var_name <-
+      factor(
+        data$var_name,
+        levels = sort(unique(data$var_name),
+                      decreasing = TRUE),
+        ordered = TRUE
+      )
+
+    colors <-
+      c("Weak\n(bottom 25%)" = "#D2222D",
+        "Emerging\n(25% - 50%)" = "#FFBF00",
+        "Strong\n(top 50%)" = "#238823"
+      )
+
+    shapes <-
+      c(22,23,24)
+
+    plot <-
+      ggplot() +
+      geom_segment(
+        data = data,
+        aes(
+          y = var_name,
+          yend = var_name,
+          x = 0,
+          xend = q25
+        ),
+        color = "#e47a81",
+        size = 2,
+        alpha = .1
+      ) +
+      geom_vline(
+        xintercept = 1,
+        linetype = "dashed",
+        color = colors["Advanced"],
+        size = 1
+      ) +
+      geom_segment(
+        data = data,
+        aes(
+          y = var_name,
+          yend = var_name,
+          x = q25,
+          xend = q50
+        ),
+        color = "#ffd966",
+        size = 2,
+        alpha = .3
+      ) +
+      geom_segment(
+        data = data,
+        aes(
+          y = var_name,
+          yend = var_name,
+          x = q50,
+          xend = 1
+        ),
+        color = "#8ec18e",
+        size = 2,
+        alpha = .3
+      ) +
+      geom_point(
+        data = data %>% filter(country_name == base_country),
+        aes(
+          y = var_name,
+          x = dtf,
+          fill = status,
+          text = paste(" Country:", base_country,"<br>",
+                       "Closeness to frontier:", round(dtf, 3))
+        ),
+        size = 3,
+        shape = 21,
+        color = "gray0"
+      ) +
+      geom_point(
+        data = data %>% filter(group %in% group_medians),
+        aes(y = var_name,
+            x = dtf,
+            shape = country_name),
+        alpha = .5,
+        color = "black",
+        fill = "transparent",
+        size = 3
+      ) +
+      theme_minimal() +
+      theme(legend.position = "top",
+            panel.grid.minor = element_blank(),
+            axis.ticks = element_blank(),
+            axis.text = element_text(color = "black"),
+            axis.text.y = element_text(size = 12),
+            axis.text.x = element_text(size = 11),
+            legend.box = "vertical",
+            plot.caption = element_text(size = 8,
+                                        hjust = 0),
+            plot.caption.position =  "plot") +
+      labs(y = NULL,
+           x = "Closeness to Frontier",
+           fill = NULL,
+           shape = NULL,
+           caption = note) +
+      scale_fill_manual(
+        values = colors
+      ) +
+      scale_shape_manual(
+        values = shapes
+      )
+
+    if (title) {
+      plot <-
+        plot +
+        labs(title = paste0("<b>", tab_name, "</b>"))
+    }
+
+    return(plot)
+
+
+  }
 
 interactive_plot <-
-  function(x, y, z, tab_name, buttons) {
+  function(x, y, z, tab_name, buttons, miss_var) {
 
-    notes <-
-      paste0(
-        "<b>Notes:</b> ",
-        y,
-        " compared to ",
-        paste(z, collapse = ", "),
-        "."
-      )
+    if (length(miss_var) > 0) {
+
+      notes <-
+        paste0(
+          "<b>Notes:</b> ",
+          y,
+          " compared to ",
+          paste(z, collapse = ", "),
+          ". Indicators not considered because base country has no information or because of low variance: ",
+          paste(miss_var, collapse = ", "),
+          "."
+        )
+
+    }
+
+    if (length(miss_var) == 0) {
+
+      notes <-
+        paste0(
+          "<b>Notes:</b> ",
+          y,
+          " compared to ",
+          paste(z, collapse = ", "),
+          "."
+        )
+
+    }
 
     if (tab_name == "Overview") {
       notes <-
@@ -150,9 +286,9 @@ interactive_plot <-
         margin = list(l = 50, r = 50, t = 75, b = 150),
         annotations =
           list(
-            x = 0,
-            y = -0.5,
-            text = HTML(str_wrap(notes, 160)),
+            x = -0.2,
+            y = -0.6,
+            text = HTML(str_wrap(notes, note_chars)),
             showarrow = F,
             xref = 'paper',
             yref = 'paper',
@@ -395,8 +531,6 @@ trends_plot <- function(raw_data,
 
 # Cross-country comparison #####################################################
 
-## Bar graph -------------------------------------------------------------------
-
 static_bar <-
   function(data, country_list,
            base_country, comparison_countries,
@@ -492,8 +626,6 @@ static_bar <-
   }
 
 
-## Interactive bar graph -------------------------------------------------------
-
 interactive_bar <-
   function(x, var, definitions, buttons) {
 
@@ -508,10 +640,10 @@ interactive_bar <-
           title = list(text = '<b>Closeness to\nfrontier:</b>'),
           y = 0.5
         ),
-        margin = list(t = 75, b = 125),
+        margin = list(t = 75, b = 150),
         annotations =
           list(x = -.1,
-               y = -.4,
+               y = -.3,
                text = HTML(
                  paste(
                    str_wrap(
@@ -635,10 +767,15 @@ interactive_scatter <-
           y = -0.4,
           text = HTML(
             paste(
+              "<b>Definitions:</b>",
               str_wrap(
                 paste0(
-                  "<b>Definitions:</b>",
-                  "<br>", "<em>", x$var_name, ":</em> ", x$description, " (Source: ", x$source, ")",
+                  "<br>", "<em>", x$var_name, ":</em> ", x$description, " (Source: ", x$source, ")"
+                ),
+                note_chars
+              ),
+              str_wrap(
+                paste0(
                   "<br>", "<em>", y$var_name, ":</em> ", y$description, " (Source: ", y$source, ")"
                 ),
                 note_chars
