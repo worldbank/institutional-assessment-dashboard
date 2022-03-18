@@ -379,7 +379,7 @@ ui <-
 
             plotlyOutput(
               "bar_plot",
-              height = paste0(plot_height * .75, "px")
+              height = paste0(plot_height, "px")
             )
           )
         ),

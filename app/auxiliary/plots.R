@@ -531,8 +531,6 @@ trends_plot <- function(raw_data,
 
 # Cross-country comparison #####################################################
 
-## Bar graph -------------------------------------------------------------------
-
 static_bar <-
   function(data, country_list,
            base_country, comparison_countries,
@@ -628,8 +626,6 @@ static_bar <-
   }
 
 
-## Interactive bar graph -------------------------------------------------------
-
 interactive_bar <-
   function(x, var, definitions, buttons) {
 
@@ -644,10 +640,10 @@ interactive_bar <-
           title = list(text = '<b>Closeness to\nfrontier:</b>'),
           y = 0.5
         ),
-        margin = list(t = 75, b = 125),
+        margin = list(t = 75, b = 150),
         annotations =
           list(x = -.1,
-               y = -.4,
+               y = -.3,
                text = HTML(
                  paste(
                    str_wrap(
@@ -771,10 +767,15 @@ interactive_scatter <-
           y = -0.4,
           text = HTML(
             paste(
+              "<b>Definitions:</b>",
               str_wrap(
                 paste0(
-                  "<b>Definitions:</b>",
-                  "<br>", "<em>", x$var_name, ":</em> ", x$description, " (Source: ", x$source, ")",
+                  "<br>", "<em>", x$var_name, ":</em> ", x$description, " (Source: ", x$source, ")"
+                ),
+                note_chars
+              ),
+              str_wrap(
+                paste0(
                   "<br>", "<em>", y$var_name, ":</em> ", y$description, " (Source: ", y$source, ")"
                 ),
                 note_chars
