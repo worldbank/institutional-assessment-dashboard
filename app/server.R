@@ -322,6 +322,22 @@
         }
       )
 
+    # Scatter plot ============================================================
+
+    output$scatter_plot <-
+      renderPlotly({
+        static_scatter(
+          global_data,
+          input$x_scatter, input$y_scatter,
+          variable_names
+        ) %>%
+          interactive_scatter(
+            input$x_scatter, input$y_scatter,
+            db_variables,
+            plotly_remove_buttons
+          )
+      })
+
    # Map =======================================================================
 
     output$map <-
