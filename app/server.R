@@ -12,6 +12,7 @@
   library(stringr)
   library(grDevices)
   library(shinyjs)
+  library(shinyBS)
 
 
 # Inputs ################################################################################
@@ -177,6 +178,29 @@
     )
 
     ## Validate options -------------------------------------------------------
+
+    output$select_button <-
+      renderUI({
+        if (length(input$countries) >= 10) {
+          actionButton(
+            "select",
+            "Apply selection",
+            icon = icon("check"),
+            class = "btn-success",
+            width = "100%"
+          )
+        }
+        else {
+          actionButton(
+            "select",
+            "Select at least 10 countries to apply selection",
+            icon = icon("triangle-exclamation"),
+            class = "btn-warning",
+            width = "100%"
+          )
+        }
+      })
+
     observeEvent(
       input$countries,
 
@@ -207,25 +231,23 @@
     # Reactive objects ==============================================
 
     ## Benchmark data -----------------------------------------------
-    vars <-  eventReactive(
-      input$select,
+    vars <-
+      eventReactive(
+        input$select,
+        {
 
-      {
-
-        if (input$family == "Labor market institutions") {vars_lab} else
-          if (input$family == "Financial market institutions") {vars_fin} else
-            if (input$family == "Legal institutions") {vars_leg} else
-              if (input$family == "Political institutions") {vars_pol} else
-                if (input$family == "Social institutions") {vars_social} else
-                  if (input$family == "Business environment and trade institutions") {vars_mkt} else
-                    if (input$family == "Public sector performance institutions") {vars_publ} else
-                      if (input$family == "SOE Corporate Governance") {vars_service_del} else
-                        if (input$family == "Anti-Corruption, Transparency and Accountability institutions") {vars_transp} else
-
-        if (input$family == "Overview") {vars_all}
-
-      }
-    )
+          if (input$family == "Labor market institutions") {vars_lab} else
+            if (input$family == "Financial market institutions") {vars_fin} else
+              if (input$family == "Legal institutions") {vars_leg} else
+                if (input$family == "Political institutions") {vars_pol} else
+                  if (input$family == "Social institutions") {vars_social} else
+                    if (input$family == "Business environment and trade institutions") {vars_mkt} else
+                      if (input$family == "Public sector performance institutions") {vars_publ} else
+                        if (input$family == "SOE Corporate Governance") {vars_service_del} else
+                          if (input$family == "Anti-Corruption, Transparency and Accountability institutions") {vars_transp} else
+                            if (input$family == "Overview") {vars_all}
+        }
+      )
 
     low_variance_indicators <-
       eventReactive(
@@ -398,80 +420,83 @@
     output$plot <-
       renderPlotly({
 
-        input$select
+        if (length(input$countries) >= 10) {
+          input$select
 
-        isolate(
+          isolate(
 
-          if (input$family == "Overview") {
+            if (input$family == "Overview") {
 
-            missing_variables <-
-              global_data %>%
-              missing_var(
-                base_country(),
-                country_list,
-                input$countries,
-                vars_all,
-                variable_names
-              )
+              missing_variables <-
+                global_data %>%
+                missing_var(
+                  base_country(),
+                  country_list,
+                  input$countries,
+                  vars_all,
+                  variable_names
+                )
 
-            low_variance_variables <-
-              low_variance_indicators() %>%
-              data.frame() %>%
-              rename("variable"=".") %>%
-              left_join(variable_names %>% select(variable,var_name), by = "variable") %>%
-              .$var_name
+              low_variance_variables <-
+                low_variance_indicators() %>%
+                data.frame() %>%
+                rename("variable"=".") %>%
+                left_join(variable_names %>% select(variable,var_name), by = "variable") %>%
+                .$var_name
 
-            missing_variables <- c(missing_variables,low_variance_variables)
+              missing_variables <- c(missing_variables,low_variance_variables)
 
-            data_family() %>%
-              static_plot(
-                base_country(),
-                input$family
-              ) %>%
-              interactive_plot(
-                base_country(),
-                input$groups,
-                input$family,
-                plotly_remove_buttons,
-                missing_variables
-              )
+              data_family() %>%
+                static_plot(
+                  base_country(),
+                  input$family
+                ) %>%
+                interactive_plot(
+                  base_country(),
+                  input$groups,
+                  input$family,
+                  plotly_remove_buttons,
+                  missing_variables
+                )
 
-          } else {
+            } else {
 
-            missing_variables <-
-              global_data %>%
-              missing_var(
-                base_country(),
-                country_list,
-                input$countries,
-                vars(),
-                variable_names
-              )
+              missing_variables <-
+                global_data %>%
+                missing_var(
+                  base_country(),
+                  country_list,
+                  input$countries,
+                  vars(),
+                  variable_names
+                )
 
-            low_variance_variables <-
-              low_variance_indicators() %>%
-              data.frame() %>%
-              rename("variable"=".") %>%
-              left_join(variable_names %>% select(variable,var_name), by = "variable") %>%
-              .$var_name
+              low_variance_variables <-
+                low_variance_indicators() %>%
+                data.frame() %>%
+                rename("variable"=".") %>%
+                left_join(variable_names %>% select(variable,var_name), by = "variable") %>%
+                .$var_name
 
-            missing_variables <- c(missing_variables,low_variance_variables)
+              missing_variables <- c(missing_variables,low_variance_variables)
 
-            data() %>%
-              filter(variable %in% vars()) %>%
-              static_plot(
-                base_country(),
-                input$family
-              ) %>%
-              interactive_plot(
-                base_country(),
-                input$groups,
-                input$family,
-                plotly_remove_buttons,
-                missing_variables
-              )
-          }
-        )
+              data() %>%
+                filter(variable %in% vars()) %>%
+                static_plot(
+                  base_country(),
+                  input$family
+                ) %>%
+                interactive_plot(
+                  base_country(),
+                  input$groups,
+                  input$family,
+                  plotly_remove_buttons,
+                  missing_variables
+                )
+            }
+          )
+        }
+
       })
 
     observeEvent(
