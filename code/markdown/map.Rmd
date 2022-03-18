@@ -17,12 +17,20 @@ pacman::p_load(packages,
 ctf <-
   read_rds(
     here(
-    "data",
-    "final",
-    "closeness_to_frontier.rds"
+      "data",
+      "final",
+      "closeness_to_frontier.rds"
+    )
   )
-)
-  
+
+raw_indicators <-
+  read_rds(
+    here(
+      "data",
+      "data_cleaned",
+      "selected_vars.rds"
+    )
+  )
 
 dtf_family_level <-
   read_rds(here("data",
@@ -108,3 +116,4 @@ write_rds(wb_country_geom_fact,
           here("app",
                "data",
                "wb_country_geom_fact.rds"))
+```

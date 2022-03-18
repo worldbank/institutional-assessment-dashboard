@@ -17,7 +17,7 @@
     read_rds(
       here(
         "data",
-        "final",
+        "constructed",
         "closeness_to_frontier.rds"
       )
     )
@@ -64,6 +64,16 @@ List all relevant groups
 The only relevant countries are those we have some data for
 
 ```{r}
+ctf <-
+  ctf %>%
+  mutate(
+    country_name =
+      country_name %>%
+      str_replace_all("Macedonia", "North Macedonia") %>%
+      str_replace_all("Swaziland", "Eswatini")
+  )
+    
+
 country_list <-
   country_list %>%
   filter(country_name %in% ctf$country_name)
@@ -117,6 +127,50 @@ write_rds(
     "app",
     "data",
     "wb_country_groups.rds"
+  )
+)
+```
+
+```{r}
+group_ctf <-
+  country_list %>%
+  left_join(
+    ctf
+  ) %>%
+  group_by(
+    group_code
+  ) %>%
+  summarise(
+    across(
+      bribes:soe_report_legislative,
+      ~ median(., na.rm = TRUE)
+    )     
+  ) %>%
+  left_join(groups) %>%
+  filter(!is.na(group_name)) %>%
+  select(
+    group_name,
+    group_code,
+    bribes:soe_report_legislative
+  )
+```
+
+```{r}
+write_rds(
+  ctf,
+  here(
+    "data",
+    "final",
+    "closeness_to_frontier.rds"
+  )
+)
+
+write_rds(
+  group_ctf,
+  here(
+    "data",
+    "final",
+    "closeness_to_frontier_groups.rds"
   )
 )
 ```

@@ -24,13 +24,37 @@ Ideally, this will use data for the last 7 years in any given year
 
 ```{r}
 data <-
-  original_indicators %>%
+  read_rds(
+    here(
+      "data",
+      "final",
+      "compiled_indicators.rds"
+    )
+  ) %>%
   filter(
     year >= 2013
   )
 ```
 
-2. Identify worst and best performance for each indicator
+
+2. Calculate country-level average for each indicator
+
+```{r}
+country_average <-
+  data %>%
+  group_by(
+    country_code,
+    country_name
+  ) %>%
+  summarise(
+    across(
+      all_of(vars_all),
+      ~ mean(., na.rm = TRUE)
+    )
+  )
+```
+
+3. Identify worst and best performance for each indicator
 
 ```{r}
 min_max <-
@@ -52,22 +76,6 @@ min_max <-
   )
 ```
 
-3. Calculate country-level average for each indicator
-
-```{r}
-country_average <-
-  data %>%
-  group_by(
-    country_code,
-    country_name
-  ) %>%
-  summarise(
-    across(
-      all_of(vars_all),
-      ~ mean(., na.rm = TRUE)
-    )
-  )
-```
 4. Calculate closeness to frontier at indicator level
 
 ```{r}
@@ -104,7 +112,7 @@ write_rds(
   ctf,
   here(
     "data",
-    "final",
+    "constructed",
     "closeness_to_frontier.rds"
   )
 )

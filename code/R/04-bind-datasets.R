@@ -1,42 +1,51 @@
-data_select_original <-
-  data_cleaned %>%
-  select(
-    country_code,
-    country_name,
-    year,
-    all_of(vars_original)
+original_data <-
+  read_rds(
+    here(
+      "data",
+      "clean",
+      "original_data.rds"
+    )
   )
 
-data_select_additions <-
-  additions %>%
-  select(
-    country_code,
-    year,
-    all_of(vars_additions)
+additional_data <-
+ read_rds(
+   here(
+     "data",
+     "clean",
+     "additional_data.rds"
+   )
+ )
+
+api_data <-
+  read_rds(
+    here(
+      "data",
+      "clean",
+      "api_data.rds"
+    )
   )
 
-data_select_api <-
-  data_api %>%
-  select(
-    country_code,
-    year,
-    all_of(vars_api)
-  )
-
-data_binded <- data_select_original %>%
+full_data <-
+  original_data %>%
   left_join(
-    data_select_additions,
-    by = c("country_code","year")
+    additional_data,
+    by = c("country_code", "year")
   ) %>%
   left_join(
-    data_select_api,
+    api_data,
     by = c("country_code","year")
   )
 
-rm(additions,data_api,data_cleaned,data_select_additions,data_select_api,data_select_original)
+# count number of missing values
+full_data$na_count <- apply(is.na(full_data), 1, sum)
+
 
 # Save binded datasets ====================================================
-write_rds(data_binded,
-          here("data",
-               "data_cleaned",
-               "selected_vars.rds"))
+write_rds(
+  full_data,
+  here(
+    "data",
+    "final",
+    "compiled_indicators.rds"
+  )
+)

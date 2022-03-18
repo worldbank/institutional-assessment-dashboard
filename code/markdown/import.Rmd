@@ -24,7 +24,7 @@ Rename variables BECAUSE
 
 
 ```{r}
-data_clean <- 
+original_clean <- 
   data_original %>%
   rename(
     country_name = countryname,
@@ -56,8 +56,8 @@ data_clean <-
 Some variable are measured in opposite scale, where a lower value means a better performance. To apply the closeness to frontier methodology, we need all indicators to point to the same direction, where higher values mean better perfomances.
 
 ```{r}
-data_clean <-
-  data_clean %>%
+original_clean <-
+  original_clean %>%
    mutate(
     # Freedom house: Countries are graded between 1 (most free) and 7 (least free).
     across(
@@ -98,9 +98,10 @@ data_clean <-
 ```
 
 We will keep only indicators from original data
+
 ```{r}
-data_clean <-
-  data_clean %>%
+original_clean <-
+  original_clean %>%
   select(
     country_name,
     country_code,
@@ -110,4 +111,17 @@ data_clean <-
   labelled::remove_labels()
 
 rm(data_original)
+```
+
+Save this data
+
+```{r}
+write_rds(
+  original_clean,
+  here(
+    "data",
+    "clean",
+    "original_data.rds"
+  )
+)
 ```
