@@ -79,8 +79,12 @@
 
   # Closeness to frontier data
   global_data <-
-    read_rds(file.path("data",
-                       "country_dtf.rds")) %>%
+    read_rds(
+      file.path(
+        "data",
+        "country_dtf.rds"
+      )
+    ) %>%
     mutate(
       country_name = country_name %>%
       str_replace_all("Macedonia", "North Macedonia") %>%
@@ -769,55 +773,57 @@
 
         datatable(
           data %>%
-            setnames(.,
-                     as.character(variable_names$variable),
-                     as.character(variable_names$var_name),
-                     skip_absent = TRUE),
+            setnames(
+              .,
+              as.character(variable_names$variable),
+              as.character(variable_names$var_name),
+              skip_absent = TRUE
+            ),
           rownames = FALSE,
           filter = 'none',
-          options = list(scrollX = TRUE,
-                         pageLength = 10,
-                         autoWidth = TRUE,
-                         dom = "lftipr"))
+          options = list(
+            scrollX = TRUE,
+            pageLength = 10,
+            autoWidth = TRUE,
+            dom = "lftipr"
+          )
+        )
 
       })
 
-        # Downloadable rds of selected dataset
+      # Downloadable rds of selected dataset
+      output$download_global_rds <-
+        downloadHandler(
+          filename = "data.rds",
 
-        output$download_global_rds <-
-          downloadHandler(
-            filename = "data.rds",
+          content = function(file) {
+            write_rds(browse_data(),
+                      file)
+          }
+        )
 
-            content = function(file) {
-              write_rds(browse_data(),
-                        file)
-            }
-          )
+      # Downloadable csv of selected dataset
+      output$download_global_csv <-
+        downloadHandler(
+          filename = "data.csv",
 
-        # Downloadable csv of selected dataset
+          content = function(file) {
+            write_csv(browse_data(),
+                      file,
+                      na = "")
+          }
+        )
 
-        output$download_global_csv <-
-          downloadHandler(
-            filename = "data.csv",
+      # Downloadable dta of selected dataset
+      output$download_global_dta <-
+        downloadHandler(
+          filename = "data.dta",
 
-            content = function(file) {
-              write_csv(browse_data(),
-                        file,
-                        na = "")
-            }
-          )
-
-        # Downloadable dta of selected dataset
-
-        output$download_global_dta <-
-          downloadHandler(
-            filename = "data.dta",
-
-            content = function(file) {
-              write_dta(browse_data(),
-                        file)
-            }
-          )
+          content = function(file) {
+            write_dta(browse_data(),
+                      file)
+          }
+        )
 
 
    # Report ================================================================================
