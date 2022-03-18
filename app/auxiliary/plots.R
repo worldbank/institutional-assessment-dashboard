@@ -1,7 +1,6 @@
-# Benchmark plots ##############################################################
 
 note_size <- 11
-note_chars <- 220
+note_chars <- 170
 color_groups <- colorRampPalette(c("#053E5D", "#60C2F7"))
 
 plotly_remove_buttons <-
@@ -16,10 +15,10 @@ plotly_remove_buttons <-
     "hoverClosestCartesian",
     "hoverCompareCartesian")
 
+# Benchmark plots ##############################################################
 
-## Static plot =================================================================
 static_plot <-
-  function(data, base_country, tab_name, title = TRUE, note = NULL) {
+  function(data, base_country, tab_name, title = TRUE) {
 
     data$var_name <-
       factor(
@@ -105,8 +104,7 @@ static_plot <-
               plot.caption.position =  "plot") +
         labs(y = NULL,
              x = "Closeness to Frontier",
-             fill = NULL,
-             caption = note) +
+             fill = NULL) +
           scale_fill_manual(
           values = colors
         )
@@ -122,7 +120,6 @@ static_plot <-
 
   }
 
-## Median plot =================================================================
 median_static_plot <-
   function(data, base_country, group_medians, tab_name, title = TRUE, note = NULL) {
 
@@ -244,8 +241,6 @@ median_static_plot <-
 
   }
 
-## Interactive plot ============================================================
-
 interactive_plot <-
   function(x, y, z, tab_name, buttons, miss_var) {
 
@@ -291,9 +286,9 @@ interactive_plot <-
         margin = list(l = 50, r = 50, t = 75, b = 150),
         annotations =
           list(
-            x = 0,
+            x = -0.2,
             y = -0.6,
-            text = HTML(str_wrap(notes, 160)),
+            text = HTML(str_wrap(notes, note_chars)),
             showarrow = F,
             xref = 'paper',
             yref = 'paper',
