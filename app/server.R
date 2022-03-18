@@ -588,7 +588,7 @@
     )
 
  # Bar plot ==================================================================
-        
+
      output$bar_plot <-
       renderPlotly(
         {
@@ -730,9 +730,11 @@
 
           vars <-
             variable_names %>%
-            filter(family_name %in% input$vars,
-                   var_level == "indicator") %>%
-            .$variable %>%
+            filter(
+              family_name %in% input$vars,
+              var_level == "indicator"
+            ) %>%
+            select(variable) %>%
             unlist
 
           if (input$data == "Compiled indicators") {
@@ -746,17 +748,22 @@
             rename(Country = country_name) %>%
             ungroup() %>%
             select(all_of(vars_table)) %>%
-            mutate(across(where(is.numeric),
-                          round, 3))
+            mutate(
+              across(
+                where(is.numeric),
+                round, 3
+              )
+            )
 
-          if(input$show_rank){
+          if(input$show_rank) {
 
             data <-
               data %>%
-              mutate_at(vars(all_of(vars)),
-                        ~ dense_rank(desc(.)
-                )
+              mutate_at(
+                vars(all_of(vars)),
+                ~ dense_rank(desc(.)
               )
+            )
 
         }
 

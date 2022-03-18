@@ -90,7 +90,7 @@ ui <-
         menuItem("Home", tabName = "home", icon = icon("home")),
         menuItem("Country benchmarking", tabName = "benchmark", icon = icon("sort-amount-up")),
         menuItem("Cross-country comparison", tabName = "country", icon = icon("chart-bar")),
-        menuItem("Bivariate correlation", tabName = "scatter", icon = icon("chart-scatter")),
+        menuItem("Bivariate correlation", tabName = "scatter", icon = icon("chart-bar")),
         # menuItem("Aggregation of preferences", tabName = "heatmap", icon = icon("comments")),
         menuItem("World map", tabName = "world_map", icon = icon("globe-americas")),
         menuItem("Time trends", tabName = "trends", icon = icon("chart-line")),
@@ -334,7 +334,7 @@ ui <-
             title = "Select information to display",
             status = "success",
             solidHeader = TRUE,
-            width = 12,
+            width = 11,
 
             fluidRow(
 
@@ -375,8 +375,14 @@ ui <-
                   multiple = TRUE
                 )
               )
-            ),
+            )
+          ),
 
+          bs4Card(
+            width = 11,
+            solidHeader = FALSE,
+            gradientColor = "primary",
+            collapsible = FALSE,
             plotlyOutput(
               "bar_plot",
               height = paste0(plot_height, "px")
@@ -532,23 +538,36 @@ ui <-
           box(
             width = 11,
             solidHeader = TRUE,
-            title = "Select indicator to visualize",
+            title = "Select information to display",
             status = "success",
             collapsible = TRUE,
 
-            column(
-              width = 12,
-              pickerInput(
-                "vars_map",
-                label = NULL,
-                choices = variable_list,
-                selected = "Capital controls",
-                options = list(
-                  `live-search` = TRUE,
-                  size = 25,
-                  title = "Click to select family or indicator"
-                ),
-                width = "100%"
+            fluidRow(
+              column(
+                width = 3,
+                pickerInput(
+                  "vars_map",
+                  label = "Select indicator",
+                  choices = variable_list,
+                  selected = "Capital controls",
+                  options = list(
+                    `live-search` = TRUE,
+                    size = 25,
+                    title = "Click to select family or indicator"
+                  ),
+                  width = "100%"
+                )
+              ),
+
+              column(
+                width = 3,
+                pickerInput(
+                  "data",
+                  label = "Select data",
+                  choices = c("Closeness to frontier",
+                              "Raw indicator (average of last 7 years)"),
+                  selected = "Closeness to frontier"
+                )
               )
             )
           ),
