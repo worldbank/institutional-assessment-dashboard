@@ -684,7 +684,7 @@ interactive_bar <-
 # Bivariate correlation #####################################################
 
 static_scatter <-
-  function(data,
+  function(data, base_country, comparison_countries,
            x_scatter, y_scatter,
            variable_names) {
 
@@ -709,6 +709,11 @@ static_scatter <-
           "Country: ", country_name, "<br>",
           x_scatter, ": ", get(x) %>% round(3), "<br>",
           y_scatter, ": ", get(y) %>% round(3)
+        ),
+        group = case_when(
+          country_name == base_country ~ "Base country",
+          country_name %in% comparison_countries ~ "Comparison countries",
+          TRUE ~ "Others"
         )
       )
 
@@ -719,14 +724,20 @@ static_scatter <-
         y = y,
         text = "label"
       )
-    ) +
+      ) +
       geom_point(
-        color = "#001f3f",
+        aes(color = group, shape = group),
         size = 2
+      ) +
+      scale_color_manual(
+        values = c("red","blue","#001f3f")
+      ) +
+      scale_shape_manual(
+        values = c(15,17,16)
       ) +
       theme_minimal() +
       theme(
-        legend.position = "none",
+        legend.position = "right",
         axis.ticks = element_blank(),
         axis.text = element_text(color = "black"),
         axis.text.y = element_text(size = 12),
@@ -761,6 +772,10 @@ interactive_scatter <-
         margin = list(
           t = 50,
           b = 200
+        ),
+        legend = list(
+          title = list(text = ''),
+          y = 0.5
         ),
         annotations = list(
           x = -0.03,

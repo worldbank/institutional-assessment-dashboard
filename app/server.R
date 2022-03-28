@@ -619,6 +619,7 @@
       renderPlotly({
         static_scatter(
           global_data,
+          input$country, input$countries,
           input$x_scatter, input$y_scatter,
           variable_names
         ) %>%
