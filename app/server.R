@@ -227,6 +227,7 @@
       }
     )
 
+    # Indicatos with low variance
     low_variance_indicators <-
       eventReactive(
         input$select,
@@ -297,6 +298,25 @@
 
     ## Median data ------------------------------------------------------------
 
+    median_family_comparison_data <-
+      eventReactive(
+        input$add_median,
+
+        {
+
+          data_family() %>%
+            filter(country_name != input$country) %>%
+            filter(! variable %in% na_indicators()) %>%
+            mutate(group = "Comparison group") %>%
+            group_by(group, var_name) %>%
+            summarise(dtf = median(dtf, na.rm = TRUE)) %>%
+            mutate(group_med = paste0(group," Median")) %>%
+            rename(country_name = group_med) %>%
+            bind_rows(data_family())
+
+        }
+      )
+
     median_comparison_data <-
       eventReactive(
         input$add_median,
@@ -312,6 +332,52 @@
             mutate(group_med = paste0(group," Median")) %>%
             rename(country_name = group_med) %>%
             bind_rows(data())
+
+        }
+      )
+
+    median_family_group_data <-
+      eventReactive(
+        input$add_median,
+
+        {
+          country_list %>%
+            select(country_name,group) %>%
+            filter(group %in% c(input$group_medians)) %>%
+            left_join(
+              family_data(
+                global_data,
+                base_country(),
+                variable_names
+              ),
+              by = c("country_name")
+            ) %>%
+            pivot_longer(
+              cols = all_of(family_names),
+              names_to = "variable"
+            ) %>%
+            left_join(
+              variable_names,
+              by = "variable"
+            ) %>%
+            filter(!is.na(value)) %>%
+            group_by(variable, var_name) %>%
+            mutate(
+              dtt = percent_rank(value),
+              q25 = quantile(value, c(0.25)),
+              q50 = quantile(value, c(0.5)),
+              status = case_when(
+                dtt <= .25 ~ "Weak\n(bottom 25%)",
+                dtt > .25 & dtt <= .50 ~ "Emerging\n(25% - 50%)",
+                dtt > .50 ~ "Strong\n(top 50%)"
+              )
+            ) %>%
+            ungroup %>%
+            rename(dtf = value) %>%
+            group_by(group, var_name) %>%
+            summarise(dtf = median(dtf, na.rm = TRUE)) %>%
+            mutate(group_med = paste0(group," Median")) %>%
+            rename(country_name = group_med)
 
         }
       )
@@ -353,8 +419,7 @@
               group_by(group, var_name) %>%
               summarise(dtf = median(dtf, na.rm = TRUE)) %>%
               mutate(group_med = paste0(group," Median")) %>%
-              rename(country_name = group_med) #%>%
-              #bind_rows(data())
+              rename(country_name = group_med)
 
         }
       )
@@ -374,6 +439,20 @@
         }
       )
 
+    median_family_data <-
+      eventReactive(
+        input$add_median,
+
+        {
+          bind_rows(
+            median_family_comparison_data(),
+            median_family_group_data()
+          ) %>%
+            select(-c(variable,family_name)) %>%
+            left_join(variable_names %>% select(var_name,variable,family_name), by="var_name")
+
+        }
+      )
 
     ## Browse data -------------------------------------------------------------
     browse_data <-
@@ -479,8 +558,6 @@
 
       {
 
-
-
         output$plot <-
           renderPlotly({
 
@@ -509,9 +586,10 @@
 
                 missing_variables <- c(missing_variables,low_variance_variables)
 
-                data_family() %>%
-                  static_plot(
+                median_family_data() %>%
+                  median_static_plot(
                     base_country(),
+                    input$group_medians,
                     input$family
                   ) %>%
                   interactive_plot(
@@ -519,7 +597,7 @@
                     input$groups,
                     input$family,
                     plotly_remove_buttons,
-                    missing_variables
+                    NULL
                   )
 
               } else {
