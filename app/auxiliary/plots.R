@@ -684,9 +684,9 @@ interactive_bar <-
 # Bivariate correlation #####################################################
 
 static_scatter <-
-  function(data, base_country, comparison_countries,
+  function(data, base_country, comparison_countries, high_group,
            x_scatter, y_scatter,
-           variable_names) {
+           variable_names, country_list) {
 
     x <-
       variable_names %>%
@@ -710,11 +710,14 @@ static_scatter <-
           x_scatter, ": ", get(x) %>% round(3), "<br>",
           y_scatter, ": ", get(y) %>% round(3)
         ),
-        group = case_when(
+        type = case_when(
           country_name == base_country ~ "Base country",
           country_name %in% comparison_countries ~ "Comparison countries",
           TRUE ~ "Others"
         )
+      ) %>%
+      left_join(
+        high_group, by = c("country_code")
       )
 
     ggplot(
@@ -726,8 +729,13 @@ static_scatter <-
       )
       ) +
       geom_point(
-        aes(color = group, shape = group),
+        aes(color = type, shape = type),
         size = 2
+      ) +
+      geom_point(
+        data = data %>% filter(group %in% high_group$group),
+        #aes(fill = group),
+        size = 4, shape = 1
       ) +
       scale_color_manual(
         values = c("red","blue","#001f3f")

@@ -404,7 +404,7 @@ ui <-
             fluidRow(
 
               column(
-                width = 5,
+                width = 4,
                 pickerInput(
                   "x_scatter",
                   label = "Select indicator for X axis",
@@ -420,12 +420,12 @@ ui <-
               ),
 
               column(
-                width = 5,
+                width = 4,
                 pickerInput(
                   "y_scatter",
                   label = "Select indicator for Y axis",
                   choices = variable_list,
-                  selected = "Capital controls",
+                  selected = "Central bank independence",
                   options = list(
                     `live-search` = TRUE,
                     size = 25,
@@ -433,7 +433,27 @@ ui <-
                   ),
                   width = "100%"
                 )
+              ),
+              column(
+                width = 4,
+                pickerInput(
+                  "high_group",
+                  label = "Highlight a group",
+                  choices = list(
+                    "",
+                    `Economic` = c(country_groups %>% filter(group_category=="Economic") %>% .$group_name),
+                    `Region` = c(country_groups %>% filter(group_category=="Region") %>% .$group_name),
+                    `Income` = c(country_groups %>% filter(group_category=="Income") %>% .$group_name)
+                  ),
+                  selected = c(""),
+                  multiple = FALSE,
+                  options = list(
+                    size = 15
+                  )
+                )
               )
+
+
             )
           ),
 

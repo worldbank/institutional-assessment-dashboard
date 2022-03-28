@@ -615,13 +615,19 @@
 
     # Scatter plot ============================================================
 
+    high_group <- reactive({
+      country_list %>%
+        filter(group %in% input$high_group) %>%
+        select(group, country_code)
+    })
+
     output$scatter_plot <-
       renderPlotly({
         static_scatter(
           global_data,
-          input$country, input$countries,
+          input$country, input$countries, high_group(),
           input$x_scatter, input$y_scatter,
-          variable_names
+          variable_names, country_list
         ) %>%
           interactive_scatter(
             input$x_scatter, input$y_scatter,
