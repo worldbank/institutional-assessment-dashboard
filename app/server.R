@@ -120,6 +120,15 @@
     read_rds(file.path("data",
                        "wb_country_list.rds"))
 
+
+  group_ctf <-
+    read_rds(
+      file.path(
+        "data",
+        "closeness_to_frontier_groups.rds"
+      )
+    )
+
 # Server ################################################################################
 
   server <- function(input, output, session) {
@@ -598,9 +607,10 @@
         {
           static_bar(
             global_data,
-            country_list,
+            group_ctf,
             input$country_bar,
             input$countries_bar,
+            input$groups_bar,
             input$vars_bar,
             variable_names
           ) %>%
