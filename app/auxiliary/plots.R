@@ -729,19 +729,23 @@ static_scatter <-
       )
       ) +
       geom_point(
-        aes(color = type, shape = type),
-        size = 2
+        data = data %>% filter(group %in% high_group$group),
+        size = 4,
+        shape = 1,
+        color = "#b5d9ff"
       ) +
       geom_point(
-        data = data %>% filter(group %in% high_group$group),
-        #aes(fill = group),
-        size = 4, shape = 1
+        aes(
+          color = type,
+          shape = type
+        ),
+        size = 2
       ) +
       scale_color_manual(
-        values = c("red","blue","#001f3f")
+        values = c("#EC7663","#001f3f","#6c757d")
       ) +
       scale_shape_manual(
-        values = c(15,17,16)
+        values = c(15, 16, 1)
       ) +
       theme_minimal() +
       theme(
