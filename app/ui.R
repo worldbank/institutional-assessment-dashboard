@@ -41,6 +41,7 @@ global_data <-
 
 variable_list <-
   list(
+    `General` = c(variable_names %>% filter(var_level=="indicator" & is.na(family_var)) %>% .$var_name),
     `Anti-Corruption, Transparency and Accountability institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
     `Business environment and trade institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_mkt") %>% .$var_name),
     `Financial market institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),

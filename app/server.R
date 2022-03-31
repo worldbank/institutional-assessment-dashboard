@@ -38,6 +38,9 @@
       )
     )
 
+  db_variables$variable[db_variables$api_id==946] <- "gdp_pc_ppp_const"
+  db_variables$select[db_variables$api_id==946] <- 1
+
   # Load data control
   db_variables <-
     db_variables %>%
