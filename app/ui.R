@@ -19,6 +19,9 @@ plot_height <- 600
 
 # Data sets ---------------------------------------------------------------------------
 
+source(file.path("auxiliary",
+                 "vars-control.R"))
+
 country_groups <-
   read_rds(file.path("data",
                      "wb_country_groups.rds"))
@@ -32,8 +35,14 @@ country_list <-
                      "wb_country_list.rds"))
 
 variable_names <-
-  read_rds(file.path("data",
-                     "variable_names.rds"))
+  db_variables %>%
+  select(
+    variable,
+    var_level,
+    var_name,
+    family_var,
+    family_name
+  )
 
 global_data <-
   read_rds(file.path("data",
@@ -41,7 +50,7 @@ global_data <-
 
 variable_list <-
   list(
-    `General` = c(variable_names %>% filter(var_level=="indicator" & is.na(family_var)) %>% .$var_name),
+    c(variable_names %>% filter(var_level=="indicator" & family_var == "vars_other") %>% .$var_name),
     `Anti-Corruption, Transparency and Accountability institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
     `Business environment and trade institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_mkt") %>% .$var_name),
     `Financial market institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
@@ -52,11 +61,6 @@ variable_list <-
     `Public sector institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_publ") %>% .$var_name),
     `Social institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_social") %>% .$var_name)
   )
-
-# Auxiliary functions -----------------------------------------------------------------
-
-source(file.path("auxiliary",
-                 "vars-by-family.R"))
 
 # UI ###########################################################################
 
