@@ -23,6 +23,15 @@ performance for indicator $i$ among all countries and in the last $y$ years (201
 Ideally, this will use data for the last 7 years in any given year
 
 ```{r}
+
+definitions <-
+  read_rds(
+    here(
+      "data",
+      "constructed",
+      "indicator_definitions.rds"
+    )
+  )
 data <-
   read_rds(
     here(
@@ -159,6 +168,27 @@ write_rds(
     "data",
     "final",
     "closeness_to_frontier.rds"
+  )
+)
+
+ctf_long <-
+  ctf %>%
+  pivot_longer(
+    all_of(vars_all),
+    names_to = "variable"
+  ) %>%
+  select(-contains("gdp")) %>%
+  left_join(
+    db_variables %>%
+      select(variable, var_name)
+  )
+
+write_rds(
+  ctf_long,
+  here(
+    "data",
+    "final",
+    "closeness_to_frontier_long.rds"
   )
 )
 ```

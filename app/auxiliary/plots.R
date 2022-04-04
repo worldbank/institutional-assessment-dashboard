@@ -559,7 +559,7 @@ trends_plot <- function(raw_data,
 # Cross-country comparison #####################################################
 
 static_bar <-
-  function(data, group_data,
+  function(data,
            base_country, comparison_countries, groups,
            var, variable_names) {
 
@@ -573,7 +573,7 @@ static_bar <-
     data <-
       data %>%
       filter(
-        country_name %in% c(base_country, comparison_countries)
+        country_name %in% c(base_country, comparison_countries, groups)
       )
 
     median <-
@@ -589,17 +589,6 @@ static_bar <-
         )
       ) %>%
       mutate(country_name = "Comparison countries median")
-
-    if (!is.null(groups)) {
-      group_data <-
-        group_data %>%
-        rename(country_name = group_name) %>%
-        filter(country_name %in% groups)
-
-      data <-
-        data %>% bind_rows(group_data)
-    }
-
 
     data <-
       data %>%
@@ -660,7 +649,7 @@ static_bar <-
         title = paste0("<b>", var, "</b>")
       ) +
       scale_fill_manual(
-        values = c("#FB8500", "#001f3f", "#6c757d")
+        values = c(`1` = "#FB8500", `2` = "#001f3f", `3` = "#6c757d")
       )
 
   }
