@@ -10,7 +10,7 @@ ui <-
     dashboardHeader(
 
       title = dashboardBrand(
-        title = "Global Institutional Benchmarking Dashboard ",
+        title = "Global Benchmarking Institutions Dashboard ",
       ),
       status = "white",
       border = TRUE,
@@ -53,51 +53,54 @@ ui <-
             status = "navy",
 
             title = userDescription(
-              title = h2("Global Institutional Benchmarking Dashboard"),
+              title = h2("Global Benchmarking Institutions Dashboard"),
               type = 1,
               image = "world-bank-logo.png"
             ),
 
             br(),
             p("The World Bank recognizes institutional strengthening as key ingredient for progress of its members countries along income categories. While there are numerous diagnostic and assessment tools for specific functional areas such as public financial management and tax administration, there is no analytical tool for country-level institutional assessment."),
-            p("The Global Institutional Benchmarking Dashboard (GIBD) contributes to fill this gap by providing a standard methodology to summarize information from a large set of country-level institutional indicators."),
-            p("The dashboard provides a user-friendly interface with multiple visualizations of a country’s institutional profile based on a set of international indicators, highlighting a given country’s institutional strengths and weaknesses relative to a set of country comparators. The findings of the GIBD can provide a structured and up-to-date empirical guidance for further in-depth analysis in the specific areas of interest, given the nature of the World Bank engagement in a country and/or complementarity with other ongoing country-level diagnostics (SCDs, CEMs, CPFs and the like)."),
-            p("The GIBD part of a larger analytical effort to assess and review the quality of country’s institutions. For full details about the broader analytical effort, see the Approach paper: Marco Larizza, Serena Sara Daniela Cocciolo, Eric Braian Arias, Peter Siegenthaler and Jim Brumby (forthcoming),  ",
-              tags$em("Country Level Institutional Assessment and Review (CLIAR): a 3-steps analytical framework."),
-              "Users of this resource should cite this approach paper. Further, any publications using data drawn from the GIBD should include a citation of the dashboard as well as the original source(s) of the data used. Citation information for each component dataset is included in the methodology page."),
+            p("The Global Benchmarking Institutions Dashboard (G-BID) contributes to fill this gap by providing a standard methodology to summarize information from a large set of country-level institutional indicators."),
+            p("The dashboard provides a user-friendly interface with multiple visualizations of a country’s institutional profile based on a set of international indicators, highlighting a given country’s institutional strengths and weaknesses relative to a set of country comparators. The findings of the G-BID can provide a structured and up-to-date empirical guidance for further in-depth analysis in the specific areas of interest, given the nature of the World Bank engagement in a country and/or complementarity with other ongoing country-level diagnostics (SCDs, CEMs, CPFs and the like)."),
+            p("The G-BID is part of a larger analytical effort to assess and review the quality of country’s institutions. For full details about the broader analytical effort, see the Approach paper: Marco Larizza, Serena Sara Daniela Cocciolo, Eric Braian Arias, Peter Siegenthaler and Jim Brumby (forthcoming),  ",
+              tags$em("Country Level Institutional Assessment and Review (CLIAR)"),
+              "Users of this resource should cite this approach paper. Further, any publications using data drawn from the G-BID should include a citation of the dashboard as well as the original source(s) of the data used. Citation information for each component dataset is included in the methodology page."),
 
             h3("How to use this dashboard"),
-            p("This dashboard aims to enable its users to interact with the country-level IA benchmarking through the following tabs:"),
+            p("This dashboard aims to enable its users to interact with the country-level benchmarking through the following tabs:"),
             tags$ul(
-              tags$li("The ",
-                      tags$b("country benchmarking"),
-                      "tab shows how one country compares to another group of countries in terms of closeness to frontier for each relevant indicator."
-
+              tags$li(
+                "The ",
+                tags$b("country benchmarking"),
+                "tab shows how one country compares to another group of countries in terms of closeness to frontier for each relevant indicator and institutional cluster. 
+                It works best with a relatively large group of comparator countries."
               ),
-              tags$li("The ",
-                      tags$b("world map"),
-                      "tab shows the closeness to frontier of a given indicator for all countries with available data."
-
+              tags$li(
+                "The ",
+                tags$b("cross-country comparison "),
+                "tab shows how one country compares to another group of countries for each relevant indicator. 
+                It works even with a few comparator countries."
               ),
-              tags$li("The ",
-                      tags$b("trends"),
-                      "tab shows the evolution year by year of multiple indicators."
-
+              tags$li(
+                "The ",
+                tags$b("world map"),
+                "tab shows the closeness to frontier of a given indicator for all countries with available data."
               ),
-              tags$li("The ",
-                      tags$b("aggregation of preferences"),
-                      "tab shows the prioritization matrix where the coloring reflects the institutional areas in need of development or emerging."
-
+              tags$li(
+                "The ",
+                tags$b("time trends"),
+                "tab shows the evolution year by year of multiple indicators."
               ),
-              tags$li("The ",
-                      tags$b("data"),
-                      "tab provides an interactive table containing the closeness to frontier data for all countries.
-                      It also allows users to download the data in different formats."
+              tags$li(
+                "The ",
+                tags$b("data"),
+                "tab provides an interactive table containing the closeness to frontier data for all countries.
+                It also allows users to download the data in different formats."
               ),
-              tags$li("The ",
-                      tags$b("methodology"),
-                      "tab includes metadata on the indicators, country groups and methods used in the analysis."
-
+              tags$li(
+                "The ",
+                tags$b("methodology"),
+                "tab includes metadata on the indicators, country groups and methods used in the analysis, and FAQs."
               )
             )
           )
