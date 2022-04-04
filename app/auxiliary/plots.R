@@ -532,36 +532,52 @@ trends_plot <- function(raw_data,
 # Cross-country comparison #####################################################
 
 static_bar <-
-  function(data, country_list,
-           base_country, comparison_countries,
+  function(data, group_data,
+           base_country, comparison_countries, groups,
            var, variable_names) {
+
+    varname <-
+      variable_names %>%
+      filter(var_name == var) %>%
+      select(variable) %>%
+      unlist %>%
+      unname
 
     data <-
       data %>%
-      def_quantiles(
-        base_country,
-        country_list,
-        comparison_countries,
-        vars_all,
-        variable_names
-      ) %>%
-      filter(var_name == var)
-
+      filter(
+        country_name %in% c(base_country, comparison_countries)
+      )
 
     median <-
       data %>%
       filter(
         country_name %in% comparison_countries
       ) %>%
-      group_by(var_name) %>%
+      ungroup %>%
       summarise(
-        country_name = "Comparison group median",
-        dtf = median(dtf, na.rm = TRUE)
-      )
+        across(
+          all_of(varname),
+          ~ median(., na.rm = TRUE)
+        )
+      ) %>%
+      mutate(country_name = "Comparison countries median")
+
+    if (!is.null(groups)) {
+      group_data <-
+        group_data %>%
+        rename(country_name = group_name) %>%
+        filter(country_name %in% groups)
+
+      data <-
+        data %>% bind_rows(group_data)
+    }
+
 
     data <-
       data %>%
       bind_rows(median) %>%
+      ungroup %>%
       mutate(
         color =
           case_when(
@@ -569,18 +585,15 @@ static_bar <-
             country_name %in% comparison_countries ~ 2,
             TRUE ~ 3
           ),
-        order = fct_reorder(
-          country_name,
-          -dtf
-        )
+        country_name = fct_reorder(country_name, get(varname), min)
       ) %>%
-      select(dtf, order, color)
+      select(all_of(varname), country_name, color)
 
     ggplot(
       data = data,
       aes(
-        x = dtf,
-        y = order
+        x = get(varname),
+        y = country_name
       )
     ) +
       geom_col(
@@ -590,8 +603,8 @@ static_bar <-
       ) +
       geom_text(
         aes(
-          x = dtf + .03,
-          label = round(dtf, 3)
+          x = get(varname) + .03,
+          label = round(get(varname), 3)
         )
       ) +
       geom_vline(

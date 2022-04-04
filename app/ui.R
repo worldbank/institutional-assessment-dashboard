@@ -66,6 +66,18 @@ variable_list <-
     `Social institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_social") %>% .$var_name)
   )
 
+group_list <-
+  list(
+    `Economic` = c(country_groups %>% filter(group_category=="Economic") %>% .$group_name),
+    `Region` = c(country_groups %>% filter(group_category=="Region") %>% .$group_name),
+    `Income` = c(country_groups %>% filter(group_category=="Income") %>% .$group_name)
+  )
+
+# Auxiliary functions -----------------------------------------------------------------
+
+source(file.path("auxiliary",
+                 "vars-by-family.R"))
+
 # UI ###########################################################################
 
 ui <-
@@ -201,11 +213,7 @@ ui <-
                 pickerInput(
                   "groups",
                   label = "Select comparison groups",
-                  choices = list(
-                    `Economic` = c(country_groups %>% filter(group_category=="Economic") %>% .$group_name),
-                    `Region` = c(country_groups %>% filter(group_category=="Region") %>% .$group_name),
-                    `Income` = c(country_groups %>% filter(group_category=="Income") %>% .$group_name)
-                  ),
+                  choices = group_list,
                   selected = c("OECD members"),
                   multiple = TRUE,
                   options = list(
@@ -375,12 +383,24 @@ ui <-
               ),
 
               column(
-                width = 6,
+                width = 3,
                 pickerInput(
                   inputId = "countries_bar",
                   label = "Select comparison countries",
                   choices = global_data$country_name %>% unique %>% sort,
-                  selected = c("Brazil", "Argentina", "Paraguay"),
+                  selected = c("Brazil", "Argentina", "Paraguay", "Austria"),
+                  multiple = TRUE,
+                  options = list(`actions-box` = TRUE)
+                )
+              ),
+
+              column(
+                width = 3,
+                pickerInput(
+                  inputId = "groups_bar",
+                  label = "Select comparison groups",
+                  choices = group_list,
+                  selected = NULL,
                   multiple = TRUE
                 )
               )
@@ -394,7 +414,7 @@ ui <-
             collapsible = FALSE,
             plotlyOutput(
               "bar_plot",
-              height = paste0(plot_height, "px")
+              height = paste0(1.15 * plot_height, "px")
             )
           )
         ),
