@@ -233,6 +233,16 @@ ui <-
                 )
               )
 
+            ),
+
+            fluidRow(
+              prettyCheckbox(
+                inputId = "benchmark_dots",
+                label = "Show comparison countries",
+                value = FALSE,
+                icon = icon("check"),
+                status = "success"
+              )
             )
 
           ),

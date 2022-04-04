@@ -528,7 +528,8 @@
               data_family() %>%
                 static_plot(
                   base_country(),
-                  input$family
+                  input$family,
+                  dots = input$benchmark_dots
                 ) %>%
                 interactive_plot(
                   base_country(),
@@ -563,7 +564,8 @@
                 filter(variable %in% vars()) %>%
                 static_plot(
                   base_country(),
-                  input$family
+                  input$family,
+                  dots = input$benchmark_dots
                 ) %>%
                 interactive_plot(
                   base_country(),
@@ -668,7 +670,7 @@
     )
 
  # Bar plot ==================================================================
-        
+
      output$bar_plot <-
       renderPlotly(
         {
