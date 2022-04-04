@@ -29,10 +29,9 @@ ui <-
 
       sidebarMenu(
         menuItem("Home", tabName = "home", icon = icon("home")),
-        menuItem("Country benchmarking", tabName = "benchmark", icon = icon("sort-amount-up")),
+        #menuItem("Country benchmarking", tabName = "benchmark", icon = icon("sort-amount-up")),
         menuItem("Cross-country comparison", tabName = "country", icon = icon("chart-bar")),
-        menuItem("GDP and closeness to frontier", tabName = "scatter", icon = icon("search-dollar")),
-        # menuItem("Aggregation of preferences", tabName = "heatmap", icon = icon("comments")),
+        menuItem("Bivariate correlation", tabName = "scatter", icon = icon("search-dollar")),
         menuItem("World map", tabName = "world_map", icon = icon("globe-americas")),
         menuItem("Time trends", tabName = "trends", icon = icon("chart-line")),
         menuItem("Data", tabName = "data", icon = icon("table")),
@@ -80,6 +79,11 @@ ui <-
                 tags$b("cross-country comparison "),
                 "tab shows how one country compares to another group of countries for each relevant indicator. 
                 It works even with a few comparator countries."
+              ),
+              tags$li(
+                "The",
+                tags$b("bivariate correlation"),
+                "tab shows correlations between the closeness to frontier scores for pairs of indicators"
               ),
               tags$li(
                 "The ",
@@ -364,8 +368,29 @@ ui <-
                 pickerInput(
                   "y_scatter",
                   label = "Select indicator for Y axis",
-                  choices = variable_list,
+                  choices = append(
+                    "Log GDP per capita, PPP",
+                    variable_list
+                  ),
                   selected = "Central bank independence",
+                  options = list(
+                    `live-search` = TRUE,
+                    size = 20,
+                    title = "Click to select family or indicator"
+                  ),
+                  width = "100%"
+                )
+              ),
+              column(
+                width = 4,
+                pickerInput(
+                  "x_scatter",
+                  label = "Select indicator for X axis",
+                  choices = append(
+                    "Log GDP per capita, PPP",
+                    variable_list
+                  ),
+                  selected = "Log GDP per capita, PPP",
                   options = list(
                     `live-search` = TRUE,
                     size = 20,

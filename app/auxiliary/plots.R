@@ -730,23 +730,48 @@ interactive_bar <-
 
 static_scatter <-
   function(data, base_country, comparison_countries, high_group,
-           y_scatter,
+           y_scatter, x_scatter,
            variable_names, country_list) {
 
     y <-
-      variable_names %>%
-      filter(var_name == y_scatter) %>%
-      select(variable) %>%
-      unlist %>%
-      unname
+      ifelse(
+        y_scatter == "Log GDP per capita, PPP",
+        "log",
+        variable_names %>%
+          filter(var_name == y_scatter) %>%
+          select(variable) %>%
+          unlist %>%
+          unname
+      )
+      
+    
+    x <-
+      ifelse(
+        x_scatter == "Log GDP per capita, PPP",
+        "log",
+        variable_names %>%
+          filter(var_name == x_scatter) %>%
+          select(variable) %>%
+          unlist %>%
+          unname
+      )
+    
 
     data <-
       data %>%
       mutate(
         label = paste0(
           "Country: ", country_name, "<br>",
-          y_scatter, ": ", get(y) %>% round(3), "<br>",
-          "GDP per capita, PPP: ", gdp_pc_ppp_const %>% comma(digits = 2)
+          ifelse(
+            x_scatter == "Log GDP per capita, PPP",
+            paste("GDP per capita, PPP: ", gdp_pc_ppp_const %>% comma(digits = 2)),
+            paste(x_scatter, ": ", get(x) %>% round(3), "<br>")
+          ),
+          ifelse(
+            y_scatter == "Log GDP per capita, PPP",
+            paste("GDP per capita, PPP: ", gdp_pc_ppp_const %>% comma(digits = 2)),
+            paste(y_scatter, ": ", get(y) %>% round(3), "<br>")
+          )
         ),
         log = log(gdp_pc_ppp_const),
         type = case_when(
@@ -762,7 +787,7 @@ static_scatter <-
     ggplot(
       data,
       aes_string(
-        x = "log",
+        x = x,
         y = y,
         text = "label"
       )
@@ -798,14 +823,23 @@ static_scatter <-
         plot.caption.position =  "plot"
       ) +
       labs(
-        y = paste0("<b>", y_scatter,"<br>(closeness to frontier)</b>"),
-        x = paste0("<b>Log GDP per capita, PPP</b>")
+        y = ifelse(
+          y_scatter == "Log GDP per capita, PPP",
+          "<b>Log GDP per capita, PPP</b>",
+          paste0("<b>", y_scatter,"<br>(closeness to frontier)</b>")
+        ),
+        x = ifelse(
+          x_scatter == "Log GDP per capita, PPP",
+          "<b>Log GDP per capita, PPP</b>",
+          paste0("<b>", x_scatter,"<br>(closeness to frontier)</b>")
+        )
       )
   }
 
 interactive_scatter <-
   function(plot,
            y_scatter,
+           x_scatter,
            definitions,
            buttons) {
 
@@ -815,7 +849,18 @@ interactive_scatter <-
 
     x <-
       definitions %>%
-      filter(variable == "gdp_pc_ppp_const")
+      filter(var_name == x_scatter)
+    
+    if (x_scatter == "Log GDP per capita, PPP") {
+      x <- definitions %>%
+        filter(variable == "gdp_pc_ppp_const")
+    }
+    
+    if (y_scatter == "Log GDP per capita, PPP") {
+      y <- definitions %>%
+        filter(variable == "gdp_pc_ppp_const")
+    }
+      
 
     plot %>%
       ggplotly(tooltip = "text") %>%

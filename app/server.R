@@ -574,11 +574,13 @@
           input$countries,
           high_group(),
           input$y_scatter,
+          input$x_scatter,
           variable_names,
           country_list
         ) %>%
           interactive_scatter(
             input$y_scatter,
+            input$x_scatter,
             db_variables,
             plotly_remove_buttons
           )
