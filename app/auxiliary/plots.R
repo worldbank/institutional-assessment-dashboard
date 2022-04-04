@@ -1,7 +1,8 @@
 
 note_size <- 11
 note_chars <- 170
-color_groups <- colorRampPalette(c("#053E5D", "#60C2F7"))
+color_groups <- colorRampPalette(c("#001f3f", "#60C2F7"))
+color_countries <- colorRampPalette(c("grey20", "grey50"))
 
 plotly_remove_buttons <-
   c("zoomIn2d",
@@ -459,8 +460,12 @@ trends_plot <- function(raw_data,
         filter(group %in% groups) %>%
         left_join(indicator_data) %>%
         group_by(Year, group) %>%
-        summarise_at(vars(all_of(indicator)),
-                     ~ mean(., na.rm = TRUE)) %>%
+        summarise(
+          across(
+            all_of(indicator),
+            ~ mean(., na.rm = TRUE)
+          )
+        ) %>%
         rename(country_name = group) %>%
         mutate(country_name = paste(country_name, "average"))
     } else {
@@ -472,22 +477,29 @@ trends_plot <- function(raw_data,
     filter(country_name == base_country |
              country_name %in% comparison_countries) %>%
     bind_rows(data_groups) %>%
-    mutate_at(vars(all_of(indicator)),
-              ~ round(., 3)) %>%
     mutate(alpha = ifelse(country_name == base_country, .8, .5)) %>%
     rename(Country = country_name)
 
   static_plot <-
-    ggplot(data,
-           aes_string(x = "Year",
-                      y = indicator,
-                      color = "Country",
-                      group = "Country",
-                      alpha = "alpha")) +
-    geom_point(aes(text = paste("Country:", Country, "<br>",
-                                "Year:", Year, "<br>",
-                                "Value:", get(indicator))),
-               size = 3) +
+    ggplot(
+      data,
+      aes(
+        x = Year,
+        y = get(indicator),
+        color = Country,
+        group = Country,
+        alpha = alpha)
+    ) +
+    geom_point(
+      aes(
+        text = paste(
+          "Country:", Country, "<br>",
+          "Year:", Year, "<br>",
+          "Value:", get(indicator) %>% round(3)
+        )
+      ),
+     size = 3
+    ) +
     geom_line() +
     theme_ipsum() +
     labs(
@@ -497,12 +509,16 @@ trends_plot <- function(raw_data,
     ) +
     scale_color_manual(
       name = NULL,
-      values = c("#FB8500",
-                 gray.colors(length(country_list)),
-                 color_groups(length(groups))),
-      breaks = c(base_country,
-                 country_list,
-                 paste(groups, "average"))
+      values = c(
+        "#FB8500",
+        color_groups(length(groups)),
+        color_countries(length(comparison_countries))
+      ),
+      breaks = c(
+        base_country,
+        paste(groups, "average"),
+        comparison_countries
+      )
     ) +
     scale_alpha_identity() +
     theme(

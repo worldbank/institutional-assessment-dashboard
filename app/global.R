@@ -13,6 +13,8 @@ library(fresh)
 library(sf)
 library(formattable)
 library(here)
+library(data.table)
+library(hrbrthemes)
 
 ## Auxiliary functions -----------------------------------------------------------------
 
@@ -95,12 +97,6 @@ period_info_by_variable <-
     )
   )
 
-# Load data with min max year for info available
-
-
-db_variables$variable[db_variables$api_id==946] <- "gdp_pc_ppp_const"
-db_variables$select[db_variables$api_id==946] <- 1
-
 # Load data control
 db_variables <-
   db_variables %>%
@@ -142,7 +138,6 @@ countries <-
 
 variable_list <-
   list(
-    c(variable_names %>% filter(var_level=="indicator" & family_var == "vars_other") %>% .$var_name),
     `Anti-Corruption, Transparency and Accountability institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
     `Business environment and trade institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_mkt") %>% .$var_name),
     `Financial market institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
@@ -166,7 +161,7 @@ group_list <-
 
 # Inputs ################################################################################
 
-plot_height <- 600
+plot_height <- 650
 
 # Data sets ---------------------------------------------------------------------------
 

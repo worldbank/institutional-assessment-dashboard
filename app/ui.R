@@ -127,7 +127,11 @@ ui <-
                   label = "Select a base country",
                   choices = countries,
                   selected = "Uruguay",
-                  multiple = FALSE
+                  multiple = FALSE,
+                  options = list(
+                    size = 20,
+                    `actions-box` = TRUE
+                  )
                 )
               ),
 
@@ -140,7 +144,9 @@ ui <-
                   selected = c("OECD members"),
                   multiple = TRUE,
                   options = list(
-                    size = 15
+                    size = 20,
+                    `actions-box` = TRUE,
+                    `live-search` = TRUE
                   )
                 )
               ),
@@ -193,17 +199,15 @@ ui <-
                 pickerInput(
                   inputId = "benchmark_median",
                   label = "Show group median",
-                  choices = list(
+                  choices = append(
                     "Comparison group",
-                    `Economic` = c(country_groups %>% filter(group_category=="Economic") %>% .$group_name),
-                    `Region` = c(country_groups %>% filter(group_category=="Region") %>% .$group_name),
-                    `Income` = c(country_groups %>% filter(group_category=="Income") %>% .$group_name)
+                    group_list
                   ),
                   selected = NULL,
                   multiple = TRUE,
-                  options = pickerOptions(
-                    maxOptions = 3,
-                    size = 10
+                  options = list(
+                    `live-search` = TRUE,
+                    maxOptions = 3
                   )
                 )
               )
@@ -285,9 +289,10 @@ ui <-
                   choices = variable_list,
                   selected = "Capital controls",
                   options = list(
+                    size = 20,
+                    `actions-box` = TRUE,
                     `live-search` = TRUE,
-                    size = 25,
-                    title = "Click to select family or indicator"
+                    maxOptions = 3
                   ),
                   width = "100%"
                 )
@@ -336,7 +341,7 @@ ui <-
             collapsible = FALSE,
             plotlyOutput(
               "bar_plot",
-              height = paste0(1.15 * plot_height, "px")
+              height = paste0(plot_height, "px")
             )
           )
         ),
@@ -363,7 +368,7 @@ ui <-
                   selected = "Central bank independence",
                   options = list(
                     `live-search` = TRUE,
-                    size = 25,
+                    size = 20,
                     title = "Click to select family or indicator"
                   ),
                   width = "100%"
@@ -374,17 +379,14 @@ ui <-
                 pickerInput(
                   "high_group",
                   label = "Highlight a group",
-                  choices = list(
-                    "",
-                    `Economic` = c(country_groups %>% filter(group_category=="Economic") %>% .$group_name),
-                    `Region` = c(country_groups %>% filter(group_category=="Region") %>% .$group_name),
-                    `Income` = c(country_groups %>% filter(group_category=="Income") %>% .$group_name)
-                  ),
-                  selected = c(""),
+                  choices = group_list,
+                  selected = NULL,
                   multiple = FALSE,
                   options = list(
-                    size = 15
-                  )
+                    `live-search` = TRUE,
+                    `actions-box` = TRUE,
+                    size = 18
+                  ),
                 )
               )
 
@@ -427,7 +429,7 @@ ui <-
                   selected = "Capital controls",
                   options = list(
                     `live-search` = TRUE,
-                    size = 25,
+                    size = 21,
                     title = "Click to select family or indicator"
                   ),
                   width = "100%"
@@ -441,7 +443,10 @@ ui <-
                   label = "Select a base country",
                   choices = countries,
                   selected = "Uruguay",
-                  multiple = FALSE
+                  multiple = FALSE,
+                  options = list(
+                    size = 23
+                  )
                 )
               ),
 
@@ -450,9 +455,14 @@ ui <-
                 pickerInput(
                   "group_trends",
                   label = "Select comparison groups",
-                  choices = country_groups$group_name,
+                  choices = group_list,
                   selected = c("OECD members", "Latin America & Caribbean"),
-                  multiple = TRUE
+                  multiple = TRUE,
+                  options = list(
+                    maxOptions = 5,
+                    `live-search` = TRUE,
+                    size = 21
+                  )
                 )
               ),
 
@@ -462,7 +472,12 @@ ui <-
                   "countries_trends",
                   label = "Select comparison countries",
                   choices = countries,
-                  multiple = TRUE
+                  multiple = TRUE,
+                  options = list(
+                    `actions-box` = TRUE,
+                    size = 22,
+                    title = "Click to select family or indicator"
+                  )
                 )
               )
             )
