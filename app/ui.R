@@ -2,16 +2,7 @@
 
 ## Packages --------------------------------------------------------------------
 
-library(tidyverse)
-library(DT)
-library(plotly)
-library(shiny)
-library(shinyjs)
-library(shinyBS)
-library(shinycssloaders)
-library(shinyWidgets)
-library(bs4Dash)
-library(fresh)
+
 
 # Inputs ################################################################################
 
@@ -42,14 +33,6 @@ variable_names <-
     var_name,
     family_var,
     family_name
-  )
-
-global_data <-
-  read_rds(
-    file.path(
-      "data",
-      "country_dtf.rds"
-    )
   )
 
 variable_list <-

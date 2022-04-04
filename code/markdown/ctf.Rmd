@@ -101,23 +101,14 @@ ctf <-
     id_cols = c("country_name", "country_code"),
     names_from = "variable",
     values_from = "ctf"
-  )
-```
-
-
-## Save datasets
-
-```{r}
-ctf %>%
-  select(country_name) %>%
-  unlist %>%
-  unname %>%
-  write_rds(
-    here(
-      "data",
-      "final",
-      "countries.rds"
-    )
+  ) %>%
+  select(-starts_with("gdp")) %>%
+  left_join(
+    country_average %>%
+      select(country_name, country_code, gdp_pc_ppp_const)
+  ) %>%
+  mutate(
+    log_gdp = log(gdp_pc_ppp_const)
   )
 ```
 
@@ -139,7 +130,7 @@ group_ctf <-
     ctf
   ) %>%
   group_by(
-    group_code, group_name
+    group_code, group
   ) %>%
   summarise(
     across(
@@ -147,14 +138,14 @@ group_ctf <-
       ~ median(., na.rm = TRUE)
     )     
   ) %>%
-  filter(!is.na(group_name)) %>%
+  filter(!is.na(group)) %>%
   select(
-    group_name,
+    group,
     group_code,
     bribes:soe_report_legislative
   ) %>%
   rename(
-    country_name = group_name,
+    country_name = group,
     country_code = group_code
   )
 

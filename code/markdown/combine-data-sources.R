@@ -39,7 +39,7 @@ full_data <-
 # count number of missing values
 full_data <-
   full_data %>%
-  mutate(na_count = apply(is.na(.), 1, sum))
+  mutate(na_count = apply(is.na(.), 1, sum)) %>%
   filter(na_count < 83) %>%
   select(-na_count)
 

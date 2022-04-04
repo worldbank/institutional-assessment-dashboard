@@ -69,8 +69,7 @@ country_list <-
   filter(
     country_name %in% indicators$country_name,
     group_code %in% group_codes
-  ) %>%
-  rename(group_name = group)
+  )
 ```
 
 ## Save datasets

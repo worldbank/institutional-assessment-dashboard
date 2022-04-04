@@ -741,7 +741,7 @@ static_scatter <-
         label = paste0(
           "Country: ", country_name, "<br>",
           y_scatter, ": ", get(y) %>% round(3), "<br>",
-          "GDP per capita, PPP: ", gdp_pc_ppp_const %>% round(2)
+          "GDP per capita, PPP: ", gdp_pc_ppp_const %>% comma(digits = 2)
         ),
         log = log(gdp_pc_ppp_const),
         type = case_when(

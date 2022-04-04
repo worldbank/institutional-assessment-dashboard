@@ -1,18 +1,7 @@
 
 # Load packages ###########################################################################
 
-  library(shiny)
-  library(tidyverse)
-  library(haven)
-  library(DT)
-  library(data.table)
-  library(plotly)
-  library(sf)
-  library(hrbrthemes)
-  library(stringr)
-  library(grDevices)
-  library(shinyjs)
-  library(shinyBS)
+
 
 
 # Inputs ################################################################################
@@ -81,18 +70,7 @@
   ## Data sets ---------------------------------------------------------------------------
 
   # Closeness to frontier data
-  global_data <-
-    read_rds(
-      file.path(
-        "data",
-        "country_dtf.rds"
-      )
-    ) %>%
-    mutate(
-      country_name = country_name %>%
-      str_replace_all("Macedonia", "North Macedonia") %>%
-      str_replace_all("Swaziland", "Eswatini")
-    )
+
 
   wb_country_geom_fact <-
     read_rds(file.path("data",
