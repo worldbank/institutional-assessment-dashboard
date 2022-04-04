@@ -21,3 +21,19 @@ global_data <-
       "closeness_to_frontier.rds"
     )
   ) 
+
+country_list <-
+  read_rds(
+    file.path(
+      "data",
+      "wb_country_list.rds"
+    )
+  )
+
+countries <-
+  country_list %>%
+  select(country_name) %>%
+  unlist %>%
+  unname %>%
+  unique
+              

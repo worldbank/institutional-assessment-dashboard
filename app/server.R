@@ -314,26 +314,7 @@
 
     ## Median data ------------------------------------------------------------
 
-    median_family_comparison_data <-
-      eventReactive(
-        input$add_median,
-
-        {
-
-          data_family() %>%
-            filter(country_name != input$country) %>%
-            filter(! variable %in% na_indicators()) %>%
-            mutate(group = "Comparison group") %>%
-            group_by(group, var_name) %>%
-            summarise(dtf = median(dtf, na.rm = TRUE)) %>%
-            mutate(group_med = paste0(group," Median")) %>%
-            rename(country_name = group_med) %>%
-            bind_rows(data_family())
-
-        }
-      )
-
-    median_comparison_data <-
+    median_data <-
       eventReactive(
         input$add_median,
 
@@ -357,9 +338,11 @@
         input$add_median,
 
         {
-          country_list %>%
-            select(country_name,group) %>%
-            filter(group %in% c(input$group_medians)) %>%
+          global_data %>%
+            filter(country_name %in% c(input$ba))
+
+          global_data %>%
+            filter(country_name %in% c(input$group_medians)) %>%
             left_join(
               family_data(
                 global_data,

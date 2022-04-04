@@ -21,9 +21,6 @@ definitions <-
   read_rds(file.path("data",
                      "indicator_definitions.rds"))
 
-country_list <-
-  read_rds(file.path("data",
-                     "wb_country_list.rds"))
 
 variable_names <-
   db_variables %>%
@@ -185,7 +182,7 @@ ui <-
                 pickerInput(
                   "country",
                   label = "Select a base country",
-                  choices = c("", country_list$country_name %>% unique %>% sort),
+                  choices = countries,
                   selected = "Uruguay",
                   multiple = FALSE
                 )
@@ -281,7 +278,7 @@ ui <-
               inputId = "countries",
               individual = TRUE,
               label = NULL,
-              choices = global_data$country_name %>% unique %>% sort,
+              choices = countries,
               checkIcon = list(
                 yes = icon("ok",
                            lib = "glyphicon")
@@ -358,7 +355,7 @@ ui <-
                 pickerInput(
                   "country_bar",
                   label = "Select a base country",
-                  choices = c("", country_list$country_name %>% unique %>% sort),
+                  choices = countries,
                   selected = "Uruguay",
                   multiple = FALSE
                 )
@@ -369,7 +366,7 @@ ui <-
                 pickerInput(
                   inputId = "countries_bar",
                   label = "Select comparison countries",
-                  choices = global_data$country_name %>% unique %>% sort,
+                  choices = countries,
                   selected = c("Brazil", "Argentina", "Paraguay", "Austria"),
                   multiple = TRUE,
                   options = list(`actions-box` = TRUE)
@@ -499,7 +496,7 @@ ui <-
                 pickerInput(
                   "country_trends",
                   label = "Select a base country",
-                  choices = c("", country_list$country_name %>% unique %>% sort),
+                  choices = countries,
                   selected = "Uruguay",
                   multiple = FALSE
                 )
@@ -521,7 +518,7 @@ ui <-
                 pickerInput(
                   "countries_trends",
                   label = "Select comparison countries",
-                  choices = c(country_list$country_name %>% unique %>% sort),
+                  choices = countries,
                   multiple = TRUE
                 )
               )
