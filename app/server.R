@@ -628,12 +628,15 @@
       renderPlotly({
         static_scatter(
           global_data,
-          input$country, input$countries, high_group(),
-          input$x_scatter, input$y_scatter,
-          variable_names, country_list
+          input$country,
+          input$countries,
+          high_group(),
+          input$y_scatter,
+          variable_names,
+          country_list
         ) %>%
           interactive_scatter(
-            input$x_scatter, input$y_scatter,
+            input$y_scatter,
             db_variables,
             plotly_remove_buttons
           )

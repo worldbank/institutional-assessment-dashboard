@@ -45,8 +45,12 @@ variable_names <-
   )
 
 global_data <-
-  read_rds(file.path("data",
-                     "country_dtf.rds"))
+  read_rds(
+    file.path(
+      "data",
+      "country_dtf.rds"
+    )
+  )
 
 variable_list <-
   list(
@@ -95,7 +99,7 @@ ui <-
         menuItem("Home", tabName = "home", icon = icon("home")),
         menuItem("Country benchmarking", tabName = "benchmark", icon = icon("sort-amount-up")),
         menuItem("Cross-country comparison", tabName = "country", icon = icon("chart-bar")),
-        menuItem("Bivariate correlation", tabName = "scatter", icon = icon("chart-bar")),
+        menuItem("GDP and closeness to frontier", tabName = "scatter", icon = icon("search-dollar")),
         # menuItem("Aggregation of preferences", tabName = "heatmap", icon = icon("comments")),
         menuItem("World map", tabName = "world_map", icon = icon("globe-americas")),
         menuItem("Time trends", tabName = "trends", icon = icon("chart-line")),
@@ -407,22 +411,6 @@ ui <-
             width = 11,
 
             fluidRow(
-
-              column(
-                width = 4,
-                pickerInput(
-                  "x_scatter",
-                  label = "Select indicator for X axis",
-                  choices = variable_list,
-                  selected = "Capital controls",
-                  options = list(
-                    `live-search` = TRUE,
-                    size = 25,
-                    title = "Click to select family or indicator"
-                  ),
-                  width = "100%"
-                )
-              ),
 
               column(
                 width = 4,

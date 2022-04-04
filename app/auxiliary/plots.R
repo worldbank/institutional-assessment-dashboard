@@ -685,15 +685,8 @@ interactive_bar <-
 
 static_scatter <-
   function(data, base_country, comparison_countries, high_group,
-           x_scatter, y_scatter,
+           y_scatter,
            variable_names, country_list) {
-
-    x <-
-      variable_names %>%
-      filter(var_name == x_scatter) %>%
-      select(variable) %>%
-      unlist %>%
-      unname
 
     y <-
       variable_names %>%
@@ -707,9 +700,10 @@ static_scatter <-
       mutate(
         label = paste0(
           "Country: ", country_name, "<br>",
-          x_scatter, ": ", get(x) %>% round(3), "<br>",
-          y_scatter, ": ", get(y) %>% round(3)
+          y_scatter, ": ", get(y) %>% round(3), "<br>",
+          "GDP per capita, PPP: ", gdp_pc_ppp_const %>% round(2)
         ),
+        log = log(gdp_pc_ppp_const),
         type = case_when(
           country_name == base_country ~ "Base country",
           country_name %in% comparison_countries ~ "Comparison countries",
@@ -723,7 +717,7 @@ static_scatter <-
     ggplot(
       data,
       aes_string(
-        x = x,
+        x = "log",
         y = y,
         text = "label"
       )
@@ -732,7 +726,7 @@ static_scatter <-
         data = data %>% filter(group %in% high_group$group),
         size = 4,
         shape = 1,
-        color = "#b5d9ff"
+        color = "#60C2F7"
       ) +
       geom_point(
         aes(
@@ -742,10 +736,10 @@ static_scatter <-
         size = 2
       ) +
       scale_color_manual(
-        values = c("#EC7663","#001f3f","#6c757d")
+        values = c("#FB8500","#001f3f","#6c757d")
       ) +
       scale_shape_manual(
-        values = c(15, 16, 1)
+        values = c(16, 16, 1)
       ) +
       theme_minimal() +
       theme(
@@ -759,24 +753,24 @@ static_scatter <-
         plot.caption.position =  "plot"
       ) +
       labs(
-        y = paste0("<b>", y_scatter, "</b>"),
-        x = paste0("<b>", x_scatter, "</b>")
+        y = paste0("<b>", y_scatter,"<br>(closeness to frontier)</b>"),
+        x = paste0("<b>Log GDP per capita, PPP</b>")
       )
   }
 
 interactive_scatter <-
   function(plot,
-           x_scatter, y_scatter,
+           y_scatter,
            definitions,
            buttons) {
-
-    x <-
-      definitions %>%
-      filter(var_name == x_scatter)
 
     y <-
       definitions %>%
       filter(var_name == y_scatter)
+
+    x <-
+      definitions %>%
+      filter(variable == "gdp_pc_ppp_const")
 
     plot %>%
       ggplotly(tooltip = "text") %>%
@@ -791,7 +785,7 @@ interactive_scatter <-
         ),
         annotations = list(
           x = -0.03,
-          y = -0.4,
+          y = -0.5,
           text = HTML(
             paste(
               "<b>Definitions:</b>",
@@ -819,7 +813,7 @@ interactive_scatter <-
         config(
           modeBarButtonsToRemove = buttons,
           toImageButtonOptions = list(
-            filename = paste(x_scatter, "x", y_scatter),
+            filename = paste("GDP per capita x", y_scatter),
             width = 1050,
             height =  675
           )
