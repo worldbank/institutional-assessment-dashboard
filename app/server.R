@@ -695,24 +695,29 @@
             ) %>%
             select(variable) %>%
             unlist
+          
+          print(vars)
 
           if (input$data == "Compiled indicators") {
             vars_table <- c("Country", "Year", vars)
           } else {
             vars_table <- c("Country", vars)
           }
+          vars_table <- unname(vars_table)
 
+          print(names(browse_data()))
           data <-
             browse_data() %>%
             rename(Country = country_name) %>%
             ungroup() %>%
-            select(all_of(vars_table)) %>%
             mutate(
               across(
                 where(is.numeric),
                 round, 3
               )
-            )
+            ) %>%
+            select(all_of(vars_table))
+
 
           if(input$show_rank) {
 
@@ -724,8 +729,8 @@
               )
             )
 
-        }
-
+          }
+          
         datatable(
           data %>%
             setnames(
