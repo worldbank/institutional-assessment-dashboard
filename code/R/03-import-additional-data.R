@@ -43,3 +43,12 @@ additions <- haven::read_dta(here("data",
     year,
     all_of(vars_additions)
   )
+
+write_rds(
+  additions,
+  here(
+    "data",
+    "clean",
+    "additional_data.rds"
+  )
+)

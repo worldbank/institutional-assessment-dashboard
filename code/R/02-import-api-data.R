@@ -268,3 +268,12 @@ data_api <- data_api %>%
 
 # Drop partial data ----
 rm(datalist,data_api_raw,data_api_governance,indicator_ids,i)
+
+write_rds(
+  data_api,
+  here(
+    "data",
+    "clean",
+    "api_data.rds"
+  )
+)
