@@ -4,8 +4,7 @@
 
 family_data <- function(data, base_country, variable_names) {
 
-
-  miss_indicator_base <-
+  na_indicators <-
     data %>%
     ungroup() %>%
     filter(country_name == base_country) %>%
@@ -14,7 +13,7 @@ family_data <- function(data, base_country, variable_names) {
 
   data <-
     data %>%
-    select(-c(miss_indicator_base, country_code)) %>%
+    select(-c(na_indicators, country_code)) %>%
     ungroup %>%
     select(country_name, everything())
 

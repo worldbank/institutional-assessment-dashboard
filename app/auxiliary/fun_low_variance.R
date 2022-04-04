@@ -1,13 +1,13 @@
 # FUNCTION THAT DEFINES THE QUANTILES BASED ON SELECTED COUNTRY AND COMPARISON GROUP -----------------------
 
-def_quantiles <- function(data, base_country, country_list, comparison_countries, vars, variable_names) {
+low_variance <- function(data, base_country, country_list, comparison_countries, vars, variable_names) {
 
-# List all relevant countries
+  # List all relevant countries
   comparison_list <-
     country_list %>%
     filter(country_name %in% comparison_countries)
 
-# List all variables that are missing for the base country -- these will be removed from the data
+  # List all variables that are missing for the base country -- these will be removed from the data
   na_indicators <-
     data %>%
     ungroup() %>%
@@ -15,14 +15,14 @@ def_quantiles <- function(data, base_country, country_list, comparison_countries
     select(where(is.na)) %>%
     names
 
-# List final relevant variables: those selected, minus those missing
+  # List final relevant variables: those selected, minus those missing
   variables <-
     setdiff(vars, na_indicators)
 
   variables <-
     intersect(variables, names(data))
 
-# This is the relevant data to be used
+  # This is the relevant data to be used
   quantiles <-
     data %>%
     ungroup() %>%
@@ -38,7 +38,7 @@ def_quantiles <- function(data, base_country, country_list, comparison_countries
       all_of(variables)
     )
 
-# Merge with variable dictionary
+  # Merge with variable dictionary
   quantiles <-
     quantiles %>%
 
@@ -54,7 +54,7 @@ def_quantiles <- function(data, base_country, country_list, comparison_countries
       by = "variable"
     )
 
-# Calculate quantiles
+  # Calculate quantiles
   quantiles <-
     quantiles %>%
 
@@ -74,17 +74,11 @@ def_quantiles <- function(data, base_country, country_list, comparison_countries
       )
     ) %>%
     ungroup %>%
-    rename(dtf = value)
-
-  # Remove indicators where there is too little variance
-  low_variance_indicators <-
-    quantiles %>%
+    rename(dtf = value) %>%
     filter(country_name == base_country & q25==q50) %>%
     select(variable) %>%
     unlist
 
-  quantiles <-
-    quantiles %>%
-    filter(!(variable %in% low_variance_indicators))
+  return(quantiles)
 
 }

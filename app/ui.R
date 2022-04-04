@@ -19,6 +19,9 @@ plot_height <- 600
 
 # Data sets ---------------------------------------------------------------------------
 
+source(file.path("auxiliary",
+                 "vars-control.R"))
+
 country_groups <-
   read_rds(file.path("data",
                      "wb_country_groups.rds"))
@@ -32,12 +35,43 @@ country_list <-
                      "wb_country_list.rds"))
 
 variable_names <-
-  read_rds(file.path("data",
-                     "variable_names.rds"))
+  db_variables %>%
+  select(
+    variable,
+    var_level,
+    var_name,
+    family_var,
+    family_name
+  )
 
 global_data <-
-  read_rds(file.path("data",
-                     "country_dtf.rds"))
+  read_rds(
+    file.path(
+      "data",
+      "country_dtf.rds"
+    )
+  )
+
+variable_list <-
+  list(
+    c(variable_names %>% filter(var_level=="indicator" & family_var == "vars_other") %>% .$var_name),
+    `Anti-Corruption, Transparency and Accountability institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
+    `Business environment and trade institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_mkt") %>% .$var_name),
+    `Financial market institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
+    `SOE Corporate Governance` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_service_del") %>% .$var_name),
+    `Labor market institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_lab") %>% .$var_name),
+    `Legal institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_leg") %>% .$var_name),
+    `Political institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_pol") %>% .$var_name),
+    `Public sector institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_publ") %>% .$var_name),
+    `Social institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_social") %>% .$var_name)
+  )
+
+group_list <-
+  list(
+    `Economic` = c(country_groups %>% filter(group_category=="Economic") %>% .$group_name),
+    `Region` = c(country_groups %>% filter(group_category=="Region") %>% .$group_name),
+    `Income` = c(country_groups %>% filter(group_category=="Income") %>% .$group_name)
+  )
 
 # Auxiliary functions -----------------------------------------------------------------
 
@@ -75,7 +109,9 @@ ui <-
 
       sidebarMenu(
         menuItem("Home", tabName = "home", icon = icon("home")),
-        menuItem("Country benchmarking", tabName = "country", icon = icon("sort-amount-up")),
+        menuItem("Country benchmarking", tabName = "benchmark", icon = icon("sort-amount-up")),
+        menuItem("Cross-country comparison", tabName = "country", icon = icon("chart-bar")),
+        menuItem("GDP and closeness to frontier", tabName = "scatter", icon = icon("search-dollar")),
         # menuItem("Aggregation of preferences", tabName = "heatmap", icon = icon("comments")),
         menuItem("World map", tabName = "world_map", icon = icon("globe-americas")),
         menuItem("Time trends", tabName = "trends", icon = icon("chart-line")),
@@ -150,7 +186,7 @@ ui <-
         ## Country benchmark tab -------------------------------------------------------
 
         tabItem(
-          tabName = "country",
+          tabName = "benchmark",
           useShinyjs(),
 
           bs4Card(
@@ -177,11 +213,7 @@ ui <-
                 pickerInput(
                   "groups",
                   label = "Select comparison groups",
-                  choices = list(
-                    `Economic` = c(country_groups %>% filter(group_category=="Economic") %>% .$group_name),
-                    `Region` = c(country_groups %>% filter(group_category=="Region") %>% .$group_name),
-                    `Income` = c(country_groups %>% filter(group_category=="Income") %>% .$group_name)
-                  ),
+                  choices = group_list,
                   selected = c("OECD members"),
                   multiple = TRUE,
                   options = list(
@@ -204,12 +236,8 @@ ui <-
 
               column(
                 width = 2,
-                actionButton(
-                  "select",
-                  "Apply selection",
-                  icon = icon("check"),
-                  class = "btn-success",
-                  width = "100%"
+                uiOutput(
+                  "select_button"
                 )
               ),
 
@@ -220,8 +248,8 @@ ui <-
                   "Download editable report",
                   style = "width:100%; background-color: #204d74; color: white"
                 )
-
               )
+
             )
 
           ),
@@ -251,11 +279,55 @@ ui <-
 
             conditionalPanel(
               "input.select !== 0",
-              plotlyOutput(
-                "plot",
-                height = paste0(plot_height * .75, "px")
+
+              # fluidRow(
+              #
+              #   column(
+              #     width = 2,
+              #     actionButton(
+              #       "add_median",
+              #       "Add group medians",
+              #       icon = icon("line-chart"),
+              #       #class = "btn-success",
+              #       width = "100%"
+              #     )
+              #   ),
+              #   column(
+              #     width = 3,
+              #     pickerInput(
+              #       inputId = "group_medians",
+              #       label = NULL,
+              #       choices = list(
+              #         "Comparison group",
+              #         `Economic` = c(country_groups %>% filter(group_category=="Economic") %>% .$group_name),
+              #         `Region` = c(country_groups %>% filter(group_category=="Region") %>% .$group_name),
+              #         `Income` = c(country_groups %>% filter(group_category=="Income") %>% .$group_name)
+              #       ),
+              #       selected = c("Comparison group", "OECD members"),
+              #       multiple = TRUE,
+              #       options = pickerOptions(
+              #         maxOptions = 3,
+              #         size = 10
+              #       )
+              #     )
+              #   )
+              #
+              # ),
+
+              fluidRow(
+
+                column(
+                  width = 12,
+                  plotlyOutput(
+                    "plot",
+                    height = paste0(plot_height * .75, "px")
+                  )
+                )
+
               )
+
             )
+
           ),
 
           bs4Card(
@@ -267,6 +339,146 @@ ui <-
             width = 12,
 
             tableOutput('definition')
+          )
+        ),
+
+        ## Country comparison ----------------------------------------------------
+
+        tabItem(
+          tabName = "country",
+
+          bs4Card(
+            title = "Select information to display",
+            status = "success",
+            solidHeader = TRUE,
+            width = 11,
+
+            fluidRow(
+
+              column(
+                width = 4,
+                pickerInput(
+                  "vars_bar",
+                  label = "Select indicator",
+                  choices = variable_list,
+                  selected = "Capital controls",
+                  options = list(
+                    `live-search` = TRUE,
+                    size = 25,
+                    title = "Click to select family or indicator"
+                  ),
+                  width = "100%"
+                )
+              ),
+
+              column(
+                width = 2,
+                pickerInput(
+                  "country_bar",
+                  label = "Select a base country",
+                  choices = c("", country_list$country_name %>% unique %>% sort),
+                  selected = "Uruguay",
+                  multiple = FALSE
+                )
+              ),
+
+              column(
+                width = 3,
+                pickerInput(
+                  inputId = "countries_bar",
+                  label = "Select comparison countries",
+                  choices = global_data$country_name %>% unique %>% sort,
+                  selected = c("Brazil", "Argentina", "Paraguay", "Austria"),
+                  multiple = TRUE,
+                  options = list(`actions-box` = TRUE)
+                )
+              ),
+
+              column(
+                width = 3,
+                pickerInput(
+                  inputId = "groups_bar",
+                  label = "Select comparison groups",
+                  choices = group_list,
+                  selected = NULL,
+                  multiple = TRUE
+                )
+              )
+            )
+          ),
+
+          bs4Card(
+            width = 11,
+            solidHeader = FALSE,
+            gradientColor = "primary",
+            collapsible = FALSE,
+            plotlyOutput(
+              "bar_plot",
+              height = paste0(1.15 * plot_height, "px")
+            )
+          )
+        ),
+
+        ## Bivariate correlation ----------------------------------------------------
+
+        tabItem(
+          tabName = "scatter",
+
+          bs4Card(
+            title = "Select indicators to visualize",
+            status = "success",
+            solidHeader = TRUE,
+            width = 11,
+
+            fluidRow(
+
+              column(
+                width = 4,
+                pickerInput(
+                  "y_scatter",
+                  label = "Select indicator for Y axis",
+                  choices = variable_list,
+                  selected = "Central bank independence",
+                  options = list(
+                    `live-search` = TRUE,
+                    size = 25,
+                    title = "Click to select family or indicator"
+                  ),
+                  width = "100%"
+                )
+              ),
+              column(
+                width = 4,
+                pickerInput(
+                  "high_group",
+                  label = "Highlight a group",
+                  choices = list(
+                    "",
+                    `Economic` = c(country_groups %>% filter(group_category=="Economic") %>% .$group_name),
+                    `Region` = c(country_groups %>% filter(group_category=="Region") %>% .$group_name),
+                    `Income` = c(country_groups %>% filter(group_category=="Income") %>% .$group_name)
+                  ),
+                  selected = c(""),
+                  multiple = FALSE,
+                  options = list(
+                    size = 15
+                  )
+                )
+              )
+
+
+            )
+          ),
+
+          bs4Card(
+            width = 11,
+            solidHeader = FALSE,
+            gradientColor = "primary",
+            collapsible = FALSE,
+            plotlyOutput(
+              "scatter_plot",
+              height = paste0(plot_height, "px")
+            )
           )
         ),
 
@@ -289,17 +501,7 @@ ui <-
                 pickerInput(
                   "indicator_trends",
                   label = "Select indicator to visualize",
-                  choices = list(
-                    `Anti-Corruption, Transparency and Accountability institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
-                    `Business environment and trade institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_mkt") %>% .$var_name),
-                    `Financial market institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
-                    `SOE Corporate Governance` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_service_del") %>% .$var_name),
-                    `Labor market institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_lab") %>% .$var_name),
-                    `Legal institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_leg") %>% .$var_name),
-                    `Political institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_pol") %>% .$var_name),
-                    `Public sector institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_publ") %>% .$var_name),
-                    `Social institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_social") %>% .$var_name)
-                  ),
+                  choices = variable_list,
                   selected = "Capital controls",
                   options = list(
                     `live-search` = TRUE,
@@ -369,33 +571,36 @@ ui <-
           box(
             width = 11,
             solidHeader = TRUE,
-            title = "Select indicator to visualize",
+            title = "Select information to display",
             status = "success",
             collapsible = TRUE,
 
-            column(
-              width = 12,
-              pickerInput(
-                "vars_map",
-                label = NULL,
-                choices = list(
-                  `Anti-Corruption, Transparency and Accountability institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
-                  `Business environment and trade institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_mkt") %>% .$var_name),
-                  `Financial market institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
-                  `SOE Corporate Governance` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_service_del") %>% .$var_name),
-                  `Labor market institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_lab") %>% .$var_name),
-                  `Legal institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_leg") %>% .$var_name),
-                  `Political institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_pol") %>% .$var_name),
-                  `Public sector institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_publ") %>% .$var_name),
-                  `Social institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_social") %>% .$var_name)
-                ),
-                selected = "Capital controls",
-                options = list(
-                  `live-search` = TRUE,
-                  size = 25,
-                  title = "Click to select family or indicator"
-                ),
-                width = "100%"
+            fluidRow(
+              column(
+                width = 3,
+                pickerInput(
+                  "vars_map",
+                  label = "Select indicator",
+                  choices = variable_list,
+                  selected = "Capital controls",
+                  options = list(
+                    `live-search` = TRUE,
+                    size = 25,
+                    title = "Click to select family or indicator"
+                  ),
+                  width = "100%"
+                )
+              ),
+
+              column(
+                width = 3,
+                pickerInput(
+                  "data",
+                  label = "Select data",
+                  choices = c("Closeness to frontier",
+                              "Raw indicator (average of last 7 years)"),
+                  selected = "Closeness to frontier"
+                )
               )
             )
           ),

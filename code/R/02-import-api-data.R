@@ -126,6 +126,7 @@ data_api <- data_api %>%
   #) %>%
   mutate(
     var = case_when(
+      Indicator == "GDP per capita, PPP (constant 2011 international $)" ~ "gdp_pc_ppp_const",
       Indicator == "SOE board of directors independence" ~ "soe_board",
       #Indicator == "SOE corporate governance practice" ~ "soe_corporate",
       Indicator == "SOE-government transfers governance rule" ~ "soe_government",
