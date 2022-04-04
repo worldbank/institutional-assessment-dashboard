@@ -620,7 +620,7 @@ static_bar <-
         title = paste0("<b>", var, "</b>")
       ) +
       scale_fill_manual(
-        values = c("#EC7663", "#001f3f", "#6c757d")
+        values = c("#FB8500", "#001f3f", "#6c757d")
       )
 
   }
