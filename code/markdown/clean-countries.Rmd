@@ -13,12 +13,12 @@
 ## Inputs
 
 ```{r}
-  ctf <-
+  indicators <-
     read_rds(
       here(
         "data",
-        "constructed",
-        "closeness_to_frontier.rds"
+        "final",
+        "compiled_indicators.rds"
       )
     )
 
@@ -64,43 +64,13 @@ List all relevant groups
 The only relevant countries are those we have some data for
 
 ```{r}
-ctf <-
-  ctf %>%
-  mutate(
-    country_name =
-      country_name %>%
-      str_replace_all("Macedonia", "North Macedonia") %>%
-      str_replace_all("Swaziland", "Eswatini")
-  )
-    
-
 country_list <-
   country_list %>%
-  filter(country_name %in% ctf$country_name)
-```
-
-The only relevant groups are those we have already listed
-
-```{r}  
-  groups <-
-    country_list %>%
-    filter(group_code %in% group_codes) %>%
-    rename(group_name = group) %>%
-    select(
-      group_code,
-      group_name
-    ) %>%
-    unique
-
-  groups <-
-    groups %>%
-    mutate(
-      group_category = case_when(
-        group_code %in% c("HIC","LIC","LMC","LMY","MIC","UMC") ~ "Income",
-        group_code %in% c("OED","EUU") ~ "Economic",
-        TRUE ~ "Region"
-      )
-    )
+  filter(
+    country_name %in% indicators$country_name,
+    group_code %in% group_codes
+  ) %>%
+  rename(group_name = group)
 ```
 
 ## Save datasets
@@ -116,61 +86,13 @@ write_rds(
     "wb_country_list.rds"
   )
 )
-```
 
-Dataset of relvant country groups
-
-```{r}
 write_rds(
-  groups,
-  here(
-    "app",
-    "data",
-    "wb_country_groups.rds"
-  )
-)
-```
-
-```{r}
-group_ctf <-
-  country_list %>%
-  left_join(
-    ctf
-  ) %>%
-  group_by(
-    group_code
-  ) %>%
-  summarise(
-    across(
-      bribes:soe_report_legislative,
-      ~ median(., na.rm = TRUE)
-    )     
-  ) %>%
-  left_join(groups) %>%
-  filter(!is.na(group_name)) %>%
-  select(
-    group_name,
-    group_code,
-    bribes:soe_report_legislative
-  )
-```
-
-```{r}
-write_rds(
-  ctf,
+  country_list,
   here(
     "data",
     "final",
-    "closeness_to_frontier.rds"
-  )
-)
-
-write_rds(
-  group_ctf,
-  here(
-    "data",
-    "final",
-    "closeness_to_frontier_groups.rds"
+    "wb_country_list.rds"
   )
 )
 ```

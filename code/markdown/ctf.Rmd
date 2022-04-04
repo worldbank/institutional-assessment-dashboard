@@ -108,11 +108,65 @@ ctf <-
 ## Save datasets
 
 ```{r}
+ctf %>%
+  select(country_name) %>%
+  unlist %>%
+  unname %>%
+  write_rds(
+    here(
+      "data",
+      "final",
+      "countries.rds"
+    )
+  )
+```
+
+## Calculate median per group
+
+```{r}
+country_list <-
+  read_rds(
+    here(
+      "data",
+      "final",
+      "wb_country_list.rds"
+    )
+  )
+
+group_ctf <-
+  country_list %>%
+  left_join(
+    ctf
+  ) %>%
+  group_by(
+    group_code, group_name
+  ) %>%
+  summarise(
+    across(
+      bribes:soe_report_legislative,
+      ~ median(., na.rm = TRUE)
+    )     
+  ) %>%
+  filter(!is.na(group_name)) %>%
+  select(
+    group_name,
+    group_code,
+    bribes:soe_report_legislative
+  ) %>%
+  rename(
+    country_name = group_name,
+    country_code = group_code
+  )
+
+ctf <-
+  ctf %>%
+  bind_rows(group_ctf)
+
 write_rds(
   ctf,
   here(
     "data",
-    "constructed",
+    "final",
     "closeness_to_frontier.rds"
   )
 )

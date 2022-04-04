@@ -43,6 +43,16 @@ full_data <-
   filter(na_count < 83) %>%
   select(-na_count)
 
+# Clean country names
+
+full_data <-
+  full_data %>%
+  mutate(
+    country_name =
+      country_name %>%
+      str_replace_all("Macedonia", "North Macedonia") %>%
+      str_replace_all("Swaziland", "Eswatini")
+  )
 
 # Save binded datasets ====================================================
 write_rds(
