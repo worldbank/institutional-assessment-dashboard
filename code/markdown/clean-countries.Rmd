@@ -118,7 +118,7 @@ write_rds(
 )
 ```
 
-Dataset of relvant country groups
+Dataset of relevant country groups
 
 ```{r}
 write_rds(
@@ -130,6 +130,8 @@ write_rds(
   )
 )
 ```
+
+Closeness to frontier
 
 ```{r}
 group_ctf <-
@@ -152,25 +154,26 @@ group_ctf <-
     group_name,
     group_code,
     bribes:soe_report_legislative
+  ) %>%
+  rename(
+    country_name = group_name,
+    country_code = group_code
   )
 ```
 
 ```{r}
+ctf <-
+  ctf %>%
+  bind_rows(
+    group_ctf
+  )
+
 write_rds(
   ctf,
   here(
     "data",
     "final",
     "closeness_to_frontier.rds"
-  )
-)
-
-write_rds(
-  group_ctf,
-  here(
-    "data",
-    "final",
-    "closeness_to_frontier_groups.rds"
   )
 )
 ```
