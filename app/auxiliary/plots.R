@@ -18,7 +18,7 @@ plotly_remove_buttons <-
 # Benchmark plots ##############################################################
 
 static_plot <-
-  function(data, base_country, tab_name, title = TRUE, dots = TRUE) {
+  function(data, base_country, tab_name, group_median = NULL, title = TRUE, dots = TRUE) {
 
     data$var_name <-
       factor(
@@ -121,6 +121,21 @@ static_plot <-
         )
     }
 
+    if (!is.null(group_median)) {
+      plot <-
+        plot +
+        geom_point(
+          data = data %>% filter(group %in% group_medians),
+          aes(y = var_name,
+              x = dtf,
+              shape = country_name),
+          alpha = .5,
+          color = "black",
+          fill = "transparent",
+          size = 3
+        )
+    }
+
     plot <-
       plot +
       geom_point(
@@ -218,17 +233,7 @@ median_static_plot <-
         size = 3,
         shape = 21,
         color = "gray0"
-      ) +
-      geom_point(
-        data = data %>% filter(group %in% group_medians),
-        aes(y = var_name,
-            x = dtf,
-            shape = country_name),
-        alpha = .5,
-        color = "black",
-        fill = "transparent",
-        size = 3
-      ) +
+      )  +
       theme_minimal() +
       theme(legend.position = "top",
             panel.grid.minor = element_blank(),
