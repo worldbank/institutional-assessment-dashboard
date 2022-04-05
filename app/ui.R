@@ -572,18 +572,19 @@ ui <-
                   ),
                   width = "100%"
                 )
-              ),
-
-              column(
-                width = 3,
-                pickerInput(
-                  "data",
-                  label = "Select data",
-                  choices = c("Closeness to frontier",
-                              "Raw indicator (average of last 7 years)"),
-                  selected = "Closeness to frontier"
-                )
               )
+              # ,
+              # 
+              # column(
+              #   width = 3,
+              #   pickerInput(
+              #     "data",
+              #     label = "Select data",
+              #     choices = c("Closeness to frontier",
+              #                 "Raw indicator (average of last 7 years)"),
+              #     selected = "Closeness to frontier"
+              #   )
+              # )
             )
           ),
 
