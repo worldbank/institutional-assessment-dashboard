@@ -24,7 +24,8 @@ static_plot <-
            group_median = NULL, 
            overview = FALSE,
            title = TRUE, 
-           dots = TRUE) {
+           dots = FALSE,
+           note = NULL) {
 
     data$var_name <-
       factor(
@@ -95,10 +96,14 @@ static_plot <-
               plot.caption = element_text(size = 8,
                                           hjust = 0),
               plot.caption.position =  "plot") +
-        labs(y = NULL,
-             x = "Closeness to Frontier",
-             fill = NULL) +
-          scale_fill_manual(
+        labs(
+          y = NULL,
+          x = "Closeness to Frontier",
+          fill = NULL,
+          shape = NULL,
+          caption = note
+        ) +
+        scale_fill_manual(
           values = colors
         )
 

@@ -14,6 +14,7 @@
       )
 
     ## Comparison countries ----------------------------------------------------
+    
     observeEvent(
       input$groups,
 
@@ -599,7 +600,8 @@
             comparison_countries = input$countries,
             data = data(),
             family_data = data_family(),
-            definitions = db_variables
+            definitions = definitions,
+            variable_names = variable_names
           )
 
         rmarkdown::render(
