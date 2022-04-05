@@ -559,7 +559,7 @@ ui <-
 
             fluidRow(
               column(
-                width = 3,
+                width = 5,
                 pickerInput(
                   "vars_map",
                   label = "Select indicator",
@@ -567,7 +567,7 @@ ui <-
                   selected = "Capital controls",
                   options = list(
                     `live-search` = TRUE,
-                    size = 25,
+                    size = 20,
                     title = "Click to select family or indicator"
                   ),
                   width = "100%"
