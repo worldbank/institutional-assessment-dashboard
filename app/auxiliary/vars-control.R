@@ -1,10 +1,3 @@
-packages <-
-  c("tidyverse",
-    "here")
-
-pacman::p_load(packages,
-               character.only = TRUE)
-
 db_variables <-
   readxl::read_excel(
     here(
@@ -12,6 +5,11 @@ db_variables <-
       "db_variables.xlsx"
     )
   )
+
+db_variables$variable[db_variables$api_id==946] <- "gdp_pc_ppp_const"
+db_variables$select[db_variables$api_id==946] <- 1
+db_variables$family_var[db_variables$api_id==946] <- "vars_other"
+db_variables$family_name[db_variables$api_id==946] <- "Other"
 
 # Anti-Corruption, Transparency and Accountability institutions ======================
 vars_transp <-

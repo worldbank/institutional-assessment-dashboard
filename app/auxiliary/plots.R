@@ -1,7 +1,8 @@
 
 note_size <- 11
-note_chars <- 170
-color_groups <- colorRampPalette(c("#053E5D", "#60C2F7"))
+note_chars <- 200
+color_groups <- colorRampPalette(c("#001f3f", "#60C2F7"))
+color_countries <- colorRampPalette(c("grey20", "grey50"))
 
 plotly_remove_buttons <-
   c("zoomIn2d",
@@ -18,7 +19,13 @@ plotly_remove_buttons <-
 # Benchmark plots ##############################################################
 
 static_plot <-
-  function(data, base_country, tab_name, title = TRUE) {
+  function(data, base_country,
+           tab_name, 
+           group_median = NULL, 
+           overview = FALSE,
+           title = TRUE, 
+           dots = FALSE,
+           note = NULL) {
 
     data$var_name <-
       factor(
@@ -78,19 +85,6 @@ static_plot <-
           size = 2,
           alpha = .3
         ) +
-        geom_point(
-          data = data %>% filter(country_name == base_country),
-          aes(
-            y = var_name,
-            x = dtf,
-            fill = status,
-            text = paste(" Country:", base_country,"<br>",
-                         "Closeness to frontier:", round(dtf, 3))
-          ),
-          size = 3,
-          shape = 21,
-          color = "gray0"
-        ) +
         theme_minimal() +
         theme(legend.position = "top",
               panel.grid.minor = element_blank(),
@@ -102,10 +96,14 @@ static_plot <-
               plot.caption = element_text(size = 8,
                                           hjust = 0),
               plot.caption.position =  "plot") +
-        labs(y = NULL,
-             x = "Closeness to Frontier",
-             fill = NULL) +
-          scale_fill_manual(
+        labs(
+          y = NULL,
+          x = "Closeness to Frontier",
+          fill = NULL,
+          shape = NULL,
+          caption = note
+        ) +
+        scale_fill_manual(
           values = colors
         )
 
@@ -115,75 +113,84 @@ static_plot <-
         labs(title = paste0("<b>", tab_name, "</b>"))
     }
 
-    return(plot)
+    if (dots) {
+      plot <-
+        plot +
+        geom_point(
+          data = data,
+          aes(
+            y = var_name,
+            x = dtf,
+            text = paste(
+              " Country:", country_name,"<br>",
+              "Closeness to frontier:", round(dtf, 3)
+            )
+          ),
+          shape = 21,
+          size = 2,
+          color = "gray30",
+          fill = "white",
+          alpha = .5
+        )
+    }
 
+    if (!is.null(group_median)) {
+      
+      if (!overview) {
+        median_data <- 
+          ctf_long %>%
+          filter(
+            var_name %in% data$var_name,
+            country_name %in% group_median
+          )
+      } else {
+        
+        median_data <-
+          ctf_long %>%
+          filter(
+            family_name %in% data$var_name,
+            group %in% group_median
+          ) %>%
+          group_by(
+            group,
+            family_name
+          ) %>%
+          summarise(
+            value = mean(value, na.rm = TRUE)
+          ) %>%
+          rename(
+            country_name = group,
+            var_name = family_name
+          )
+        
+      }
 
-  }
-
-median_static_plot <-
-  function(data, base_country, group_medians, tab_name, title = TRUE, note = NULL) {
-
-    data$var_name <-
-      factor(
-        data$var_name,
-        levels = sort(unique(data$var_name),
-                      decreasing = TRUE),
-        ordered = TRUE
-      )
-
-    colors <-
-      c("Weak\n(bottom 25%)" = "#D2222D",
-        "Emerging\n(25% - 50%)" = "#FFBF00",
-        "Strong\n(top 50%)" = "#238823"
-      )
-
-    shapes <-
-      c(22,23,24)
+      plot <-
+        plot +
+        geom_point(
+          data = median_data,
+          aes(
+            y = var_name,
+            x = value,
+            shape = country_name,
+            text = paste(
+              " Group:", country_name,"<br>",
+              "Median closeness to frontier:", round(value, 3)
+            )
+          ),
+          alpha = .5,
+          color = "black",
+          fill = "white",
+          size = 3
+        ) +
+        scale_shape_manual(
+          values = 22:25,
+          lab = NULL
+        )
+    }
 
     plot <-
-      ggplot() +
-      geom_segment(
-        data = data,
-        aes(
-          y = var_name,
-          yend = var_name,
-          x = 0,
-          xend = q25
-        ),
-        color = "#e47a81",
-        size = 2,
-        alpha = .1
-      ) +
-      geom_vline(
-        xintercept = 1,
-        linetype = "dashed",
-        color = colors["Advanced"],
-        size = 1
-      ) +
-      geom_segment(
-        data = data,
-        aes(
-          y = var_name,
-          yend = var_name,
-          x = q25,
-          xend = q50
-        ),
-        color = "#ffd966",
-        size = 2,
-        alpha = .3
-      ) +
-      geom_segment(
-        data = data,
-        aes(
-          y = var_name,
-          yend = var_name,
-          x = q50,
-          xend = 1
-        ),
-        color = "#8ec18e",
-        size = 2,
-        alpha = .3
-      ) +
+      plot +
       geom_point(
         data = data %>% filter(country_name == base_country),
         aes(
@@ -196,50 +203,13 @@ median_static_plot <-
         size = 3,
         shape = 21,
         color = "gray0"
-      ) +
-      geom_point(
-        data = data %>% filter(group %in% group_medians),
-        aes(y = var_name,
-            x = dtf,
-            shape = country_name),
-        alpha = .5,
-        color = "black",
-        fill = "transparent",
-        size = 3
-      ) +
-      theme_minimal() +
-      theme(legend.position = "top",
-            panel.grid.minor = element_blank(),
-            axis.ticks = element_blank(),
-            axis.text = element_text(color = "black"),
-            axis.text.y = element_text(size = 12),
-            axis.text.x = element_text(size = 11),
-            legend.box = "vertical",
-            plot.caption = element_text(size = 8,
-                                        hjust = 0),
-            plot.caption.position =  "plot") +
-      labs(y = NULL,
-           x = "Closeness to Frontier",
-           fill = NULL,
-           shape = NULL,
-           caption = note) +
-      scale_fill_manual(
-        values = colors
-      ) +
-      scale_shape_manual(
-        values = shapes
       )
-
-    if (title) {
-      plot <-
-        plot +
-        labs(title = paste0("<b>", tab_name, "</b>"))
-    }
 
     return(plot)
 
 
   }
+
 
 interactive_plot <-
   function(x, y, z, tab_name, buttons, miss_var) {
@@ -283,7 +253,7 @@ interactive_plot <-
     x %>%
       ggplotly(tooltip = "text") %>%
       layout(
-        margin = list(l = 50, r = 50, t = 75, b = 150),
+        margin = list(l = 50, r = 50, t = 75, b = 200),
         annotations =
           list(
             x = -0.2,
@@ -432,8 +402,12 @@ trends_plot <- function(raw_data,
         filter(group %in% groups) %>%
         left_join(indicator_data) %>%
         group_by(Year, group) %>%
-        summarise_at(vars(all_of(indicator)),
-                     ~ mean(., na.rm = TRUE)) %>%
+        summarise(
+          across(
+            all_of(indicator),
+            ~ mean(., na.rm = TRUE)
+          )
+        ) %>%
         rename(country_name = group) %>%
         mutate(country_name = paste(country_name, "average"))
     } else {
@@ -445,22 +419,29 @@ trends_plot <- function(raw_data,
     filter(country_name == base_country |
              country_name %in% comparison_countries) %>%
     bind_rows(data_groups) %>%
-    mutate_at(vars(all_of(indicator)),
-              ~ round(., 3)) %>%
     mutate(alpha = ifelse(country_name == base_country, .8, .5)) %>%
     rename(Country = country_name)
 
   static_plot <-
-    ggplot(data,
-           aes_string(x = "Year",
-                      y = indicator,
-                      color = "Country",
-                      group = "Country",
-                      alpha = "alpha")) +
-    geom_point(aes(text = paste("Country:", Country, "<br>",
-                                "Year:", Year, "<br>",
-                                "Value:", get(indicator))),
-               size = 3) +
+    ggplot(
+      data,
+      aes(
+        x = Year,
+        y = get(indicator),
+        color = Country,
+        group = Country,
+        alpha = alpha)
+    ) +
+    geom_point(
+      aes(
+        text = paste(
+          "Country:", Country, "<br>",
+          "Year:", Year, "<br>",
+          "Value:", get(indicator) %>% round(3)
+        )
+      ),
+     size = 3
+    ) +
     geom_line() +
     theme_ipsum() +
     labs(
@@ -470,12 +451,16 @@ trends_plot <- function(raw_data,
     ) +
     scale_color_manual(
       name = NULL,
-      values = c("#FB8500",
-                 gray.colors(length(country_list)),
-                 color_groups(length(groups))),
-      breaks = c(base_country,
-                 country_list,
-                 paste(groups, "average"))
+      values = c(
+        "#FB8500",
+        color_groups(length(groups)),
+        color_countries(length(comparison_countries))
+      ),
+      breaks = c(
+        base_country,
+        paste(groups, "average"),
+        comparison_countries
+      )
     ) +
     scale_alpha_identity() +
     theme(
@@ -532,7 +517,7 @@ trends_plot <- function(raw_data,
 # Cross-country comparison #####################################################
 
 static_bar <-
-  function(data, group_data,
+  function(data,
            base_country, comparison_countries, groups,
            var, variable_names) {
 
@@ -546,7 +531,7 @@ static_bar <-
     data <-
       data %>%
       filter(
-        country_name %in% c(base_country, comparison_countries)
+        country_name %in% c(base_country, comparison_countries, groups)
       )
 
     median <-
@@ -562,17 +547,6 @@ static_bar <-
         )
       ) %>%
       mutate(country_name = "Comparison countries median")
-
-    if (!is.null(groups)) {
-      group_data <-
-        group_data %>%
-        rename(country_name = group_name) %>%
-        filter(country_name %in% groups)
-
-      data <-
-        data %>% bind_rows(group_data)
-    }
-
 
     data <-
       data %>%
@@ -633,7 +607,7 @@ static_bar <-
         title = paste0("<b>", var, "</b>")
       ) +
       scale_fill_manual(
-        values = c("#EC7663", "#001f3f", "#6c757d")
+        values = c(`1` = "#FB8500", `2` = "#001f3f", `3` = "#6c757d")
       )
 
   }
@@ -697,32 +671,59 @@ interactive_bar <-
 # Bivariate correlation #####################################################
 
 static_scatter <-
-  function(data,
-           x_scatter, y_scatter,
-           variable_names) {
-
-    x <-
-      variable_names %>%
-      filter(var_name == x_scatter) %>%
-      select(variable) %>%
-      unlist %>%
-      unname
+  function(data, base_country, comparison_countries, high_group,
+           y_scatter, x_scatter,
+           variable_names, country_list) {
 
     y <-
-      variable_names %>%
-      filter(var_name == y_scatter) %>%
-      select(variable) %>%
-      unlist %>%
-      unname
+      ifelse(
+        y_scatter == "Log GDP per capita, PPP",
+        "log",
+        variable_names %>%
+          filter(var_name == y_scatter) %>%
+          select(variable) %>%
+          unlist %>%
+          unname
+      )
+      
+    
+    x <-
+      ifelse(
+        x_scatter == "Log GDP per capita, PPP",
+        "log",
+        variable_names %>%
+          filter(var_name == x_scatter) %>%
+          select(variable) %>%
+          unlist %>%
+          unname
+      )
+
 
     data <-
       data %>%
       mutate(
         label = paste0(
           "Country: ", country_name, "<br>",
-          x_scatter, ": ", get(x) %>% round(3), "<br>",
-          y_scatter, ": ", get(y) %>% round(3)
+          ifelse(
+            x_scatter == "Log GDP per capita, PPP",
+            paste0("GDP per capita, PPP: ", gdp_pc_ppp_const %>% comma(digits = 2), "<br>"),
+            paste0(x_scatter, ": ", get(x) %>% round(3), "<br>")
+          ),
+          ifelse(
+            y_scatter == "Log GDP per capita, PPP",
+            paste0("GDP per capita, PPP: ", gdp_pc_ppp_const %>% comma(digits = 2), "<br>"),
+            paste0(y_scatter, ": ", get(y) %>% round(3), "<br>")
+          )
+        ),
+        log = log(gdp_pc_ppp_const),
+        type = case_when(
+          country_name == base_country ~ "Base country",
+          country_name %in% comparison_countries ~ "Comparison countries",
+          TRUE ~ "Others"
         )
+      ) %>%
+      left_join(
+        high_group, by = c("country_code")
       )
 
     ggplot(
@@ -732,14 +733,29 @@ static_scatter <-
         y = y,
         text = "label"
       )
-    ) +
+      ) +
       geom_point(
-        color = "#001f3f",
+        data = data %>% filter(group %in% high_group$group),
+        size = 4,
+        shape = 1,
+        color = "#60C2F7"
+      ) +
+      geom_point(
+        aes(
+          color = type,
+          shape = type
+        ),
         size = 2
+      ) +
+      scale_color_manual(
+        values = c("#FB8500","#001f3f","#6c757d")
+      ) +
+      scale_shape_manual(
+        values = c(16, 16, 1)
       ) +
       theme_minimal() +
       theme(
-        legend.position = "none",
+        legend.position = "right",
         axis.ticks = element_blank(),
         axis.text = element_text(color = "black"),
         axis.text.y = element_text(size = 12),
@@ -749,24 +765,44 @@ static_scatter <-
         plot.caption.position =  "plot"
       ) +
       labs(
-        y = paste0("<b>", y_scatter, "</b>"),
-        x = paste0("<b>", x_scatter, "</b>")
+        y = ifelse(
+          y_scatter == "Log GDP per capita, PPP",
+          "<b>Log GDP per capita, PPP</b>",
+          paste0("<b>", y_scatter,"<br>(closeness to frontier)</b>")
+        ),
+        x = ifelse(
+          x_scatter == "Log GDP per capita, PPP",
+          "<b>Log GDP per capita, PPP</b>",
+          paste0("<b>", x_scatter,"<br>(closeness to frontier)</b>")
+        )
       )
   }
 
 interactive_scatter <-
   function(plot,
-           x_scatter, y_scatter,
+           y_scatter,
+           x_scatter,
            definitions,
            buttons) {
-
-    x <-
-      definitions %>%
-      filter(var_name == x_scatter)
 
     y <-
       definitions %>%
       filter(var_name == y_scatter)
+
+    x <-
+      definitions %>%
+      filter(var_name == x_scatter)
+    
+    if (x_scatter == "Log GDP per capita, PPP") {
+      x <- definitions %>%
+        filter(variable == "gdp_pc_ppp_const")
+    }
+    
+    if (y_scatter == "Log GDP per capita, PPP") {
+      y <- definitions %>%
+        filter(variable == "gdp_pc_ppp_const")
+    }
+      
 
     plot %>%
       ggplotly(tooltip = "text") %>%
@@ -775,9 +811,13 @@ interactive_scatter <-
           t = 50,
           b = 200
         ),
+        legend = list(
+          title = list(text = ''),
+          y = 0.5
+        ),
         annotations = list(
           x = -0.03,
-          y = -0.4,
+          y = -0.5,
           text = HTML(
             paste(
               "<b>Definitions:</b>",
@@ -805,7 +845,7 @@ interactive_scatter <-
         config(
           modeBarButtonsToRemove = buttons,
           toImageButtonOptions = list(
-            filename = paste(x_scatter, "x", y_scatter),
+            filename = paste("GDP per capita x", y_scatter),
             width = 1050,
             height =  675
           )

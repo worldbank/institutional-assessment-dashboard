@@ -5,6 +5,7 @@ output:
   word_document
 params:
   base_country: NA
+  variable_names: NA
   definitions: NA
   comparison_countries: NA
   data: NA
@@ -29,14 +30,6 @@ knitr::opts_chunk$set(
 
   source(file.path("auxiliary",
                    "plots.R"))
-
-  variable_names <-
-    read_rds(file.path("data",
-                       "variable_names.rds"))
-
-  definitions <-
-    read_rds(file.path("data",
-                       "indicator_definitions.rds"))
   
   source <- 
     "Source: Authors’ elaboration using CLIAR’s Interactive Online Dashboard."
@@ -85,7 +78,7 @@ for (category in c("Strong", "Emerging", "Weak")) {
            str_detect(status, category)) %>%
     select(var_name) %>%
     unlist
-
+  
   if (length(families) > 0) {
 
     family_names <-

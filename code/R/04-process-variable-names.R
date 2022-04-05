@@ -38,6 +38,7 @@ variable_names <-
     var_name =
       case_when(
         # New additions out gov360
+        variable == "gdp_pc_ppp_const" ~ "GDP per capita, PPP (constant 2011 international $)",
         variable == "gtmi" ~ "GovTech Maturity Index (GTMI)",
         variable == "complaint_mechan" ~ "Complaint mechanisms",
         variable == "right_to_info" ~ "Right to information",

@@ -1,69 +1,3 @@
-# Inputs ###########################################################################
-
-## Packages --------------------------------------------------------------------
-
-library(tidyverse)
-library(DT)
-library(plotly)
-library(shiny)
-library(shinyjs)
-library(shinyBS)
-library(shinycssloaders)
-library(shinyWidgets)
-library(bs4Dash)
-library(fresh)
-
-# Inputs ################################################################################
-
-plot_height <- 600
-
-# Data sets ---------------------------------------------------------------------------
-
-country_groups <-
-  read_rds(file.path("data",
-                     "wb_country_groups.rds"))
-
-definitions <-
-  read_rds(file.path("data",
-                     "indicator_definitions.rds"))
-
-country_list <-
-  read_rds(file.path("data",
-                     "wb_country_list.rds"))
-
-variable_names <-
-  read_rds(file.path("data",
-                     "variable_names.rds"))
-
-global_data <-
-  read_rds(file.path("data",
-                     "country_dtf.rds"))
-
-variable_list <-
-  list(
-    `Anti-Corruption, Transparency and Accountability institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
-    `Business environment and trade institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_mkt") %>% .$var_name),
-    `Financial market institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
-    `SOE Corporate Governance` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_service_del") %>% .$var_name),
-    `Labor market institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_lab") %>% .$var_name),
-    `Legal institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_leg") %>% .$var_name),
-    `Political institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_pol") %>% .$var_name),
-    `Public sector institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_publ") %>% .$var_name),
-    `Social institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_social") %>% .$var_name)
-  )
-
-group_list <-
-  list(
-    `Economic` = c(country_groups %>% filter(group_category=="Economic") %>% .$group_name),
-    `Region` = c(country_groups %>% filter(group_category=="Region") %>% .$group_name),
-    `Income` = c(country_groups %>% filter(group_category=="Income") %>% .$group_name)
-  )
-
-# Auxiliary functions -----------------------------------------------------------------
-
-source(file.path("auxiliary",
-                 "vars-by-family.R"))
-
 # UI ###########################################################################
 
 ui <-
@@ -76,7 +10,7 @@ ui <-
     dashboardHeader(
 
       title = dashboardBrand(
-        title = "Global Institutional Benchmarking Dashboard ",
+        title = "Global Benchmarking Institutions Dashboard ",
       ),
       status = "white",
       border = TRUE,
@@ -97,8 +31,7 @@ ui <-
         menuItem("Home", tabName = "home", icon = icon("home")),
         menuItem("Country benchmarking", tabName = "benchmark", icon = icon("sort-amount-up")),
         menuItem("Cross-country comparison", tabName = "country", icon = icon("chart-bar")),
-        menuItem("Bivariate correlation", tabName = "scatter", icon = icon("chart-bar")),
-        # menuItem("Aggregation of preferences", tabName = "heatmap", icon = icon("comments")),
+        menuItem("Bivariate correlation", tabName = "scatter", icon = icon("search-dollar")),
         menuItem("World map", tabName = "world_map", icon = icon("globe-americas")),
         menuItem("Time trends", tabName = "trends", icon = icon("chart-line")),
         menuItem("Data", tabName = "data", icon = icon("table")),
@@ -119,51 +52,59 @@ ui <-
             status = "navy",
 
             title = userDescription(
-              title = h2("Global Institutional Benchmarking Dashboard"),
+              title = h2("Global Benchmarking Institutions Dashboard"),
               type = 1,
               image = "world-bank-logo.png"
             ),
 
             br(),
             p("The World Bank recognizes institutional strengthening as key ingredient for progress of its members countries along income categories. While there are numerous diagnostic and assessment tools for specific functional areas such as public financial management and tax administration, there is no analytical tool for country-level institutional assessment."),
-            p("The Global Institutional Benchmarking Dashboard (GIBD) contributes to fill this gap by providing a standard methodology to summarize information from a large set of country-level institutional indicators."),
-            p("The dashboard provides a user-friendly interface with multiple visualizations of a country’s institutional profile based on a set of international indicators, highlighting a given country’s institutional strengths and weaknesses relative to a set of country comparators. The findings of the GIBD can provide a structured and up-to-date empirical guidance for further in-depth analysis in the specific areas of interest, given the nature of the World Bank engagement in a country and/or complementarity with other ongoing country-level diagnostics (SCDs, CEMs, CPFs and the like)."),
-            p("The GIBD part of a larger analytical effort to assess and review the quality of country’s institutions. For full details about the broader analytical effort, see the Approach paper: Marco Larizza, Serena Sara Daniela Cocciolo, Eric Braian Arias, Peter Siegenthaler and Jim Brumby (forthcoming),  ",
-              tags$em("Country Level Institutional Assessment and Review (CLIAR): a 3-steps analytical framework."),
-              "Users of this resource should cite this approach paper. Further, any publications using data drawn from the GIBD should include a citation of the dashboard as well as the original source(s) of the data used. Citation information for each component dataset is included in the methodology page."),
+            p("The Global Benchmarking Institutions Dashboard (G-BID) contributes to fill this gap by providing a standard methodology to summarize information from a large set of country-level institutional indicators."),
+            p("The dashboard provides a user-friendly interface with multiple visualizations of a country’s institutional profile based on a set of international indicators, highlighting a given country’s institutional strengths and weaknesses relative to a set of country comparators. The findings of the G-BID can provide a structured and up-to-date empirical guidance for further in-depth analysis in the specific areas of interest, given the nature of the World Bank engagement in a country and/or complementarity with other ongoing country-level diagnostics (SCDs, CEMs, CPFs and the like)."),
+            p("The G-BID is part of a larger analytical effort to assess and review the quality of country’s institutions. For full details about the broader analytical effort, see the Approach paper: Marco Larizza, Serena Sara Daniela Cocciolo, Eric Braian Arias, Peter Siegenthaler and Jim Brumby (forthcoming),  ",
+              tags$em("Country Level Institutional Assessment and Review (CLIAR)"),
+              "Users of this resource should cite this approach paper. Further, any publications using data drawn from the G-BID should include a citation of the dashboard as well as the original source(s) of the data used. Citation information for each component dataset is included in the methodology page."),
 
             h3("How to use this dashboard"),
-            p("This dashboard aims to enable its users to interact with the country-level IA benchmarking through the following tabs:"),
+            p("This dashboard aims to enable its users to interact with the country-level benchmarking through the following tabs:"),
             tags$ul(
-              tags$li("The ",
-                      tags$b("country benchmarking"),
-                      "tab shows how one country compares to another group of countries in terms of closeness to frontier for each relevant indicator."
-
+              tags$li(
+                "The ",
+                tags$b("country benchmarking"),
+                "tab shows how one country compares to another group of countries in terms of closeness to frontier for each relevant indicator and institutional cluster. 
+                It works best with a relatively large group of comparator countries."
               ),
-              tags$li("The ",
-                      tags$b("world map"),
-                      "tab shows the closeness to frontier of a given indicator for all countries with available data."
-
+              tags$li(
+                "The ",
+                tags$b("cross-country comparison "),
+                "tab shows how one country compares to another group of countries for each relevant indicator. 
+                It works even with a few comparator countries."
               ),
-              tags$li("The ",
-                      tags$b("trends"),
-                      "tab shows the evolution year by year of multiple indicators."
-
+              tags$li(
+                "The",
+                tags$b("bivariate correlation"),
+                "tab shows correlations between the closeness to frontier scores for pairs of indicators"
               ),
-              tags$li("The ",
-                      tags$b("aggregation of preferences"),
-                      "tab shows the prioritization matrix where the coloring reflects the institutional areas in need of development or emerging."
-
+              tags$li(
+                "The ",
+                tags$b("world map"),
+                "tab shows the closeness to frontier of a given indicator for all countries with available data."
               ),
-              tags$li("The ",
-                      tags$b("data"),
-                      "tab provides an interactive table containing the closeness to frontier data for all countries.
-                      It also allows users to download the data in different formats."
+              tags$li(
+                "The ",
+                tags$b("time trends"),
+                "tab shows the evolution year by year of multiple indicators."
               ),
-              tags$li("The ",
-                      tags$b("methodology"),
-                      "tab includes metadata on the indicators, country groups and methods used in the analysis."
-
+              tags$li(
+                "The ",
+                tags$b("data"),
+                "tab provides an interactive table containing the closeness to frontier data for all countries.
+                It also allows users to download the data in different formats."
+              ),
+              tags$li(
+                "The ",
+                tags$b("methodology"),
+                "tab includes metadata on the indicators, country groups and methods used in the analysis, and FAQs."
               )
             )
           )
@@ -184,13 +125,17 @@ ui <-
             fluidRow(
 
               column(
-                width = 2,
+                width = 3,
                 pickerInput(
                   "country",
                   label = "Select a base country",
-                  choices = c("", country_list$country_name %>% unique %>% sort),
+                  choices = countries,
                   selected = "Uruguay",
-                  multiple = FALSE
+                  multiple = FALSE,
+                  options = list(
+                    size = 20,
+                    `actions-box` = TRUE
+                  )
                 )
               ),
 
@@ -203,7 +148,8 @@ ui <-
                   selected = c("OECD members"),
                   multiple = TRUE,
                   options = list(
-                    size = 15
+                    size = 21,
+                    `actions-box` = TRUE
                   )
                 )
               ),
@@ -213,29 +159,62 @@ ui <-
                 pickerInput(
                   "family",
                   label = "Select institutional family",
-                  choices = c("Overview",
-                              names(definitions)
+                  choices = c(
+                    "Overview",
+                    names(definitions)
                   ),
                   selected = "Overview"
                 )
               ),
+              
+              column(
+                width = 3,
+                pickerInput(
+                  inputId = "benchmark_median",
+                  label = "Show group median",
+                  choices = append(
+                    "Comparison countries",
+                    group_list
+                  ),
+                  selected = NULL,
+                  multiple = TRUE,
+                  options = list(
+                    `live-search` = TRUE,
+                    maxOptions = 3
+                  )
+                )
+              )
+
+            ),
+
+            fluidRow(
 
               column(
-                width = 2,
+                width = 3,
+                prettyCheckbox(
+                  inputId = "benchmark_dots",
+                  label = "Show comparison countries",
+                  value = FALSE,
+                  icon = icon("check"),
+                  status = "success"
+                )
+              ),
+              
+              column(
+                width = 3,
                 uiOutput(
                   "select_button"
                 )
               ),
-
+              
               column(
-                width = 2,
+                width = 3,
                 downloadButton(
                   "report",
                   "Download editable report",
                   style = "width:100%; background-color: #204d74; color: white"
                 )
               )
-
             )
 
           ),
@@ -250,7 +229,7 @@ ui <-
               inputId = "countries",
               individual = TRUE,
               label = NULL,
-              choices = global_data$country_name %>% unique %>% sort,
+              choices = countries,
               checkIcon = list(
                 yes = icon("ok",
                            lib = "glyphicon")
@@ -265,48 +244,13 @@ ui <-
 
             conditionalPanel(
               "input.select !== 0",
-
-              # fluidRow(
-              #
-              #   column(
-              #     width = 2,
-              #     actionButton(
-              #       "add_median",
-              #       "Add group medians",
-              #       icon = icon("line-chart"),
-              #       #class = "btn-success",
-              #       width = "100%"
-              #     )
-              #   ),
-              #   column(
-              #     width = 3,
-              #     pickerInput(
-              #       inputId = "group_medians",
-              #       label = NULL,
-              #       choices = list(
-              #         "Comparison group",
-              #         `Economic` = c(country_groups %>% filter(group_category=="Economic") %>% .$group_name),
-              #         `Region` = c(country_groups %>% filter(group_category=="Region") %>% .$group_name),
-              #         `Income` = c(country_groups %>% filter(group_category=="Income") %>% .$group_name)
-              #       ),
-              #       selected = c("Comparison group", "OECD members"),
-              #       multiple = TRUE,
-              #       options = pickerOptions(
-              #         maxOptions = 3,
-              #         size = 10
-              #       )
-              #     )
-              #   )
-              #
-              # ),
-
               fluidRow(
 
                 column(
                   width = 12,
                   plotlyOutput(
                     "plot",
-                    height = paste0(plot_height * .75, "px")
+                    height = paste0(plot_height * .8, "px")
                   )
                 )
 
@@ -349,9 +293,10 @@ ui <-
                   choices = variable_list,
                   selected = "Capital controls",
                   options = list(
+                    size = 20,
+                    `actions-box` = TRUE,
                     `live-search` = TRUE,
-                    size = 25,
-                    title = "Click to select family or indicator"
+                    maxOptions = 3
                   ),
                   width = "100%"
                 )
@@ -362,7 +307,7 @@ ui <-
                 pickerInput(
                   "country_bar",
                   label = "Select a base country",
-                  choices = c("", country_list$country_name %>% unique %>% sort),
+                  choices = countries,
                   selected = "Uruguay",
                   multiple = FALSE
                 )
@@ -373,7 +318,7 @@ ui <-
                 pickerInput(
                   inputId = "countries_bar",
                   label = "Select comparison countries",
-                  choices = global_data$country_name %>% unique %>% sort,
+                  choices = countries,
                   selected = c("Brazil", "Argentina", "Paraguay", "Austria"),
                   multiple = TRUE,
                   options = list(`actions-box` = TRUE)
@@ -400,7 +345,7 @@ ui <-
             collapsible = FALSE,
             plotlyOutput(
               "bar_plot",
-              height = paste0(1.15 * plot_height, "px")
+              height = paste0(plot_height, "px")
             )
           )
         ),
@@ -419,36 +364,78 @@ ui <-
             fluidRow(
 
               column(
-                width = 5,
+                width = 3,
                 pickerInput(
-                  "x_scatter",
-                  label = "Select indicator for X axis",
-                  choices = variable_list,
-                  selected = "Capital controls",
+                  "country_scatter",
+                  label = "Select a base country",
+                  choices = countries,
+                  selected = "Uruguay",
+                  multiple = FALSE,
+                  options = list(
+                    size = 20,
+                    `actions-box` = TRUE
+                  )
+                )
+              ),
+              
+              column(
+                width = 3,
+                pickerInput(
+                  "y_scatter",
+                  label = "Select indicator for Y axis",
+                  choices = append(
+                    "Log GDP per capita, PPP",
+                    variable_list
+                  ),
+                  selected = "Central bank independence",
                   options = list(
                     `live-search` = TRUE,
-                    size = 25,
+                    size = 20,
                     title = "Click to select family or indicator"
                   ),
                   width = "100%"
                 )
               ),
-
+              
               column(
-                width = 5,
+                width = 3,
                 pickerInput(
-                  "y_scatter",
-                  label = "Select indicator for Y axis",
-                  choices = variable_list,
-                  selected = "Capital controls",
+                  "x_scatter",
+                  label = "Select indicator for X axis",
+                  choices = append(
+                    "Log GDP per capita, PPP",
+                    variable_list
+                  ),
+                  selected = "Log GDP per capita, PPP",
                   options = list(
                     `live-search` = TRUE,
-                    size = 25,
+                    size = 20,
                     title = "Click to select family or indicator"
                   ),
                   width = "100%"
                 )
+              ),
+              
+              column(
+                width = 3,
+                pickerInput(
+                  "high_group",
+                  label = "Highlight a group",
+                  choices = append(
+                    "No highlight",
+                    group_list
+                  ),
+                  selected = NULL,
+                  multiple = FALSE,
+                  options = list(
+                    `live-search` = TRUE,
+                    `actions-box` = TRUE,
+                    size = 18
+                  ),
+                )
               )
+
+
             )
           ),
 
@@ -487,7 +474,7 @@ ui <-
                   selected = "Capital controls",
                   options = list(
                     `live-search` = TRUE,
-                    size = 25,
+                    size = 21,
                     title = "Click to select family or indicator"
                   ),
                   width = "100%"
@@ -499,9 +486,12 @@ ui <-
                 pickerInput(
                   "country_trends",
                   label = "Select a base country",
-                  choices = c("", country_list$country_name %>% unique %>% sort),
+                  choices = countries,
                   selected = "Uruguay",
-                  multiple = FALSE
+                  multiple = FALSE,
+                  options = list(
+                    size = 23
+                  )
                 )
               ),
 
@@ -510,9 +500,14 @@ ui <-
                 pickerInput(
                   "group_trends",
                   label = "Select comparison groups",
-                  choices = country_groups$group_name,
+                  choices = group_list,
                   selected = c("OECD members", "Latin America & Caribbean"),
-                  multiple = TRUE
+                  multiple = TRUE,
+                  options = list(
+                    maxOptions = 5,
+                    `live-search` = TRUE,
+                    size = 21
+                  )
                 )
               ),
 
@@ -521,8 +516,13 @@ ui <-
                 pickerInput(
                   "countries_trends",
                   label = "Select comparison countries",
-                  choices = c(country_list$country_name %>% unique %>% sort),
-                  multiple = TRUE
+                  choices = countries,
+                  multiple = TRUE,
+                  options = list(
+                    `actions-box` = TRUE,
+                    size = 22,
+                    title = "Click to select family or indicator"
+                  )
                 )
               )
             )
@@ -559,7 +559,7 @@ ui <-
 
             fluidRow(
               column(
-                width = 3,
+                width = 5,
                 pickerInput(
                   "vars_map",
                   label = "Select indicator",
@@ -567,23 +567,24 @@ ui <-
                   selected = "Capital controls",
                   options = list(
                     `live-search` = TRUE,
-                    size = 25,
+                    size = 20,
                     title = "Click to select family or indicator"
                   ),
                   width = "100%"
                 )
-              ),
-
-              column(
-                width = 3,
-                pickerInput(
-                  "data",
-                  label = "Select data",
-                  choices = c("Closeness to frontier",
-                              "Raw indicator (average of last 7 years)"),
-                  selected = "Closeness to frontier"
-                )
               )
+              # ,
+              # 
+              # column(
+              #   width = 3,
+              #   pickerInput(
+              #     "data",
+              #     label = "Select data",
+              #     choices = c("Closeness to frontier",
+              #                 "Raw indicator (average of last 7 years)"),
+              #     selected = "Closeness to frontier"
+              #   )
+              # )
             )
           ),
 
@@ -702,6 +703,130 @@ ui <-
           box(
             width = 11,
             status = "navy",
+            title = "Frequently asked questions",
+            
+            column(
+              width = 12,
+              box(
+                width = 12,
+                collapsed = TRUE,
+                title = "Does the G-BID collect new data on governance and institutions?",
+                p(
+                  "NO. 
+                  The dashboard extracts data from original sources and collects international indicators that are publicly available and have been widely tested and used as reliable proxies to measure country-level governance and institutions."
+                )
+              ),
+              
+              box(
+                width = 12,
+                collapsed = TRUE,
+                title = "Can I add my own indicators to the dashboard and run the analysis including these indicators? ",
+                p(
+                  "NO. 
+                  You cannot add indicators to the dashboard. 
+                  However, you can download the full database and augment it with additional indicators to customize the analysis. 
+                  You can also get in touch with the G-BID coordinator (scocciolo@worldbank.org) indicating which data you would like to be added in the database, and for which cluster. 
+                  Each request will be reviewed by a team of technical experts and if the indicator meets the selection criteria indicated in the methodological note (quality and coverage) it will be added to the G-BID."
+                )
+              ),
+              
+              box(
+                width = 12,
+                collapsed = TRUE,
+                title = "Is the “Closeness to Frontier” methodology the same one used in the “Doing Business Report”?",
+                p(
+                  "The “Closeness to Frontier” is used in order to standardize indicators and make it possible to compare and aggregate them. 
+                  The resulting scores range between 0 and 1 and we labeled them “Closeness to Frontier” because higher values mean closer to the frontier, which is set at 1. 
+                  It is similar to the transformation that was used in the “Doing Business Reports”."
+                )
+              ),
+              
+              box(
+                width = 12,
+                collapsed = TRUE,
+                title = "How often is the G-BID updated? How do I know that the G-BID uses the latest available data?",
+                p(
+                  "It is currently planned that the G-BID will be updated once or twice a year, depending on demands and usage. 
+                  The full compiled database, once updated, is available in the “Data” tab for download. 
+                  Both the “Closeness to Frontier” scores and the full database with yearly indicators are available for download, 
+                  and therefore users can easily verify the latest year available for each indicator."
+                )
+              ),
+              
+              box(
+                width = 12,
+                collapsed = TRUE,
+                title = "Is the G-BID available to external users (i.e non-bank staff) ?",
+                p(
+                  "As of now, the G-BID is not available for external users. 
+                  The team will consider making the dashboard publicly available it has been tested and validated through a
+                  few pilots, and depending on demands and usage."
+                )
+              ),
+              
+              box(
+                width = 12,
+                collapsed = TRUE,
+                title = "What does the traffic coloring means? ",
+                p(
+                  "The results from the institutional benchmarking are relative for a given country of interest vis a vis a chosen set of comparator countries. 
+                  Using the distribution of the CTF scores in the set of comparator countries, 
+                  we identify the score range for the bottom 25% of comparators, 
+                  the score range for the 25%-50% group and the score range for the top 50% of comparators. 
+                  Given the CTF score of the country of interest, 
+                  we identify whether the country of interest for the analysis belong to the bottom, 
+                  middle or top group."
+                )
+              ),
+              
+              box(
+                width = 12,
+                collapsed = TRUE,
+                title = "Why the length of the bar is different? Why a red bar is longer than another red bar, if they are both red?",
+                p(
+                  "Using the distribution of the CTF scores in the set of comparator countries, 
+                  we identify the score range for the bottom 25% of comparators, 
+                  the score range for the 25%-50% group and the score range for the top 50% of comparators. 
+                  The red bar represents the score range for the bottom 25% of comparators. 
+                  While the CTF scores always range between 0 and 1, 
+                  the length of the red bar varies across indicators depending on the distribution of the CTF scores in the comparator group. 
+                  As an illustration, for a given set of comparator countries, 
+                  for a given indicator the CTF scores in the bottom 25% of comparators may range between 0 and 0.2, 
+                  while for another indicator it may range between 0 and 0.5."
+                )
+              ),
+              
+              box(
+                width = 12,
+                collapsed = TRUE,
+                title = "Can I download the raw data for my own research/analytical purposes?",
+                p(
+                  "YES. The full compiled database, once updated, is available in the “Data” tab for download. 
+                  Both the “Closeness to Frontier” scores and the full database with yearly indicators are available for download, 
+                  and therefore users can easily verify the latest year available for each indicator."
+                )
+              ),
+              
+              box(
+                width = 12,
+                collapsed = TRUE,
+                title = "How do you choose the comparator countries/groups?",
+                p(
+                  "It depends on the purpose of the analysis and the country context. 
+                  For example, if this analysis is used in the SCDs, it is recommendable to use the regional, 
+                  aspirational and structural peers identified for the SCD."
+                )
+              )
+            )
+            
+            
+            
+          ),
+          
+          box(
+            width = 11,
+            status = "navy",
+            collapsed = TRUE,
             title = "Institutional families",
 
             p("The dashboard uses established well-institutional indicators, clustered into nine main institutional families:",

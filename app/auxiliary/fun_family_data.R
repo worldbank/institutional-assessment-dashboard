@@ -1,7 +1,3 @@
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# FUNCTION TO CREATE FAMILY LEVEL DATA BASED ON COUNTRIES -----------------------
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
 family_data <- function(data, base_country, variable_names) {
 
   na_indicators <-
