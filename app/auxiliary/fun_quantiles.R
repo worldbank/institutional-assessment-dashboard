@@ -35,7 +35,7 @@ def_quantiles <- function(data, base_country, country_list, comparison_countries
       country_name,
       all_of(variables)
     )
-print(quantiles)
+
 # Merge with variable dictionary
   quantiles <-
     quantiles %>%

@@ -160,7 +160,8 @@ group_ctf <-
 
 ctf <-
   ctf %>%
-  bind_rows(group_ctf)
+  bind_rows(group_ctf) %>%
+  ungroup
 
 write_rds(
   ctf,
@@ -180,12 +181,23 @@ ctf_long <-
   select(-contains("gdp")) %>%
   left_join(
     db_variables %>%
-      select(variable, var_name, family_name)
+      select(variable, var_name, family_name, family_var)
   ) %>%
   left_join(
     country_list %>%
       select(country_name, group)
   )
+
+ctf_long <-
+  ctf_long %>%
+  group_by(family_name, family_var, country_name, country_code, group) %>%
+  summarise(value = mean(value, na.rm = TRUE)) %>%
+  ungroup %>%
+  mutate(
+    variable = family_var,
+    var_name = family_name
+  ) %>%
+  bind_rows(ctf_long)
 
 write_rds(
   ctf_long,

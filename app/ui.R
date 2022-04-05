@@ -148,9 +148,8 @@ ui <-
                   selected = c("OECD members"),
                   multiple = TRUE,
                   options = list(
-                    size = 20,
-                    `actions-box` = TRUE,
-                    `live-search` = TRUE
+                    size = 21,
+                    `actions-box` = TRUE
                   )
                 )
               ),
@@ -174,7 +173,7 @@ ui <-
                   inputId = "benchmark_median",
                   label = "Show group median",
                   choices = append(
-                    "Comparison group",
+                    "Comparison countries",
                     group_list
                   ),
                   selected = NULL,
@@ -251,7 +250,7 @@ ui <-
                   width = 12,
                   plotlyOutput(
                     "plot",
-                    height = paste0(plot_height * .75, "px")
+                    height = paste0(plot_height * .8, "px")
                   )
                 )
 

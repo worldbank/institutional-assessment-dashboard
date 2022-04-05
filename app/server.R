@@ -199,6 +199,37 @@
 
         }
       )
+    
+    ## Make sure only valid groups are chosen ----------------------------------
+
+    observeEvent(
+      input$country,
+
+      {
+        
+        valid_vars <-
+          ctf_long %>%
+          filter(
+            country_name == input$country,
+            !is.na(value)
+          ) %>%
+          select(var_name) %>%
+          unique %>%
+          unlist %>%
+          unname
+        
+        updatePickerInput(
+          session,
+          "family",
+          choices = c(
+            "Overview",
+            intersect(names(definitions), valid_vars)
+          )
+        )
+      },
+
+      ignoreNULL = FALSE
+    )
 
     ## Median data ------------------------------------------------------------
     
@@ -217,6 +248,7 @@
 
 
     ## Browse data -------------------------------------------------------------
+    
     browse_data <-
       eventReactive(
         input$data,
@@ -485,8 +517,6 @@
             select(variable) %>%
             unlist
           
-          print(vars)
-
           if (input$data == "Compiled indicators") {
             vars_table <- c("Country", "Year", vars)
           } else {
@@ -494,7 +524,6 @@
           }
           vars_table <- unname(vars_table)
 
-          print(names(browse_data()))
           data <-
             browse_data() %>%
             rename(Country = country_name) %>%

@@ -1,6 +1,6 @@
 
 note_size <- 11
-note_chars <- 170
+note_chars <- 200
 color_groups <- colorRampPalette(c("#001f3f", "#60C2F7"))
 color_countries <- colorRampPalette(c("grey20", "grey50"))
 
@@ -253,7 +253,7 @@ interactive_plot <-
     x %>%
       ggplotly(tooltip = "text") %>%
       layout(
-        margin = list(l = 50, r = 50, t = 75, b = 150),
+        margin = list(l = 50, r = 50, t = 75, b = 200),
         annotations =
           list(
             x = -0.2,
