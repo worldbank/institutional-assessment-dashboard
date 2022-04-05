@@ -48,7 +48,7 @@
           session,
           "countries",
           label = NULL,
-          choices = global_data$country_name %>% unique %>% sort,
+          choices = countries,
           checkIcon = list(
             yes = icon("ok",
                        lib = "glyphicon")
