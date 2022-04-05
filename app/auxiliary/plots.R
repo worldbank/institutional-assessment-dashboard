@@ -19,7 +19,12 @@ plotly_remove_buttons <-
 # Benchmark plots ##############################################################
 
 static_plot <-
-  function(data, base_country, tab_name, group_median = NULL, title = TRUE, dots = TRUE) {
+  function(data, base_country,
+           tab_name, 
+           group_median = NULL, 
+           overview = FALSE,
+           title = TRUE, 
+           dots = TRUE) {
 
     data$var_name <-
       factor(
@@ -111,8 +116,10 @@ static_plot <-
           aes(
             y = var_name,
             x = dtf,
-            text = paste(" Country:", country_name,"<br>",
-                         "Closeness to frontier:", round(dtf, 3))
+            text = paste(
+              " Country:", country_name,"<br>",
+              "Closeness to frontier:", round(dtf, 3)
+            )
           ),
           shape = 21,
           size = 2,
@@ -123,17 +130,57 @@ static_plot <-
     }
 
     if (!is.null(group_median)) {
+      
+      if (!overview) {
+        median_data <- 
+          ctf_long %>%
+          filter(
+            var_name %in% data$var_name,
+            country_name %in% group_median
+          )
+      } else {
+        
+        median_data <-
+          ctf_long %>%
+          filter(
+            family_name %in% data$var_name,
+            group %in% group_median
+          ) %>%
+          group_by(
+            group,
+            family_name
+          ) %>%
+          summarise(
+            value = mean(value, na.rm = TRUE)
+          ) %>%
+          rename(
+            country_name = group,
+            var_name = family_name
+          )
+        
+      }
+
       plot <-
         plot +
         geom_point(
-          data = data %>% filter(group %in% group_medians),
-          aes(y = var_name,
-              x = dtf,
-              shape = country_name),
+          data = median_data,
+          aes(
+            y = var_name,
+            x = value,
+            shape = country_name,
+            text = paste(
+              " Group:", country_name,"<br>",
+              "Median closeness to frontier:", round(value, 3)
+            )
+          ),
           alpha = .5,
           color = "black",
-          fill = "transparent",
+          fill = "white",
           size = 3
+        ) +
+        scale_shape_manual(
+          values = 22:25,
+          lab = NULL
         )
     }
 
@@ -645,7 +692,7 @@ static_scatter <-
           unlist %>%
           unname
       )
-    
+
 
     data <-
       data %>%
@@ -654,13 +701,13 @@ static_scatter <-
           "Country: ", country_name, "<br>",
           ifelse(
             x_scatter == "Log GDP per capita, PPP",
-            paste("GDP per capita, PPP: ", gdp_pc_ppp_const %>% comma(digits = 2)),
-            paste(x_scatter, ": ", get(x) %>% round(3), "<br>")
+            paste0("GDP per capita, PPP: ", gdp_pc_ppp_const %>% comma(digits = 2), "<br>"),
+            paste0(x_scatter, ": ", get(x) %>% round(3), "<br>")
           ),
           ifelse(
             y_scatter == "Log GDP per capita, PPP",
-            paste("GDP per capita, PPP: ", gdp_pc_ppp_const %>% comma(digits = 2)),
-            paste(y_scatter, ": ", get(y) %>% round(3), "<br>")
+            paste0("GDP per capita, PPP: ", gdp_pc_ppp_const %>% comma(digits = 2), "<br>"),
+            paste0(y_scatter, ": ", get(y) %>% round(3), "<br>")
           )
         ),
         log = log(gdp_pc_ppp_const),

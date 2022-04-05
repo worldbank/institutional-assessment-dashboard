@@ -1,10 +1,3 @@
-packages <-
-  c("tidyverse",
-    "here")
-
-pacman::p_load(packages,
-               character.only = TRUE)
-
 db_variables <-
   readxl::read_excel(
     here(

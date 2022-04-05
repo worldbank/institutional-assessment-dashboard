@@ -180,7 +180,11 @@ ctf_long <-
   select(-contains("gdp")) %>%
   left_join(
     db_variables %>%
-      select(variable, var_name)
+      select(variable, var_name, family_name)
+  ) %>%
+  left_join(
+    country_list %>%
+      select(country_name, group)
   )
 
 write_rds(

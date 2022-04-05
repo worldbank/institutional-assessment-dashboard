@@ -18,8 +18,10 @@ library(hrbrthemes)
 
 ## Auxiliary functions -----------------------------------------------------------------
 
-source(here("auxiliary",
-                 "vars-control.R"))
+source(
+  here(
+    "auxiliary",
+    "vars-control.R"))
 
 # Function that defines quantiles based on country, comparison and variables
 source(here("auxiliary",
@@ -47,7 +49,8 @@ global_data <-
       "data",
       "closeness_to_frontier.rds"
     )
-  )
+  ) %>%
+  ungroup
 
 ctf_long <-
   read_rds(
@@ -65,6 +68,8 @@ definitions <-
   read_rds(here("data",
                      "indicator_definitions.rds"))
 
+names(definitions) <- names(definitions) %>% str_remove_all(" institutions")
+names(definitions)[5] <- "Justice"
 
 country_list <-
   read_rds(
@@ -107,15 +112,7 @@ db_variables <-
   left_join(
     period_info_by_variable,
     by = "variable"
-  ) %>%
-  mutate(
-    range =
-      ifelse(
-        var_level == "family",
-        NA,
-        paste0(min, "-", max)
-      )
-  )
+  ) 
 
 # Options ---------------------------------------------------------
 
@@ -138,15 +135,15 @@ countries <-
 
 variable_list <-
   list(
-    `Anti-Corruption, Transparency and Accountability institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
-    `Business environment and trade institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_mkt") %>% .$var_name),
-    `Financial market institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
+    `Anti-Corruption, Transparency and Accountability` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
+    `Business environment and trade` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_mkt") %>% .$var_name),
+    `Financial market` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
     `SOE Corporate Governance` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_service_del") %>% .$var_name),
-    `Labor market institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_lab") %>% .$var_name),
-    `Legal institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_leg") %>% .$var_name),
-    `Political institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_pol") %>% .$var_name),
-    `Public sector institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_publ") %>% .$var_name),
-    `Social institutions` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_social") %>% .$var_name)
+    `Labor market` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_lab") %>% .$var_name),
+    `Justice` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_leg") %>% .$var_name),
+    `Political` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_pol") %>% .$var_name),
+    `Public sector` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_publ") %>% .$var_name),
+    `Social` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_social") %>% .$var_name)
   )
 
 group_list <-

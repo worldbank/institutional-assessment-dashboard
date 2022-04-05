@@ -118,15 +118,15 @@
         input$select,
         {
 
-          if (input$family == "Labor market institutions") {vars_lab} else
-            if (input$family == "Financial market institutions") {vars_fin} else
-              if (input$family == "Legal institutions") {vars_leg} else
-                if (input$family == "Political institutions") {vars_pol} else
-                  if (input$family == "Social institutions") {vars_social} else
-                    if (input$family == "Business environment and trade institutions") {vars_mkt} else
-                      if (input$family == "Public sector performance institutions") {vars_publ} else
+          if (input$family == "Labor market") {vars_lab} else
+            if (input$family == "Financial market") {vars_fin} else
+              if (input$family == "Justice") {vars_leg} else
+                if (input$family == "Political") {vars_pol} else
+                  if (input$family == "Social") {vars_social} else
+                    if (input$family == "Business environment and trade") {vars_mkt} else
+                      if (input$family == "Public sector performance") {vars_publ} else
                         if (input$family == "SOE Corporate Governance") {vars_service_del} else
-                          if (input$family == "Anti-Corruption, Transparency and Accountability institutions") {vars_transp} else
+                          if (input$family == "Anti-Corruption, Transparency and Accountability") {vars_transp} else
                             if (input$family == "Overview") {vars_all}
         }
       )
@@ -167,7 +167,6 @@
     data_family <-
       eventReactive(
         input$select,
-
         {
           family_data(
             global_data,
@@ -201,52 +200,17 @@
       )
 
     ## Median data ------------------------------------------------------------
-
-    median_family_group_data <-
+    
+    data_family_median <-
       eventReactive(
-        input$add_median,
-
+        input$select,
+        
         {
-          global_data %>%
-            filter(country_name %in% c(input$ba))
-
-          global_data %>%
-            filter(country_name %in% c(input$group_medians)) %>%
-            left_join(
-              family_data(
-                global_data,
-                base_country(),
-                variable_names
-              ),
-              by = c("country_name")
-            ) %>%
-            pivot_longer(
-              cols = all_of(family_names),
-              names_to = "variable"
-            ) %>%
-            left_join(
-              variable_names,
-              by = "variable"
-            ) %>%
-            filter(!is.na(value)) %>%
-            group_by(variable, var_name) %>%
-            mutate(
-              dtt = percent_rank(value),
-              q25 = quantile(value, c(0.25)),
-              q50 = quantile(value, c(0.5)),
-              status = case_when(
-                dtt <= .25 ~ "Weak\n(bottom 25%)",
-                dtt > .25 & dtt <= .50 ~ "Emerging\n(25% - 50%)",
-                dtt > .50 ~ "Strong\n(top 50%)"
-              )
-            ) %>%
-            ungroup %>%
-            rename(dtf = value) %>%
-            group_by(group, var_name) %>%
-            summarise(dtf = median(dtf, na.rm = TRUE)) %>%
-            mutate(group_med = paste0(group," Median")) %>%
-            rename(country_name = group_med)
-
+          family_data(
+            global_data,
+            base_country(),
+            variable_names
+          )
         }
       )
 
@@ -300,12 +264,13 @@
 
               missing_variables <- c(missing_variables,low_variance_variables)
 
-              data_family() %>%
+              data_family()  %>%
                 static_plot(
                   base_country(),
                   input$family,
                   dots = input$benchmark_dots,
-                  group_median = input$benchmark_median
+                  group_median = input$benchmark_median,
+                  overview = TRUE
                 ) %>%
                 interactive_plot(
                   base_country(),
@@ -391,7 +356,7 @@
       renderPlotly({
         static_scatter(
           global_data,
-          input$country,
+          input$country_scatter,
           input$countries,
           high_group(),
           input$y_scatter,
@@ -667,8 +632,7 @@
             Indicator = var_name,
             Family = family_name,
             Description = description,
-            Source = source,
-            Period = range
+            Source = source
           )
 
       })
@@ -685,8 +649,7 @@
               Indicator = var_name,
               Family = family_name,
               Description = description,
-              Source = source,
-              Period = range
+              Source = source
             )
 
         })
@@ -704,8 +667,7 @@
                 indicator = var_name,
                 family = family_name,
                 description,
-                source,
-                range
+                source
               ),
               file,
               na = ""
