@@ -572,7 +572,7 @@
       # Downloadable rds of selected dataset
       output$download_global_rds <-
         downloadHandler(
-          filename = "data.rds",
+          filename = "gbid-data.rds",
 
           content = function(file) {
             write_rds(browse_data(),
@@ -583,7 +583,7 @@
       # Downloadable csv of selected dataset
       output$download_global_csv <-
         downloadHandler(
-          filename = "data.csv",
+          filename = "gbid-data.csv",
 
           content = function(file) {
             write_csv(browse_data(),
@@ -595,7 +595,7 @@
       # Downloadable dta of selected dataset
       output$download_global_dta <-
         downloadHandler(
-          filename = "data.dta",
+          filename = "gbid-data.dta",
 
           content = function(file) {
             write_dta(browse_data(),
