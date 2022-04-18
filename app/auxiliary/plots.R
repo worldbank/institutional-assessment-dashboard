@@ -19,10 +19,10 @@ plotly_remove_buttons <-
 # Benchmark plots ##############################################################
 
 static_plot <-
-  function(data, base_country,
+  function(data, 
+           base_country,
            tab_name, 
            group_median = NULL, 
-           overview = FALSE,
            title = TRUE, 
            dots = FALSE,
            note = NULL) {
@@ -34,6 +34,13 @@ static_plot <-
                       decreasing = TRUE),
         ordered = TRUE
       )
+    
+    vars <- 
+      data %>%
+      select(var_name) %>%
+      unique %>% 
+      unlist %>% 
+      unname
 
     colors <-
       c("Weak\n(bottom 25%)" = "#D2222D",
@@ -133,36 +140,47 @@ static_plot <-
           alpha = .5
         )
     }
-
+    
     if (!is.null(group_median)) {
       
-      if (!overview) {
-        median_data <- 
+      median_data <-
+        ctf_long %>%
+        filter(
+          var_name %in% vars,
+          country_name %in% group_median
+        ) %>%
+        select(
+          var_name, 
+          value, 
+          country_name
+        )
+      
+      if ("Comparison countries" %in% group_median) {
+        
+        countries <-
           ctf_long %>%
           filter(
-            var_name %in% data$var_name,
-            country_name %in% group_median
-          )
-      } else {
+            var_name %in% vars,
+            country_name %in% data$country_name,
+            country_name != base_country
+          ) %>%
+          mutate(
+            country_name = "Comparison countries",
+            group = NA
+          ) %>%
+          unique %>%
+          group_by(
+            country_name,
+            var_name
+          ) %>%
+          summarise(value = median(value, na.rm = TRUE)) %>%
+          ungroup
+        
+        print(countries)
         
         median_data <-
-          ctf_long %>%
-          filter(
-            family_name %in% data$var_name,
-            group %in% group_median
-          ) %>%
-          group_by(
-            group,
-            family_name
-          ) %>%
-          summarise(
-            value = mean(value, na.rm = TRUE)
-          ) %>%
-          rename(
-            country_name = group,
-            var_name = family_name
-          )
-        
+          median_data %>%
+          bind_rows(countries)
       }
 
       plot <-

@@ -302,8 +302,7 @@
                   base_country(),
                   input$family,
                   dots = input$benchmark_dots,
-                  group_median = input$benchmark_median,
-                  overview = TRUE
+                  group_median = input$benchmark_median
                 ) %>%
                 interactive_plot(
                   base_country(),
