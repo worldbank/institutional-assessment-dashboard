@@ -620,6 +620,13 @@
 
       content = function(file) {
 
+        show_modal_spinner(
+          color = "#17a2b8",
+          text = "Compiling report",
+        )
+        
+        on.exit(remove_modal_spinner())
+        
         tempReport <- file.path(tempdir(), "report.Rmd")
         file.copy("report.Rmd", tempReport, overwrite = TRUE)
 
