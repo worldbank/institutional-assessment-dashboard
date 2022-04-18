@@ -803,8 +803,7 @@ ui <-
         
         tabItem(
           tabName = "faq",
-          title = "Frequently asked questions",
-          
+
           box(
             width = 11,
             status = "navy",
@@ -818,7 +817,7 @@ ui <-
           
       
           box(
-            width = 12,
+            width = 11,
             status = "navy",
             collapsed = TRUE,
             title = "Can I add my own indicators to the dashboard and run the analysis including these indicators? ",
@@ -832,7 +831,7 @@ ui <-
           ),
               
           box(
-            width = 12,
+            width = 11,
             status = "navy",
             collapsed = TRUE,
             title = "Is the “Closeness to Frontier” methodology the same one used in the “Doing Business Report”?",
@@ -844,7 +843,7 @@ ui <-
           ),
               
           box(
-            width = 12,
+            width = 11,
             status = "navy",
             collapsed = TRUE,
             title = "How often is the G-BID updated? How do I know that the G-BID uses the latest available data?",
@@ -857,7 +856,7 @@ ui <-
           ),
               
           box(
-            width = 12,
+            width = 11,
             status = "navy",
             collapsed = TRUE,
             title = "Is the G-BID available to external users (i.e non-bank staff) ?",
@@ -869,7 +868,7 @@ ui <-
           ),
               
           box(
-            width = 12,
+            width = 11,
             status = "navy",
             collapsed = TRUE,
             title = "What does the traffic coloring means? ",
@@ -885,7 +884,7 @@ ui <-
           ),
           
           box(
-            width = 12,
+            width = 11,
             status = "navy",
             collapsed = TRUE,
             title = "Why the length of the bar is different? Why a red bar is longer than another red bar, if they are both red?",
@@ -903,7 +902,7 @@ ui <-
           ),
               
           box(
-            width = 12,
+            width = 11,
             status = "navy",
             collapsed = TRUE,
             title = "Can I download the raw data for my own research/analytical purposes?",
@@ -915,7 +914,7 @@ ui <-
           ),
               
           box(
-            width = 12,
+            width = 11,
             status = "navy",
             collapsed = TRUE,
             title = "How do you choose the comparator countries/groups?",
