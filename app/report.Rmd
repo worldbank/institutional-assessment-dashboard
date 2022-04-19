@@ -168,7 +168,7 @@ for (family in names(definitions)) {
 }
 ```
 
-Appendix C - The risks and limitations of the benchmarking analysis
+# Appendix C - The risks and limitations of the benchmarking analysis
 
 **Data coverage.** Ultimately, the quality of a benchmarking exercise is a function of the quality and availability of the indicators used for the analysis. The cross-country indicators used can have significant limitations and might fail to capture important information relative to the institutional functions under analysis. They may also not be updated regularly and/or not be available for the whole set of countries of interest. There is also a risk in focusing only on what is known from the international media and official government sources, which are often the main sources of cross-country expert assessments but do not necessarily reflect the perception and views of ordinary citizens and local actors on the ground (World Bank, 2020). Finally, important functional areas worth exploring are simply not subject to a benchmarking analysis due do the lack of international benchmarking indicators. A clear example of this is the governance of climate change, where there is a clear gap in quantitative data available both in terms of spatial and temporal coverage. While this limits the scope of the benchmarking exercise, new indicators are being constantly developed and produced, requiring a process to regularly update the selection of indicators considered for the institutional benchmarking and—possibly—revise the organization of the institutional clusters. 
 
