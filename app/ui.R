@@ -845,40 +845,19 @@ ui <-
             width = 11,
             status = "navy",
             collapsed = TRUE,
-            title = "How often is the G-BID updated? How do I know that the G-BID uses the latest available data?",
+            title = "What does the traffic coloring mean? Is there a methodological foundation?",
             p(
-              "It is currently planned that the G-BID will be updated once or twice a year, depending on demands and usage. 
-              The full compiled database, once updated, is available in the “Data” tab for download. 
-              Both the “Closeness to Frontier” scores and the full database with yearly indicators are available for download, 
-              and therefore users can easily verify the latest year available for each indicator."
-            )
-          ),
-              
-          box(
-            width = 11,
-            status = "navy",
-            collapsed = TRUE,
-            title = "Is the G-BID available to external users (i.e non-bank staff) ?",
-            p(
-              "As of now, the G-BID is not available for external users. 
-              The team will consider making the dashboard publicly available it has been tested and validated through a
-              few pilots, and depending on demands and usage."
-            )
-          ),
-              
-          box(
-            width = 11,
-            status = "navy",
-            collapsed = TRUE,
-            title = "What does the traffic coloring means? ",
-            p(
-              "The results from the institutional benchmarking are relative for a given country of interest vis a vis a chosen set of comparator countries. 
+              "The results from the institutional benchmarking are relative for 
+              a given country of interest vis a vis a chosen set of comparator countries. 
               Using the distribution of the CTF scores in the set of comparator countries, 
               we identify the score range for the bottom 25% of comparators, 
-              the score range for the 25%-50% group and the score range for the top 50% of comparators. 
+              the score range for the 25%-50% group and the score range for the top 50% of comparators.
               Given the CTF score of the country of interest, 
               we identify whether the country of interest for the analysis belong to the bottom, 
-              middle or top group."
+              middle or top group. 
+              These percentile groups are used because they are simple, intuitive and standards. 
+              The sensitivity analysis shows that most of the results are not sensitive to this choice,
+              and for example would be robust if the grouping 0-33%, 33%-66%, 66%+ would be used."
             )
           ),
           
@@ -899,16 +878,44 @@ ui <-
               while for another indicator it may range between 0 and 0.5."
             )
           ),
-              
+
           box(
             width = 11,
             status = "navy",
             collapsed = TRUE,
-            title = "Can I download the raw data for my own research/analytical purposes?",
+            title = "How do you deal with missing data for certain indicators and for certain countries?",
             p(
-              "YES. The full compiled database, once updated, is available in the “Data” tab for download. 
-              Both the “Closeness to Frontier” scores and the full database with yearly indicators are available for download, 
-              and therefore users can easily verify the latest year available for each indicator."
+              "We deal with missing data in various ways. 
+              First, the benchmarking analysis uses the average of indicators over recent years. 
+              Conceptually, governance and institutional indicators are expected to show limited yearly variations. 
+              This helps in reducing data gaps. 
+              Second, we only include in the institutional benchmarking the indicators that 
+              are non-missing for the country of interest. 
+              Third, we only include in the institutional benchmarking the indicators 
+              that are non-missing for at least 70% of the countries in the comparator group. 
+              The average CTF scores at institutional cluster level are calculated 
+              as averages of the CTF scores of the indicators in that clusters, 
+              but only for the indicators that meet these criteria above. 
+              This ensures that, 
+              for each pair of country of interest and group of comparator countries, 
+              the average CTF scores are calculated from the same indicators."
+            )
+          ),
+          
+          box(
+            width = 11,
+            status = "navy",
+            collapsed = TRUE,
+            title = "Why do I have to choose at least 10 comparator countries for the benchmarking analysis?",
+            p(
+              "The percentile analysis identifies whether the performance of the 
+              country of interest in a given indicator or institutional cluster 
+              belongs to the bottom 25%, the 25%-50% group or the top 50% of 
+              the comparator countries. 
+              This percentile analysis can be meaningfully performed only if 
+              there is sufficient number of comparator countries.
+              Given the definition of the traffic coloring,
+              it is recommended to use a group of comparator countries which is aspirational."
             )
           ),
               
@@ -922,7 +929,72 @@ ui <-
               For example, if this analysis is used in the SCDs, it is recommendable to use the regional, 
               aspirational and structural peers identified for the SCD."
             )
+          ),
+          
+          box(
+            width = 11,
+            status = "navy",
+            collapsed = TRUE,
+            title = "Can I download the raw data for my own research/analytical purposes?",
+            p(
+              'YES. The full compiled database, once updated, is available in the "Data" tab for download.
+              Both the "Closeness to Frontier" scores and the full database with yearly indicators are available for download,
+              and therefore users can easily verify the latest year available for each indicator.'
+            )
+          ),
+          
+          box(
+            width = 11,
+            status = "navy",
+            collapsed = TRUE,
+            title = "How often is the G-BID updated? How do I know that the G-BID uses the latest available data?",
+            p(
+              'It is currently planned that the G-BID will be updated once or twice a year, 
+              depending on demands and usage. 
+              The G-BID is programmed so that the data extraction from the data sources (primarily gov360) 
+              is automated through APIs, 
+              therefore with minimal maintenance costs for the indicators already 
+              included in the dashboard and with stable APIs. The full compiled database, 
+              once updated, is available in the "Data" tab for download. 
+              Both the "Closeness to Frontier"" scores and the full database with 
+              yearly indicators are available for download, 
+              and therefore users can easily verify the latest year available for each indicator.'
+            )
+          ),
+          
+          box(
+            width = 11,
+            status = "navy",
+            collapsed = TRUE,
+            title = "How were the indicators included in G-BID selected?",
+            p(
+              'The indicators included in the G-BID were selected following two criteria:
+              geographical coverage and quality. 
+              This list was defined based on initial internal reviews, 
+              and will be further refined based on inputs recently received by 
+              sector experts and from the experiences of country teams in applying this tool. 
+              For example, the team is currently considering expanding the existing 
+              database in order to include indicators from additional data sources, 
+              such as PEFA, Tax DIAMOND and Regional Barometers. 
+              The list of indicators used in the G-BID will be periodically 
+              reviewed in order to include new governance and institutions indicators 
+              that may be become available in the future. 
+              The G-BID is a "live tool".'
+            )
+          ),
+          
+          box(
+            width = 11,
+            status = "navy",
+            collapsed = TRUE,
+            title = "Is the G-BID available to external users (i.e non-bank staff) ?",
+            p(
+              "As of now, the G-BID is not available for external users.
+              The team will consider making the dashboard publicly available it has been tested and validated through a
+              few pilots, and depending on demands and usage."
+            )
           )
+          
         ) # Close FAQ tab
       )
     )
