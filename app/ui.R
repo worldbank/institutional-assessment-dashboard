@@ -48,15 +48,14 @@ ui <-
         tabItem(
           tabName = "home",
 
-          userBox(
+          bs4Card(
             width = 12,
             status = "navy",
-
-            title = userDescription(
-              title = h2("Global Benchmarking Institutions Dashboard"),
-              type = 1,
-              image = "world-bank-logo.png"
-            ),
+            solidHeader = TRUE,
+            title = 
+              span(
+                img(src = "cliar.png", width = "80%")
+              ),
 
             br(),
             p("The World Bank recognizes institutional strengthening as key ingredient for progress of its members countries along income categories. While there are numerous diagnostic and assessment tools for specific functional areas such as public financial management and tax administration, there is no analytical tool for country-level institutional assessment."),
