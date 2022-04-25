@@ -4,6 +4,7 @@ subtitle: Institutional Benchmarking
 output: 
   word_document
 params:
+  banner: NA
   base_country: NA
   variable_names: NA
   definitions: NA
@@ -30,7 +31,7 @@ knitr::opts_chunk$set(
 
   source(file.path("auxiliary",
                    "plots.R"))
-  
+
   source <- 
     "Source: Authors’ elaboration using CLIAR’s Interactive Online Dashboard."
   
@@ -44,6 +45,12 @@ knitr::opts_chunk$set(
       params$base_country,
       " relative to comparator countries, as follows: red = weak institutional capital (bottom 25 percent); yellow = emerging institutional capital (25 percent–50 percent); green = strong institutional capital (top 50 percent). See World Bank (2021) for a detailed discussion on the methodology as well as a detail description and sources of indicators in each institutional cluster."
     )
+```
+
+```{r}
+
+knitr::include_graphics(params$banner)
+
 ```
 
 **Base country:** `r params$base_country`

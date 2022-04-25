@@ -14,7 +14,7 @@
       )
 
     ## Comparison countries ----------------------------------------------------
-    
+
     observeEvent(
       input$groups,
 
@@ -199,14 +199,14 @@
 
         }
       )
-    
+
     ## Make sure only valid groups are chosen ----------------------------------
 
     observeEvent(
       input$country,
 
       {
-        
+
         valid_vars <-
           ctf_long %>%
           filter(
@@ -217,7 +217,7 @@
           unique %>%
           unlist %>%
           unname
-        
+
         updatePickerInput(
           session,
           "family",
@@ -232,11 +232,11 @@
     )
 
     ## Median data ------------------------------------------------------------
-    
+
     data_family_median <-
       eventReactive(
         input$select,
-        
+
         {
           family_data(
             global_data,
@@ -248,7 +248,7 @@
 
 
     ## Browse data -------------------------------------------------------------
-    
+
     browse_data <-
       eventReactive(
         input$data,
@@ -515,7 +515,7 @@
             ) %>%
             select(variable) %>%
             unlist
-          
+
           if (input$data == "Compiled indicators") {
             vars_table <- c("Country", "Year", vars)
           } else {
@@ -547,7 +547,7 @@
             )
 
           }
-          
+
         datatable(
           data %>%
             setnames(
@@ -623,14 +623,20 @@
           color = "#17a2b8",
           text = "Compiling report",
         )
-        
+
         on.exit(remove_modal_spinner())
-        
-        tempReport <- file.path(tempdir(), "report.Rmd")
+
+        tmp_dir <- tempdir()
+
+        tempReport <- file.path(tmp_dir, "report.Rmd")
+        tmp_pic <- file.path(tmp_dir, report_images[[1]])
+
         file.copy("report.Rmd", tempReport, overwrite = TRUE)
+        file.copy(report_images[[1]], tmp_pic, overwrite = TRUE)
 
         params <-
           list(
+            banner = report_images[[1]],
             base_country = base_country(),
             comparison_countries = input$countries,
             data = data(),
