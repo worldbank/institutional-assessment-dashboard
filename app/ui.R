@@ -467,7 +467,7 @@ ui <-
 
             fluidRow(
               column(
-                width = 3,
+                width = 4,
                 pickerInput(
                   "indicator_trends",
                   label = "Select indicator to visualize",
@@ -482,22 +482,22 @@ ui <-
                 )
               ),
 
-              column(
-                width = 3,
-                pickerInput(
-                  "country_trends",
-                  label = "Select a base country",
-                  choices = countries,
-                  selected = "Uruguay",
-                  multiple = FALSE,
-                  options = list(
-                    size = 23
-                  )
-                )
-              ),
+              #column(
+              #  width = 3,
+              #  pickerInput(
+              #    "country_trends",
+              #    label = "Select a base country",
+              #    choices = countries,
+              #    selected = "Uruguay",
+              #    multiple = FALSE,
+              #    options = list(
+              #      size = 23
+              #    )
+              #  )
+              #),
 
               column(
-                width = 3,
+                width = 4,
                 pickerInput(
                   "group_trends",
                   label = "Select comparison groups",
@@ -513,7 +513,7 @@ ui <-
               ),
 
               column(
-                width = 3,
+                width = 4,
                 pickerInput(
                   "countries_trends",
                   label = "Select comparison countries",

@@ -490,7 +490,7 @@
             raw_data,
             var_trends(),
             input$indicator_trends,
-            input$country_trends,
+            input$country,
             input$countries_trends,
             country_list,
             input$group_trends,
