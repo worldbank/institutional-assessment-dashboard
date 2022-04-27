@@ -388,7 +388,7 @@
       renderPlotly({
         static_scatter(
           global_data,
-          input$country_scatter,
+          input$country,
           input$countries,
           high_group(),
           input$y_scatter,

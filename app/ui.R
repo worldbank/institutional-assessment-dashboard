@@ -364,23 +364,23 @@ ui <-
 
             fluidRow(
 
-              column(
-                width = 3,
-                pickerInput(
-                  "country_scatter",
-                  label = "Select a base country",
-                  choices = countries,
-                  selected = "Uruguay",
-                  multiple = FALSE,
-                  options = list(
-                    size = 20,
-                    `actions-box` = TRUE
-                  )
-                )
-              ),
+              #column(
+              #  width = 3,
+              #  pickerInput(
+              #    "country_scatter",
+              #    label = "Select a base country",
+              #    choices = countries,
+              #    selected = "Uruguay",
+              #    multiple = FALSE,
+              #    options = list(
+              #      size = 20,
+              #      `actions-box` = TRUE
+              #    )
+              #  )
+              #),
 
               column(
-                width = 3,
+                width = 4,
                 pickerInput(
                   "y_scatter",
                   label = "Select indicator for Y axis",
@@ -399,7 +399,7 @@ ui <-
               ),
 
               column(
-                width = 3,
+                width = 4,
                 pickerInput(
                   "x_scatter",
                   label = "Select indicator for X axis",
@@ -418,7 +418,7 @@ ui <-
               ),
 
               column(
-                width = 3,
+                width = 4,
                 pickerInput(
                   "high_group",
                   label = "Highlight a group",
