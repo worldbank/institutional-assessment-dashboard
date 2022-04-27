@@ -361,8 +361,8 @@
         {
           static_bar(
             global_data,
-            input$country_bar,
-            input$countries_bar,
+            input$country,
+            input$countries,
             input$groups_bar,
             input$vars_bar,
             variable_names
