@@ -1,3 +1,5 @@
+pacman::p_load("tidyverse","here")
+
 # Import variables data and variables control ==============================
 source(file.path("app/auxiliary",
                  "vars-control.R"))
