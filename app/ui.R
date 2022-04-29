@@ -10,7 +10,7 @@ ui <-
     dashboardHeader(
 
       title = dashboardBrand(
-        title = "Global Benchmarking Institutions Dashboard ",
+        title = "Global Benchmarking Institutions Dashboard"
       ),
       status = "white",
       border = TRUE,
@@ -782,6 +782,9 @@ ui <-
               "Income classifications set on 1 July 2020 remain in effect until 1 July 2021.",
               "Argentina, which was temporarily unclassified in July 2016 pending release of revised national accounts statistics,",
               "was classified as upper middle income for FY17 as of 29 September 2016 based on alternative conversion factors."
+            ),
+            p(
+              "OECD members are: ", paste0(paste(country_list %>% filter(group_code=="OED") %>% .$country_name, collapse = ", "),".")
             )
           ),
 
