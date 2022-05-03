@@ -718,5 +718,16 @@
         }
       )
 
+  # Full methodology --------------------------------------------------------
+    output$download_metho <-
+      downloadHandler(
+        filename = "CLIAR-Methodological-Note_20220403.pdf",
+
+        content = function(file) {
+          file.copy("www/CLIAR-Methodological-Note_20220403.pdf", file)
+        }
+
+      )
+
   }
 

@@ -799,7 +799,17 @@ ui <-
             downloadButton("download_indicators",
                            "Download indicator definitions",
                            style = "background-color: #204d74; color: white")
+          ),
+
+          box(
+            width = 11,
+            status = "navy",
+            title = "Where can I find additional information on the methodology?",
+            downloadButton("download_metho",
+                           "Download complete methodology",
+                           style = "background-color: #204d74; color: white")
           )
+
         ),
 
 ## FAQ tab =====================================================================
