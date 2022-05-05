@@ -23,6 +23,13 @@ performance for indicator $i$ among all countries and in the last $y$ years (201
 Ideally, this will use data for the last 7 years in any given year
 
 ```{r}
+source(
+  here(
+    "app",
+    "auxiliary",
+    "vars-control.R"
+  )
+)
 
 definitions <-
   read_rds(
@@ -41,8 +48,19 @@ data <-
     )
   ) %>%
   filter(
-    year >= 2013
+    year %in% c(2014:2016)
+    # year %in% c(2017:2020)
+    # year %in% c(2014:2020)
   )
+
+if (min(data$year)==2014 & max(data$year)==2020){
+  data_name <- ""
+} else if (min(data$year)==2014 & max(data$year)==2016){
+  data_name <- "_2014_2016"
+} else if (min(data$year)==2017 & max(data$year)==2020){
+  data_name <- "_2017_2020"
+}
+   
 ```
 
 
@@ -143,7 +161,7 @@ group_ctf <-
   ) %>%
   summarise(
     across(
-      bribes:soe_report_legislative,
+      all_of(vars_all),
       ~ median(., na.rm = TRUE)
     )     
   ) %>%
@@ -151,7 +169,7 @@ group_ctf <-
   select(
     group,
     group_code,
-    bribes:soe_report_legislative
+    all_of(vars_all)
   ) %>%
   rename(
     country_name = group,
@@ -168,7 +186,7 @@ write_rds(
   here(
     "data",
     "final",
-    "closeness_to_frontier.rds"
+    paste0("closeness_to_frontier", data_name, ".rds")
   )
 )
 
@@ -204,7 +222,28 @@ write_rds(
   here(
     "data",
     "final",
-    "closeness_to_frontier_long.rds"
+    paste0("closeness_to_frontier_long", data_name, ".rds")
+  )
+)
+```
+
+
+```{r}
+write_rds(
+  ctf,
+  here(
+    "app",
+    "data",
+    paste0("closeness_to_frontier", data_name, ".rds")
+  )
+)
+
+write_rds(
+  ctf_long,
+  here(
+    "app",
+    "data",
+    paste0("closeness_to_frontier_long", data_name, ".rds")
   )
 )
 ```

@@ -43,22 +43,22 @@ source(here("auxiliary",
 # Data -------------------------------------------------------------
 
 
-global_data <-
-  read_rds(
-    here(
-      "data",
-      "closeness_to_frontier.rds"
-    )
-  ) %>%
-  ungroup
-
-ctf_long <-
-  read_rds(
-    here(
-      "data",
-      "closeness_to_frontier_long.rds"
-    )
-  )
+# global_data <-
+#   read_rds(
+#     here(
+#       "data",
+#       "closeness_to_frontier.rds"
+#     )
+#   ) %>%
+#   ungroup
+# 
+# ctf_long <-
+#   read_rds(
+#     here(
+#       "data",
+#       "closeness_to_frontier_long.rds"
+#     )
+#   )
 
 country_groups <-
   read_rds(here("data",

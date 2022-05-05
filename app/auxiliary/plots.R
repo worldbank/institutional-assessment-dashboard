@@ -86,14 +86,14 @@ static_plot <-
           alpha = .3
         ) +
         theme_minimal() +
-        theme(legend.position = "top",
+        theme(legend.position = "bottom",
               panel.grid.minor = element_blank(),
               axis.ticks = element_blank(),
               axis.text = element_text(color = "black"),
               axis.text.y = element_text(size = 12),
               axis.text.x = element_text(size = 11),
               legend.box = "vertical",
-              plot.caption = element_text(size = 8,
+              plot.caption = element_text(size = 12,
                                           hjust = 0),
               plot.caption.position =  "plot") +
         labs(
@@ -101,7 +101,7 @@ static_plot <-
           x = "Closeness to Frontier",
           fill = NULL,
           shape = NULL,
-          caption = note
+          caption = paste0("Source: GBID developed as part of the CLAIR framework (GOV GP).\n", note)
         ) +
         scale_fill_manual(
           values = colors
@@ -110,7 +110,7 @@ static_plot <-
     if (title) {
       plot <-
         plot +
-        labs(title = paste0("<b>", tab_name, "</b>"))
+        labs(title = paste0(tab_name))
     }
 
     if (dots) {
