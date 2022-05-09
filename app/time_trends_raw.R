@@ -1,6 +1,8 @@
 library(tidyverse)
+library(ggtext)
 library(here)
 
+source("global.R")
 source("auxiliary/vars-by-family.R")
 
 comparison_group <- c(
@@ -35,14 +37,25 @@ data <-
     )
   ) 
 
+note_chart <- 120
+
+# Functions ----------------------------------------------------------
+
 make_plot_jordan <- function(x) {
+  source <- db_variables %>% 
+    filter(variable == x) %>% 
+    .$`source`
+  
+  note <- db_variables %>% 
+    filter(variable == x) %>% 
+    .$`description`
   
   values <- data %>% 
     group_by(groups) %>% 
     summarise(
       min = min(.data[[x]], na.rm = TRUE),
       max = max(.data[[x]], na.rm = TRUE),
-      sd = sd(.data[[x]], na.rm = TRUE)
+      sd = sd(.data[[x]],   na.rm = TRUE)
     )
   
   limits <- c(min(values$min + (-2 * values$sd)), max(values$max + (2 * values$sd)))
@@ -64,7 +77,25 @@ make_plot_jordan <- function(x) {
     labs(
       x = NULL,
       y = NULL,
-      color = NULL
+      color = NULL,
+      caption = 
+        paste(
+          stringr::str_wrap(
+            paste(
+              "**Definition:**",
+              note
+            ),
+            note_chart
+          ),
+          stringr::str_wrap(
+            paste(
+              "**Source:**",
+              source
+            ),
+            note_chart
+          ),
+          sep = "<br>"
+        ) %>% str_replace_all(., "\\n", "<br>")
     ) +
     theme_minimal() +
     theme(
@@ -72,14 +103,12 @@ make_plot_jordan <- function(x) {
       legend.position = "bottom",
       legend.title = element_text(size = 12, face = "bold"),
       legend.text  = element_text(size = 12),
-      # legend.box.just = "top",
-      # legend.spacing = unit(3, "cm"),
       panel.grid.minor = element_blank(),
       axis.ticks   = element_blank(),
       axis.text    = element_text(color = "black"),
       axis.text.y  = element_text(size = 12, hjust = 0),
       axis.text.x  = element_text(size = 12, angle = 45, vjust = 0.5),
-      plot.caption = element_text(size = 12, hjust = 1),
+      plot.caption = element_markdown(size = 12, hjust = 0),
       plot.caption.position =  "plot"
     ) 
   
@@ -87,6 +116,14 @@ make_plot_jordan <- function(x) {
 }
 
 make_plot_groups <- function(x) {
+  source <- db_variables %>% 
+    filter(variable == x) %>% 
+    .$`source`
+  
+  note <- db_variables %>% 
+    filter(variable == x) %>% 
+    .$`description`
+  
   values <- data %>% 
     group_by(groups) %>% 
     summarise(
@@ -114,7 +151,25 @@ make_plot_groups <- function(x) {
     labs(
       x = NULL,
       y = NULL,
-      color = NULL
+      color = NULL,
+      caption = 
+        paste(
+          stringr::str_wrap(
+            paste(
+              "**Definition:**",
+              note
+            ),
+            note_chart
+          ),
+          stringr::str_wrap(
+            paste(
+              "**Source:**",
+              source
+            ),
+            note_chart
+          ),
+          sep = "<br>"
+        ) %>% str_replace_all(., "\\n", "<br>")
     ) +
     theme_minimal() +
     theme(
@@ -122,21 +177,28 @@ make_plot_groups <- function(x) {
       legend.position = "bottom",
       legend.title = element_text(size = 12, face = "bold"),
       legend.text  = element_text(size = 12),
-      # legend.box.just = "top",
-      # legend.spacing = unit(3, "cm"),
       panel.grid.minor = element_blank(),
       axis.ticks   = element_blank(),
       axis.text    = element_text(color = "black"),
       axis.text.y  = element_text(size = 12, hjust = 0),
       axis.text.x  = element_text(size = 12, angle = 45, vjust = 0.5),
-      plot.caption = element_text(size = 12, hjust = 1),
+      plot.caption = element_markdown(size = 12, hjust = 0),
       plot.caption.position =  "plot"
     ) 
+  
   
   plot
 }
 
 make_plot <- function(x) {
+  source <- db_variables %>% 
+    filter(variable == x) %>% 
+    .$`source`
+  
+  note <- db_variables %>% 
+    filter(variable == x) %>% 
+    .$`description`
+  
   values <- data %>% 
     group_by(groups) %>% 
     summarise(
@@ -163,7 +225,25 @@ make_plot <- function(x) {
     labs(
       x = NULL,
       y = NULL,
-      color = NULL
+      color = NULL,
+      caption = 
+        paste(
+          stringr::str_wrap(
+            paste(
+              "**Definition:**",
+              note
+            ),
+            note_chart
+          ),
+          stringr::str_wrap(
+            paste(
+              "**Source:**",
+              source
+            ),
+            note_chart
+          ),
+          sep = "<br>"
+        ) %>% str_replace_all(., "\\n", "<br>")
     ) +
     theme_minimal() +
     theme(
@@ -171,24 +251,25 @@ make_plot <- function(x) {
       legend.position = "bottom",
       legend.title = element_text(size = 12, face = "bold"),
       legend.text  = element_text(size = 12),
-      # legend.box.just = "top",
-      # legend.spacing = unit(3, "cm"),
       panel.grid.minor = element_blank(),
       axis.ticks   = element_blank(),
       axis.text    = element_text(color = "black"),
       axis.text.y  = element_text(size = 12, hjust = 0),
       axis.text.x  = element_text(size = 12, angle = 45, vjust = 0.5),
-      plot.caption = element_text(size = 12, hjust = 1),
+      plot.caption = element_markdown(size = 12, hjust = 0),
       plot.caption.position =  "plot"
     ) 
+  
   
   plot
 }
 
 
+# PURRR Plots --------------------------------------------------------
+
 ## Jordan
 
-mapvars   <- names(data)[3:47]
+mapvars   <- names(data)[3:48]
 all_plots <- map(mapvars, ~ make_plot_jordan(.x))
 
 walk2(

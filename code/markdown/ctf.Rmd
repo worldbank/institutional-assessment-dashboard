@@ -39,19 +39,42 @@ definitions <-
       "indicator_definitions.rds"
     )
   )
+
+# data <-
+#   read_rds(
+#     here(
+#       "data",
+#       "final",
+#       "compiled_indicators.rds"
+#     )
+#   ) %>%
+#   filter(
+#     year %in% c(2014:2016)
+#     # year %in% c(2017:2020)
+#     # year %in% c(2014:2020)
+#   )
+
 data <-
   read_rds(
     here(
+      "app", 
       "data",
-      "final",
-      "compiled_indicators.rds"
+      "raw_data.rds"
     )
-  ) %>%
+  ) %>% 
   filter(
-    year %in% c(2014:2016)
+    # year %in% c(2014:2016)
     # year %in% c(2017:2020)
-    # year %in% c(2014:2020)
+    year %in% c(2014:2020)
   )
+
+source(
+  here(
+    "app",
+    "auxiliary",
+    "vars-by-family.R"
+  )
+)
 
 if (min(data$year)==2014 & max(data$year)==2020){
   data_name <- ""
@@ -132,11 +155,11 @@ ctf <-
   select(-starts_with("gdp")) %>%
   left_join(
     country_average %>%
-      select(country_name, country_code, gdp_pc_ppp_const)
-  ) %>%
-  mutate(
-    log_gdp = log(gdp_pc_ppp_const)
-  )
+      select(country_name, country_code)
+  ) #%>%
+  # mutate(
+  #   log_gdp = log(gdp_pc_ppp_const)
+  # )
 ```
 
 ## Calculate median per group

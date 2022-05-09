@@ -2,6 +2,19 @@
 library(tidyverse)
 library(haven)
 
+# Countries ----------------------------------------------------------
+
+base_country <- "Jordan"
+
+comparison_group <- c(
+  "Morocco", "Egypt", "Tunisia", "Pakistan",
+  "Turkey", "Philippines", "Indonesia", "Georgia",
+  "Finland", "Ireland", "Croatia", "Bulgaria", "Uruguay"
+)
+
+# Get data -----------------------------------------------------------
+source("auxiliary/vars-by-family.R")
+
 gbid_1720 <- read_rds(
   here(
     "data",
@@ -53,6 +66,7 @@ gbid <- gbid_1416 %>%
   ungroup() %>% 
   mutate(
     family_name = ifelse(variable == "favoritism", "Public sector performance", family_name),
+    family_name = ifelse(variable == "v2clrspct", "Anti-Corruption, Transparency and Accountability", family_name),
     family_short = case_when(
       family_name == "Anti-Corruption, Transparency and Accountability" ~ "anticorruption",
       family_name == "Business environment and trade" ~ "business",
@@ -64,8 +78,6 @@ gbid <- gbid_1416 %>%
       family_name == "Social" ~ "social",
     )
   )
-
-
 
 # Overview -----------------------------------------------------------
 
@@ -117,7 +129,7 @@ gbid_overview %>%
     fill = "",
     caption = "Note: Indicators standardized using the min and max in the full sample over the full period."
   ) +
-  scale_y_discrete(labels = scales::wrap_format(25)) + 
+  scale_y_discrete(labels = scales::wrap_format(30), limits = rev) + 
   scale_fill_manual(label = NULL, values = c("white"), name = "2014-2016") +
   scale_color_manual(values = c("#00b800", "#e47a81"), name = "2017-2020") +
   guides(
@@ -130,8 +142,6 @@ gbid_overview %>%
     legend.position = "bottom",
     legend.title = element_text(size = 12, face = "bold"),
     legend.text  = element_text(size = 12),
-    # legend.box.just = "top",
-    # legend.spacing = unit(3, "cm"),
     panel.grid.minor = element_blank(),
     axis.ticks   = element_blank(),
     axis.text    = element_text(color = "black"),
@@ -146,17 +156,13 @@ ggsave("figs/trends_overview.png", bg = "white", width = 12, height = 8, scale =
 
 # Families -----------------------------------------------------------
 
-all_plots <- 
-  gbid %>% 
+all_plots <- gbid %>% 
   split(gbid$family_name) %>% 
   map(
     .,
-    ~ 
+    ~ .x %>% 
       ggplot(
-        .x,
-        aes(
-          y = var_name
-        )
+        aes(y = var_name)
       ) +
       geom_col(
         aes(
@@ -178,21 +184,59 @@ all_plots <-
       geom_point(
         aes(
           x = dtf_2014_2016,
-          fill = country_name
         ),
         color = "white",
-        size = 5
+        size = 5,
+        show.legend = FALSE
       ) +
       geom_segment(
         aes(
-          x = dtf_2014_2016,
-          xend = dtf_2017_2020,
-          yend = var_name,
+          x     = dtf_2014_2016,
+          xend  = dtf_2017_2020,
+          yend  = var_name,
           color = diff
         ),
-        arrow = arrow(length = unit(0.3, "cm")),
-        size = 1.5
-      ) +      
+        show.legend = TRUE, 
+        size = 1.5,
+      ) +
+      geom_segment(
+        aes(
+          x     = dtf_2014_2016 ,
+          xend  = dtf_2017_2020,
+          yend  = var_name,
+          color = diff
+        ),
+        show.legend = FALSE, 
+        data = filter(.x, diff != "No change"),
+        arrow = arrow(length = unit(0.35, "cm")),
+        size = 1.5,
+      ) +
+      geom_point(
+        aes(
+          x = dtf_2014_2016,
+          y = var_name,
+          color = diff
+        ),
+        show.legend = FALSE,
+        data = filter(.x, diff == "No change"),
+        size = 6
+      ) +
+      scale_y_discrete(labels = scales::wrap_format(30), limits = rev) + 
+      scale_fill_manual(label = NULL, values = "white", name = "2014-2016") +
+      scale_color_manual(values = c("#00b800","#e47a81", "#FFBA01"), name = "2017-2020") +
+      guides(
+        fill = guide_legend(
+          order = 1,
+          title.position = "top",
+          title.hjust = 0.5
+        ),
+        color = guide_legend(
+          order = 2,
+          title.position = "top",
+          label.position = "bottom",
+          override.aes = list(arrow = NULL)
+        )
+      ) +
       labs(
         x = "Closeness to frontier",
         y = NULL,
@@ -200,29 +244,18 @@ all_plots <-
         fill = "",
         caption = "Note: Indicators standardized using the min and max in the full sample over the full period."
       ) +
-      scale_y_discrete(labels = scales::wrap_format(25)) + 
-      scale_fill_manual(label = NULL, values = "white", name = "2014-2016") +
-      scale_color_manual(values = c("#00b800", "#e47a81", "#FFBA01"), name = "2017-2020") +
-      guides(
-        fill  = guide_legend(order = 1, title.position = "top", title.hjust = 0.5),
-        color = guide_legend(order = 2, title.position = "top", label.vjust = 0.5, label.position = "bottom")
-      ) +
       theme_minimal() +
       theme(
         legend.direction = "horizontal", 
         legend.position = "bottom",
         legend.title = element_text(size = 12, face = "bold"),
         legend.text  = element_text(size = 12),
-        # legend.box.just = "top",
-        # legend.spacing = unit(3, "cm"),
         panel.grid.minor = element_blank(),
+        plot.caption = element_text(size = 12),
         axis.ticks   = element_blank(),
         axis.text    = element_text(color = "black"),
         axis.text.y  = element_text(size = 12, hjust = 0),
-        axis.text.x  = element_text(size = 12),
-        plot.caption = element_text(size = 12, hjust = 1),
-        plot.caption.position =  "plot"
-      ) 
+      )
   )
 
 names <- gbid %>% 

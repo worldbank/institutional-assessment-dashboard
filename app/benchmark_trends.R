@@ -76,10 +76,9 @@ data_family_comparison <- data_family_2014_2016 %>%
   ) %>% 
   filter(var_name != "Labor market")
 
+# Overivew plot ------------------------------------------------------
+
 data_family_comparison %>% 
-  mutate(
-    var_name = fct_reorder(var_name, diff)
-  ) %>% 
   filter(var_name != "Labor market") %>% 
   ggplot(
     aes(
@@ -103,14 +102,13 @@ data_family_comparison %>%
     shape = 23,
     size = 7,
     show.legend = FALSE,
-    # fill = "white",
     data = filter(data_family_comparison, country_name == "Jordan")
   ) +
   scale_fill_manual(values = c("#8ec18e", "#e47a81"), name = "") +
   scale_color_manual(values = c("#8ec18e", "#e47a81"), name = "") +
   scale_shape_manual(values = c(16, 23), label = c("Comparison countries", "Jordan"), name = "") +
-  scale_x_continuous(limits = c(-0.5,0.5)) +
-  scale_y_discrete(labels = scales::wrap_format(25)) + 
+  scale_x_continuous(limits = c(-0.35,0.35)) +
+  scale_y_discrete(labels = scales::wrap_format(30), limits = rev) + 
   theme_minimal() +
   labs(
     x = "Closeness to frontier (Average 2017-2020 minus Average 2014-2016)",
@@ -218,9 +216,6 @@ make_fam_plot <- function(fam) {
   }
   
   plot <- df %>% 
-    mutate(
-      var_name = fct_reorder(var_name, diff)
-    ) %>% 
     ggplot(
       aes(
         x = diff,
@@ -248,8 +243,8 @@ make_fam_plot <- function(fam) {
     scale_fill_manual(values = color_fill, name = "") +
     scale_color_manual(values = colores, name = "") +
     scale_shape_manual(values = c(16, 23), label = c("Comparison countries", "Jordan"), name = "") +
-    scale_x_continuous(limits = c(-0.5,0.5)) +
-    scale_y_discrete(labels = scales::wrap_format(25)) + 
+    scale_x_continuous(limits = c(-0.35,0.35)) +
+    scale_y_discrete(labels = scales::wrap_format(30), limits = rev) + 
     theme_minimal() +
     labs(
       x = "Closeness to frontier (Average 2017-2020 minus Average 2014-2016)",

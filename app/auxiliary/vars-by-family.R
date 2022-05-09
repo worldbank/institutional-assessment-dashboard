@@ -35,7 +35,7 @@
       "f2_corruption",
       "f5_opengov",
       "right_to_info",
-      # "v2clrspct", This variable contains all missings for the year 2014-16
+      "v2clrspct", #This variable contains all missings for the year 2014-16
       # "rigorous_impartial_pa",
       "transparency_polmak"
     )
@@ -45,8 +45,8 @@
     c(
       "f6_regulatoryenf",
       "eff_govspending",
-      "favoritism"#,
-      # "v2stcritrecadm"
+      "favoritism",
+      "v2stcritrecadm"
     )
 
   # 5 LEGAL INSTITUTIONS
