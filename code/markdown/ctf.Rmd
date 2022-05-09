@@ -23,13 +23,6 @@ performance for indicator $i$ among all countries and in the last $y$ years (201
 Ideally, this will use data for the last 7 years in any given year
 
 ```{r}
-source(
-  here(
-    "app",
-    "auxiliary",
-    "vars-control.R"
-  )
-)
 
 definitions <-
   read_rds(
@@ -39,51 +32,17 @@ definitions <-
       "indicator_definitions.rds"
     )
   )
-
-# data <-
-#   read_rds(
-#     here(
-#       "data",
-#       "final",
-#       "compiled_indicators.rds"
-#     )
-#   ) %>%
-#   filter(
-#     year %in% c(2014:2016)
-#     # year %in% c(2017:2020)
-#     # year %in% c(2014:2020)
-#   )
-
 data <-
   read_rds(
     here(
-      "app", 
       "data",
-      "raw_data.rds"
+      "final",
+      "compiled_indicators.rds"
     )
-  ) %>% 
+  ) %>%
   filter(
-    # year %in% c(2014:2016)
-    # year %in% c(2017:2020)
-    year %in% c(2014:2020)
+    year >= 2013
   )
-
-source(
-  here(
-    "app",
-    "auxiliary",
-    "vars-by-family.R"
-  )
-)
-
-if (min(data$year)==2014 & max(data$year)==2020){
-  data_name <- ""
-} else if (min(data$year)==2014 & max(data$year)==2016){
-  data_name <- "_2014_2016"
-} else if (min(data$year)==2017 & max(data$year)==2020){
-  data_name <- "_2017_2020"
-}
-   
 ```
 
 
@@ -155,11 +114,11 @@ ctf <-
   select(-starts_with("gdp")) %>%
   left_join(
     country_average %>%
-      select(country_name, country_code)
-  ) #%>%
-  # mutate(
-  #   log_gdp = log(gdp_pc_ppp_const)
-  # )
+      select(country_name, country_code, gdp_pc_ppp_const)
+  ) %>%
+  mutate(
+    log_gdp = log(gdp_pc_ppp_const)
+  )
 ```
 
 ## Calculate median per group
@@ -184,7 +143,7 @@ group_ctf <-
   ) %>%
   summarise(
     across(
-      all_of(vars_all),
+      bribes:soe_report_legislative,
       ~ median(., na.rm = TRUE)
     )     
   ) %>%
@@ -192,7 +151,7 @@ group_ctf <-
   select(
     group,
     group_code,
-    all_of(vars_all)
+    bribes:soe_report_legislative
   ) %>%
   rename(
     country_name = group,
@@ -209,7 +168,7 @@ write_rds(
   here(
     "data",
     "final",
-    paste0("closeness_to_frontier", data_name, ".rds")
+    "closeness_to_frontier.rds"
   )
 )
 
@@ -245,28 +204,7 @@ write_rds(
   here(
     "data",
     "final",
-    paste0("closeness_to_frontier_long", data_name, ".rds")
-  )
-)
-```
-
-
-```{r}
-write_rds(
-  ctf,
-  here(
-    "app",
-    "data",
-    paste0("closeness_to_frontier", data_name, ".rds")
-  )
-)
-
-write_rds(
-  ctf_long,
-  here(
-    "app",
-    "data",
-    paste0("closeness_to_frontier_long", data_name, ".rds")
+    "closeness_to_frontier_long.rds"
   )
 )
 ```

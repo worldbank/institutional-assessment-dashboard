@@ -26,7 +26,8 @@ global_data_2017_2020 <- read_rds(
 
 # Variables ----------------------------------------------------------
 
-families <- variable_names %>% distinct(family_name)
+families <- variable_names %>% 
+  distinct(family_name)
 
 base_country <- "Jordan"
 
@@ -113,7 +114,8 @@ data_family_comparison %>%
   labs(
     x = "Closeness to frontier (Average 2017-2020 minus Average 2014-2016)",
     y = "",
-    color = NULL
+    color = NULL,
+    caption = ""
   ) +
   theme(
     legend.direction = "horizontal", 
@@ -131,14 +133,16 @@ data_family_comparison %>%
     plot.caption.position =  "plot"
   )
 
-ggsave("figs/benchmark_trends_overview.png", bg = "white", width = 12, height = 8, scale = 0.9)
+ggsave("figs/benchmark_trends_overview.png", bg = "white", width = 12, height = 8, scale = 0.85)
   
 # By Family ----------------------------------------------------------
 
 # By family
 source("auxiliary/vars-by-family.R")
 
-families <- variable_names %>% distinct(family_name) %>% .$`family_name`
+families <- variable_names %>% 
+  distinct(family_name) %>% 
+  .$`family_name`
 
 fam_vars <- list(
   "Anti-Corruption, Transparency and Accountability" = vars_transp,
@@ -249,7 +253,8 @@ make_fam_plot <- function(fam) {
     labs(
       x = "Closeness to frontier (Average 2017-2020 minus Average 2014-2016)",
       y = "",
-      color = NULL
+      color = NULL,
+      caption = ""
     ) +
     theme(
       legend.direction = "horizontal", 
@@ -272,6 +277,6 @@ map(1:length(fam_vars), ~ {
   name <- names(fam_vars)[.x] %>% str_to_lower() %>% str_replace_all(., " ", "_")
   name <- paste0("figs/benchmark_trends_", name, ".png")
   make_fam_plot(.x)
-  ggsave(filename = name, bg = "white", width = 12, height = 8, scale = 0.9)
+  ggsave(filename = name, bg = "white", width = 12, height = 8, scale = 0.85)
 })
 
