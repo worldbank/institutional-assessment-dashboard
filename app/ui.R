@@ -17,7 +17,6 @@ ui <-
       sidebarIcon = icon("bars"),
       controlbarIcon = icon("th"),
       fixed = FALSE
-
     ),
 
     ## Navigation menu ---------------------------------------------------------
@@ -36,7 +35,9 @@ ui <-
         menuItem("Time trends", tabName = "trends", icon = icon("chart-line")),
         menuItem("Data", tabName = "data", icon = icon("table")),
         menuItem("Methodology", tabName = "methodology", icon = icon("book")),
-        menuItem("FAQ", tabName = "faq", icon = icon("question"))
+        menuItem("FAQ", tabName = "faq", icon = icon("question")),
+        menuItem("Source code", icon = icon("github", lib = "font-awesome"),
+                 href = "https://github.com/worldbank/institutional-assessment-dashboard/")
       )
     ),
 
