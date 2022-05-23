@@ -10,14 +10,13 @@ ui <-
     dashboardHeader(
 
       title = dashboardBrand(
-        title = "Global Benchmarking Institutions Dashboard ",
+        title = "Global Benchmarking Institutions Dashboard"
       ),
       status = "white",
       border = TRUE,
       sidebarIcon = icon("bars"),
       controlbarIcon = icon("th"),
       fixed = FALSE
-
     ),
 
     ## Navigation menu ---------------------------------------------------------
@@ -35,7 +34,10 @@ ui <-
         menuItem("World map", tabName = "world_map", icon = icon("globe-americas")),
         menuItem("Time trends", tabName = "trends", icon = icon("chart-line")),
         menuItem("Data", tabName = "data", icon = icon("table")),
-        menuItem("Methodology", tabName = "methodology", icon = icon("book"))
+        menuItem("Methodology", tabName = "methodology", icon = icon("book")),
+        menuItem("FAQ", tabName = "faq", icon = icon("question")),
+        menuItem("Source code", icon = icon("github", lib = "font-awesome"),
+                 href = "https://github.com/worldbank/institutional-assessment-dashboard/")
       )
     ),
 
@@ -47,15 +49,14 @@ ui <-
         tabItem(
           tabName = "home",
 
-          userBox(
+          bs4Card(
             width = 12,
             status = "navy",
-
-            title = userDescription(
-              title = h2("Global Benchmarking Institutions Dashboard"),
-              type = 1,
-              image = "world-bank-logo.png"
-            ),
+            solidHeader = TRUE,
+            title =
+              span(
+                img(src = "cliar.png", width = "80%")
+              ),
 
             br(),
             p("The World Bank recognizes institutional strengthening as key ingredient for progress of its members countries along income categories. While there are numerous diagnostic and assessment tools for specific functional areas such as public financial management and tax administration, there is no analytical tool for country-level institutional assessment."),
@@ -71,13 +72,13 @@ ui <-
               tags$li(
                 "The ",
                 tags$b("country benchmarking"),
-                "tab shows how one country compares to another group of countries in terms of closeness to frontier for each relevant indicator and institutional cluster. 
+                "tab shows how one country compares to another group of countries in terms of closeness to frontier for each relevant indicator and institutional cluster.
                 It works best with a relatively large group of comparator countries."
               ),
               tags$li(
                 "The ",
                 tags$b("cross-country comparison "),
-                "tab shows how one country compares to another group of countries for each relevant indicator. 
+                "tab shows how one country compares to another group of countries for each relevant indicator.
                 It works even with a few comparator countries."
               ),
               tags$li(
@@ -166,7 +167,7 @@ ui <-
                   selected = "Overview"
                 )
               ),
-              
+
               column(
                 width = 3,
                 pickerInput(
@@ -199,14 +200,14 @@ ui <-
                   status = "success"
                 )
               ),
-              
+
               column(
                 width = 3,
                 uiOutput(
                   "select_button"
                 )
               ),
-              
+
               column(
                 width = 3,
                 downloadButton(
@@ -286,7 +287,7 @@ ui <-
             fluidRow(
 
               column(
-                width = 4,
+                width = 5,
                 pickerInput(
                   "vars_bar",
                   label = "Select indicator",
@@ -303,7 +304,7 @@ ui <-
               ),
 
               column(
-                width = 2,
+                width = 3,
                 pickerInput(
                   "country_bar",
                   label = "Select a base country",
@@ -314,19 +315,7 @@ ui <-
               ),
 
               column(
-                width = 3,
-                pickerInput(
-                  inputId = "countries_bar",
-                  label = "Select comparison countries",
-                  choices = c("", countries),
-                  selected = NULL,
-                  multiple = TRUE,
-                  options = list(`actions-box` = TRUE)
-                )
-              ),
-
-              column(
-                width = 3,
+                width = 4,
                 pickerInput(
                   inputId = "groups_bar",
                   label = "Select comparison groups",
@@ -334,6 +323,24 @@ ui <-
                   selected = NULL,
                   multiple = TRUE
                 )
+              )
+            )
+          ),
+
+          bs4Card(
+            title = "Select individual comparison countries",
+            width = 11,
+            status = "success",
+            collapsed = TRUE,
+
+            checkboxGroupButtons(
+              inputId = "countries_bar",
+              individual = TRUE,
+              label = NULL,
+              choices = countries,
+              checkIcon = list(
+                yes = icon("ok",
+                           lib = "glyphicon")
               )
             )
           ),
@@ -381,7 +388,7 @@ ui <-
                   )
                 )
               ),
-              
+
               column(
                 width = 3,
                 pickerInput(
@@ -400,7 +407,7 @@ ui <-
                   width = "100%"
                 )
               ),
-              
+
               column(
                 width = 3,
                 pickerInput(
@@ -419,7 +426,7 @@ ui <-
                   width = "100%"
                 )
               ),
-              
+
               column(
                 width = 3,
                 pickerInput(
@@ -492,7 +499,7 @@ ui <-
 
             fluidRow(
               column(
-                width = 3,
+                width = 5,
                 pickerInput(
                   "vars_trends",
                   label = "Select indicator to visualize",
@@ -522,7 +529,7 @@ ui <-
               ),
 
               column(
-                width = 6,
+                width = 4,
                 pickerInput(
                   "group_trends",
                   label = "Select comparison groups",
@@ -603,7 +610,7 @@ ui <-
                 )
               )
               # ,
-              # 
+              #
               # column(
               #   width = 3,
               #   pickerInput(
@@ -732,130 +739,6 @@ ui <-
           box(
             width = 11,
             status = "navy",
-            title = "Frequently asked questions",
-            
-            column(
-              width = 12,
-              box(
-                width = 12,
-                collapsed = TRUE,
-                title = "Does the G-BID collect new data on governance and institutions?",
-                p(
-                  "NO. 
-                  The dashboard extracts data from original sources and collects international indicators that are publicly available and have been widely tested and used as reliable proxies to measure country-level governance and institutions."
-                )
-              ),
-              
-              box(
-                width = 12,
-                collapsed = TRUE,
-                title = "Can I add my own indicators to the dashboard and run the analysis including these indicators? ",
-                p(
-                  "NO. 
-                  You cannot add indicators to the dashboard. 
-                  However, you can download the full database and augment it with additional indicators to customize the analysis. 
-                  You can also get in touch with the G-BID coordinator (scocciolo@worldbank.org) indicating which data you would like to be added in the database, and for which cluster. 
-                  Each request will be reviewed by a team of technical experts and if the indicator meets the selection criteria indicated in the methodological note (quality and coverage) it will be added to the G-BID."
-                )
-              ),
-              
-              box(
-                width = 12,
-                collapsed = TRUE,
-                title = "Is the “Closeness to Frontier” methodology the same one used in the “Doing Business Report”?",
-                p(
-                  "The “Closeness to Frontier” is used in order to standardize indicators and make it possible to compare and aggregate them. 
-                  The resulting scores range between 0 and 1 and we labeled them “Closeness to Frontier” because higher values mean closer to the frontier, which is set at 1. 
-                  It is similar to the transformation that was used in the “Doing Business Reports”."
-                )
-              ),
-              
-              box(
-                width = 12,
-                collapsed = TRUE,
-                title = "How often is the G-BID updated? How do I know that the G-BID uses the latest available data?",
-                p(
-                  "It is currently planned that the G-BID will be updated once or twice a year, depending on demands and usage. 
-                  The full compiled database, once updated, is available in the “Data” tab for download. 
-                  Both the “Closeness to Frontier” scores and the full database with yearly indicators are available for download, 
-                  and therefore users can easily verify the latest year available for each indicator."
-                )
-              ),
-              
-              box(
-                width = 12,
-                collapsed = TRUE,
-                title = "Is the G-BID available to external users (i.e non-bank staff) ?",
-                p(
-                  "As of now, the G-BID is not available for external users. 
-                  The team will consider making the dashboard publicly available it has been tested and validated through a
-                  few pilots, and depending on demands and usage."
-                )
-              ),
-              
-              box(
-                width = 12,
-                collapsed = TRUE,
-                title = "What does the traffic coloring means? ",
-                p(
-                  "The results from the institutional benchmarking are relative for a given country of interest vis a vis a chosen set of comparator countries. 
-                  Using the distribution of the CTF scores in the set of comparator countries, 
-                  we identify the score range for the bottom 25% of comparators, 
-                  the score range for the 25%-50% group and the score range for the top 50% of comparators. 
-                  Given the CTF score of the country of interest, 
-                  we identify whether the country of interest for the analysis belong to the bottom, 
-                  middle or top group."
-                )
-              ),
-              
-              box(
-                width = 12,
-                collapsed = TRUE,
-                title = "Why the length of the bar is different? Why a red bar is longer than another red bar, if they are both red?",
-                p(
-                  "Using the distribution of the CTF scores in the set of comparator countries, 
-                  we identify the score range for the bottom 25% of comparators, 
-                  the score range for the 25%-50% group and the score range for the top 50% of comparators. 
-                  The red bar represents the score range for the bottom 25% of comparators. 
-                  While the CTF scores always range between 0 and 1, 
-                  the length of the red bar varies across indicators depending on the distribution of the CTF scores in the comparator group. 
-                  As an illustration, for a given set of comparator countries, 
-                  for a given indicator the CTF scores in the bottom 25% of comparators may range between 0 and 0.2, 
-                  while for another indicator it may range between 0 and 0.5."
-                )
-              ),
-              
-              box(
-                width = 12,
-                collapsed = TRUE,
-                title = "Can I download the raw data for my own research/analytical purposes?",
-                p(
-                  "YES. The full compiled database, once updated, is available in the “Data” tab for download. 
-                  Both the “Closeness to Frontier” scores and the full database with yearly indicators are available for download, 
-                  and therefore users can easily verify the latest year available for each indicator."
-                )
-              ),
-              
-              box(
-                width = 12,
-                collapsed = TRUE,
-                title = "How do you choose the comparator countries/groups?",
-                p(
-                  "It depends on the purpose of the analysis and the country context. 
-                  For example, if this analysis is used in the SCDs, it is recommendable to use the regional, 
-                  aspirational and structural peers identified for the SCD."
-                )
-              )
-            )
-            
-            
-            
-          ),
-          
-          box(
-            width = 11,
-            status = "navy",
-            collapsed = TRUE,
             title = "Institutional families",
 
             p("The dashboard uses established well-institutional indicators, clustered into nine main institutional families:",
@@ -934,6 +817,9 @@ ui <-
               "Income classifications set on 1 July 2020 remain in effect until 1 July 2021.",
               "Argentina, which was temporarily unclassified in July 2016 pending release of revised national accounts statistics,",
               "was classified as upper middle income for FY17 as of 29 September 2016 based on alternative conversion factors."
+            ),
+            p(
+              "OECD members are: ", paste0(paste(country_list %>% filter(group_code=="OED") %>% .$country_name, collapse = ", "),".")
             )
           ),
 
@@ -948,8 +834,217 @@ ui <-
             downloadButton("download_indicators",
                            "Download indicator definitions",
                            style = "background-color: #204d74; color: white")
+          ),
+
+          box(
+            width = 11,
+            status = "navy",
+            title = "Where can I find additional information on the methodology?",
+            downloadButton("download_metho",
+                           "Download complete methodology",
+                           style = "background-color: #204d74; color: white")
           )
-        )
+
+        ),
+
+## FAQ tab =====================================================================
+
+        tabItem(
+          tabName = "faq",
+
+          box(
+            width = 11,
+            status = "navy",
+            collapsed = TRUE,
+            title = "Does the G-BID collect new data on governance and institutions?",
+            p(
+              "NO.
+              The dashboard extracts data from original sources and collects international indicators that are publicly available and have been widely tested and used as reliable proxies to measure country-level governance and institutions."
+            )
+          ),
+
+
+          box(
+            width = 11,
+            status = "navy",
+            collapsed = TRUE,
+            title = "Can I add my own indicators to the dashboard and run the analysis including these indicators? ",
+            p(
+              "NO.
+              You cannot add indicators to the dashboard.
+              However, you can download the full database and augment it with additional indicators to customize the analysis.
+              You can also get in touch with the G-BID coordinator (scocciolo@worldbank.org) indicating which data you would like to be added in the database, and for which cluster.
+              Each request will be reviewed by a team of technical experts and if the indicator meets the selection criteria indicated in the methodological note (quality and coverage) it will be added to the G-BID."
+            )
+          ),
+
+          box(
+            width = 11,
+            status = "navy",
+            collapsed = TRUE,
+            title = "Is the “Closeness to Frontier” methodology the same one used in the “Doing Business Report”?",
+            p(
+              "The “Closeness to Frontier” is used in order to standardize indicators and make it possible to compare and aggregate them.
+              The resulting scores range between 0 and 1 and we labeled them “Closeness to Frontier” because higher values mean closer to the frontier, which is set at 1.
+              It is similar to the transformation that was used in the “Doing Business Reports”."
+            )
+          ),
+
+          box(
+            width = 11,
+            status = "navy",
+            collapsed = TRUE,
+            title = "What does the traffic coloring mean? Is there a methodological foundation?",
+            p(
+              "The results from the institutional benchmarking are relative for
+              a given country of interest vis a vis a chosen set of comparator countries.
+              Using the distribution of the CTF scores in the set of comparator countries,
+              we identify the score range for the bottom 25% of comparators,
+              the score range for the 25%-50% group and the score range for the top 50% of comparators.
+              Given the CTF score of the country of interest,
+              we identify whether the country of interest for the analysis belong to the bottom,
+              middle or top group.
+              These percentile groups are used because they are simple, intuitive and standards.
+              The sensitivity analysis shows that most of the results are not sensitive to this choice,
+              and for example would be robust if the grouping 0-33%, 33%-66%, 66%+ would be used."
+            )
+          ),
+
+          box(
+            width = 11,
+            status = "navy",
+            collapsed = TRUE,
+            title = "Why the length of the bar is different? Why a red bar is longer than another red bar, if they are both red?",
+            p(
+              "Using the distribution of the CTF scores in the set of comparator countries,
+              we identify the score range for the bottom 25% of comparators,
+              the score range for the 25%-50% group and the score range for the top 50% of comparators.
+              The red bar represents the score range for the bottom 25% of comparators.
+              While the CTF scores always range between 0 and 1,
+              the length of the red bar varies across indicators depending on the distribution of the CTF scores in the comparator group.
+              As an illustration, for a given set of comparator countries,
+              for a given indicator the CTF scores in the bottom 25% of comparators may range between 0 and 0.2,
+              while for another indicator it may range between 0 and 0.5."
+            )
+          ),
+
+          box(
+            width = 11,
+            status = "navy",
+            collapsed = TRUE,
+            title = "How do you deal with missing data for certain indicators and for certain countries?",
+            p(
+              "We deal with missing data in various ways.
+              First, the benchmarking analysis uses the average of indicators over recent years.
+              Conceptually, governance and institutional indicators are expected to show limited yearly variations.
+              This helps in reducing data gaps.
+              Second, we only include in the institutional benchmarking the indicators that
+              are non-missing for the country of interest.
+              Third, we only include in the institutional benchmarking the indicators
+              that are non-missing for at least 70% of the countries in the comparator group.
+              The average CTF scores at institutional cluster level are calculated
+              as averages of the CTF scores of the indicators in that clusters,
+              but only for the indicators that meet these criteria above.
+              This ensures that,
+              for each pair of country of interest and group of comparator countries,
+              the average CTF scores are calculated from the same indicators."
+            )
+          ),
+
+          box(
+            width = 11,
+            status = "navy",
+            collapsed = TRUE,
+            title = "Why do I have to choose at least 10 comparator countries for the benchmarking analysis?",
+            p(
+              "The percentile analysis identifies whether the performance of the
+              country of interest in a given indicator or institutional cluster
+              belongs to the bottom 25%, the 25%-50% group or the top 50% of
+              the comparator countries.
+              This percentile analysis can be meaningfully performed only if
+              there is sufficient number of comparator countries.
+              Given the definition of the traffic coloring,
+              it is recommended to use a group of comparator countries which is aspirational."
+            )
+          ),
+
+          box(
+            width = 11,
+            status = "navy",
+            collapsed = TRUE,
+            title = "How do you choose the comparator countries/groups?",
+            p(
+              "It depends on the purpose of the analysis and the country context.
+              For example, if this analysis is used in the SCDs, it is recommendable to use the regional,
+              aspirational and structural peers identified for the SCD."
+            )
+          ),
+
+          box(
+            width = 11,
+            status = "navy",
+            collapsed = TRUE,
+            title = "Can I download the raw data for my own research/analytical purposes?",
+            p(
+              'YES. The full compiled database, once updated, is available in the "Data" tab for download.
+              Both the "Closeness to Frontier" scores and the full database with yearly indicators are available for download,
+              and therefore users can easily verify the latest year available for each indicator.'
+            )
+          ),
+
+          box(
+            width = 11,
+            status = "navy",
+            collapsed = TRUE,
+            title = "How often is the G-BID updated? How do I know that the G-BID uses the latest available data?",
+            p(
+              'It is currently planned that the G-BID will be updated once or twice a year,
+              depending on demands and usage.
+              The G-BID is programmed so that the data extraction from the data sources (primarily gov360)
+              is automated through APIs,
+              therefore with minimal maintenance costs for the indicators already
+              included in the dashboard and with stable APIs. The full compiled database,
+              once updated, is available in the "Data" tab for download.
+              Both the "Closeness to Frontier"" scores and the full database with
+              yearly indicators are available for download,
+              and therefore users can easily verify the latest year available for each indicator.'
+            )
+          ),
+
+          box(
+            width = 11,
+            status = "navy",
+            collapsed = TRUE,
+            title = "How were the indicators included in G-BID selected?",
+            p(
+              'The indicators included in the G-BID were selected following two criteria:
+              geographical coverage and quality.
+              This list was defined based on initial internal reviews,
+              and will be further refined based on inputs recently received by
+              sector experts and from the experiences of country teams in applying this tool.
+              For example, the team is currently considering expanding the existing
+              database in order to include indicators from additional data sources,
+              such as PEFA, Tax DIAMOND and Regional Barometers.
+              The list of indicators used in the G-BID will be periodically
+              reviewed in order to include new governance and institutions indicators
+              that may be become available in the future.
+              The G-BID is a "live tool".'
+            )
+          ),
+
+          box(
+            width = 11,
+            status = "navy",
+            collapsed = TRUE,
+            title = "Is the G-BID available to external users (i.e non-bank staff) ?",
+            p(
+              "As of now, the G-BID is not available for external users.
+              The team will consider making the dashboard publicly available it has been tested and validated through a
+              few pilots, and depending on demands and usage."
+            )
+          )
+
+        ) # Close FAQ tab
       )
     )
   )

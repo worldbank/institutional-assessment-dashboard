@@ -7,6 +7,7 @@ library(shiny)
 library(shinyjs)
 library(shinyBS)
 library(shinycssloaders)
+library(shinybusy)
 library(shinyWidgets)
 library(bs4Dash)
 library(fresh)
@@ -112,7 +113,7 @@ db_variables <-
   left_join(
     period_info_by_variable,
     by = "variable"
-  ) 
+  )
 
 # Options ---------------------------------------------------------
 
@@ -159,6 +160,7 @@ group_list <-
 # Inputs ################################################################################
 
 plot_height <- 650
+report_images <- list.files(path = "www", pattern="cliar.png")
 
 # Data sets ---------------------------------------------------------------------------
 

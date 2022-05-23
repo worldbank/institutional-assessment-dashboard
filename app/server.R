@@ -14,7 +14,7 @@
       )
 
     ## Comparison countries ----------------------------------------------------
-    
+
     observeEvent(
       input$groups,
 
@@ -375,7 +375,7 @@
       input$country,
 
       {
-        
+
         valid_vars <-
           ctf_long %>%
           filter(
@@ -386,7 +386,7 @@
           unique %>%
           unlist %>%
           unname
-        
+
         updatePickerInput(
           session,
           "family",
@@ -401,11 +401,11 @@
     )
 
     ## Median data ------------------------------------------------------------
-    
+
     data_family_median <-
       eventReactive(
         input$select,
-        
+
         {
           family_data(
             global_data,
@@ -417,7 +417,7 @@
 
 
     ## Browse data -------------------------------------------------------------
-    
+
     browse_data <-
       eventReactive(
         input$data,
@@ -471,8 +471,7 @@
                   base_country(),
                   input$family,
                   dots = input$benchmark_dots,
-                  group_median = input$benchmark_median,
-                  overview = TRUE
+                  group_median = input$benchmark_median
                 ) %>%
                 interactive_plot(
                   base_country(),
@@ -531,8 +530,8 @@
         {
           static_bar(
             global_data,
-            input$country_bar,
-            input$countries_bar,
+            input$country,
+            input$countries,
             input$groups_bar,
             input$vars_bar,
             variable_names
@@ -558,8 +557,6 @@
       renderPlotly({
         static_scatter(
           global_data,
-          input$country_scatter,
-          input$countries_scatter,
           high_group(),
           input$y_scatter,
           input$x_scatter,
@@ -661,8 +658,6 @@
           trends_plot(
             raw_data,
             var_trends(),
-            input$vars_trends,
-            input$country_trends,
             input$countries_trends,
             country_list,
             input$group_trends,
@@ -687,7 +682,7 @@
             ) %>%
             select(variable) %>%
             unlist
-          
+
           if (input$data == "Compiled indicators") {
             vars_table <- c("Country", "Year", vars)
           } else {
@@ -719,7 +714,7 @@
             )
 
           }
-          
+
         datatable(
           data %>%
             setnames(
@@ -791,11 +786,24 @@
 
       content = function(file) {
 
-        tempReport <- file.path(tempdir(), "report.Rmd")
+        show_modal_spinner(
+          color = "#17a2b8",
+          text = "Compiling report",
+        )
+
+        on.exit(remove_modal_spinner())
+
+        tmp_dir <- tempdir()
+
+        tempReport <- file.path(tmp_dir, "report.Rmd")
+        tmp_pic <- file.path(tmp_dir, report_images[[1]])
+
         file.copy("report.Rmd", tempReport, overwrite = TRUE)
+        file.copy(report_images[[1]], tmp_pic, overwrite = TRUE)
 
         params <-
           list(
+            banner = report_images[[1]],
             base_country = base_country(),
             comparison_countries = input$countries,
             data = data(),
@@ -875,6 +883,17 @@
               na = ""
           )
         }
+      )
+
+  # Full methodology --------------------------------------------------------
+    output$download_metho <-
+      downloadHandler(
+        filename = "CLIAR-Methodological-Note_20220403.pdf",
+
+        content = function(file) {
+          file.copy("www/CLIAR-Methodological-Note_20220403.pdf", file)
+        }
+
       )
 
   }

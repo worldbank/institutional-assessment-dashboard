@@ -191,7 +191,7 @@ ctf_long <-
 ctf_long <-
   ctf_long %>%
   group_by(family_name, family_var, country_name, country_code, group) %>%
-  summarise(value = mean(value, na.rm = TRUE)) %>%
+  summarise(value = median(value, na.rm = TRUE)) %>%
   ungroup %>%
   mutate(
     variable = family_var,
