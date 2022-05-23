@@ -796,14 +796,13 @@
         tmp_dir <- tempdir()
 
         tempReport <- file.path(tmp_dir, "report.Rmd")
-        tmp_pic <- file.path(tmp_dir, report_images[[1]])
 
+        file.copy("www/", tmp_dir, recursive = TRUE)
         file.copy("report.Rmd", tempReport, overwrite = TRUE)
-        file.copy(report_images[[1]], tmp_pic, overwrite = TRUE)
+
 
         params <-
           list(
-            banner = report_images[[1]],
             base_country = base_country(),
             comparison_countries = input$countries,
             data = data(),

@@ -1,10 +1,8 @@
 ---
 title:
-subtitle: Institutional Benchmarking
 output: 
   word_document
 params:
-  banner: NA
   base_country: NA
   variable_names: NA
   definitions: NA
@@ -48,7 +46,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r}
-#knitr::include_graphics(params$banner)
+knitr::include_graphics("www/cliar.png")
 ```
 
 # Methodology
@@ -59,15 +57,15 @@ knitr::opts_chunk$set(
 2. **The benchmarking exercise clusters an array of well-established institutional indicators into nine institutional families**. There is no agreed theoretical framework that could guide the categorization process. The categorization process faces a trade-off between aggregation and narrowness, where the categories have to be broad enough to comprehensively capture the main indicators and policy spaces but also focused enough to guide an in-depth qualitative analysis as well as a productive dialogue in the country. The proposed categories, described in more detail in Appendix A, are based on an effort to balance this trade-off and capture key functions that different institutions perform (Figure 1): Anticorruption, transparency, and accountability; Business environment and trade; Financial market; Labor market; Justice; Political; Public sector; Social; and SOE corporate governance. The institutional benchmarking uses more than 80 indicators collected from a variety of data sources in order to provide a snapshot of governance and institutions according to the latest available international indicators, as of 2020. Details on the indicators used for the institutional benchmarking are provided in Appendix B.
 
 ```{r, fig.cap="Institutional families"}
-#knitr::include_graphics(params$fig1)
+knitr::include_graphics("www/families.png")
 ```
 
 3. **The benchmarking exercise employs the “closeness to frontier” (CTF) methodology to standardize and compare a wide range of institutional indicators**. The CTF methodology facilitates the assessment of a country’s performance across institutional indicators by comparing it with the “global frontier,” which corresponds to the world's best performer. For each indicator, a country's performance is rescaled on a 0–1 scale using a linear transformation (worst–y)/(worst–frontier), where 1 represents the best performer and 0 the worst performer. The higher the score, the closer a country is to the best performer and the lower the score, the closer a country is to the worst performer, and more distant to the frontier. The best and worst performers are identified using available data from the global sample (i.e., considering all countries for which data are available) across the last five years. In the case of `r params$base_country`, we use indicators for 2014–20 (or a shorter period if data are not available). Next, for each institutional category, the CTF scores obtained for each indicator are aggregated through simple averaging into one aggregated CTF score. This captures the overall performance for a category relative to the “global frontier.” Performance across the indicators will help identify priority areas for institutional strengthening.
 
 4. **Relative institutional weaknesses and strengths are defined based on the percentile in which the specific indicator belongs, relative to the set of comparator countries**. Traffic light coloring indicates where the largest institutional gaps exist relative to the comparator countries, based on the following categories (Figure 2): “weak institution” (bottom 25 percent—red), “emerging institution” (25–50 percent—yellow), and “advanced institution” (top 50 percent—green). For `r params$base_country`, the chosen set of comparator countries include: `r paste(params$comparison_countries, collapse = ", ")` The comparators were chosen based on **[... FOR TEAMS TO COMPLETE]**. 
 
-```{r, fig.cap="Traffic light coloring, as used in the institutional benchmarking exercise"}
-#knitr::include_graphics(params$fig2
+```{r, fig.cap="Traffic light coloring, as used in the institutional benchmarking exercise", out.width = "100%"}
+knitr::include_graphics("www/colors.png")
 ```
 
 # Country overview
