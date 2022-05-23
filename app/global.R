@@ -67,11 +67,7 @@ country_groups <-
 
 definitions <-
   read_rds(here("data",
-                     "indicator_definitions.rds"))
-
-names(definitions) <- names(definitions) %>% str_remove_all(" institutions")
-names(definitions)[5] <- "Justice"
-
+                     "definitions.rds"))
 country_list <-
   read_rds(
     here(

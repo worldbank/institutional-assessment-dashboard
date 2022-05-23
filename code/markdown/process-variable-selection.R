@@ -47,3 +47,12 @@ write_rds(
       "definitions.rds"
     )
   )
+
+  write_rds(
+    description,
+    here(
+      "app",
+      "data",
+      "definitions.rds"
+    )
+  )
