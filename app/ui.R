@@ -290,8 +290,8 @@ ui <-
                 pickerInput(
                   "vars_bar",
                   label = "Select indicator",
-                  choices = variable_list,
-                  selected = "Capital controls",
+                  choices = c("", variable_list),
+                  selected = NULL,
                   options = list(
                     size = 20,
                     `actions-box` = TRUE,
@@ -307,8 +307,8 @@ ui <-
                 pickerInput(
                   "country_bar",
                   label = "Select a base country",
-                  choices = countries,
-                  selected = "Uruguay",
+                  choices = c("", countries),
+                  selected = NULL,
                   multiple = FALSE
                 )
               ),
@@ -318,8 +318,8 @@ ui <-
                 pickerInput(
                   inputId = "countries_bar",
                   label = "Select comparison countries",
-                  choices = countries,
-                  selected = c("Brazil", "Argentina", "Paraguay", "Austria"),
+                  choices = c("", countries),
+                  selected = NULL,
                   multiple = TRUE,
                   options = list(`actions-box` = TRUE)
                 )
@@ -338,14 +338,18 @@ ui <-
             )
           ),
 
-          bs4Card(
-            width = 11,
-            solidHeader = FALSE,
-            gradientColor = "primary",
-            collapsible = FALSE,
-            plotlyOutput(
-              "bar_plot",
-              height = paste0(plot_height, "px")
+          conditionalPanel(
+            'input.country_bar !== "" && input.countries_bar != "" && input.vars_bar != ""',
+
+            bs4Card(
+              width = 11,
+              solidHeader = FALSE,
+              gradientColor = "primary",
+              collapsible = FALSE,
+              plotlyOutput(
+                "bar_plot",
+                height = paste0(plot_height, "px")
+              )
             )
           )
         ),

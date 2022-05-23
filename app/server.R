@@ -106,6 +106,24 @@
           id = "report",
           condition = input$select
         )
+
+        updatePickerInput(
+          session,
+          "country_bar",
+          selected = input$country
+        )
+
+        updatePickerInput(
+          session,
+          "countries_bar",
+          selected = input$countries
+        )
+
+        updatePickerInput(
+          session,
+          "groups_bar",
+          selected = input$groups
+        )
       },
 
       ignoreNULL = FALSE
