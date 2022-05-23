@@ -64,7 +64,7 @@
 
     output$select_button <-
       renderUI({
-        if (length(input$countries) >= 10) {
+        if (length(input$countries) >= 10 & input$country != "") {
           actionButton(
             "select",
             "Apply selection",
@@ -76,7 +76,7 @@
         else {
           actionButton(
             "select",
-            "Select at least 10 countries to apply selection",
+            "Select a base country and at least 10 comparison countries to apply selection",
             icon = icon("triangle-exclamation"),
             class = "btn-warning",
             width = "100%"

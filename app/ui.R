@@ -129,8 +129,8 @@ ui <-
                 pickerInput(
                   "country",
                   label = "Select a base country",
-                  choices = countries,
-                  selected = "Uruguay",
+                  choices = c("", countries),
+                  selected = NULL,
                   multiple = FALSE,
                   options = list(
                     size = 20,
@@ -145,7 +145,7 @@ ui <-
                   "groups",
                   label = "Select comparison groups",
                   choices = group_list,
-                  selected = c("OECD members"),
+                  selected = NULL,
                   multiple = TRUE,
                   options = list(
                     size = 21,
