@@ -609,7 +609,7 @@
         {
           var_selected <-
             variable_names %>%
-            filter(var_name == input$indicator_trends) %>%
+            filter(var_name == input$vars_trends) %>%
             .$variable
         }
       )
