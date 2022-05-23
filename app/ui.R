@@ -287,7 +287,7 @@ ui <-
             fluidRow(
 
               column(
-                width = 6,
+                width = 5,
                 pickerInput(
                   "vars_bar",
                   label = "Select indicator",
@@ -304,7 +304,7 @@ ui <-
               ),
 
               column(
-                width = 2,
+                width = 3,
                 pickerInput(
                   "country_bar",
                   label = "Select a base country",
@@ -315,19 +315,7 @@ ui <-
               ),
 
               column(
-                width = 3,
-                pickerInput(
-                  inputId = "countries_bar",
-                  label = "Select comparison countries",
-                  choices = c("", countries),
-                  selected = NULL,
-                  multiple = TRUE,
-                  options = list(`actions-box` = TRUE)
-                )
-              ),
-
-              column(
-                width = 3,
+                width = 4,
                 pickerInput(
                   inputId = "groups_bar",
                   label = "Select comparison groups",
@@ -336,7 +324,24 @@ ui <-
                   multiple = TRUE
                 )
               )
+            )
+          ),
 
+          bs4Card(
+            title = "Select individual comparison countries",
+            width = 11,
+            status = "success",
+            collapsed = TRUE,
+
+            checkboxGroupButtons(
+              inputId = "countries_bar",
+              individual = TRUE,
+              label = NULL,
+              choices = countries,
+              checkIcon = list(
+                yes = icon("ok",
+                           lib = "glyphicon")
+              )
             )
           ),
 
@@ -369,21 +374,6 @@ ui <-
 
             fluidRow(
 
-              #column(
-              #  width = 3,
-              #  pickerInput(
-              #    "country_scatter",
-              #    label = "Select a base country",
-              #    choices = countries,
-              #    selected = "Uruguay",
-              #    multiple = FALSE,
-              #    options = list(
-              #      size = 20,
-              #      `actions-box` = TRUE
-              #    )
-              #  )
-              #),
-
               column(
                 width = 3,
                 pickerInput(
@@ -398,7 +388,7 @@ ui <-
                   )
                 )
               ),
-              
+
               column(
                 width = 3,
                 pickerInput(
@@ -419,7 +409,7 @@ ui <-
               ),
 
               column(
-                width = 4,
+                width = 3,
                 pickerInput(
                   "x_scatter",
                   label = "Select indicator for X axis",
@@ -438,7 +428,7 @@ ui <-
               ),
 
               column(
-                width = 4,
+                width = 3,
                 pickerInput(
                   "high_group",
                   label = "Highlight a group",
@@ -509,7 +499,7 @@ ui <-
 
             fluidRow(
               column(
-                width = 4,
+                width = 5,
                 pickerInput(
                   "vars_trends",
                   label = "Select indicator to visualize",
@@ -539,7 +529,7 @@ ui <-
               ),
 
               column(
-                width = 6,
+                width = 4,
                 pickerInput(
                   "group_trends",
                   label = "Select comparison groups",
