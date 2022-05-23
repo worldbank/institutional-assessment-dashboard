@@ -97,20 +97,6 @@
        ignoreNULL = FALSE
     )
 
-
-    observeEvent(
-      input$select,
-
-      {
-        toggleState(
-          id = "report",
-          condition = input$select
-        )
-      },
-
-      ignoreNULL = FALSE
-    )
-
     # Reactive objects ==============================================
 
     ## Benchmark data -----------------------------------------------
@@ -199,7 +185,190 @@
 
         }
       )
-    
+
+    ## Update inputs based on benchmark selection ------------------------------
+    observeEvent(
+      input$select,
+
+      {
+        # Create report
+        toggleState(
+          id = "report",
+          condition = input$select
+        )
+
+        # Cross-crountry comparison selection
+        updatePickerInput(
+          session,
+          "country_bar",
+          selected = input$country
+        )
+
+        updatePickerInput(
+          session,
+          "countries_bar",
+          selected = input$countries
+        )
+
+        updatePickerInput(
+          session,
+          "groups_bar",
+          selected = input$groups
+        )
+
+        # Bivariate correlation selection
+        updatePickerInput(
+          session,
+          "country_scatter",
+          selected = input$country
+        )
+
+        updatePickerInput(
+          session,
+          "countries_scatter",
+          selected = input$countries
+        )
+
+        updatePickerInput(
+          session,
+          "high_group",
+          selected = input$groups
+        )
+
+        # Time trends
+        updatePickerInput(
+          session,
+          "country_trends",
+          selected = input$country
+        )
+
+        updatePickerInput(
+          session,
+          "countries_trends",
+          selected = input$countries
+        )
+
+        updatePickerInput(
+          session,
+          "group_trends",
+          selected = input$groups
+        )
+
+      },
+
+      ignoreNULL = FALSE
+    )
+
+    ## Change variable selection in all tabs
+
+    observeEvent(
+      input$vars_bar,
+
+      {
+        updatePickerInput(
+          session,
+          "y_scatter",
+          selected = input$vars_bar
+        )
+
+        updatePickerInput(
+          session,
+          "vars_map",
+          selected = input$vars_bar
+        )
+
+        updatePickerInput(
+          session,
+          "vars_trends",
+          selected = input$vars_bar
+        )
+
+      },
+
+      ignoreNULL = FALSE
+    )
+
+    observeEvent(
+      input$y_scatter,
+
+      {
+        updatePickerInput(
+          session,
+          "vars_bar",
+          selected = input$y_scatter
+        )
+
+        updatePickerInput(
+          session,
+          "vars_map",
+          selected = input$y_scatter
+        )
+
+        updatePickerInput(
+          session,
+          "vars_trends",
+          selected = input$y_scatter
+        )
+
+      },
+
+      ignoreNULL = FALSE
+    )
+
+    observeEvent(
+      input$vars_map,
+
+      {
+        updatePickerInput(
+          session,
+          "vars_bar",
+          selected = input$vars_map
+        )
+
+        updatePickerInput(
+          session,
+          "y_scatter",
+          selected = input$vars_map
+        )
+
+        updatePickerInput(
+          session,
+          "vars_trends",
+          selected = input$vars_map
+        )
+
+      },
+
+      ignoreNULL = FALSE
+    )
+
+    observeEvent(
+      input$vars_trends,
+
+      {
+        updatePickerInput(
+          session,
+          "vars_bar",
+          selected = input$vars_trends
+        )
+
+        updatePickerInput(
+          session,
+          "y_scatter",
+          selected = input$vars_trends
+        )
+
+        updatePickerInput(
+          session,
+          "vars_map",
+          selected = input$vars_trends
+        )
+
+      },
+
+      ignoreNULL = FALSE
+    )
+
     ## Make sure only valid groups are chosen ----------------------------------
 
     observeEvent(
@@ -390,7 +559,7 @@
         static_scatter(
           global_data,
           input$country_scatter,
-          input$countries,
+          input$countries_scatter,
           high_group(),
           input$y_scatter,
           input$x_scatter,
@@ -435,48 +604,50 @@
 
     var_trends <-
       eventReactive(
-        input$indicator_trends,
+        input$vars_trends,
 
         {
           var_selected <-
             variable_names %>%
-            filter(var_name == input$indicator_trends) %>%
+            filter(var_name == input$vars_trends) %>%
             .$variable
         }
       )
 
-    observeEvent(
-      input$indicator_trends,
+    eventReactive(
+      input$vars_trends,
 
       {
-        valid_countries <-
-          raw_data %>%
-          filter(!is.na(get(var_trends()))) %>%
-          select(country_name) %>%
-          unique %>%
-          arrange(country_name) %>%
-          unlist %>%
-          unname
+        if (!is.null(input$vars_trends)) {
+          valid_countries <-
+            raw_data %>%
+            filter(!is.na(get(var_trends()))) %>%
+            select(country_name) %>%
+            unique %>%
+            arrange(country_name) %>%
+            unlist %>%
+            unname
 
-        last_country <-
-          input$country_trends
+          last_country <-
+            input$country_trends
 
-        updatePickerInput(
-          session,
-          "country_trends",
-          choices = valid_countries,
-          selected = last_country
-        )
+          updatePickerInput(
+            session,
+            "country_trends",
+            choices = valid_countries,
+            selected = last_country
+          )
 
-        last_countries <-
-          input$countries_trends
+          last_countries <-
+            input$countries_trends
 
-        updatePickerInput(
-          session,
-          "countries_trends",
-          choices = valid_countries,
-          selected = last_countries
-        )
+          updatePickerInput(
+            session,
+            "countries_trends",
+            choices = valid_countries,
+            selected = last_countries
+          )
+        }
       },
 
       ignoreNULL = FALSE
@@ -485,12 +656,12 @@
     output$time_series <-
       renderPlotly({
 
-        if (input$indicator_trends != "") {
+        if (input$vars_trends != "") {
 
           trends_plot(
             raw_data,
             var_trends(),
-            input$indicator_trends,
+            input$vars_trends,
             input$country_trends,
             input$countries_trends,
             country_list,

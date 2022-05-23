@@ -748,10 +748,18 @@ static_scatter <-
         size = 2
       ) +
       scale_color_manual(
-        values = c("#FB8500","#001f3f","#6c757d")
+        values = c(
+          "Base country" = "#FB8500",
+          "Comparison countries" = "#001f3f",
+          "Others" = "#6c757d"
+        )
       ) +
       scale_shape_manual(
-        values = c(16, 16, 1)
+        values = c(
+          "Base country" = 16,
+          "Comparison countries" = 16,
+          "Others" = 1
+        )
       ) +
       theme_minimal() +
       theme(
@@ -802,7 +810,6 @@ interactive_scatter <-
       y <- definitions %>%
         filter(variable == "gdp_pc_ppp_const")
     }
-      
 
     plot %>%
       ggplotly(tooltip = "text") %>%

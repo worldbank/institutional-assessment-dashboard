@@ -291,7 +291,7 @@ ui <-
                   "vars_bar",
                   label = "Select indicator",
                   choices = variable_list,
-                  selected = "Capital controls",
+                  selected = NULL,
                   options = list(
                     size = 20,
                     `actions-box` = TRUE,
@@ -307,8 +307,8 @@ ui <-
                 pickerInput(
                   "country_bar",
                   label = "Select a base country",
-                  choices = countries,
-                  selected = "Uruguay",
+                  choices = c("", countries),
+                  selected = NULL,
                   multiple = FALSE
                 )
               ),
@@ -318,8 +318,8 @@ ui <-
                 pickerInput(
                   inputId = "countries_bar",
                   label = "Select comparison countries",
-                  choices = countries,
-                  selected = c("Brazil", "Argentina", "Paraguay", "Austria"),
+                  choices = c("", countries),
+                  selected = NULL,
                   multiple = TRUE,
                   options = list(`actions-box` = TRUE)
                 )
@@ -338,14 +338,18 @@ ui <-
             )
           ),
 
-          bs4Card(
-            width = 11,
-            solidHeader = FALSE,
-            gradientColor = "primary",
-            collapsible = FALSE,
-            plotlyOutput(
-              "bar_plot",
-              height = paste0(plot_height, "px")
+          conditionalPanel(
+            'input.country_bar !== "" && input.countries_bar != "" && input.vars_bar != ""',
+
+            bs4Card(
+              width = 11,
+              solidHeader = FALSE,
+              gradientColor = "primary",
+              collapsible = FALSE,
+              plotlyOutput(
+                "bar_plot",
+                height = paste0(plot_height, "px")
+              )
             )
           )
         ),
@@ -368,8 +372,8 @@ ui <-
                 pickerInput(
                   "country_scatter",
                   label = "Select a base country",
-                  choices = countries,
-                  selected = "Uruguay",
+                  choices = c("", countries),
+                  selected = NULL,
                   multiple = FALSE,
                   options = list(
                     size = 20,
@@ -387,7 +391,7 @@ ui <-
                     "Log GDP per capita, PPP",
                     variable_list
                   ),
-                  selected = "Central bank independence",
+                  selected = NULL,
                   options = list(
                     `live-search` = TRUE,
                     size = 20,
@@ -440,13 +444,35 @@ ui <-
           ),
 
           bs4Card(
+            title = "Select individual comparison countries",
             width = 11,
-            solidHeader = FALSE,
-            gradientColor = "primary",
-            collapsible = FALSE,
-            plotlyOutput(
-              "scatter_plot",
-              height = paste0(plot_height, "px")
+            status = "success",
+            collapsed = TRUE,
+
+            checkboxGroupButtons(
+              inputId = "countries_scatter",
+              individual = TRUE,
+              label = NULL,
+              choices = countries,
+              checkIcon = list(
+                yes = icon("ok",
+                           lib = "glyphicon")
+              )
+            )
+          ),
+
+          conditionalPanel(
+            'input.y_scatter !== ""',
+
+            bs4Card(
+              width = 11,
+              solidHeader = FALSE,
+              gradientColor = "primary",
+              collapsible = FALSE,
+              plotlyOutput(
+                "scatter_plot",
+                height = paste0(plot_height, "px")
+              )
             )
           )
         ),
@@ -468,10 +494,10 @@ ui <-
               column(
                 width = 3,
                 pickerInput(
-                  "indicator_trends",
+                  "vars_trends",
                   label = "Select indicator to visualize",
                   choices = variable_list,
-                  selected = "Capital controls",
+                  selected = NULL,
                   options = list(
                     `live-search` = TRUE,
                     size = 21,
@@ -486,8 +512,8 @@ ui <-
                 pickerInput(
                   "country_trends",
                   label = "Select a base country",
-                  choices = countries,
-                  selected = "Uruguay",
+                  choices = c("", countries),
+                  selected = NULL,
                   multiple = FALSE,
                   options = list(
                     size = 23
@@ -496,12 +522,12 @@ ui <-
               ),
 
               column(
-                width = 3,
+                width = 6,
                 pickerInput(
                   "group_trends",
                   label = "Select comparison groups",
                   choices = group_list,
-                  selected = c("OECD members", "Latin America & Caribbean"),
+                  selected = NULL,
                   multiple = TRUE,
                   options = list(
                     maxOptions = 5,
@@ -509,33 +535,36 @@ ui <-
                     size = 21
                   )
                 )
-              ),
-
-              column(
-                width = 3,
-                pickerInput(
-                  "countries_trends",
-                  label = "Select comparison countries",
-                  choices = countries,
-                  multiple = TRUE,
-                  options = list(
-                    `actions-box` = TRUE,
-                    size = 22,
-                    title = "Click to select family or indicator"
-                  )
-                )
               )
             )
           ),
 
           bs4Card(
+            title = "Select individual comparison countries",
             width = 11,
-            solidHeader = FALSE,
-            gradientColor = "primary",
-            collapsible = FALSE,
+            status = "success",
+            collapsed = TRUE,
 
-            conditionalPanel(
-              "input.indicator_trends !== ''",
+            checkboxGroupButtons(
+              inputId = "countries_trends",
+              individual = TRUE,
+              label = NULL,
+              choices = countries,
+              checkIcon = list(
+                yes = icon("ok",
+                           lib = "glyphicon")
+              )
+            )
+          ),
+
+          conditionalPanel(
+            'input.vars_trends !== null && input.country_trends != ""',
+
+            bs4Card(
+              width = 11,
+              solidHeader = FALSE,
+              gradientColor = "primary",
+              collapsible = FALSE,
               plotlyOutput(
                 "time_series",
                 height = paste0(plot_height, "px")
@@ -564,7 +593,7 @@ ui <-
                   "vars_map",
                   label = "Select indicator",
                   choices = variable_list,
-                  selected = "Capital controls",
+                  selected = NULL,
                   options = list(
                     `live-search` = TRUE,
                     size = 20,
@@ -588,14 +617,14 @@ ui <-
             )
           ),
 
-          bs4Card(
-            width = 11,
-            solidHeader = FALSE,
-            gradientColor = "primary",
-            collapsible = FALSE,
+          conditionalPanel(
+            "input.vars_map !== ''",
 
-            conditionalPanel(
-              "input.vars_map !== ''",
+            bs4Card(
+              width = 11,
+              solidHeader = FALSE,
+              gradientColor = "primary",
+              collapsible = FALSE,
               plotlyOutput(
                 "map",
                 height = paste0(plot_height, "px")
