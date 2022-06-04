@@ -16,6 +16,7 @@ library(formattable)
 library(here)
 library(data.table)
 library(hrbrthemes)
+library(mailtoR)
 
 ## Auxiliary functions -----------------------------------------------------------------
 

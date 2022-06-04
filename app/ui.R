@@ -37,7 +37,8 @@ ui <-
         menuItem("Methodology", tabName = "methodology", icon = icon("book")),
         menuItem("FAQ", tabName = "faq", icon = icon("question")),
         menuItem("Source code", icon = icon("github", lib = "font-awesome"),
-                 href = "https://github.com/worldbank/institutional-assessment-dashboard/")
+                 href = "https://github.com/worldbank/institutional-assessment-dashboard/", newTab = TRUE),
+        menuItem("Feedback", tabName = "feedback", icon = icon("at", lib = "font-awesome"))
       )
     ),
 
@@ -1044,7 +1045,39 @@ ui <-
             )
           )
 
-        ) # Close FAQ tab
+        ), # Close FAQ tab
+
+## Feedback tab =====================================================================
+
+        tabItem(
+
+          tabName = "feedback",
+
+          use_mailtoR(),
+
+          box(
+            width = 11,
+            status = "navy",
+            collapsed = F,
+            title = "Send some feedback?",
+
+            p(
+              "Tell us anything about:",
+              tags$ul(
+                tags$li(HTML("Who you are")),
+                tags$li(HTML("Project code")),
+                tags$li(HTML("How you are using the G-BID")),
+                tags$li(HTML("How can we improve the G-BID"))
+              )
+            ),
+
+            mailtoR::mailtoR(email = "feedback@worldbank.org",
+                             subject = "G-BID - Feedback",
+                             text = "Open email application")
+          )
+
+        ) # Close Feedback tab
+
       )
     )
   )
