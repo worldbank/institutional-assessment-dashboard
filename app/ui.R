@@ -1053,8 +1053,6 @@ ui <-
 
           tabName = "feedback",
 
-          use_mailtoR(),
-
           box(
             width = 11,
             status = "navy",
@@ -1071,9 +1069,16 @@ ui <-
               )
             ),
 
-            mailtoR::mailtoR(email = "feedback@worldbank.org",
-                             subject = "G-BID - Feedback",
-                             text = "Open email application")
+            a(
+              actionButton(
+                inputId = "feedback_button",
+                label = " Contact Us",
+                icon = icon("at", lib = "font-awesome"),
+                width = "100%"
+              ),
+              href="mailto:some_feedback_mail@worldbank.org"
+            )
+
           )
 
         ) # Close Feedback tab
