@@ -41,6 +41,9 @@ source(here("auxiliary",
 source(here("auxiliary",
                  "plots.R"))
 
+# Feedback Email
+feedback <- a(href="mailto:some_feedback_mail@worldbank.org", target="_blank", "Send feedback")
+
 # Data -------------------------------------------------------------
 
 

@@ -243,6 +243,7 @@ ui <-
             title = NULL,
             collapsible = FALSE,
             width = 12,
+            footer = feedback,
 
             conditionalPanel(
               "input.select !== 0",
@@ -354,6 +355,8 @@ ui <-
               solidHeader = FALSE,
               gradientColor = "primary",
               collapsible = FALSE,
+              footer = feedback,
+
               plotlyOutput(
                 "bar_plot",
                 height = paste0(plot_height, "px")
@@ -477,6 +480,8 @@ ui <-
               solidHeader = FALSE,
               gradientColor = "primary",
               collapsible = FALSE,
+              footer = feedback,
+
               plotlyOutput(
                 "scatter_plot",
                 height = paste0(plot_height, "px")
@@ -573,6 +578,8 @@ ui <-
               solidHeader = FALSE,
               gradientColor = "primary",
               collapsible = FALSE,
+              footer = feedback,
+
               plotlyOutput(
                 "time_series",
                 height = paste0(plot_height, "px")
@@ -633,6 +640,8 @@ ui <-
               solidHeader = FALSE,
               gradientColor = "primary",
               collapsible = FALSE,
+              footer = feedback,
+
               plotlyOutput(
                 "map",
                 height = paste0(plot_height, "px")
@@ -648,6 +657,8 @@ ui <-
 
           fluidRow(
             bs4Card(
+
+              footer = feedback,
 
               fluidRow(
 
