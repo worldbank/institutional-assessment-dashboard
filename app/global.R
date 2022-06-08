@@ -16,6 +16,8 @@ library(formattable)
 library(here)
 library(data.table)
 library(hrbrthemes)
+library(bsplus)
+library(htmltools)
 
 ## Auxiliary functions -----------------------------------------------------------------
 

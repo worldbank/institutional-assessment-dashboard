@@ -138,7 +138,13 @@ ui <-
                     size = 20,
                     `actions-box` = TRUE
                   )
-                )
+                ) %>%
+                  shinyInput_label_embed(
+                    shiny_iconlink() %>%
+                      bs_embed_tooltip(
+                        title = "Help text", placement = "right"
+                      )
+                  )
               ),
 
               column(
@@ -153,7 +159,13 @@ ui <-
                     size = 21,
                     `actions-box` = TRUE
                   )
-                )
+                ) %>%
+                  shinyInput_label_embed(
+                    shiny_iconlink() %>%
+                      bs_embed_tooltip(
+                        title = "Help text", placement = "right"
+                      )
+                  )
               ),
 
               column(
@@ -166,7 +178,13 @@ ui <-
                     names(definitions)
                   ),
                   selected = "Overview"
-                )
+                ) %>%
+                  shinyInput_label_embed(
+                    shiny_iconlink() %>%
+                      bs_embed_tooltip(
+                        title = "Help text", placement = "right"
+                      )
+                  )
               ),
 
               column(
@@ -184,7 +202,13 @@ ui <-
                     `live-search` = TRUE,
                     maxOptions = 3
                   )
-                )
+                ) %>%
+                  shinyInput_label_embed(
+                    shiny_iconlink() %>%
+                      bs_embed_tooltip(
+                        title = "Help text", placement = "right"
+                      )
+                  )
               )
 
             ),
