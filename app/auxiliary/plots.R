@@ -19,27 +19,36 @@ plotly_remove_buttons <-
 # Benchmark plots ##############################################################
 
 static_plot <-
-  function(data, 
+  function(data,
            base_country,
-           tab_name, 
-           group_median = NULL, 
-           title = TRUE, 
+           tab_name,
+           group_median = NULL,
+           title = TRUE,
            dots = FALSE,
            note = NULL) {
+
+    order <-
+      data %>%
+      filter(country_name == base_country) %>%
+      arrange(
+        match(status, c("Strong\n(top 50%)","Emerging\n(25% - 50%)","Weak\n(bottom 25%)")),
+        desc(dtf)
+      ) %>%
+      select(var_name) %>%
+      unlist
 
     data$var_name <-
       factor(
         data$var_name,
-        levels = sort(unique(data$var_name),
-                      decreasing = TRUE),
+        levels = order,
         ordered = TRUE
       )
-    
-    vars <- 
+
+    vars <-
       data %>%
       select(var_name) %>%
-      unique %>% 
-      unlist %>% 
+      unique %>%
+      unlist %>%
       unname
 
     colors <-
@@ -140,9 +149,9 @@ static_plot <-
           alpha = .5
         )
     }
-    
+
     if (!is.null(group_median)) {
-      
+
       median_data <-
         ctf_long %>%
         filter(
@@ -150,13 +159,13 @@ static_plot <-
           country_name %in% group_median
         ) %>%
         select(
-          var_name, 
-          value, 
+          var_name,
+          value,
           country_name
         )
-      
+
       if ("Comparison countries" %in% group_median) {
-        
+
         countries <-
           ctf_long %>%
           filter(
@@ -175,9 +184,9 @@ static_plot <-
           ) %>%
           summarise(value = median(value, na.rm = TRUE)) %>%
           ungroup
-        
+
         print(countries)
-        
+
         median_data <-
           median_data %>%
           bind_rows(countries)
@@ -703,8 +712,8 @@ static_scatter <-
           unlist %>%
           unname
       )
-      
-    
+
+
     x <-
       ifelse(
         x_scatter == "Log GDP per capita, PPP",
@@ -818,12 +827,12 @@ interactive_scatter <-
     x <-
       definitions %>%
       filter(var_name == x_scatter)
-    
+
     if (x_scatter == "Log GDP per capita, PPP") {
       x <- definitions %>%
         filter(variable == "gdp_pc_ppp_const")
     }
-    
+
     if (y_scatter == "Log GDP per capita, PPP") {
       y <- definitions %>%
         filter(variable == "gdp_pc_ppp_const")
