@@ -120,7 +120,8 @@ static_plot <-
           caption = note
         ) +
         scale_fill_manual(
-          values = colors
+          values = colors,
+          name = NULL
         )
 
     if (title) {
@@ -212,8 +213,9 @@ static_plot <-
         ) +
         scale_shape_manual(
           values = 22:25,
-          lab = NULL
+          name = NULL
         )
+
     }
 
     plot <-
