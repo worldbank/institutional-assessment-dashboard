@@ -594,6 +594,7 @@ ui <-
             collapsible = TRUE,
 
             fluidRow(
+
               column(
                 width = 5,
                 pickerInput(
@@ -607,6 +608,22 @@ ui <-
                     title = "Click to select family or indicator"
                   ),
                   width = "100%"
+                )
+              ),
+
+              column(
+                width = 4,
+                radioGroupButtons(
+                  "value_map",
+                  label = "Select data source",
+                  choices = c(
+                    "Closeness to frontier" = "ctf",
+                    "Original indicator" = "raw"
+                  ),
+                  justified = TRUE,
+                  selected = "ctf",
+                  checkIcon = list(
+                    yes = icon("ok", lib = "glyphicon"))
                 )
               )
               # ,

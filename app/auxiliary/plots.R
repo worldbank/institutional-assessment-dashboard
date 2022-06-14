@@ -298,45 +298,47 @@ interactive_plot <-
 
 static_map <-
   function(source, var, title) {
-    
+
     if (source == "raw") {
-      
+
       color <- paste0("value_", var)
-      
-      data <- 
-        map %>%
+
+      data <-
+        spatial_data %>%
         mutate(
           text = paste0(
-            "Latest value (", get(paste0("year_", var)), "): ",
-            get(color), 
+            "Latest value (",
+            get(paste0("year_", var)),
+            "): ",
+            get(color) %>% round(3),
             "<br>",
-            "Closeness to frontier: ",
-            get(paste0("ctf_", var))
+            "Closeness to frontier (2013-2020): ",
+            get(paste0("ctf_", var)) %>% round(3)
           )
         )
-      
+
     } else if (source == "ctf") {
       color <- paste0("bin_", var)
       value <- paste0("value_", var)
-      
-      data <- 
-        map %>%
+
+      data <-
+        spatial_data %>%
         mutate(
           text = paste0(
             "Closeness to frontier: ",
-            get(paste0("ctf_", var))
+            get(paste0("ctf_", var)) %>% round(3)
           )
         )
     }
-    
+
     plot <-
       data %>%
       ggplot() +
       geom_sf(
         aes(
-          fill = get(var),
+          fill = get(color),
           text = paste0(
-            WB_NAME, ": ",
+            "<b>", country_name, "</b><br>",
             text
           )
         ),
@@ -345,16 +347,16 @@ static_map <-
       ) +
       labs(title = paste0("<b>", title, "</b>")) +
       theme_void()
-      
+
     if (source == "raw") {
-      plot <- 
+      plot <-
         plot +
         scale_fill_gradientn(
           colours = c(
-            "#D55E00", 
-            "#DD7C00", 
-            "#E69F00", 
-            "#579E47", 
+            "#D55E00",
+            "#DD7C00",
+            "#E69F00",
+            "#579E47",
             "#009E73"
           ),
           name = NULL,
@@ -362,7 +364,7 @@ static_map <-
         )
     } else if (source == "ctf") {
       plot <-
-        plot + 
+        plot +
         scale_fill_manual(
           name = NULL,
           values = c(
@@ -376,25 +378,31 @@ static_map <-
           na.value = "#808080",
           drop = FALSE)
     }
-    
+
     return(plot)
   }
-      
+
 
 ## Interactive map =============================================================
 
 interactive_map <-
-  function(x, var, definitions, buttons) {
+  function(x, var, definitions, buttons, source) {
 
     def <-
       definitions %>%
       filter(var_name == var)
 
+    if (source == "ctf") {
+      leg_title <- "Closeness to\nfrontier"
+    } else  {
+      leg_title <- NULL
+    }
+
     x %>%
       ggplotly(tooltip = "text") %>%
       layout(
         legend = list(
-          title = list(text = '<b>Closeness to\nfrontier:</b>'),
+          title = list(text = paste("<b>", leg_title, "</b>")),
           y = 0.5
         ),
         margin = list(t = 75, b = 125),

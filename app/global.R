@@ -79,7 +79,7 @@ country_list <-
     )
   )
 
-map <-
+spatial_data <-
   read_rds(
     here(
       "data",

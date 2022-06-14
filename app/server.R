@@ -591,7 +591,8 @@
           interactive_map(
             var_selected,
             db_variables,
-            plotly_remove_buttons
+            plotly_remove_buttons,
+            input$value_map
           )
         }
 
