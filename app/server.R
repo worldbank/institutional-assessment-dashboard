@@ -581,18 +581,18 @@
           var_selected <-
             variable_names %>%
             filter(var_name == input$vars_map) %>%
-            .$variable
+            pull(variable)
 
-          latest_year <- period_info_available %>%
-            filter(variable == var_selected)
-
-          static_map(wb_country_geom_fact,
-                     var_selected,
-                     latest_year,
-                     input$vars_map) %>%
-          interactive_map(input$vars_map,
-                          db_variables,
-                          plotly_remove_buttons)
+          static_map(
+            input$value_map,
+            var_selected,
+            input$vars_map
+          ) %>%
+          interactive_map(
+            var_selected,
+            db_variables,
+            plotly_remove_buttons
+          )
         }
 
       })

@@ -79,15 +79,7 @@ country_list <-
     )
   )
 
-ctf_map <-
-  read_rds(
-    here(
-      "data",
-      "closeness_to_frontier_map.rds"
-    )
-  )
-
-raw_map <-
+map <-
   read_rds(
     here(
       "data",

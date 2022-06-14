@@ -99,11 +99,26 @@ world_map <-
 ## Closeness to frontier
 
 ```{r}
-ctf_map <-
-  world_map %>%
-  left_join(
-    ctf
-  ) 
+ctf <-
+  ctf %>%
+  pivot_longer(
+    cols = complaint_mechan:log_gdp,
+    values_to = "ctf"
+  ) %>%
+  mutate(
+    bin = case_when(
+      ctf < .2 ~ "0.0 - 0.2",
+      ctf < .4 ~ "0.2 - 0.4",
+      ctf < .5 ~ "0.4 - 0.6",
+      ctf < .8 ~ "0.6 - 0.8",
+      ctf <= 1 ~ "0.8 - 1.0" 
+    )
+  ) %>%
+  pivot_wider(
+    id_cols = starts_with("country_"),
+    names_from = name,
+    values_from = c(bin, ctf)
+  )
 ```
 
 ## Raw data
@@ -123,32 +138,26 @@ raw <-
     names_from = name
   )
 
-raw_map <-
+map <-
   world_map %>%
   left_join(
     raw
-  ) 
+  ) %>%
+  left_join(
+    ctf
+  )
 ```
 
 
 # Save datasets
 
 ```{r}
-raw_map %>%
+map %>%
   write_rds(
     here(
       "app",
       "data",
       "indicators_map.rds"
-    )
-  )
-
-ctf_map %>%
-  write_rds(
-    here(
-      "app",
-      "data",
-      "closeness_to_frontier_map.rds"
     )
   )
 ```
