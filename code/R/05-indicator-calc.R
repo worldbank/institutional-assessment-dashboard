@@ -74,7 +74,7 @@ vars_minmax <-
     names_from = "minmax",
     values_from = "value_minmax"
   ) %>%
-  remove_labels()
+  labelled::remove_labels()
 
 # Collapse at country level, keeping the most recent data for each indicator
 #data_recent_country <-
