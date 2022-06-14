@@ -19,27 +19,16 @@ library(hrbrthemes)
 
 ## Auxiliary functions -----------------------------------------------------------------
 
-source(
-  here(
-    "auxiliary",
-    "vars-control.R"))
+source(here("auxiliary", "vars-control.R"))
 
 # Function that defines quantiles based on country, comparison and variables
-source(here("auxiliary",
-                 "fun_quantiles.R"))
-
-source(here("auxiliary",
-                 "fun_family_data.R"))
-
-source(here("auxiliary",
-                 "fun_missing_var.R"))
-
-source(here("auxiliary",
-                 "fun_low_variance.R"))
+source(here("auxiliary", "fun_quantiles.R"))
+source(here("auxiliary", "fun_family_data.R"))
+source(here("auxiliary", "fun_missing_var.R"))
+source(here("auxiliary", "fun_low_variance.R"))
 
 # Create benchmark graphs
-source(here("auxiliary",
-                 "plots.R"))
+source(here("auxiliary", "plots.R"))
 
 # Data -------------------------------------------------------------
 
@@ -132,7 +121,7 @@ countries <-
 
 variable_list <-
   list(
-    `Anti-Corruption, Transparency and Accountability` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
+    `Anti-Corruption, Transparency and Accountability` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_transp") %>% .$var_name),
     `Business environment and trade` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_mkt") %>% .$var_name),
     `Financial market` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
     `SOE Corporate Governance` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_service_del") %>% .$var_name),

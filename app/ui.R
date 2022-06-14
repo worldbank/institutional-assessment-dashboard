@@ -231,6 +231,7 @@ ui <-
               individual = TRUE,
               label = NULL,
               choices = countries,
+              selected = NULL, 
               checkIcon = list(
                 yes = icon("ok",
                            lib = "glyphicon")
@@ -339,14 +340,16 @@ ui <-
               label = NULL,
               choices = countries,
               checkIcon = list(
-                yes = icon("ok",
-                           lib = "glyphicon")
+                yes = icon(
+                  "ok",
+                  lib = "glyphicon"
+                )
               )
             )
           ),
 
           conditionalPanel(
-            'input.country_bar !== "" && input.countries_bar != "" && input.vars_bar != ""',
+            'input.country_bar !== "" && input.countries_bar != "" && input.vars_bar != null',
 
             bs4Card(
               width = 11,

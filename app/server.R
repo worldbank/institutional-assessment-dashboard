@@ -196,20 +196,20 @@
           id = "report",
           condition = input$select
         )
-
+        
         # Cross-crountry comparison selection
         updatePickerInput(
           session,
           "country_bar",
           selected = input$country
         )
-
-        updatePickerInput(
+        
+        updateCheckboxGroupButtons(
           session,
           "countries_bar",
           selected = input$countries
         )
-
+        
         updatePickerInput(
           session,
           "groups_bar",
@@ -223,7 +223,7 @@
           selected = input$country
         )
 
-        updatePickerInput(
+        updateCheckboxGroupButtons(
           session,
           "countries_scatter",
           selected = input$countries
@@ -242,7 +242,7 @@
           selected = input$country
         )
 
-        updatePickerInput(
+        updateCheckboxGroupButtons(
           session,
           "countries_trends",
           selected = input$countries
@@ -259,7 +259,7 @@
       ignoreNULL = FALSE
     )
 
-    ## Change variable selection in all tabs
+    ## Change variable selection in all tabs --------------------------
 
     observeEvent(
       input$vars_bar,
@@ -375,7 +375,6 @@
       input$country,
 
       {
-
         valid_vars <-
           ctf_long %>%
           filter(
@@ -530,8 +529,8 @@
         {
           static_bar(
             global_data,
-            input$country,
-            input$countries,
+            input$country_bar,
+            input$countries_bar,
             input$groups_bar,
             input$vars_bar,
             variable_names
@@ -638,7 +637,7 @@
           last_countries <-
             input$countries_trends
 
-          updatePickerInput(
+          updateCheckboxGroupButtons(
             session,
             "countries_trends",
             choices = valid_countries,
