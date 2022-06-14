@@ -128,6 +128,10 @@ data_api <- data_api %>%
   #) %>%
   mutate(
     var = case_when(
+      Indicator == "Judicial independence (WEF)" ~ "judicial_independence",
+      Indicator == "% of firms identifying courts as the biggest obstacle" ~ "firms_identify_courst_obst",
+      Indicator == "Independent judiciary" ~ "indep_judiciary",
+      Indicator == "Biggest Obstacle Courts" ~ "big_obstacle_courts",
       Indicator == "GDP per capita, PPP (constant 2011 international $)" ~ "gdp_pc_ppp_const",
       Indicator == "SOE board of directors independence" ~ "soe_board",
       #Indicator == "SOE corporate governance practice" ~ "soe_corporate",
