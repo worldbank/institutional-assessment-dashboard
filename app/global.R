@@ -22,24 +22,18 @@ library(hrbrthemes)
 source(
   here(
     "auxiliary",
-    "vars-control.R"))
+    "vars-control.R"
+  )
+)
 
 # Function that defines quantiles based on country, comparison and variables
-source(here("auxiliary",
-                 "fun_quantiles.R"))
-
-source(here("auxiliary",
-                 "fun_family_data.R"))
-
-source(here("auxiliary",
-                 "fun_missing_var.R"))
-
-source(here("auxiliary",
-                 "fun_low_variance.R"))
+source(here("auxiliary", "fun_quantiles.R"))
+source(here("auxiliary", "fun_family_data.R"))
+source(here("auxiliary", "fun_missing_var.R"))
+source(here("auxiliary", "fun_low_variance.R"))
 
 # Create benchmark graphs
-source(here("auxiliary",
-                 "plots.R"))
+source(here("auxiliary", "plots.R"))
 
 # Data -------------------------------------------------------------
 
@@ -62,12 +56,21 @@ ctf_long <-
   )
 
 country_groups <-
-  read_rds(here("data",
-                     "wb_country_groups.rds"))
+  read_rds(
+    here(
+      "data",
+      "wb_country_groups.rds"
+    )
+  )
 
 definitions <-
-  read_rds(here("data",
-                     "definitions.rds"))
+  read_rds(
+    here(
+      "data",
+      "definitions.rds"
+    )
+  )
+
 country_list <-
   read_rds(
     here(
@@ -76,13 +79,21 @@ country_list <-
     )
   )
 
-wb_country_geom_fact <-
-  read_rds(here("data",
-                     "wb_country_geom_fact.rds"))
+ctf_map <-
+  read_rds(
+    here(
+      "data",
+      "closeness_to_frontier_map.rds"
+    )
+  )
 
-st_crs(wb_country_geom_fact) <- "WGS84"
-
-
+raw_map <-
+  read_rds(
+    here(
+      "data",
+      "indicators_map.rds"
+    )
+  )
 
 period_info_available <-
   read_rds(
@@ -132,7 +143,7 @@ countries <-
 
 variable_list <-
   list(
-    `Anti-Corruption, Transparency and Accountability` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
+    `Anti-Corruption, Transparency and Accountability` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_transp") %>% .$var_name),
     `Business environment and trade` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_mkt") %>% .$var_name),
     `Financial market` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
     `SOE Corporate Governance` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_service_del") %>% .$var_name),
@@ -164,8 +175,12 @@ plot_height <- 650
 
 # Raw data
 raw_data <-
-  read_rds(here("data",
-                     "raw_data.rds")) %>%
+  read_rds(
+    here(
+      "data",
+      "raw_data.rds"
+    )
+  ) %>%
   filter(year >= 1990,
          rowSums(!is.na(.)) > 3) %>%
   rename(Year = year)
