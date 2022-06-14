@@ -297,7 +297,8 @@ interactive_plot <-
 ## Static map ===================================================================
 
 static_map <-
-  function(source, var, title) {
+  function(source, var, title,
+           selected, base_country, comparison_countries) {
 
     if (source == "raw") {
 
@@ -347,6 +348,18 @@ static_map <-
       ) +
       labs(title = paste0("<b>", title, "</b>")) +
       theme_void()
+
+    if (selected == "TRUE" & !is.null(base_country) & !is.null(comparison_countries)) {
+
+      print("oi")
+      plot <-
+        plot +
+        geom_sf(
+          data = spatial_data %>%
+            filter(!country_name %in% c(base_country, comparison_countries)),
+          fill = "white"
+        )
+    }
 
     if (source == "raw") {
       plot <-

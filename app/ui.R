@@ -612,6 +612,22 @@ ui <-
               ),
 
               column(
+                width = 3,
+                radioGroupButtons(
+                  "countries_map",
+                  label = "Select countries to display",
+                  choices = c(
+                    "All" = FALSE,
+                    "Base + comparison countries" = TRUE
+                  ),
+                  justified = TRUE,
+                  selected = FALSE,
+                  checkIcon = list(
+                    yes = icon("ok", lib = "glyphicon"))
+                )
+              ),
+
+              column(
                 width = 4,
                 radioGroupButtons(
                   "value_map",
@@ -626,18 +642,6 @@ ui <-
                     yes = icon("ok", lib = "glyphicon"))
                 )
               )
-              # ,
-              #
-              # column(
-              #   width = 3,
-              #   pickerInput(
-              #     "data",
-              #     label = "Select data",
-              #     choices = c("Closeness to frontier",
-              #                 "Raw indicator (average of last 7 years)"),
-              #     selected = "Closeness to frontier"
-              #   )
-              # )
             )
           ),
 

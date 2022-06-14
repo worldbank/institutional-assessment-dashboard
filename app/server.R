@@ -464,7 +464,7 @@
                 left_join(variable_names %>% select(variable,var_name), by = "variable") %>%
                 .$var_name
 
-              missing_variables <- c(missing_variables,low_variance_variables)
+              missing_variables <- c(missing_variables, low_variance_variables)
 
               data_family()  %>%
                 static_plot(
@@ -586,7 +586,10 @@
           static_map(
             input$value_map,
             var_selected,
-            input$vars_map
+            input$vars_map,
+            input$countries_map,
+            base_country(),
+            input$countries
           ) %>%
           interactive_map(
             var_selected,
