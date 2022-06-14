@@ -48,7 +48,7 @@ global_data <-
   read_rds(
     here(
       "data",
-      "closeness_to_frontier.rds"
+      "country_dtf.rds"
     )
   ) %>%
   ungroup
