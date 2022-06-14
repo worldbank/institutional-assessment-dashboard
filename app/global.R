@@ -19,12 +19,7 @@ library(hrbrthemes)
 
 ## Auxiliary functions -----------------------------------------------------------------
 
-source(
-  here(
-    "auxiliary",
-    "vars-control.R"
-  )
-)
+source(here("auxiliary", "vars-control.R"))
 
 # Function that defines quantiles based on country, comparison and variables
 source(here("auxiliary", "fun_quantiles.R"))
