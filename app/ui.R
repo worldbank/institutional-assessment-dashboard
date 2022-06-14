@@ -597,6 +597,7 @@ ui <-
             collapsible = TRUE,
 
             fluidRow(
+
               column(
                 width = 5,
                 pickerInput(
@@ -611,19 +612,39 @@ ui <-
                   ),
                   width = "100%"
                 )
+              ),
+
+              column(
+                width = 3,
+                radioGroupButtons(
+                  "countries_map",
+                  label = "Select countries to display",
+                  choices = c(
+                    "All" = FALSE,
+                    "Base + comparison countries" = TRUE
+                  ),
+                  justified = TRUE,
+                  selected = FALSE,
+                  checkIcon = list(
+                    yes = icon("ok", lib = "glyphicon"))
+                )
+              ),
+
+              column(
+                width = 4,
+                radioGroupButtons(
+                  "value_map",
+                  label = "Select data source",
+                  choices = c(
+                    "Closeness to frontier" = "ctf",
+                    "Original indicator" = "raw"
+                  ),
+                  justified = TRUE,
+                  selected = "ctf",
+                  checkIcon = list(
+                    yes = icon("ok", lib = "glyphicon"))
+                )
               )
-              # ,
-              #
-              # column(
-              #   width = 3,
-              #   pickerInput(
-              #     "data",
-              #     label = "Select data",
-              #     choices = c("Closeness to frontier",
-              #                 "Raw indicator (average of last 7 years)"),
-              #     selected = "Closeness to frontier"
-              #   )
-              # )
             )
           ),
 

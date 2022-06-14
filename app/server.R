@@ -463,7 +463,7 @@
                 left_join(variable_names %>% select(variable,var_name), by = "variable") %>%
                 .$var_name
 
-              missing_variables <- c(missing_variables,low_variance_variables)
+              missing_variables <- c(missing_variables, low_variance_variables)
 
               data_family()  %>%
                 static_plot(
@@ -580,18 +580,22 @@
           var_selected <-
             variable_names %>%
             filter(var_name == input$vars_map) %>%
-            .$variable
+            pull(variable)
 
-          latest_year <- period_info_available %>%
-            filter(variable == var_selected)
-
-          static_map(wb_country_geom_fact,
-                     var_selected,
-                     latest_year,
-                     input$vars_map) %>%
-          interactive_map(input$vars_map,
-                          db_variables,
-                          plotly_remove_buttons)
+          static_map(
+            input$value_map,
+            var_selected,
+            input$vars_map,
+            input$countries_map,
+            base_country(),
+            input$countries
+          ) %>%
+          interactive_map(
+            var_selected,
+            db_variables,
+            plotly_remove_buttons,
+            input$value_map
+          )
         }
 
       })

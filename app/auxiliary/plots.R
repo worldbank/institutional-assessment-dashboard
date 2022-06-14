@@ -19,11 +19,11 @@ plotly_remove_buttons <-
 # Benchmark plots ##############################################################
 
 static_plot <-
-  function(data, 
+  function(data,
            base_country,
-           tab_name, 
-           group_median = NULL, 
-           title = TRUE, 
+           tab_name,
+           group_median = NULL,
+           title = TRUE,
            dots = FALSE,
            note = NULL) {
 
@@ -34,12 +34,12 @@ static_plot <-
                       decreasing = TRUE),
         ordered = TRUE
       )
-    
-    vars <- 
+
+    vars <-
       data %>%
       select(var_name) %>%
-      unique %>% 
-      unlist %>% 
+      unique %>%
+      unlist %>%
       unname
 
     colors <-
@@ -140,9 +140,9 @@ static_plot <-
           alpha = .5
         )
     }
-    
+
     if (!is.null(group_median)) {
-      
+
       median_data <-
         ctf_long %>%
         filter(
@@ -150,13 +150,13 @@ static_plot <-
           country_name %in% group_median
         ) %>%
         select(
-          var_name, 
-          value, 
+          var_name,
+          value,
           country_name
         )
-      
+
       if ("Comparison countries" %in% group_median) {
-        
+
         countries <-
           ctf_long %>%
           filter(
@@ -175,9 +175,9 @@ static_plot <-
           ) %>%
           summarise(value = median(value, na.rm = TRUE)) %>%
           ungroup
-        
+
         print(countries)
-        
+
         median_data <-
           median_data %>%
           bind_rows(countries)
@@ -297,53 +297,125 @@ interactive_plot <-
 ## Static map ===================================================================
 
 static_map <-
-  function(data, var_selected, latest_year, title) {
+  function(source, var, title,
+           selected, base_country, comparison_countries) {
 
-    data %>%
-      st_transform("+proj=robin") %>%
-      left_join(latest_year %>% ungroup %>% select(country_code,max), by=c("WB_A3"="country_code")) %>%
-      mutate(max = ifelse(is.na(max),"Not available", max)) %>%
-    ggplot() +
+    if (source == "raw") {
+
+      color <- paste0("value_", var)
+
+      data <-
+        spatial_data %>%
+        mutate(
+          text = paste0(
+            "Latest value (",
+            get(paste0("year_", var)),
+            "): ",
+            get(color) %>% round(3),
+            "<br>",
+            "Closeness to frontier (2013-2020): ",
+            get(paste0("ctf_", var)) %>% round(3)
+          )
+        )
+
+    } else if (source == "ctf") {
+      color <- paste0("bin_", var)
+      value <- paste0("value_", var)
+
+      data <-
+        spatial_data %>%
+        mutate(
+          text = paste0(
+            "Closeness to frontier: ",
+            get(paste0("ctf_", var)) %>% round(3)
+          )
+        )
+    }
+
+    plot <-
+      data %>%
+      ggplot() +
       geom_sf(
         aes(
-          fill = get(var_selected),
-          text = paste0(WB_NAME, ": ",
-                        get(paste0(var_selected, "_value")),"<br>",
-                        "Year of latest information: ", max)
+          fill = get(color),
+          text = paste0(
+            "<b>", country_name, "</b><br>",
+            text
+          )
         ),
         color = "black",
         size = 0.1
       ) +
-      scale_fill_manual(
-        name = NULL,
-        values = c("0.0 - 0.2" = "#D55E00",
-                   "0.2 - 0.4" = "#DD7C00",
-                   "0.4 - 0.6" = "#E69F00",
-                   "0.6 - 0.8" = "#579E47",
-                   "0.8 - 1.0" = "#009E73",
-                   "Not available" = "#808080"),
-        na.value = "#808080",
-        drop = FALSE) +
       labs(title = paste0("<b>", title, "</b>")) +
       theme_void()
 
+    if (selected == "TRUE" & !is.null(base_country) & !is.null(comparison_countries)) {
+
+      print("oi")
+      plot <-
+        plot +
+        geom_sf(
+          data = spatial_data %>%
+            filter(!country_name %in% c(base_country, comparison_countries)),
+          fill = "white"
+        )
+    }
+
+    if (source == "raw") {
+      plot <-
+        plot +
+        scale_fill_gradientn(
+          colours = c(
+            "#D55E00",
+            "#DD7C00",
+            "#E69F00",
+            "#579E47",
+            "#009E73"
+          ),
+          name = NULL,
+          na.value = "#808080"
+        )
+    } else if (source == "ctf") {
+      plot <-
+        plot +
+        scale_fill_manual(
+          name = NULL,
+          values = c(
+            "0.0 - 0.2" = "#D55E00",
+            "0.2 - 0.4" = "#DD7C00",
+            "0.4 - 0.6" = "#E69F00",
+            "0.6 - 0.8" = "#579E47",
+            "0.8 - 1.0" = "#009E73",
+            "Not available" = "#808080"
+          ),
+          na.value = "#808080",
+          drop = FALSE)
+    }
+
+    return(plot)
   }
 
 
 ## Interactive map =============================================================
 
 interactive_map <-
-  function(x, var, definitions, buttons) {
+  function(x, var, definitions, buttons, source) {
 
     def <-
       definitions %>%
       filter(var_name == var)
 
+    if (source == "ctf") {
+      leg_title <- "Closeness to\nfrontier"
+    } else  {
+      leg_title <- NULL
+    }
+
     x %>%
       ggplotly(tooltip = "text") %>%
       layout(
         legend = list(
-          title = list(text = '<b>Closeness to\nfrontier:</b>'),
+          title = list(text = paste("<b>", leg_title, "</b>")),
           y = 0.5
         ),
         margin = list(t = 75, b = 125),
@@ -703,8 +775,8 @@ static_scatter <-
           unlist %>%
           unname
       )
-      
-    
+
+
     x <-
       ifelse(
         x_scatter == "Log GDP per capita, PPP",
@@ -818,12 +890,12 @@ interactive_scatter <-
     x <-
       definitions %>%
       filter(var_name == x_scatter)
-    
+
     if (x_scatter == "Log GDP per capita, PPP") {
       x <- definitions %>%
         filter(variable == "gdp_pc_ppp_const")
     }
-    
+
     if (y_scatter == "Log GDP per capita, PPP") {
       y <- definitions %>%
         filter(variable == "gdp_pc_ppp_const")

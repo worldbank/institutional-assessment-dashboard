@@ -51,12 +51,21 @@ ctf_long <-
   )
 
 country_groups <-
-  read_rds(here("data",
-                     "wb_country_groups.rds"))
+  read_rds(
+    here(
+      "data",
+      "wb_country_groups.rds"
+    )
+  )
 
 definitions <-
-  read_rds(here("data",
-                     "definitions.rds"))
+  read_rds(
+    here(
+      "data",
+      "definitions.rds"
+    )
+  )
+
 country_list <-
   read_rds(
     here(
@@ -65,13 +74,13 @@ country_list <-
     )
   )
 
-wb_country_geom_fact <-
-  read_rds(here("data",
-                     "wb_country_geom_fact.rds"))
-
-st_crs(wb_country_geom_fact) <- "WGS84"
-
-
+spatial_data <-
+  read_rds(
+    here(
+      "data",
+      "indicators_map.rds"
+    )
+  )
 
 period_info_available <-
   read_rds(
@@ -153,8 +162,12 @@ plot_height <- 650
 
 # Raw data
 raw_data <-
-  read_rds(here("data",
-                     "raw_data.rds")) %>%
+  read_rds(
+    here(
+      "data",
+      "raw_data.rds"
+    )
+  ) %>%
   filter(year >= 1990,
          rowSums(!is.na(.)) > 3) %>%
   rename(Year = year)
