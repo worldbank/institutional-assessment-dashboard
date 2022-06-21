@@ -40,6 +40,33 @@ definitions <-
     )
   )
 
+## Min and max from 2014-2020
+min_max <- read_rds(
+  here(
+    "app",
+    "data",
+    "raw_data.rds"
+  )
+) %>%
+  filter(
+    year %in% c(2014:2020)
+  ) %>%
+  summarise(
+    across(
+      all_of(vars_all),
+      list(
+        min = ~ min(., na.rm = TRUE),
+        max = ~ max(., na.rm = TRUE)
+      ),
+      .names="{.col}-{.fn}"
+    )
+  ) %>%
+  pivot_longer(
+    everything(),
+    names_to = c("variable", ".value"),
+    names_pattern = "(.*)-(.*)"
+  )
+
 # Map Function -------------------------------------------------------
 
 all_years <- list(c(2014:2020), c(2014:2016), c(2017:2020))
@@ -78,6 +105,7 @@ map(1:length(all_years), function(x){
     )
 
   ## 2. Calculate country-level average for each indicator
+
   country_average <-
     data %>%
     group_by(
@@ -91,25 +119,25 @@ map(1:length(all_years), function(x){
       )
     )
 
-  ## 3. Identify worst and best performance for each indicator
-
-  min_max <-
-    data %>%
-    summarise(
-      across(
-        all_of(vars_all),
-        list(
-          min = ~ min(., na.rm = TRUE),
-          max = ~ max(., na.rm = TRUE)
-        ),
-        .names="{.col}-{.fn}"
-      )
-    ) %>%
-    pivot_longer(
-      everything(),
-      names_to = c("variable", ".value"),
-      names_pattern = "(.*)-(.*)"
-    )
+  # ## 3. Identify worst and best performance for each indicator
+  #
+  # min_max <-
+  #   data %>%
+  #   summarise(
+  #     across(
+  #       all_of(vars_all),
+  #       list(
+  #         min = ~ min(., na.rm = TRUE),
+  #         max = ~ max(., na.rm = TRUE)
+  #       ),
+  #       .names="{.col}-{.fn}"
+  #     )
+  #   ) %>%
+  #   pivot_longer(
+  #     everything(),
+  #     names_to = c("variable", ".value"),
+  #     names_pattern = "(.*)-(.*)"
+  #   )
 
   ## 4. Calculate closeness to frontier at indicator level
 
@@ -140,11 +168,7 @@ map(1:length(all_years), function(x){
     left_join(
       country_average %>%
         select(country_name, country_code)
-    ) #%>%
-  # mutate(
-  #   log_gdp = log(gdp_pc_ppp_const) # Not available in the raw data
-  # )
-
+    )
 
   ## 5. Calculate median per group
 
@@ -253,13 +277,4 @@ map(1:length(all_years), function(x){
   )
 
 })
-
-
-
-
-
-
-
-
-
 
