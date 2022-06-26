@@ -55,6 +55,7 @@
           ),
           selected = selected
         )
+
       },
 
       ignoreNULL = FALSE
@@ -118,7 +119,31 @@
         }
       )
 
-    # Indicatos with low variance
+    # Comparte note (group or countries)
+    note_compare <-
+      eventReactive(
+        input$select,
+        {
+
+        if(
+          all(
+            unique(input$countries) == unique(country_list %>%
+                                                 filter(
+                                                   group %in% input$groups
+                                                 ) %>%
+                                                 .$country_name)
+          )
+        ){
+          return(input$groups)
+        } else {
+          return(input$countries)
+        }
+
+        }
+      )
+
+
+    # Indicators with low variance ----
     low_variance_indicators <-
       eventReactive(
         input$select,
@@ -475,7 +500,7 @@
                 ) %>%
                 interactive_plot(
                   base_country(),
-                  input$groups,
+                  note_compare(),
                   input$family,
                   plotly_remove_buttons,
                   missing_variables
@@ -512,7 +537,7 @@
                 ) %>%
                 interactive_plot(
                   base_country(),
-                  input$groups,
+                  note_compare(),
                   input$family,
                   plotly_remove_buttons,
                   missing_variables
