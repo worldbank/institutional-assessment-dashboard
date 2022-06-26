@@ -186,8 +186,6 @@ static_plot <-
           summarise(value = median(value, na.rm = TRUE)) %>%
           ungroup
 
-        print(countries)
-
         median_data <-
           median_data %>%
           bind_rows(countries)
@@ -709,7 +707,7 @@ static_scatter <-
         y_scatter == "Log GDP per capita, PPP",
         "log",
         variable_names %>%
-          filter(var_name == y_scatter) %>%
+          filter(variable == "gdp_pc_ppp_const") %>%
           select(variable) %>%
           unlist %>%
           unname
@@ -721,7 +719,7 @@ static_scatter <-
         x_scatter == "Log GDP per capita, PPP",
         "log",
         variable_names %>%
-          filter(var_name == x_scatter) %>%
+          filter(variable == "gdp_pc_ppp_const") %>%
           select(variable) %>%
           unlist %>%
           unname

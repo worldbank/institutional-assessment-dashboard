@@ -42,7 +42,13 @@ source(here("auxiliary",
                  "plots.R"))
 
 # Data -------------------------------------------------------------
-
+country_list <-
+  read_rds(
+    here(
+      "data",
+      "wb_country_list.rds"
+    )
+  )
 
 global_data <-
   read_rds(
@@ -68,13 +74,6 @@ country_groups <-
 definitions <-
   read_rds(here("data",
                      "definitions.rds"))
-country_list <-
-  read_rds(
-    here(
-      "data",
-      "wb_country_list.rds"
-    )
-  )
 
 wb_country_geom_fact <-
   read_rds(here("data",
@@ -102,7 +101,7 @@ period_info_by_variable <-
 # Load data control
 db_variables <-
   db_variables %>%
-  filter(variable %in% vars_all | var_level == "family") %>%
+  filter(variable %in% vars_all | var_level == "family" | family_var == "vars_other") %>%
   mutate(
     description = str_replace_all(description, "[[:punct:]]", " ")
   ) %>%
@@ -132,7 +131,7 @@ countries <-
 
 variable_list <-
   list(
-    `Anti-Corruption, Transparency and Accountability` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
+    `Anti-Corruption, Transparency and Accountability` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_transp") %>% .$var_name),
     `Business environment and trade` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_mkt") %>% .$var_name),
     `Financial market` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
     `SOE Corporate Governance` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_service_del") %>% .$var_name),
