@@ -485,6 +485,24 @@ trends_plot <- function(raw_data,
   indicator_data <-
     raw_data %>%
     select(Year, country_name, all_of(indicator))
+  
+  years <-
+    indicator_data %>%
+    filter(
+      country_name == base_country,
+      !is.na(get(indicator))
+    ) %>%
+    summarise(
+      min = min(Year),
+      max = max(Year)
+    )
+  
+  indicator_data <-
+    indicator_data %>%
+    filter(
+      Year >= years$min,
+      Year <= years$max
+    )
 
   data_groups <-
     if (!is.null(groups)) {
@@ -509,7 +527,9 @@ trends_plot <- function(raw_data,
     filter(country_name == base_country |
              country_name %in% comparison_countries) %>%
     bind_rows(data_groups) %>%
-    mutate(alpha = ifelse(country_name == base_country, .8, .5)) %>%
+    mutate(
+      alpha = ifelse(country_name == base_country, .8, .5)
+    ) %>%
     rename(Country = country_name)
 
   static_plot <-
@@ -532,7 +552,9 @@ trends_plot <- function(raw_data,
       ),
      size = 3
     ) +
-    geom_line() +
+    geom_line(
+      aes(y = na.approx(get(indicator)))
+    ) +
     theme_ipsum() +
     labs(
       x = "Year",

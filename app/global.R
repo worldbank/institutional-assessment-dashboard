@@ -12,6 +12,7 @@ library(shinyWidgets)
 library(bs4Dash)
 library(fresh)
 library(sf)
+library(zoo)
 library(formattable)
 library(here)
 library(data.table)
@@ -122,11 +123,12 @@ variable_names <-
   )
 
 countries <-
-  country_list %>%
+  raw_data %>%
   select(country_name) %>%
   unlist %>%
   unname %>%
-  unique
+  unique %>%
+  sort
 
 variable_list <-
   list(
