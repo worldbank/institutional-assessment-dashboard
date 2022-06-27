@@ -6,7 +6,7 @@ vars_transp <-
     var_level == "indicator",
     family_var == "vars_transp"
   ) %>%
-  .$variable
+  pull(variable)
 
 # Business environment and trade institutions ======================
 vars_mkt <-
@@ -16,7 +16,7 @@ vars_mkt <-
     var_level == "indicator",
     family_var == "vars_mkt"
   ) %>%
-  .$variable
+  pull(variable)
 
 # Financial market institutions ======================
 vars_fin <-
@@ -26,7 +26,7 @@ vars_fin <-
     var_level == "indicator",
     family_var == "vars_fin"
   ) %>%
-  .$variable
+  pull(variable)
 
 # Labor market institutions ======================
 vars_lab <-
@@ -36,7 +36,7 @@ vars_lab <-
     var_level == "indicator",
     family_var == "vars_lab"
   ) %>%
-  .$variable
+  pull(variable)
 
 # Legal institutions ======================
 vars_leg <-
@@ -46,7 +46,7 @@ vars_leg <-
     var_level == "indicator",
     family_var == "vars_leg"
   ) %>%
-  .$variable
+  pull(variable)
 
 # Political institutions ======================
 vars_pol <-
@@ -56,7 +56,7 @@ vars_pol <-
     var_level == "indicator",
     family_var == "vars_pol"
   ) %>%
-  .$variable
+  pull(variable)
 
 # Public sector performance institutions ======================
 vars_publ <-
@@ -66,7 +66,7 @@ vars_publ <-
     var_level == "indicator",
     family_var == "vars_publ"
   ) %>%
-  .$variable
+  pull(variable)
 
 # Social institutions ======================
 vars_social <-
@@ -76,7 +76,7 @@ vars_social <-
     var_level == "indicator",
     family_var == "vars_social"
   ) %>%
-  .$variable
+  pull(variable)
 
 # SOE Corporate Governance ======================
 vars_service_del <-
@@ -86,7 +86,7 @@ vars_service_del <-
     var_level == "indicator",
     family_var == "vars_service_del"
   ) %>%
-  .$variable
+  pull(variable)
 
 # All variables ======================
 vars_all <-
@@ -95,7 +95,7 @@ vars_all <-
     select == 1,
     var_level == "indicator"
   ) %>%
-  .$variable
+  pull(variable)
 
 # Families variables ======================
 family_names <-
@@ -103,7 +103,7 @@ family_names <-
   filter(
     var_level == "family"
   ) %>%
-  .$variable
+  pull(variable)
 
 # Variables from Original source  ======================
 vars_original <-
@@ -113,7 +113,7 @@ vars_original <-
     var_level == "indicator",
     data_source == "original"
   ) %>%
-  .$variable
+  pull(variable)
 
 # Variables from Gov360 API ======================
 vars_api <-
@@ -123,7 +123,7 @@ vars_api <-
     var_level == "indicator",
     data_source == "api"
   ) %>%
-  .$variable
+  pull(variable)
 
 # Variables from Additions source  ======================
 vars_additions <-
@@ -133,7 +133,7 @@ vars_additions <-
     var_level == "indicator",
     data_source == "additions"
   ) %>%
-  .$variable
+  pull(variable)
 
 
 
