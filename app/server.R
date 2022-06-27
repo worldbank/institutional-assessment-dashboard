@@ -294,7 +294,7 @@
 
       },
 
-      ignoreNULL = FALSE
+      ignoreNULL = TRUE
     )
 
     ## Change variable selection in all tabs --------------------------
@@ -750,94 +750,95 @@
    # Data table ================================================================
     
     browse_data <-
-      eventReactive(
-        input$data_source,
+      reactive({
         
-        {
+        data <-
           if (input$data_source == "Closeness to frontier") {
-            return(global_data)
+            global_data
           } else {
-            return(raw_data)
+            raw_data
           }
+        
+        groups <-
+          if (input$groups_data == "All") {
+            all_groups
+          } else if (input$groups_data == "Comparison groups only" & input$groups != "") {
+            input$groups
+          } else {
+            ""
+          }
+        
+        selected_countries <-
+          if (input$countries_data == "All") {
+            countries
+          } else if (input$countries_data == "Base country only") {
+            input$country
+          } else if (input$countries_data == "Base + comparison countries"){
+            c(input$country, input$countries)
+          }
+        
+        vars <-
+          variable_names %>%
+          filter(
+            family_name %in% input$vars,
+            var_level == "indicator",
+            variable != "gdp_pc_ppp_const"
+          ) %>%
+          select(variable) %>%
+          unlist
+        
+        if (input$data_source != "Closeness to frontier") {
+          vars_table <- c("Country", "Year", vars)
+        } else {
+          vars_table <- c("Country", vars)
         }
-      )
+        
+        vars_table <- unname(vars_table)
+        
+        data <-
+          data %>%
+          rename(Country = country_name) %>%
+          filter(
+            Country %in% c(selected_countries, groups)
+          ) %>%
+          ungroup() %>%
+          mutate(
+            across(
+              where(is.numeric),
+              round, 3
+            )
+          ) %>%
+          select(all_of(vars_table))
+        
+        data <-
+          data %>%
+          setnames(
+            .,
+            as.character(variable_names$variable),
+            as.character(variable_names$var_name),
+            skip_absent = TRUE
+          )
+        
+        if (input$data_value == "Rank") {
+          data <-
+            data %>%
+            mutate(
+              across(
+                2:ncol(.),
+                ~ dense_rank(desc(.))
+              )
+            )
+        }
+        
+        return(data)
+        
+      })
     
     output$benchmark_datatable <-
       renderDataTable(
         server = FALSE,
-        {
-
-          groups <-
-           if (input$groups_data == "All") {
-             all_groups
-           } else if (input$groups_data == "Comparison groups only" & input$groups != "") {
-             input$groups
-           } else {
-             ""
-           }
-          
-          selected_countries <-
-            if (input$countries_data == "All") {
-              countries
-            } else if (input$countries_data == "Base country only") {
-              input$country
-            } else if (input$countries_data == "Base + comparison countries"){
-              c(input$country, input$countries)
-            }
-          
-          vars <-
-            variable_names %>%
-            filter(
-              family_name %in% input$vars,
-              var_level == "indicator",
-              variable != "gdp_pc_ppp_const"
-            ) %>%
-            select(variable) %>%
-            unlist
-
-          if (input$data_source != "Closeness to frontier") {
-            vars_table <- c("Country", "Year", vars)
-          } else {
-            vars_table <- c("Country", vars)
-          }
-          
-          vars_table <- unname(vars_table)
-
-          data <-
-            browse_data() %>%
-            rename(Country = country_name) %>%
-            filter(
-              Country %in% c(selected_countries, groups)
-            ) %>%
-            ungroup() %>%
-            mutate(
-              across(
-                where(is.numeric),
-                round, 3
-              )
-            ) %>%
-            select(all_of(vars_table))
-
-
-          if (input$data_value == "Rank") {
-            data <-
-              data %>%
-              mutate(
-                across(
-                  2:ncol(.),
-                  ~ dense_rank(desc(.))
-                )
-              )
-          }
-
         datatable(
-          data %>%
-            setnames(
-              .,
-              as.character(variable_names$variable),
-              as.character(variable_names$var_name),
-              skip_absent = TRUE
-            ),
+          browse_data(),
           rownames = FALSE,
           filter = 'none',
           options = list(
@@ -847,8 +848,7 @@
             dom = "lftipr"
           )
         )
-
-      })
+      )
 
       # Downloadable rds of selected dataset
       output$download_global_rds <-
