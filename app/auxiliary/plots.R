@@ -22,6 +22,7 @@ static_plot <-
   function(data,
            base_country,
            tab_name,
+           rank,
            group_median = NULL,
            title = TRUE,
            dots = FALSE,
@@ -48,6 +49,36 @@ static_plot <-
         "Strong\n(top 50%)" = "#238823"
       )
 
+    if (rank == FALSE) {
+      x_lab <- "Closeness to frontier"
+      
+      data <-
+        data %>%
+        mutate(
+          var = dtf,
+          text = paste(
+            " Country:", country_name, "<br>",
+            "Closeness to frontier:", round(dtf, 3)
+          )
+        )
+      
+    } else {
+      data <-
+        data %>%
+        mutate(
+          q25 = .25,
+          q50 = .5,
+          var = dtt,
+          text = paste(
+            " Country:", country_name, "<br>",
+            "Closeness to frontier:", round(dtf, 3), "<br>",
+            "Rank:", row_number(dtf)
+          )
+        )
+      
+      x_lab <- "Rank"
+    }
+    
     plot <-
       ggplot() +
         geom_segment(
@@ -93,19 +124,20 @@ static_plot <-
           alpha = .3
         ) +
         theme_minimal() +
-        theme(legend.position = "top",
-              panel.grid.minor = element_blank(),
-              axis.ticks = element_blank(),
-              axis.text = element_text(color = "black"),
-              axis.text.y = element_text(size = 12),
-              axis.text.x = element_text(size = 11),
-              legend.box = "vertical",
-              plot.caption = element_text(size = 8,
-                                          hjust = 0),
-              plot.caption.position =  "plot") +
+        theme(
+          legend.position = "top",
+          panel.grid.minor = element_blank(),
+          axis.ticks = element_blank(),
+          axis.text = element_text(color = "black"),
+          axis.text.y = element_text(size = 12),
+          axis.text.x = element_text(size = 11),
+          legend.box = "vertical",
+          plot.caption = element_text(size = 8, hjust = 0),
+          plot.caption.position =  "plot"
+        ) +
         labs(
           y = NULL,
-          x = "Closeness to Frontier",
+          x = x_lab,
           fill = NULL,
           shape = NULL,
           caption = note
@@ -113,6 +145,15 @@ static_plot <-
         scale_fill_manual(
           values = colors
         )
+    
+    if (rank) {
+      plot <-
+        plot +
+        scale_x_continuous(
+          breaks = c(0, 0.5, 1),
+          labels = c("Worst ranked", "Middle of ranking","Top ranked")
+        )
+    }
 
     if (title) {
       plot <-
@@ -127,11 +168,8 @@ static_plot <-
           data = data,
           aes(
             y = var_name,
-            x = dtf,
-            text = paste(
-              " Country:", country_name,"<br>",
-              "Closeness to frontier:", round(dtf, 3)
-            )
+            x = var,
+            text = text
           ),
           shape = 21,
           size = 2,
@@ -141,7 +179,7 @@ static_plot <-
         )
     }
 
-    if (!is.null(group_median)) {
+    if (!is.null(group_median) & !rank) {
 
       median_data <-
         ctf_long %>%
@@ -211,10 +249,9 @@ static_plot <-
         data = data %>% filter(country_name == base_country),
         aes(
           y = var_name,
-          x = dtf,
+          x = var,
           fill = status,
-          text = paste(" Country:", base_country,"<br>",
-                       "Closeness to frontier:", round(dtf, 3))
+          text = text
         ),
         size = 3,
         shape = 21,

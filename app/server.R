@@ -487,6 +487,7 @@
                 static_plot(
                   base_country(),
                   input$family,
+                  input$rank,
                   dots = input$benchmark_dots,
                   group_median = input$benchmark_median
                 ) %>%
@@ -524,6 +525,7 @@
                 static_plot(
                   base_country(),
                   input$family,
+                  input$rank,
                   dots = input$benchmark_dots,
                   group_median = input$benchmark_median
                 ) %>%
