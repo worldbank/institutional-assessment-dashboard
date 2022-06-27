@@ -115,9 +115,6 @@ period_info_by_variable <-
 db_variables <-
   db_variables %>%
   filter(variable %in% vars_all | var_level == "family") %>%
-  mutate(
-    description = str_replace_all(description, "[[:punct:]]", " ")
-  ) %>%
   left_join(
     period_info_by_variable,
     by = "variable"
