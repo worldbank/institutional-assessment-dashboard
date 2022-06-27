@@ -677,65 +677,75 @@
 
    # Trends plot ===============================================================
 
-    var_trends <-
-      eventReactive(
-        input$vars_trends,
-
-        {
-          var_selected <-
-            variable_names %>%
-            filter(var_name == input$vars_trends) %>%
-            .$variable
-        }
-      )
-
-    eventReactive(
+    observeEvent(
       input$vars_trends,
-
+      
       {
-        if (!is.null(input$vars_trends)) {
-          valid_countries <-
-            raw_data %>%
-            filter(!is.na(get(var_trends()))) %>%
+        
+        if (input$vars_trends != "") {
+          var <-
+            db_variables %>%
+            filter(var_name == input$vars_trends) %>%
+            pull(variable)
+        
+          print(var)
+          
+          valid <-
+            global_data %>%
+            filter(
+              !is.na(get(var))
+            ) %>%
             select(country_name) %>%
             unique %>%
-            arrange(country_name) %>%
             unlist %>%
             unname
-
-          last_country <-
-            input$country_trends
-
+          
+          valid_countries <-
+            intersect(valid, countries)
+          
+          print(valid_countries)
+          
           updatePickerInput(
             session,
             "country_trends",
-            choices = valid_countries,
-            selected = last_country
+            choices = c(
+              "",
+              valid_countries
+            )
           )
-
-          last_countries <-
-            input$countries_trends
-
+          
           updateCheckboxGroupButtons(
             session,
             "countries_trends",
             choices = valid_countries,
-            selected = last_countries
+            checkIcon = list(
+              yes = icon(
+                "ok",
+                lib = "glyphicon"
+              )
+            )
           )
         }
+        
       },
-
-      ignoreNULL = FALSE
+      
+      ignoreNULL = TRUE
     )
+  
 
     output$time_series <-
       renderPlotly({
 
         if (input$vars_trends != "") {
+          
+          var <-
+            db_variables %>%
+            filter(var_name == input$vars_trends) %>%
+            pull(variable)
 
           trends_plot(
             raw_data,
-            var_trends(),
+            var,
             input$vars_trends,
             input$country_trends,
             input$countries_trends,
