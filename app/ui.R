@@ -36,12 +36,14 @@ ui <-
         menuItem("Data", tabName = "data", icon = icon("table")),
         menuItem("Methodology", tabName = "methodology", icon = icon("book")),
         menuItem("FAQ", tabName = "faq", icon = icon("question")),
-        menuItem("Feedback", icon = icon("comments", lib = "font-awesome"),
-                 href = "https://forms.office.com/pages/responsepage.aspx?id=wP6iMWsmZ0y1bieW2PWcNinZNsjDQVpApEPZJqaWiPlUMVJPWVdIVFhXMzRQMVVVTldPVzdJSEdMRy4u",
-                 newTab = TRUE),
-        menuItem("Source code", icon = icon("github", lib = "font-awesome"),
-                 href = "https://github.com/worldbank/institutional-assessment-dashboard/", 
-                 newTab = TRUE)
+        customItem("Feedback", 
+                   icon = icon("comments", lib = "font-awesome"),
+                   href = "https://forms.office.com/pages/responsepage.aspx?id=wP6iMWsmZ0y1bieW2PWcNinZNsjDQVpApEPZJqaWiPlUMVJPWVdIVFhXMzRQMVVVTldPVzdJSEdMRy4u",
+                   target = "_blank"),
+        customItem("Source code", 
+                   icon = icon("github", lib = "font-awesome"),
+                   href = "https://github.com/worldbank/institutional-assessment-dashboard/",
+                   target = "_blank")
       )
     ),
 

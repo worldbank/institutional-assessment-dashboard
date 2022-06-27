@@ -170,3 +170,22 @@ all_groups <- group_list %>% unlist %>% unname
 # Inputs ################################################################################
 
 plot_height <- 650
+
+customItem <- 
+  function(text, 
+           icon = shiny::icon("warning"),
+           href = NULL, ...) {
+    
+    if (is.null(href)) 
+    
+      href <- "#"
+      icon <- tagAppendAttributes(
+        icon, 
+        class = "nav-icon"
+      )
+      
+      tags$li(
+        a(href = href, icon, text, class = "nav-link"),
+        class = "nav-item"
+      )
+}
