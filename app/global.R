@@ -23,6 +23,13 @@ library(htmltools)
 
 ## Auxiliary functions -----------------------------------------------------------------
 
+db_variables <-
+  read_rds(
+    here(
+      "data",
+      "db_variables.rds"
+    )
+  )
 source(here("auxiliary", "vars-control.R"))
 
 # Function that defines quantiles based on country, comparison and variables

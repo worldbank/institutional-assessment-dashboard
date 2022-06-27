@@ -6,6 +6,18 @@ pacman::p_load(packages,
                character.only = TRUE)
 ```
 
+```{r}
+db_variables <-
+  readxl::read_excel(
+    here(
+      "data",
+      "db_variables.xlsx"
+    )
+  )
+
+source(here("app", "auxiliary", "vars-control.R"))
+```
+
 This data was originally received in Stata format, then saved as an R dataset
 
 ```{r}
