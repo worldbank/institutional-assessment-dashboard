@@ -176,8 +176,6 @@ static_plot <-
           summarise(value = median(value, na.rm = TRUE)) %>%
           ungroup
 
-        print(countries)
-
         median_data <-
           median_data %>%
           bind_rows(countries)
