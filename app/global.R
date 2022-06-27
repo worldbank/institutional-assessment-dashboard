@@ -96,6 +96,9 @@ spatial_data <-
     )
   )
 
+st_crs(spatial_data) <- "+proj=robin"
+
+
 period_info_available <-
   read_rds(
     here(
