@@ -661,6 +661,8 @@
           trends_plot(
             raw_data,
             var_trends(),
+            input$vars_trends,
+            input$country_trends,
             input$countries_trends,
             country_list,
             input$group_trends,

@@ -485,6 +485,24 @@ trends_plot <- function(raw_data,
   indicator_data <-
     raw_data %>%
     select(Year, country_name, all_of(indicator))
+  
+  years <-
+    indicator_data %>%
+    filter(
+      country_name == base_country,
+      !is.na(get(indicator))
+    ) %>%
+    summarise(
+      min = min(Year),
+      max = max(Year)
+    )
+  
+  indicator_data <-
+    indicator_data %>%
+    filter(
+      Year >= years$min,
+      Year <= years$max
+    )
 
   data_groups <-
     if (!is.null(groups)) {
