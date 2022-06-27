@@ -36,9 +36,12 @@ ui <-
         menuItem("Data", tabName = "data", icon = icon("table")),
         menuItem("Methodology", tabName = "methodology", icon = icon("book")),
         menuItem("FAQ", tabName = "faq", icon = icon("question")),
+        menuItem("Feedback", icon = icon("comments", lib = "font-awesome"),
+                 href = "https://forms.office.com/pages/responsepage.aspx?id=wP6iMWsmZ0y1bieW2PWcNinZNsjDQVpApEPZJqaWiPlUMVJPWVdIVFhXMzRQMVVVTldPVzdJSEdMRy4u",
+                 newTab = TRUE),
         menuItem("Source code", icon = icon("github", lib = "font-awesome"),
-                 href = "https://github.com/worldbank/institutional-assessment-dashboard/", newTab = TRUE),
-        menuItem("Feedback", tabName = "feedback", icon = icon("at", lib = "font-awesome"))
+                 href = "https://github.com/worldbank/institutional-assessment-dashboard/", 
+                 newTab = TRUE)
       )
     ),
 
@@ -138,13 +141,7 @@ ui <-
                     size = 20,
                     `actions-box` = TRUE
                   )
-                ) %>%
-                  shinyInput_label_embed(
-                    shiny_iconlink() %>%
-                      bs_embed_tooltip(
-                        title = "Help text", placement = "right"
-                      )
-                  )
+                )
               ),
 
               column(
@@ -159,13 +156,7 @@ ui <-
                     size = 21,
                     `actions-box` = TRUE
                   )
-                ) %>%
-                  shinyInput_label_embed(
-                    shiny_iconlink() %>%
-                      bs_embed_tooltip(
-                        title = "Help text", placement = "right"
-                      )
-                  )
+                )
               ),
 
               column(
@@ -178,13 +169,7 @@ ui <-
                     names(definitions)
                   ),
                   selected = "Overview"
-                ) %>%
-                  shinyInput_label_embed(
-                    shiny_iconlink() %>%
-                      bs_embed_tooltip(
-                        title = "Help text", placement = "right"
-                      )
-                  )
+                )
               ),
 
               column(
@@ -202,15 +187,8 @@ ui <-
                     `live-search` = TRUE,
                     maxOptions = 3
                   )
-                ) %>%
-                  shinyInput_label_embed(
-                    shiny_iconlink() %>%
-                      bs_embed_tooltip(
-                        title = "Help text", placement = "right"
-                      )
-                  )
+                )
               )
-
             ),
 
             fluidRow(
@@ -267,7 +245,6 @@ ui <-
             title = NULL,
             collapsible = FALSE,
             width = 12,
-            footer = feedback,
 
             conditionalPanel(
               "input.select !== 0",
@@ -379,7 +356,6 @@ ui <-
               solidHeader = FALSE,
               gradientColor = "primary",
               collapsible = FALSE,
-              footer = feedback,
 
               plotlyOutput(
                 "bar_plot",
@@ -504,7 +480,6 @@ ui <-
               solidHeader = FALSE,
               gradientColor = "primary",
               collapsible = FALSE,
-              footer = feedback,
 
               plotlyOutput(
                 "scatter_plot",
@@ -602,7 +577,6 @@ ui <-
               solidHeader = FALSE,
               gradientColor = "primary",
               collapsible = FALSE,
-              footer = feedback,
 
               plotlyOutput(
                 "time_series",
@@ -664,7 +638,6 @@ ui <-
               solidHeader = FALSE,
               gradientColor = "primary",
               collapsible = FALSE,
-              footer = feedback,
 
               plotlyOutput(
                 "map",
@@ -681,8 +654,6 @@ ui <-
 
           fluidRow(
             bs4Card(
-
-              footer = feedback,
 
               fluidRow(
 
@@ -1080,44 +1051,7 @@ ui <-
             )
           )
 
-        ), # Close FAQ tab
-
-## Feedback tab =====================================================================
-
-        tabItem(
-
-          tabName = "feedback",
-
-          box(
-            width = 11,
-            status = "navy",
-            collapsed = F,
-            title = "Send some feedback?",
-
-            p(
-              "Tell us anything about:",
-              tags$ul(
-                tags$li(HTML("Who you are")),
-                tags$li(HTML("Project code")),
-                tags$li(HTML("How you are using the G-BID")),
-                tags$li(HTML("How can we improve the G-BID"))
-              )
-            ),
-
-            a(
-              actionButton(
-                inputId = "feedback_button",
-                label = " Contact Us",
-                icon = icon("at", lib = "font-awesome"),
-                width = "100%"
-              ),
-              href="mailto:some_feedback_mail@worldbank.org"
-            )
-
-          )
-
-        ) # Close Feedback tab
-
+        ) # Close FAQ tab
       )
     )
   )
