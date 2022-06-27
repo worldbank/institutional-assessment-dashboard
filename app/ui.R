@@ -36,8 +36,12 @@ ui <-
         menuItem("Data", tabName = "data", icon = icon("table")),
         menuItem("Methodology", tabName = "methodology", icon = icon("book")),
         menuItem("FAQ", tabName = "faq", icon = icon("question")),
+        menuItem("Feedback", icon = icon("comments", lib = "font-awesome"),
+                 href = "https://forms.office.com/pages/responsepage.aspx?id=wP6iMWsmZ0y1bieW2PWcNinZNsjDQVpApEPZJqaWiPlUMVJPWVdIVFhXMzRQMVVVTldPVzdJSEdMRy4u",
+                 newTab = TRUE),
         menuItem("Source code", icon = icon("github", lib = "font-awesome"),
-                 href = "https://github.com/worldbank/institutional-assessment-dashboard/")
+                 href = "https://github.com/worldbank/institutional-assessment-dashboard/", 
+                 newTab = TRUE)
       )
     ),
 
@@ -185,7 +189,6 @@ ui <-
                   )
                 )
               )
-
             ),
 
             fluidRow(
@@ -231,6 +234,7 @@ ui <-
               individual = TRUE,
               label = NULL,
               choices = countries,
+              selected = NULL, 
               checkIcon = list(
                 yes = icon("ok",
                            lib = "glyphicon")
@@ -339,20 +343,23 @@ ui <-
               label = NULL,
               choices = countries,
               checkIcon = list(
-                yes = icon("ok",
-                           lib = "glyphicon")
+                yes = icon(
+                  "ok",
+                  lib = "glyphicon"
+                )
               )
             )
           ),
 
           conditionalPanel(
-            'input.country_bar !== "" && input.countries_bar != "" && input.vars_bar != ""',
+            'input.country_bar !== "" && input.countries_bar != "" && input.vars_bar != null',
 
             bs4Card(
               width = 11,
               solidHeader = FALSE,
               gradientColor = "primary",
               collapsible = FALSE,
+
               plotlyOutput(
                 "bar_plot",
                 height = paste0(plot_height, "px")
@@ -476,6 +483,7 @@ ui <-
               solidHeader = FALSE,
               gradientColor = "primary",
               collapsible = FALSE,
+
               plotlyOutput(
                 "scatter_plot",
                 height = paste0(plot_height, "px")
@@ -572,6 +580,7 @@ ui <-
               solidHeader = FALSE,
               gradientColor = "primary",
               collapsible = FALSE,
+
               plotlyOutput(
                 "time_series",
                 height = paste0(plot_height, "px")
@@ -594,6 +603,7 @@ ui <-
             collapsible = TRUE,
 
             fluidRow(
+
               column(
                 width = 5,
                 pickerInput(
@@ -608,19 +618,39 @@ ui <-
                   ),
                   width = "100%"
                 )
+              ),
+
+              column(
+                width = 3,
+                radioGroupButtons(
+                  "countries_map",
+                  label = "Select countries to display",
+                  choices = c(
+                    "All" = FALSE,
+                    "Base + comparison countries" = TRUE
+                  ),
+                  justified = TRUE,
+                  selected = FALSE,
+                  checkIcon = list(
+                    yes = icon("ok", lib = "glyphicon"))
+                )
+              ),
+
+              column(
+                width = 4,
+                radioGroupButtons(
+                  "value_map",
+                  label = "Select data source",
+                  choices = c(
+                    "Closeness to frontier" = "ctf",
+                    "Original indicator" = "raw"
+                  ),
+                  justified = TRUE,
+                  selected = "ctf",
+                  checkIcon = list(
+                    yes = icon("ok", lib = "glyphicon"))
+                )
               )
-              # ,
-              #
-              # column(
-              #   width = 3,
-              #   pickerInput(
-              #     "data",
-              #     label = "Select data",
-              #     choices = c("Closeness to frontier",
-              #                 "Raw indicator (average of last 7 years)"),
-              #     selected = "Closeness to frontier"
-              #   )
-              # )
             )
           ),
 
@@ -632,6 +662,7 @@ ui <-
               solidHeader = FALSE,
               gradientColor = "primary",
               collapsible = FALSE,
+
               plotlyOutput(
                 "map",
                 height = paste0(plot_height, "px")

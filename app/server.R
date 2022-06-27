@@ -221,20 +221,20 @@
           id = "report",
           condition = input$select
         )
-
+        
         # Cross-crountry comparison selection
         updatePickerInput(
           session,
           "country_bar",
           selected = input$country
         )
-
-        updatePickerInput(
+        
+        updateCheckboxGroupButtons(
           session,
           "countries_bar",
           selected = input$countries
         )
-
+        
         updatePickerInput(
           session,
           "groups_bar",
@@ -248,7 +248,7 @@
           selected = input$country
         )
 
-        updatePickerInput(
+        updateCheckboxGroupButtons(
           session,
           "countries_scatter",
           selected = input$countries
@@ -267,7 +267,7 @@
           selected = input$country
         )
 
-        updatePickerInput(
+        updateCheckboxGroupButtons(
           session,
           "countries_trends",
           selected = input$countries
@@ -284,7 +284,7 @@
       ignoreNULL = FALSE
     )
 
-    ## Change variable selection in all tabs
+    ## Change variable selection in all tabs --------------------------
 
     observeEvent(
       input$vars_bar,
@@ -400,7 +400,6 @@
       input$country,
 
       {
-
         valid_vars <-
           ctf_long %>%
           filter(
@@ -489,7 +488,7 @@
                 left_join(variable_names %>% select(variable,var_name), by = "variable") %>%
                 .$var_name
 
-              missing_variables <- c(missing_variables,low_variance_variables)
+              missing_variables <- c(missing_variables, low_variance_variables)
 
               data_family()  %>%
                 static_plot(
@@ -555,8 +554,8 @@
         {
           static_bar(
             global_data,
-            input$country,
-            input$countries,
+            input$country_bar,
+            input$countries_bar,
             input$groups_bar,
             input$vars_bar,
             variable_names
@@ -608,18 +607,22 @@
           var_selected <-
             variable_names %>%
             filter(var_name == input$vars_map) %>%
-            .$variable
+            pull(variable)
 
-          latest_year <- period_info_available %>%
-            filter(variable == var_selected)
-
-          static_map(wb_country_geom_fact,
-                     var_selected,
-                     latest_year,
-                     input$vars_map) %>%
-          interactive_map(input$vars_map,
-                          db_variables,
-                          plotly_remove_buttons)
+          static_map(
+            input$value_map,
+            var_selected,
+            input$vars_map,
+            input$countries_map,
+            base_country(),
+            input$countries
+          ) %>%
+          interactive_map(
+            var_selected,
+            db_variables,
+            plotly_remove_buttons,
+            input$value_map
+          )
         }
 
       })
@@ -665,7 +668,7 @@
           last_countries <-
             input$countries_trends
 
-          updatePickerInput(
+          updateCheckboxGroupButtons(
             session,
             "countries_trends",
             choices = valid_countries,
@@ -685,6 +688,8 @@
           trends_plot(
             raw_data,
             var_trends(),
+            input$vars_trends,
+            input$country_trends,
             input$countries_trends,
             country_list,
             input$group_trends,
