@@ -215,6 +215,20 @@
       input$select,
 
       {
+        if (input$groups != "") {
+          updatePickerInput(
+            session,
+            "groups_data",
+            choices = c("All", "Comparison groups only", "None")
+          )
+        }
+        
+        updatePickerInput(
+          session,
+          "countries_data",
+          choices = c("All", "Base country only", "Base + comparison countries")
+        )
+        
         # Create report
         toggleState(
           id = "report",
@@ -435,26 +449,6 @@
             base_country(),
             variable_names
           )
-        }
-      )
-
-
-    ## Browse data -------------------------------------------------------------
-
-    browse_data <-
-      eventReactive(
-        input$data,
-
-        {
-          selected_data <- input$data
-
-          if (selected_data == "Closeness to frontier") {
-            return(global_data)
-          }
-
-          if (selected_data == "Compiled indicators") {
-            return(raw_data)
-          }
         }
       )
 
@@ -687,8 +681,6 @@
             db_variables %>%
             filter(var_name == input$vars_trends) %>%
             pull(variable)
-        
-          print(var)
           
           valid <-
             global_data %>%
@@ -702,8 +694,6 @@
           
           valid_countries <-
             intersect(valid, countries)
-          
-          print(valid_countries)
           
           updatePickerInput(
             session,
@@ -758,31 +748,67 @@
       })
 
    # Data table ================================================================
-
+    
+    browse_data <-
+      eventReactive(
+        input$data_source,
+        
+        {
+          if (input$data_source == "Closeness to frontier") {
+            return(global_data)
+          } else {
+            return(raw_data)
+          }
+        }
+      )
+    
     output$benchmark_datatable <-
       renderDataTable(
         server = FALSE,
         {
 
+          groups <-
+           if (input$groups_data == "All") {
+             all_groups
+           } else if (input$groups_data == "Comparison groups only" & input$groups != "") {
+             input$groups
+           } else {
+             ""
+           }
+          
+          selected_countries <-
+            if (input$countries_data == "All") {
+              countries
+            } else if (input$countries_data == "Base country only") {
+              input$country
+            } else if (input$countries_data == "Base + comparison countries"){
+              c(input$country, input$countries)
+            }
+          
           vars <-
             variable_names %>%
             filter(
               family_name %in% input$vars,
-              var_level == "indicator"
+              var_level == "indicator",
+              variable != "gdp_pc_ppp_const"
             ) %>%
             select(variable) %>%
             unlist
 
-          if (input$data == "Compiled indicators") {
+          if (input$data_source != "Closeness to frontier") {
             vars_table <- c("Country", "Year", vars)
           } else {
             vars_table <- c("Country", vars)
           }
+          
           vars_table <- unname(vars_table)
 
           data <-
             browse_data() %>%
             rename(Country = country_name) %>%
+            filter(
+              Country %in% c(selected_countries, groups)
+            ) %>%
             ungroup() %>%
             mutate(
               across(
@@ -793,16 +819,15 @@
             select(all_of(vars_table))
 
 
-          if(input$show_rank) {
-
+          if (input$data_value == "Rank") {
             data <-
               data %>%
-              mutate_at(
-                vars(all_of(vars)),
-                ~ dense_rank(desc(.)
+              mutate(
+                across(
+                  2:ncol(.),
+                  ~ dense_rank(desc(.))
+                )
               )
-            )
-
           }
 
         datatable(
@@ -817,7 +842,7 @@
           filter = 'none',
           options = list(
             scrollX = TRUE,
-            pageLength = 10,
+            pageLength = 13,
             autoWidth = TRUE,
             dom = "lftipr"
           )

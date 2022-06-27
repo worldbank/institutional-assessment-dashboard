@@ -3,7 +3,7 @@
 ui <-
   dashboardPage(
 
-    freshTheme = create_theme(bs4dash_layout(sidebar_width = "400px")),
+      freshTheme = create_theme(bs4dash_layout(sidebar_width = "400px")),
 
     ## Header ------------------------------------------------------------------
 
@@ -677,89 +677,92 @@ ui <-
           tabName = "data",
 
           fluidRow(
+            
             bs4Card(
-
-              fluidRow(
-
-                column(
-                  width = 5,
-                  radioGroupButtons(
-                    "data",
-                    label = "Select a dataset",
-                    choices = c("Closeness to frontier",
-                                "Compiled indicators"),
-                    selected = "Closeness to frontier",
-                    justified = TRUE,
-                    checkIcon = list(
-                      yes = icon("ok",
-                                 lib = "glyphicon")
-                    )
-                  )
-                ),
-
-                column(
-                  width = 4,
-                  pickerInput(
-                    "vars",
-                    label = "Select institutional families to include",
-                    choices = names(definitions),
-                    selected = names(definitions),
-                    multiple = TRUE,
-                    options = list(`actions-box` = TRUE)
-                  )
-                ),
-
-                column(
-                  width = 3,
-                  materialSwitch(
-                    inputId = "show_rank",
-                    label = "Show rank instead of indicator values",
-                    value = FALSE,
-                    status = "success"
-                  )
-                )
-
-              ),
-
+              width = 9,
+              collapsible = FALSE,
+              solidHeader = TRUE,
+              headerBorder = FALSE,
+              dataTableOutput("benchmark_datatable")
+            ),
+            
+            bs4Card(
+              
               title = "Select information to display",
               status = "success",
-              width = 9,
-              collapsed = TRUE
+              width = 3,
 
-
-            ),
-
-
-            column(
-              width = 1,
+              pickerInput(
+                "countries_data",
+                label = "Select countries to include",
+                choices = c("All"),
+                selected = "All"
+              ),
+              
+              pickerInput(
+                "groups_data",
+                label = "Select groups to include",
+                choices = c("All", "None"),
+                selected = "All"
+              ),
+              
+              pickerInput(
+                "vars",
+                label = "Select institutional families to include",
+                choices = names(definitions),
+                selected = names(definitions),
+                multiple = TRUE,
+                options = list(`actions-box` = TRUE)
+              ),
+              
+              radioGroupButtons(
+                "data_source",
+                label = "Select a data source",
+                choices = c("Closeness to frontier",
+                            "Original indicators"),
+                selected = "Closeness to frontier",
+                direction = "vertical",
+                justified = TRUE,
+                checkIcon = list(
+                  yes = icon("ok",
+                             lib = "glyphicon")
+                )
+              ),
+                  
+              radioGroupButtons(
+                "data_value",
+                label = "Select information to show",
+                choices = c("Value", "Rank"),
+                selected = "Value",
+                direction = "vertical",
+                justified = TRUE,
+                checkIcon = list(
+                  yes = icon("ok",
+                             lib = "glyphicon")
+                  )
+              ),
+              
+              p(tags$b("Download data")),
+                
               downloadButton(
                 "download_global_rds",
                 ".rds",
                 style = "width:100%; background-color: #204d74; color: white"
-              )
-            ),
-
-            column(
-              width = 1,
+              ),
+              
               downloadButton(
                 "download_global_csv",
                 ".csv",
                 style = "width:100%; background-color: #204d74; color: white"
-              )
-            ),
-
-            column(
-              width = 1,
+              ),
+              
               downloadButton(
                 "download_global_dta",
                 ".dta",
                 style = "width:100%; background-color: #204d74; color: white"
               )
             )
-          ),
-
-          dataTableOutput("benchmark_datatable")
-
+          )
         ),
 
         ## Methodology tab -------------------------------------------------------------
