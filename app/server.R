@@ -294,7 +294,7 @@
 
       },
 
-      ignoreNULL = FALSE
+      ignoreNULL = TRUE
     )
 
     ## Change variable selection in all tabs --------------------------
