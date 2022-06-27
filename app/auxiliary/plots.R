@@ -27,11 +27,20 @@ static_plot <-
            dots = FALSE,
            note = NULL) {
 
+    order <-
+      data %>%
+      filter(country_name == base_country) %>%
+      arrange(
+        match(status, c("Strong\n(top 50%)","Emerging\n(25% - 50%)","Weak\n(bottom 25%)")),
+        desc(dtf)
+      ) %>%
+      select(var_name) %>%
+      unlist
+
     data$var_name <-
       factor(
         data$var_name,
-        levels = sort(unique(data$var_name),
-                      decreasing = TRUE),
+        levels = order,
         ordered = TRUE
       )
 
@@ -111,7 +120,8 @@ static_plot <-
           caption = note
         ) +
         scale_fill_manual(
-          values = colors
+          values = colors,
+          name = NULL
         )
 
     if (title) {
@@ -175,9 +185,7 @@ static_plot <-
           ) %>%
           summarise(value = median(value, na.rm = TRUE)) %>%
           ungroup
-
-        print(countries)
-
+        
         median_data <-
           median_data %>%
           bind_rows(countries)
@@ -203,8 +211,9 @@ static_plot <-
         ) +
         scale_shape_manual(
           values = 22:25,
-          lab = NULL
+          name = NULL
         )
+
     }
 
     plot <-
@@ -792,7 +801,7 @@ static_scatter <-
         y_scatter == "Log GDP per capita, PPP",
         "log",
         variable_names %>%
-          filter(var_name == y_scatter) %>%
+          filter(variable == "gdp_pc_ppp_const") %>%
           select(variable) %>%
           unlist %>%
           unname
@@ -804,7 +813,7 @@ static_scatter <-
         x_scatter == "Log GDP per capita, PPP",
         "log",
         variable_names %>%
-          filter(var_name == x_scatter) %>%
+          filter(variable == "gdp_pc_ppp_const") %>%
           select(variable) %>%
           unlist %>%
           unname

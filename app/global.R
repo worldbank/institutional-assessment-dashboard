@@ -38,7 +38,13 @@ source(here("auxiliary", "plots.R"))
 feedback <- a(href="mailto:some_feedback_mail@worldbank.org", target="_blank", "Send feedback")
 
 # Data -------------------------------------------------------------
-
+country_list <-
+  read_rds(
+    here(
+      "data",
+      "wb_country_list.rds"
+    )
+  )
 
 global_data <-
   read_rds(
@@ -107,7 +113,7 @@ period_info_by_variable <-
 # Load data control
 db_variables <-
   db_variables %>%
-  filter(variable %in% vars_all | var_level == "family") %>%
+  filter(variable %in% vars_all | var_level == "family" | family_var == "vars_other") %>%
   mutate(
     description = str_replace_all(description, "[[:punct:]]", " ")
   ) %>%
