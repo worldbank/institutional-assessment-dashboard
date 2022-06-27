@@ -201,11 +201,7 @@ ui <-
                   value = FALSE,
                   icon = icon("check"),
                   status = "success"
-                )
-              ),
-              
-              column(
-                width = 3,
+                ),
                 prettyCheckbox(
                   inputId = "rank",
                   label = "Show rank instead of value",
@@ -214,7 +210,7 @@ ui <-
                   status = "success"
                 )
               ),
-
+              
               column(
                 width = 3,
                 uiOutput(
