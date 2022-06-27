@@ -9,6 +9,7 @@ library(shinyBS)
 library(shinycssloaders)
 library(shinybusy)
 library(shinyWidgets)
+library(shinyhelper)
 library(bs4Dash)
 library(fresh)
 library(sf)
@@ -17,6 +18,8 @@ library(formattable)
 library(here)
 library(data.table)
 library(hrbrthemes)
+library(bsplus)
+library(htmltools)
 
 ## Auxiliary functions -----------------------------------------------------------------
 
@@ -30,6 +33,9 @@ source(here("auxiliary", "fun_low_variance.R"))
 
 # Create benchmark graphs
 source(here("auxiliary", "plots.R"))
+
+# Feedback Email
+feedback <- a(href="mailto:some_feedback_mail@worldbank.org", target="_blank", "Send feedback")
 
 # Data -------------------------------------------------------------
 
