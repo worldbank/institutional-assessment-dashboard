@@ -3,10 +3,13 @@
 ## Load packages
 
 ```{r}
-packages <- c("tidyverse",
-              "here",
-              "skimr",
-              "labelled")
+packages <- 
+  c(
+    "tidyverse",
+    "here",
+    "skimr",
+    "labelled"
+  )
 
 pacman::p_load(packages,
                character.only = TRUE)
@@ -32,6 +35,7 @@ definitions <-
       "indicator_definitions.rds"
     )
   )
+
 data <-
   read_rds(
     here(
@@ -143,25 +147,21 @@ group_ctf <-
   ) %>%
   summarise(
     across(
-      bribes:soe_report_legislative,
+      3:ncol(ctf),
       ~ median(., na.rm = TRUE)
     )     
   ) %>%
   filter(!is.na(group)) %>%
-  select(
-    group,
-    group_code,
-    bribes:soe_report_legislative
-  ) %>%
   rename(
     country_name = group,
     country_code = group_code
-  )
+  ) 
 
 ctf <-
   ctf %>%
   bind_rows(group_ctf) %>%
-  ungroup
+  ungroup %>%
+  arrange(country_name)
 
 write_rds(
   ctf,

@@ -34,11 +34,18 @@ source(here("auxiliary", "fun_low_variance.R"))
 # Create benchmark graphs
 source(here("auxiliary", "plots.R"))
 
-# Feedback Email
-feedback <- a(href="mailto:some_feedback_mail@worldbank.org", target="_blank", "Send feedback")
-
 # Data -------------------------------------------------------------
 
+raw_data <-
+  read_rds(
+    here(
+      "data",
+      "raw_data.rds"
+    )
+  ) %>%
+  filter(year >= 1990,
+         rowSums(!is.na(.)) > 3) %>%
+  rename(Year = year)
 
 global_data <-
   read_rds(
@@ -131,6 +138,7 @@ variable_names <-
 countries <-
   raw_data %>%
   select(country_name) %>%
+  filter(!(country_name %in% country_groups$group_name)) %>%
   unlist %>%
   unname %>%
   unique %>%
@@ -162,20 +170,3 @@ group_list <-
 # Inputs ################################################################################
 
 plot_height <- 650
-
-# Data sets ---------------------------------------------------------------------------
-
-
-
-
-# Raw data
-raw_data <-
-  read_rds(
-    here(
-      "data",
-      "raw_data.rds"
-    )
-  ) %>%
-  filter(year >= 1990,
-         rowSums(!is.na(.)) > 3) %>%
-  rename(Year = year)

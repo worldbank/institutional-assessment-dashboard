@@ -352,7 +352,7 @@ ui <-
           ),
 
           conditionalPanel(
-            'input.country_bar !== "" && input.countries_bar != "" && input.vars_bar != null',
+            'input.country_bar !== "" && input.vars_bar != null && (input.countries_bar != "" || input.groups_bar != "")',
 
             bs4Card(
               width = 11,

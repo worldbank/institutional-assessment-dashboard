@@ -118,7 +118,31 @@
         }
       )
 
-    # Indicatos with low variance
+    ## Comparison group note (group or countries) -------------------------
+    note_compare <-
+      eventReactive(
+        input$select,
+        {
+
+        if(
+          all(
+            unique(input$countries) == unique(country_list %>%
+                                                 filter(
+                                                   group %in% input$groups
+                                                 ) %>%
+                                                 .$country_name)
+          )
+        ){
+          return(input$groups)
+        } else {
+          return(input$countries)
+        }
+
+        }
+      )
+
+
+    ## Indicators with low variance -------------------------------------------
     low_variance_indicators <-
       eventReactive(
         input$select,
@@ -524,6 +548,54 @@
 
  # Bar plot ==================================================================
 
+    observeEvent(
+      input$vars_bar,
+      
+      {
+        var <-
+          db_variables %>%
+          filter(var_name == input$vars_bar) %>%
+          pull(variable)
+        
+        valid <-
+          global_data %>%
+          filter(
+            !is.na(get(var))
+          ) %>%
+          select(country_name) %>%
+          unique %>%
+          unlist %>%
+          unname
+        
+        bar_countries <-
+          intersect(valid, countries)
+
+        updatePickerInput(
+          session,
+          "country_bar",
+          choices = c(
+            "",
+            bar_countries
+          )
+        )
+
+        updateCheckboxGroupButtons(
+          session,
+          "countries_bar",
+          choices = bar_countries,
+          checkIcon = list(
+            yes = icon(
+              "ok",
+              lib = "glyphicon"
+            )
+          )
+        )
+      },
+      
+      ignoreNULL = TRUE
+    )
+    
+    
      output$bar_plot <-
       renderPlotly(
         {

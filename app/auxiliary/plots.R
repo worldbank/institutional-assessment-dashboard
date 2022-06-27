@@ -646,23 +646,29 @@ static_bar <-
         country_name %in% c(base_country, comparison_countries, groups)
       )
 
-    median <-
-      data %>%
-      filter(
-        country_name %in% comparison_countries
-      ) %>%
-      ungroup %>%
-      summarise(
-        across(
-          all_of(varname),
-          ~ median(., na.rm = TRUE)
-        )
-      ) %>%
-      mutate(country_name = "Comparison countries median")
-
+    if ((!is.null(comparison_countries)) & (length(comparison_countries) > 1)) {
+      
+      median <-
+        data %>%
+        filter(
+          country_name %in% comparison_countries
+        ) %>%
+        ungroup %>%
+        summarise(
+          across(
+            all_of(varname),
+            ~ median(., na.rm = TRUE)
+          )
+        ) %>%
+        mutate(country_name = "Comparison countries median")
+      
+      data <-
+        data %>%
+        bind_rows(median)
+    }
+    
     data <-
       data %>%
-      bind_rows(median) %>%
       ungroup %>%
       mutate(
         color =
