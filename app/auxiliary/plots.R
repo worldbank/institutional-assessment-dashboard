@@ -789,10 +789,11 @@ interactive_bar <-
 # Bivariate correlation #####################################################
 
 static_scatter <-
-  function(data, base_country, comparison_countries, high_group,
+  function(data, 
+           base_country, comparison_countries, high_group,
            y_scatter, x_scatter,
            variable_names, country_list) {
-
+    
     y <-
       ifelse(
         y_scatter == "Log GDP per capita, PPP",
@@ -869,7 +870,7 @@ static_scatter <-
         values = c(
           "Base country" = "#FB8500",
           "Comparison countries" = "#001f3f",
-          "Others" = "#6c757d"
+          group_name = "#60C2F7"
         )
       ) +
       scale_shape_manual(
@@ -909,6 +910,7 @@ interactive_scatter <-
            y_scatter,
            x_scatter,
            definitions,
+           high_group,
            buttons) {
 
     y <-
@@ -928,6 +930,39 @@ interactive_scatter <-
       y <- definitions %>%
         filter(variable == "gdp_pc_ppp_const")
     }
+    
+    def_note <-
+      paste(
+        "<b>Definitions:</b>",
+        str_wrap(
+          paste0(
+            "<br>", "<em>", x$var_name, ":</em> ", x$description, " (Source: ", x$source, ")"
+          ),
+          note_chars
+        ),
+        str_wrap(
+          paste0(
+            "<br>", "<em>", y$var_name, ":</em> ", y$description, " (Source: ", y$source, ")"
+          ),
+          note_chars
+        )
+      )
+    
+    if (nrow(high_group) > 0) {
+      def_note <-
+        paste0(
+          "<b>Note:</b> ",
+          str_wrap(
+            paste(
+              unique(high_group$group),
+              "countries highlighted in light blue."
+            ),
+            note_chars
+          ),
+          "<br><br>",
+          def_note
+        )
+    }
 
     plot %>%
       ggplotly(tooltip = "text") %>%
@@ -943,23 +978,7 @@ interactive_scatter <-
         annotations = list(
           x = -0.03,
           y = -0.5,
-          text = HTML(
-            paste(
-              "<b>Definitions:</b>",
-              str_wrap(
-                paste0(
-                  "<br>", "<em>", x$var_name, ":</em> ", x$description, " (Source: ", x$source, ")"
-                ),
-                note_chars
-              ),
-              str_wrap(
-                paste0(
-                  "<br>", "<em>", y$var_name, ":</em> ", y$description, " (Source: ", y$source, ")"
-                ),
-                note_chars
-              )
-            )
-          ),
+          text = HTML(def_note),
           showarrow = F,
           xref = 'paper',
           yref = 'paper',
