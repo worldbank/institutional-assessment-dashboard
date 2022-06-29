@@ -35,15 +35,14 @@ ui <-
         menuItem("Time trends", tabName = "trends", icon = icon("chart-line")),
         menuItem("Data", tabName = "data", icon = icon("table")),
         menuItem("Methodology", tabName = "methodology", icon = icon("book")),
+        menuItem("Terms of use", tabName = "terms", icon = icon("handshake")),
         menuItem("FAQ", tabName = "faq", icon = icon("question")),
         customItem("Feedback", 
                    icon = icon("comments", lib = "font-awesome"),
-                   href = "https://forms.office.com/pages/responsepage.aspx?id=wP6iMWsmZ0y1bieW2PWcNinZNsjDQVpApEPZJqaWiPlUMVJPWVdIVFhXMzRQMVVVTldPVzdJSEdMRy4u",
-                   target = "_blank"),
+                   href = "https://forms.office.com/pages/responsepage.aspx?id=wP6iMWsmZ0y1bieW2PWcNinZNsjDQVpApEPZJqaWiPlUMVJPWVdIVFhXMzRQMVVVTldPVzdJSEdMRy4u"),
         customItem("Source code", 
                    icon = icon("github", lib = "font-awesome"),
-                   href = "https://github.com/worldbank/institutional-assessment-dashboard/",
-                   target = "_blank")
+                   href = "https://github.com/worldbank/institutional-assessment-dashboard/")
       )
     ),
 
@@ -888,6 +887,29 @@ ui <-
                            style = "background-color: #204d74; color: white")
           )
 
+        ),
+        
+## Terms of use ================================================================
+
+        tabItem(
+          tabName = "terms",
+          
+          box(
+            width = 11,
+            status = "navy",
+            collapsible = FALSE,
+            title = "Terms of use",
+            solidHeader = TRUE,
+            tags$ul(
+              tags$li(
+                'We ask that all users of the data to cite the data as follows:',
+                HTML('"<em>Source: World Bank Country Level Institutional Assessment and Review.</em>"')
+              ),
+              tags$li(
+                "We request that all users that modify the methodology and the source code for their reports and analysis will clearly state so and highlight the relevant departures from the CLIAR methodology provided on this dashboard."
+              )
+            )
+          )
         ),
 
 ## FAQ tab =====================================================================

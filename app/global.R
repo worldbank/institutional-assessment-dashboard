@@ -185,7 +185,7 @@ customItem <-
       )
       
       tags$li(
-        a(href = href, icon, text, class = "nav-link"),
+        a(href = href, icon, text, class = "nav-link", target = "_blank"),
         class = "nav-item"
       )
 }
