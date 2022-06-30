@@ -1,114 +1,91 @@
-db_variables <-
-  readxl::read_excel(
-    here(
-      "data",
-      "db_variables.xlsx"
-    )
-  )
-
-db_variables$variable[db_variables$api_id==946] <- "gdp_pc_ppp_const"
-db_variables$select[db_variables$api_id==946] <- 1
-db_variables$family_var[db_variables$api_id==946] <- "vars_other"
-db_variables$family_name[db_variables$api_id==946] <- "Other"
-
 # Anti-Corruption, Transparency and Accountability institutions ======================
 vars_transp <-
   db_variables %>%
   filter(
-    select == 1,
     var_level == "indicator",
     family_var == "vars_transp"
   ) %>%
-  .$variable
+  pull(variable)
 
 # Business environment and trade institutions ======================
 vars_mkt <-
   db_variables %>%
   filter(
-    select == 1,
     var_level == "indicator",
     family_var == "vars_mkt"
   ) %>%
-  .$variable
+  pull(variable)
 
 # Financial market institutions ======================
 vars_fin <-
   db_variables %>%
   filter(
-    select == 1,
     var_level == "indicator",
     family_var == "vars_fin"
   ) %>%
-  .$variable
+  pull(variable)
 
 # Labor market institutions ======================
 vars_lab <-
   db_variables %>%
   filter(
-    select == 1,
     var_level == "indicator",
     family_var == "vars_lab"
   ) %>%
-  .$variable
+  pull(variable)
 
 # Legal institutions ======================
 vars_leg <-
   db_variables %>%
   filter(
-    select == 1,
     var_level == "indicator",
     family_var == "vars_leg"
   ) %>%
-  .$variable
+  pull(variable)
 
 # Political institutions ======================
 vars_pol <-
   db_variables %>%
   filter(
-    select == 1,
     var_level == "indicator",
     family_var == "vars_pol"
   ) %>%
-  .$variable
+  pull(variable)
 
 # Public sector performance institutions ======================
 vars_publ <-
   db_variables %>%
   filter(
-    select == 1,
     var_level == "indicator",
     family_var == "vars_publ"
   ) %>%
-  .$variable
+  pull(variable)
 
 # Social institutions ======================
 vars_social <-
   db_variables %>%
   filter(
-    select == 1,
     var_level == "indicator",
     family_var == "vars_social"
   ) %>%
-  .$variable
+  pull(variable)
 
 # SOE Corporate Governance ======================
 vars_service_del <-
   db_variables %>%
   filter(
-    select == 1,
     var_level == "indicator",
     family_var == "vars_service_del"
   ) %>%
-  .$variable
+  pull(variable)
 
 # All variables ======================
 vars_all <-
   db_variables %>%
   filter(
-    select == 1,
     var_level == "indicator"
   ) %>%
-  .$variable
+  pull(variable)
 
 # Families variables ======================
 family_names <-
@@ -116,37 +93,34 @@ family_names <-
   filter(
     var_level == "family"
   ) %>%
-  .$variable
+  pull(variable)
 
 # Variables from Original source  ======================
 vars_original <-
   db_variables %>%
   filter(
-    select == 1,
     var_level == "indicator",
     data_source == "original"
   ) %>%
-  .$variable
+  pull(variable)
 
 # Variables from Gov360 API ======================
 vars_api <-
   db_variables %>%
   filter(
-    select == 1,
     var_level == "indicator",
-    data_source == "api"
+    data_source == "API"
   ) %>%
-  .$variable
+  pull(variable)
 
 # Variables from Additions source  ======================
 vars_additions <-
   db_variables %>%
   filter(
-    select == 1,
     var_level == "indicator",
     data_source == "additions"
   ) %>%
-  .$variable
+  pull(variable)
 
 
 

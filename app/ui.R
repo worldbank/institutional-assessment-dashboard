@@ -167,7 +167,7 @@ ui <-
                   label = "Select institutional family",
                   choices = c(
                     "Overview",
-                    names(definitions)
+                    names(variable_list)
                   ),
                   selected = "Overview"
                 )
