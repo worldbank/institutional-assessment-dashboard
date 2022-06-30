@@ -1,5 +1,13 @@
 # Clean list of contries
 
+- Inputs:
+  - `data/final/compiled_indicators.rds`
+  - `data/raw/wb_country_list.rds`
+      
+      
+- Outputs:
+  - `data/final/wb_country_list.rds`
+
 ```{r}
   packages <-
     c("tidyverse",
@@ -77,15 +85,6 @@ country_list <-
 Dataset with list of countries in our sample
 
 ```{r}
-write_rds(
-  country_list,
-  here(
-    "app",
-    "data",
-    "wb_country_list.rds"
-  )
-)
-
 write_rds(
   country_list,
   here(

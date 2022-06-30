@@ -2,7 +2,6 @@
 vars_transp <-
   db_variables %>%
   filter(
-    select == 1,
     var_level == "indicator",
     family_var == "vars_transp"
   ) %>%
@@ -12,7 +11,6 @@ vars_transp <-
 vars_mkt <-
   db_variables %>%
   filter(
-    select == 1,
     var_level == "indicator",
     family_var == "vars_mkt"
   ) %>%
@@ -22,7 +20,6 @@ vars_mkt <-
 vars_fin <-
   db_variables %>%
   filter(
-    select == 1,
     var_level == "indicator",
     family_var == "vars_fin"
   ) %>%
@@ -32,7 +29,6 @@ vars_fin <-
 vars_lab <-
   db_variables %>%
   filter(
-    select == 1,
     var_level == "indicator",
     family_var == "vars_lab"
   ) %>%
@@ -42,7 +38,6 @@ vars_lab <-
 vars_leg <-
   db_variables %>%
   filter(
-    select == 1,
     var_level == "indicator",
     family_var == "vars_leg"
   ) %>%
@@ -52,7 +47,6 @@ vars_leg <-
 vars_pol <-
   db_variables %>%
   filter(
-    select == 1,
     var_level == "indicator",
     family_var == "vars_pol"
   ) %>%
@@ -62,7 +56,6 @@ vars_pol <-
 vars_publ <-
   db_variables %>%
   filter(
-    select == 1,
     var_level == "indicator",
     family_var == "vars_publ"
   ) %>%
@@ -72,7 +65,6 @@ vars_publ <-
 vars_social <-
   db_variables %>%
   filter(
-    select == 1,
     var_level == "indicator",
     family_var == "vars_social"
   ) %>%
@@ -82,7 +74,6 @@ vars_social <-
 vars_service_del <-
   db_variables %>%
   filter(
-    select == 1,
     var_level == "indicator",
     family_var == "vars_service_del"
   ) %>%
@@ -92,7 +83,6 @@ vars_service_del <-
 vars_all <-
   db_variables %>%
   filter(
-    select == 1,
     var_level == "indicator"
   ) %>%
   pull(variable)
@@ -109,7 +99,6 @@ family_names <-
 vars_original <-
   db_variables %>%
   filter(
-    select == 1,
     var_level == "indicator",
     data_source == "original"
   ) %>%
@@ -119,9 +108,8 @@ vars_original <-
 vars_api <-
   db_variables %>%
   filter(
-    select == 1,
     var_level == "indicator",
-    data_source == "api"
+    data_source == "API"
   ) %>%
   pull(variable)
 
@@ -129,7 +117,6 @@ vars_api <-
 vars_additions <-
   db_variables %>%
   filter(
-    select == 1,
     var_level == "indicator",
     data_source == "additions"
   ) %>%

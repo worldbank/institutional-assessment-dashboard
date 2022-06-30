@@ -24,13 +24,9 @@ def_quantiles <- function(data, base_country, country_list, comparison_countries
   quantiles <-
     data %>%
     ungroup() %>%
-
-    # Keep only the base and comparison countries
     filter(
-      (country_name %in% comparison_list$country_name) | (country_name == base_country)
+      country_name %in% c(base_country, comparison_list$country_name)
     ) %>%
-
-    # Keep only selected, non-missing indicators
     select(
       country_name,
       all_of(variables)

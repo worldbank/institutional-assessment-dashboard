@@ -1,27 +1,27 @@
-```{r}
-packages <- c("tidyverse",
-              "here")
+# Process original data
 
-pacman::p_load(packages,
-               character.only = TRUE)
-```
+- Input: `data/raw/merged_for_residuals.rds`
+- Output: `data/clean/original_data.rds`
+
 
 ```{r}
-db_variables <-
-  readxl::read_excel(
-    here(
-      "data",
-      "db_variables.xlsx"
-    )
+packages <-
+  c(
+    "here",
+    "tidyverse",
+    "labelled"
   )
 
-source(here("app", "auxiliary", "vars-control.R"))
+pacman::p_load(packages, character.only = TRUE)
 ```
+
+
+## Import original data
 
 This data was originally received in Stata format, then saved as an R dataset
 
 ```{r}
-data_original <- 
+data_original <-
   read_rds(
     here(
       "data",
@@ -32,11 +32,13 @@ data_original <-
 ```
 
 
+## Rename variables
+
 Rename variables BECAUSE
 
 
 ```{r}
-original_clean <- 
+original_clean <-
   data_original %>%
   rename(
     country_name = countryname,
@@ -65,16 +67,18 @@ original_clean <-
   )
 ```
 
-Some variable are measured in opposite scale, where a lower value means a better performance. To apply the closeness to frontier methodology, we need all indicators to point to the same direction, where higher values mean better perfomances.
+## Rescale
+
+Some variable are measured in opposite scale, where a lower value means a better performance. To apply the closeness to frontier methodology, we need all indicators to point to the same direction, where higher values mean better performances.
 
 ```{r}
 original_clean <-
   original_clean %>%
-   mutate(
+  mutate(
     # Freedom house: Countries are graded between 1 (most free) and 7 (least free).
     across(
       c(
-        e_fh_pr, 
+        e_fh_pr,
         e_fh_cl
       ),
       ~ (8 - .x)
@@ -109,6 +113,8 @@ original_clean <-
   )
 ```
 
+## Subset indicators
+
 We will keep only indicators from original data
 
 ```{r}
@@ -120,12 +126,12 @@ original_clean <-
     year,
     all_of(vars_original)
   ) %>%
-  labelled::remove_labels()
+  remove_labels()
 
 rm(data_original)
 ```
 
-Save this data
+## Save data
 
 ```{r}
 write_rds(

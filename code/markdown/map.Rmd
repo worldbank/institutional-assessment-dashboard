@@ -1,5 +1,14 @@
-# Set up 
+# Create spatial data
 
+- Inputs:
+  - `data/final/closeness_to_frontier.rds`
+  - `data/final/compiled_indicators.rds`
+  - `data/raw/WB_countries_Admin0_lowres.geojson`
+  - `data/raw/WB_disputed_areas_Admin0_10m.shp`
+  
+- Output:
+  - `data/final/indicators_map.rds`
+  
 ## Packages 
 
 ```{r}
@@ -155,8 +164,8 @@ map <-
 map %>%
   write_rds(
     here(
-      "app",
       "data",
+      "final",
       "indicators_map.rds"
     )
   )

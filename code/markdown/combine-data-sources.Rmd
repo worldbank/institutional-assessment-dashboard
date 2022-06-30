@@ -1,3 +1,16 @@
+# Import data
+
+- Inputs:
+  - `data/clean/original_data.rds`
+  - `data/clean/additional_data.rds`
+  - `data/clean/api_data.rds`
+
+- Outputs:
+  - `data/final/compiled_indicators.rds`
+
+## Load data
+
+```{r}
 original_data <-
   read_rds(
     here(
@@ -63,3 +76,4 @@ write_rds(
     "compiled_indicators.rds"
   )
 )
+```

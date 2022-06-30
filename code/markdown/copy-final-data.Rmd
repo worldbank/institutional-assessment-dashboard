@@ -1,3 +1,6 @@
+# Move final data to app folder
+
+```{r}
 file.copy(
   list.files(
     here(
@@ -12,4 +15,4 @@ file.copy(
   ),
   recursive = TRUE
 )
-
+```
