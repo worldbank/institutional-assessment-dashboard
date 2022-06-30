@@ -165,11 +165,8 @@ ui <-
                 pickerInput(
                   "family",
                   label = "Select institutional family",
-                  choices = c(
-                    "Overview",
-                    names(variable_list)
-                  ),
-                  selected = "Overview"
+                  choices = c("Overview", names(variable_list)),
+                  selected = NULL
                 )
               ),
 

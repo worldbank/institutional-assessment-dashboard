@@ -1,0 +1,131 @@
+--- 
+title: "Data processing"
+author: "Luiza Andrade, Serena Cocciolo, Eric Braian Arias, Gabriel Vaz de Melo"
+site: bookdown::bookdown_site
+output: bookdown::gitbook
+config:
+    toc:
+      collapse: subsection
+documentclass: book
+link-citations: yes
+---
+
+# About
+
+Placeholder
+
+
+## Render book
+
+<!--chapter:end:index.Rmd-->
+
+
+# Process selected indicators
+
+Placeholder
+
+
+## Load packages
+## Load list of selected indicators
+## Save list of selected indicators in R format
+## Save variable definitions by family
+## Define list of variables
+
+<!--chapter:end:select-indicators.Rmd-->
+
+
+# Process original data
+
+Placeholder
+
+
+## Import original data
+## Rename variables
+## Rescale
+## Subset indicators
+## Save data
+
+<!--chapter:end:process-original-data.Rmd-->
+
+
+# Process API data
+
+Placeholder
+
+
+## List indicators to retrieve
+## Extract and aggregate governance data
+## Combine all indicators
+
+<!--chapter:end:process-api-data.Rmd-->
+
+
+# Process manual additions
+
+Placeholder
+
+
+## Load packages
+## Import data
+## Keep only relevant data
+## Save data
+
+<!--chapter:end:process-additional-data.Rmd-->
+
+
+# Import data
+
+Placeholder
+
+
+## Load data
+
+<!--chapter:end:combine-data-sources.Rmd-->
+
+
+# Calculate distance to frontier
+
+Placeholder
+
+
+## Load packages
+## Calculate global closeness to frontier
+## Calculate median per group
+
+<!--chapter:end:ctf.Rmd-->
+
+
+# Create spatial data
+
+Placeholder
+
+
+## Packages 
+## Input data 
+## Official WB maps 
+## Closeness to frontier
+## Raw data
+
+<!--chapter:end:map.Rmd-->
+
+
+# Move final data to app folder
+
+Placeholder
+
+
+
+<!--chapter:end:copy-final-data.Rmd-->
+
+
+# Clean list of contries
+
+Placeholder
+
+
+## Inputs
+## Subset country list
+## Save datasets
+
+<!--chapter:end:clean-countries.Rmd-->
+

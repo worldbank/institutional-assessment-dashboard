@@ -104,17 +104,14 @@
       eventReactive(
         input$select,
         {
-
-          if (input$family == "Labor market") {vars_lab} else
-            if (input$family == "Financial market") {vars_fin} else
-              if (input$family == "Justice") {vars_leg} else
-                if (input$family == "Political") {vars_pol} else
-                  if (input$family == "Social") {vars_social} else
-                    if (input$family == "Business environment and trade") {vars_mkt} else
-                      if (input$family == "Public sector performance") {vars_publ} else
-                        if (input$family == "SOE Corporate Governance") {vars_service_del} else
-                          if (input$family == "Anti-Corruption, Transparency and Accountability") {vars_transp} else
-                            if (input$family == "Overview") {vars_all}
+          if (input$family == "Overview") {
+            vars_all
+          } else {
+            variable_names %>%
+              filter(family_name == input$family) %>%
+              pull(variable) %>%
+              unique
+          }
         }
       )
 
@@ -188,8 +185,8 @@
               base_country(),
               country_list,
               input$countries,
-              family_names,
-              variable_names
+              vars_family,
+              family_names
             )
         }
       )
@@ -419,7 +416,7 @@
             country_name == input$country,
             !is.na(value)
           ) %>%
-          select(var_name) %>%
+          select(family_name) %>%
           unique %>%
           unlist %>%
           unname
@@ -429,7 +426,7 @@
           "family",
           choices = c(
             "Overview",
-            intersect(names(definitions), valid_vars)
+            intersect(names(variable_list), valid_vars)
           )
         )
       },
@@ -783,8 +780,7 @@
           variable_names %>%
           filter(
             family_name %in% input$vars,
-            var_level == "indicator",
-            variable != "gdp_pc_ppp_const"
+            var_level == "indicator"
           ) %>%
           select(variable) %>%
           unlist
@@ -858,8 +854,16 @@
           filename = "gbid-data.rds",
 
           content = function(file) {
-            write_rds(browse_data(),
-                      file)
+            write_rds(
+              browse_data() %>%
+                setnames(
+                  .,
+                  as.character(variable_names$var_name),
+                  as.character(variable_names$variable),
+                  skip_absent = TRUE
+                ),
+              file
+            )
           }
         )
 
@@ -869,9 +873,11 @@
           filename = "gbid-data.csv",
 
           content = function(file) {
-            write_csv(browse_data(),
-                      file,
-                      na = "")
+            write_csv(
+              browse_data(),
+              file,
+              na = ""
+            )
           }
         )
 
@@ -881,8 +887,16 @@
           filename = "gbid-data.dta",
 
           content = function(file) {
-            write_dta(browse_data(),
-                      file)
+            write_dta(
+              browse_data() %>%
+                setnames(
+                  .,
+                  as.character(variable_names$var_name),
+                  as.character(variable_names$variable),
+                  skip_absent = TRUE
+                ),
+              file
+            )
           }
         )
 

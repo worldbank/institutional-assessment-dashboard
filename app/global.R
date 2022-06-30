@@ -13,6 +13,7 @@ library(shinyhelper)
 library(bs4Dash)
 library(fresh)
 library(sf)
+library(haven)
 library(zoo)
 library(formattable)
 library(here)
@@ -47,7 +48,7 @@ raw_data <-
   read_rds(
     here(
       "data",
-      "raw_data.rds"
+      "compiled_indicators.rds"
     )
   ) %>%
   filter(year >= 1990,
@@ -105,30 +106,10 @@ spatial_data <-
 
 st_crs(spatial_data) <- "+proj=robin"
 
-
-period_info_available <-
-  read_rds(
-    here(
-      "data",
-      "period_info_available.rds")
-  )
-
-period_info_by_variable <-
-  read_rds(
-    here(
-      "data",
-      "period_info_by_variable.rds"
-    )
-  )
-
 # Load data control
 db_variables <-
   db_variables %>%
-  filter(variable %in% vars_all | var_level == "family") %>%
-  left_join(
-    period_info_by_variable,
-    by = "variable"
-  )
+  filter(variable %in% vars_all | var_level == "family")
 
 # Options ---------------------------------------------------------
 
@@ -151,24 +132,26 @@ countries <-
   unique %>%
   sort
 
+extract_variables <-
+  function(x) {
+    db_variables %>%
+      filter(
+        family_name == x
+      ) %>%
+      pull(var_name)
+  }
+
 variable_list <-
-  list(
-    `Anti-Corruption, Transparency and Accountability` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_transp") %>% .$var_name),
-    `Business environment and trade` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_mkt") %>% .$var_name),
-    `Financial market` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_fin") %>% .$var_name),
-    `SOE Corporate Governance` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_service_del") %>% .$var_name),
-    `Labor market` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_lab") %>% .$var_name),
-    `Justice` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_leg") %>% .$var_name),
-    `Political` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_pol") %>% .$var_name),
-    `Public sector` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_publ") %>% .$var_name),
-    `Social` = c(variable_names %>% filter(var_level=="indicator" & family_var=="vars_social") %>% .$var_name)
-  )
+  lapply(family_names$var_name, extract_variables)
+
+names(variable_list) <- family_names$var_name
+
 
 group_list <-
   list(
-    `Economic` = c(country_groups %>% filter(group_category=="Economic") %>% .$group_name),
-    `Region` = c(country_groups %>% filter(group_category=="Region") %>% .$group_name),
-    `Income` = c(country_groups %>% filter(group_category=="Income") %>% .$group_name)
+    `Economic` = country_groups %>% filter(group_category == "Economic") %>% pull(group_name),
+    `Region` = country_groups %>% filter(group_category == "Region") %>% pull(group_name),
+    `Income` = country_groups %>% filter(group_category == "Income") %>% pull(group_name)
   )
 
 
