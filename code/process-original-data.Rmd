@@ -76,36 +76,6 @@ Some variable are measured in opposite scale, where a lower value means a better
 original_clean <-
   original_clean %>%
   mutate(
-    # Freedom house: Countries are graded between 1 (most free) and 7 (least free).
-    across(
-      c(
-        e_fh_pr,
-        e_fh_cl
-      ),
-      ~ (8 - .x)
-    ),
-    # PRM indicators: Countries are graded between 0 (less control/involvement) and 6 (more control/involvement)
-    across(
-      c(
-        governance_soe,
-        price_controls,
-        command_control,
-        complexity_procedures,
-        barriers_startups,
-        protection_incumbents,
-        barriers_trade_expl,
-        barriers_trade_oth
-      ),
-      ~ (6 - .x)
-    ),
-    # Methodological note for PRM indicates that 1998 and 2013 indicators are comparable,
-    # but not with 2018 due to change in methodology, so we remove 2018 data
-    across(
-      c(barriers_startups:protection_incumbents),
-      ~ ifelse(year == 2018, NA, .x)
-    ),
-    # transform missing
-    e_p_polity = ifelse(e_p_polity < -10, NA, e_p_polity),
     # Fix country names
     country_name = ifelse(country_name == "ksv", "Kosovo", country_name),
     country_name = ifelse(country_name == "tmp", "Timor-Leste", country_name),

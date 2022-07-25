@@ -210,6 +210,7 @@ data_api_rescaled <-
     year >= 1950   # variable e_p_polity has values since 1800, filter to reduce # of rows
   ) %>%
   mutate(
+    # PRM indicators: Countries are graded between 0 (less control/involvement) and 6 (more control/involvement). Methodological note for PRM indicates that 1998 and 2013 indicators are comparable, but not with 2018 due to change in methodology, so we remove 2018 data
     across(
       c(
         soe_governance,
@@ -219,9 +220,20 @@ data_api_rescaled <-
         barriers_startups,
         protection_incumbents,
         barriers_trade_expl,
-        barriers_trade_oth
+        barriers_trade_oth,
+        directcontroloverbusinessenterpr,
+        governmentinvolvementinnetworkse,
+        scopeofstateownedenterprises
       ),
-      ~(6 - .x)
+      ~ ifelse(year == 2018, NA, 6 - .x)
+    ),
+    # Freedom house: Countries are graded between 1 (most free) and 7 (least free)
+    across(
+      c(
+        e_fh_pr,
+        e_fh_cl
+      ),
+      ~ (8 - .x)
     ),
     country_code = as.character(country_code),
     year = as.character(year)
