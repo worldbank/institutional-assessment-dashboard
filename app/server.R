@@ -104,6 +104,7 @@
       eventReactive(
         input$select,
         {
+
           if (input$family == "Overview") {
             vars_all
           } else {
@@ -120,20 +121,23 @@
       eventReactive(
         input$select,
         {
-
-        if(
-          all(
-            unique(input$countries) == unique(country_list %>%
-                                                 filter(
-                                                   group %in% input$groups
-                                                 ) %>%
-                                                 .$country_name)
-          )
-        ){
-          return(input$groups)
-        } else {
-          return(input$countries)
-        }
+          
+          if (is.null(input$groups)) {
+            return(input$countries)
+          } else if (
+            all(
+              unique(input$countries) ==
+              unique(
+                country_list %>%
+                filter(group %in% input$groups) %>%
+                pull(country_name)
+              )
+            )
+          ) {
+            return(input$groups)
+          } else {
+            return(input$countries)
+          }
 
         }
       )
@@ -212,12 +216,33 @@
       input$select,
 
       {
-        if (input$groups != "") {
+        
+        if (!is.null(input$groups)) {
+
           updatePickerInput(
             session,
             "groups_data",
             choices = c("All", "Comparison groups only", "None")
           )
+
+          updatePickerInput(
+            session,
+            "groups_bar",
+            selected = input$groups
+          )
+
+          updatePickerInput(
+           session,
+           "high_group",
+           selected = input$groups
+          )
+
+          updatePickerInput(
+           session,
+           "group_trends",
+           selected = input$groups
+          )
+
         }
         
         updatePickerInput(
@@ -245,12 +270,6 @@
           selected = input$countries
         )
         
-        updatePickerInput(
-          session,
-          "groups_bar",
-          selected = input$groups
-        )
-
         # Bivariate correlation selection
         updatePickerInput(
           session,
@@ -262,12 +281,6 @@
           session,
           "countries_scatter",
           selected = input$countries
-        )
-
-        updatePickerInput(
-          session,
-          "high_group",
-          selected = input$groups
         )
 
         # Time trends
@@ -282,13 +295,6 @@
           "countries_trends",
           selected = input$countries
         )
-
-        updatePickerInput(
-          session,
-          "group_trends",
-          selected = input$groups
-        )
-
       },
 
       ignoreNULL = TRUE
@@ -474,7 +480,7 @@
               low_variance_variables <-
                 low_variance_indicators() %>%
                 data.frame() %>%
-                rename("variable"=".") %>%
+                rename("variable" = ".") %>%
                 left_join(variable_names %>% select(variable,var_name), by = "variable") %>%
                 .$var_name
 
@@ -490,7 +496,7 @@
                 ) %>%
                 interactive_plot(
                   base_country(),
-                  input$groups,
+                  note_compare(),
                   input$family,
                   plotly_remove_buttons,
                   missing_variables
@@ -528,7 +534,7 @@
                 ) %>%
                 interactive_plot(
                   base_country(),
-                  input$groups,
+                  note_compare(),
                   input$family,
                   plotly_remove_buttons,
                   missing_variables
@@ -938,6 +944,7 @@
             comparison_countries = input$countries,
             data = data(),
             family_data = data_family(),
+            rank = input$rank,
             definitions = definitions,
             variable_names = variable_names
           )
