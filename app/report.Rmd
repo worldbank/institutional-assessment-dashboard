@@ -9,6 +9,7 @@ params:
   comparison_countries: NA
   data: NA
   family_data: NA
+  rank: NA
 ---
 
 ```{r, setup, include = FALSE}
@@ -23,9 +24,6 @@ knitr::opts_chunk$set(
 ```{r}
 
  # Auxiliary functions -----------------------------------------------------------------
-
-  source(file.path("auxiliary",
-                   "vars-by-family.R"))
 
   source(file.path("auxiliary",
                    "plots.R"))
@@ -75,6 +73,7 @@ params$family_data %>%
   static_plot(
     params$base_country,
     "Country overview", 
+    rank = params$rank,
     title = FALSE,
     note = paste(
       source,
@@ -130,6 +129,7 @@ for (category in c("Strong", "Emerging", "Weak")) {
           static_plot(
             data,
             params$base_country,
+            rank = params$rank,
             family,
             title = FALSE,
             note = source
