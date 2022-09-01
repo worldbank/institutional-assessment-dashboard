@@ -21,7 +21,7 @@ additions <-
     here(
       "..",
       "data",
-      "data_raw",
+      "raw",
       "20211118_new_additions_notGov360.dta"
     )
   )
@@ -52,15 +52,14 @@ additions_clean <-
   summarise(
     across(
       where(is.numeric),
-      ~ . %>%
-        mean(na.rm = TRUE) %>%
+      ~ mean(., na.rm = TRUE) %>%
         replace(is.nan(.), NA)
     )
   ) %>%
   mutate(
     across(
       where(is.numeric),
-      ~ ifelse(is.nan(.x),NA,.x)
+      ~ ifelse(is.nan(.), NA, .)
     )
   )
 ```
