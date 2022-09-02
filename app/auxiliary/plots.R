@@ -542,7 +542,7 @@ trends_plot <- function(raw_data,
     if (!is.null(groups)) {
       country_list %>%
         filter(group %in% groups) %>%
-        left_join(indicator_data) %>%
+        inner_join(indicator_data) %>%
         group_by(Year, group) %>%
         summarise(
           across(
