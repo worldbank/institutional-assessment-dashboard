@@ -45,7 +45,7 @@
 !*.R
 !*.Rmd
 !*.Rproj
-!*.css
+!code/notebook/*.css
 .Rproj.user
 
 # Markdown
@@ -63,4 +63,3 @@ passwords.*
 password/
 passwords/
 data/raw/CLASS.xlsx
-*.css
