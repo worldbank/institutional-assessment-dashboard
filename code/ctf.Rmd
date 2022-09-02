@@ -1,12 +1,12 @@
 # Calculate distance to frontier
 
 - Inputs:
-  - `data/constructed/indicator_definitions.rds`
+  - `data/final/definitions.rds`
   - `data/final/compiled_indicators.rds`
-  - `data/final/wb_country_list.rds`
+  - `data/raw/wb_country_list.rds`
       
 - Outputs:
- -`data/final/closeness_to_frontier.rds`
+ - `data/final/closeness_to_frontier.rds`
  - `data/final/closeness_to_frontier_long.rds`
 
 ## Load packages
@@ -41,8 +41,8 @@ definitions <-
     here(
       "..",
       "data",
-      "constructed",
-      "indicator_definitions.rds"
+      "final",
+      "definitions.rds"
     )
   )
 
@@ -60,12 +60,47 @@ data <-
   )
 ```
 
+2. Rescale indicators so a higher number is always a better performance
 
-2. Calculate country-level average for each indicator
+```{r}
+data_rescaled <- 
+  data %>%
+  mutate(
+    e_p_polity = ifelse(e_p_polity < -10, NA, e_p_polity),
+    # PRM indicators: Countries are graded between 0 (less control/involvement) and 6 (more control/involvement). Methodological note for PRM indicates that 1998 and 2013 indicators are comparable, but not with 2018 due to change in methodology, so we remove 2018 data
+    across(
+      c(
+        soe_governance,
+        price_controls,
+        command_control,
+        complexity_procedures,
+        barriers_startups,
+        protection_incumbents,
+        barriers_trade_expl,
+        barriers_trade_oth,
+        directcontroloverbusinessenterpr,
+        governmentinvolvementinnetworkse,
+        scopeofstateownedenterprises
+      ),
+      ~ ifelse(year == 2018, NA, 6 - .x)
+    ),
+    # Freedom house: Countries are graded between 1 (most free) and 7 (least free)
+    across(
+      c(
+        e_fh_pr,
+        e_fh_cl
+      ),
+      ~ (8 - .x)
+    )
+  )
+```
+
+
+3. Calculate country-level average for each indicator
 
 ```{r}
 country_average <-
-  data %>%
+  data_rescaled %>%
   group_by(
     country_code,
     country_name
@@ -78,7 +113,7 @@ country_average <-
   )
 ```
 
-3. Identify worst and best performance for each indicator
+4. Identify worst and best performance for each indicator
 
 ```{r}
 min_max <-
@@ -100,7 +135,7 @@ min_max <-
   )
 ```
 
-4. Calculate closeness to frontier at indicator level
+5. Calculate closeness to frontier at indicator level
 
 ```{r}
 ctf <-

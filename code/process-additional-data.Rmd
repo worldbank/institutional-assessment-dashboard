@@ -1,5 +1,8 @@
 # Process manual additions
 
+- Input: `data/raw/20211118_new_additions_notGov360.dta`
+- Output: `data/clean/additional_data.rds`
+
 ## Load packages
 
 ```{r}

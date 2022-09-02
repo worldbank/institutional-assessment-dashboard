@@ -2,17 +2,20 @@
 
 - Inputs:
   - `data/final/compiled_indicators.rds`
-  - `data/raw/wb_country_list.rds`
-      
+  - `data/raw/CLASS.xlsx`, obtained from https://datahelpdesk.worldbank.org/knowledgebase/articles/906519-world-bank-country-and-lending-groups on September 1, 2022
+  - `data/raw/group_list.csv`, input by the research team to list relevant groups
       
 - Outputs:
   - `data/final/wb_country_list.rds`
+  - `data/final/wb_country_groups.rds`
 
 ```{r}
   packages <-
     c(
       "tidyverse",
-      "here"
+      "here",
+      "readxl",
+      "assertthat"
     )
 
   pacman::p_load(packages,
@@ -33,43 +36,32 @@
       )
     )
 
-  country_list <-
+  group_list <-
     read_csv(
       here(
         "..",
         "data",
         "raw",
-        "wb_country_list.csv"
+        "group_list.csv"
       )
+    )
+
+  country_list <-
+    read_xlsx(
+      here(
+        "..",
+        "data",
+        "raw",
+        "CLASS.xlsx"
+      ),
+      sheet = "Groups"
     ) %>%
-    rename(country_name = country)
-```
-
-List all relevant groups
-
-```{r}
-  group_codes <-
-    c(
-      "EUU",
-      "ARB",
-      "CEB",
-      "HIC",
-      "LIC",
-      "LMC",
-      "LMY",
-      "MIC",
-      "OED",
-      "UMC",
-      "EAS",
-      "ECS",
-      "LCN",
-      "MEA",
-      "NAC",
-      "SAS",
-      "SSF"
+    transmute(
+      country_code = CountryCode,
+      group = GroupName,
+      group_code = GroupCode
     )
 ```
-
 
 ## Subset country list
 
@@ -77,11 +69,21 @@ The only relevant countries are those we have some data for
 
 ```{r}
 country_list <-
+  indicators %>%
+  select(country_code, country_name) %>%
+  unique %>%
+  left_join(country_list)
+```
+
+## Subset groups
+
+```{r}
+country_list <-
   country_list %>%
   filter(
-    country_name %in% indicators$country_name,
-    group_code %in% group_codes
-  )
+    group %in% group_list$group_name
+  ) %>%
+  unique
 ```
 
 ## Save datasets
@@ -96,6 +98,16 @@ write_rds(
     "data",
     "final",
     "wb_country_list.rds"
+  )
+)
+
+write_rds(
+  group_list,
+  here(
+    "..",
+    "data",
+    "final",
+    "wb_country_groups.rds"
   )
 )
 ```

@@ -4,7 +4,7 @@
   - `data/final/closeness_to_frontier.rds`
   - `data/final/compiled_indicators.rds`
   - `data/raw/WB_countries_Admin0_lowres.geojson`, obtained from https://datacatalog.worldbank.org/int/search/dataset/0038272 on September 1, 2022
-  - `data/raw/WB_disputed_areas_Admin0_10m.geojson`, obtained from https://datacatalog.worldbank.org/int/search/dataset/0038272 on September 1, 2022
+  - `data/raw/WB_disputed_areas_Admin0_10m_lowres.geojson`, obtained from https://datacatalog.worldbank.org/int/search/dataset/0038272 on September 1, 2022
   
 - Output:
   - `data/final/indicators_map.rds`
@@ -69,7 +69,7 @@ disputed_areas <-
       "..",
       "data",
       "raw",
-      "WB_disputed_areas_Admin0_10m.geojson"
+      "WB_disputed_areas_Admin0_10m_lowres.geojson"
     )
   )
 ```
@@ -79,20 +79,20 @@ disputed_areas <-
 ```{r}
 disputed_areas <-
   disputed_areas %>%
-  select(WB_A3) %>%
-  filter(!is.na(WB_A3))
+  transmute(country_code = str_trim(WB_A3)) %>%
+  filter(
+    !is.na(country_code),
+    country_code != ""
+  )
 
 world_map <-
   world_map %>%
-  select(WB_A3) 
+  select(country_code = WB_A3) 
 
 world_map <-
   world_map %>%
   bind_rows(
     disputed_areas
-  ) %>%
-  rename(
-    country_code = WB_A3
   ) %>%
   ms_simplify(
     keep = 0.04,

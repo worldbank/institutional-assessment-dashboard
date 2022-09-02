@@ -386,7 +386,6 @@ static_map <-
 
     if (selected == "TRUE" & !is.null(base_country) & !is.null(comparison_countries)) {
 
-      print("oi")
       plot <-
         plot +
         geom_sf(
@@ -438,7 +437,7 @@ interactive_map <-
 
     def <-
       definitions %>%
-      filter(var_name == var)
+      filter(variable == var)
 
     if (source == "ctf") {
       leg_title <- "Closeness to\nfrontier"
@@ -543,7 +542,7 @@ trends_plot <- function(raw_data,
     if (!is.null(groups)) {
       country_list %>%
         filter(group %in% groups) %>%
-        left_join(indicator_data) %>%
+        inner_join(indicator_data) %>%
         group_by(Year, group) %>%
         summarise(
           across(
