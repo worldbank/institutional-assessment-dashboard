@@ -1,12 +1,12 @@
 # Calculate distance to frontier
 
 - Inputs:
-  - `data/constructed/indicator_definitions.rds`
+  - `data/final/definitions.rds`
   - `data/final/compiled_indicators.rds`
-  - `data/final/wb_country_list.rds`
+  - `data/raw/wb_country_list.rds`
       
 - Outputs:
- -`data/final/closeness_to_frontier.rds`
+ - `data/final/closeness_to_frontier.rds`
  - `data/final/closeness_to_frontier_long.rds`
 
 ## Load packages
@@ -41,8 +41,8 @@ definitions <-
     here(
       "..",
       "data",
-      "constructed",
-      "indicator_definitions.rds"
+      "final",
+      "definitions.rds"
     )
   )
 

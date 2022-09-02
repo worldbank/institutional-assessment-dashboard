@@ -4,7 +4,7 @@
   - `data/final/closeness_to_frontier.rds`
   - `data/final/compiled_indicators.rds`
   - `data/raw/WB_countries_Admin0_lowres.geojson`, obtained from https://datacatalog.worldbank.org/int/search/dataset/0038272 on September 1, 2022
-  - `data/raw/WB_disputed_areas_Admin0_10m.geojson`, obtained from https://datacatalog.worldbank.org/int/search/dataset/0038272 on September 1, 2022
+  - `data/raw/WB_disputed_areas_Admin0_10m_lowres.geojson`, obtained from https://datacatalog.worldbank.org/int/search/dataset/0038272 on September 1, 2022
   
 - Output:
   - `data/final/indicators_map.rds`
@@ -69,7 +69,7 @@ disputed_areas <-
       "..",
       "data",
       "raw",
-      "WB_disputed_areas_Admin0_10m.geojson"
+      "WB_disputed_areas_Admin0_10m_lowres.geojson"
     )
   )
 ```

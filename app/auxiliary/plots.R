@@ -386,7 +386,6 @@ static_map <-
 
     if (selected == "TRUE" & !is.null(base_country) & !is.null(comparison_countries)) {
 
-      print("oi")
       plot <-
         plot +
         geom_sf(
