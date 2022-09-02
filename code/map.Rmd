@@ -79,20 +79,20 @@ disputed_areas <-
 ```{r}
 disputed_areas <-
   disputed_areas %>%
-  select(WB_A3) %>%
-  filter(!is.na(WB_A3))
+  transmute(country_code = str_trim(WB_A3)) %>%
+  filter(
+    !is.na(country_code),
+    country_code != ""
+  )
 
 world_map <-
   world_map %>%
-  select(WB_A3) 
+  select(country_code = WB_A3) 
 
 world_map <-
   world_map %>%
   bind_rows(
     disputed_areas
-  ) %>%
-  rename(
-    country_code = WB_A3
   ) %>%
   ms_simplify(
     keep = 0.04,

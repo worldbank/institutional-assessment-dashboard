@@ -437,7 +437,7 @@ interactive_map <-
 
     def <-
       definitions %>%
-      filter(var_name == var)
+      filter(variable == var)
 
     if (source == "ctf") {
       leg_title <- "Closeness to\nfrontier"
