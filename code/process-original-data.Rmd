@@ -68,15 +68,12 @@ original_clean <-
   )
 ```
 
-## Rescale
-
-Some variable are measured in opposite scale, where a lower value means a better performance. To apply the closeness to frontier methodology, we need all indicators to point to the same direction, where higher values mean better performances.
+## Fix country names
 
 ```{r}
 original_clean <-
   original_clean %>%
   mutate(
-    # Fix country names
     country_name = ifelse(country_name == "ksv", "Kosovo", country_name),
     country_name = ifelse(country_name == "tmp", "Timor-Leste", country_name),
     country_code = as.character(country_code),

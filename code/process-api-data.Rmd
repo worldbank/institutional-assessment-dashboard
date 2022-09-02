@@ -194,47 +194,16 @@ data_api_labeled <-
       Indicator == "SOE financial audit requirement" ~ "soe_financial",
       Indicator == "SOE report legislative review requirement" ~ "soe_report_legislative",
       TRUE ~ var
-    ) 
+    )
   ) %>%
   pivot_wider(
     id_cols = c(country_name,country_code,year),
     names_from = var
-  ) 
-
-data_api_rescaled <- 
-  data_api_labeled %>%
-  mutate(
-    e_p_polity = ifelse(e_p_polity < -10, NA, e_p_polity)
   ) %>%
   filter(
     year >= 1950   # variable e_p_polity has values since 1800, filter to reduce # of rows
   ) %>%
   mutate(
-    # PRM indicators: Countries are graded between 0 (less control/involvement) and 6 (more control/involvement). Methodological note for PRM indicates that 1998 and 2013 indicators are comparable, but not with 2018 due to change in methodology, so we remove 2018 data
-    across(
-      c(
-        soe_governance,
-        price_controls,
-        command_control,
-        complexity_procedures,
-        barriers_startups,
-        protection_incumbents,
-        barriers_trade_expl,
-        barriers_trade_oth,
-        directcontroloverbusinessenterpr,
-        governmentinvolvementinnetworkse,
-        scopeofstateownedenterprises
-      ),
-      ~ ifelse(year == 2018, NA, 6 - .x)
-    ),
-    # Freedom house: Countries are graded between 1 (most free) and 7 (least free)
-    across(
-      c(
-        e_fh_pr,
-        e_fh_cl
-      ),
-      ~ (8 - .x)
-    ),
     country_code = as.character(country_code),
     year = as.character(year)
   ) %>%
@@ -245,10 +214,10 @@ data_api_rescaled <-
   )
 
 # Drop partial data ----
-rm(datalist,data_api_raw,data_api_governance,indicator_ids,i)
+rm(datalist, data_api_raw, data_api_governance, indicator_ids, i)
 
 write_rds(
-  data_api_rescaled,
+  data_api_labeled,
   here(
     "..",
     "data",
