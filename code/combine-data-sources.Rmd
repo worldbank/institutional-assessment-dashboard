@@ -43,6 +43,7 @@ api_data <-
 
 full_data <-
   original_data %>%
+  select(-"country_name") %>%
   left_join(
     additional_data,
     by = c("country_code", "year")

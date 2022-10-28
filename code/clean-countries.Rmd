@@ -56,8 +56,9 @@
       ),
       sheet = "Groups"
     ) %>%
-    transmute(
+    rename(
       country_code = CountryCode,
+      country_name = CountryName,
       group = GroupName,
       group_code = GroupCode
     )
@@ -70,7 +71,7 @@ The only relevant countries are those we have some data for
 ```{r}
 country_list <-
   indicators %>%
-  select(country_code, country_name) %>%
+  select(country_code) %>%
   unique %>%
   left_join(country_list)
 ```

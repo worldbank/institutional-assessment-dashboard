@@ -49,7 +49,7 @@
 .Rproj.user
 
 # Markdown
-!/**/*.md
+!*.md
 !*.xlsx
 
 #######################

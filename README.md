@@ -1,5 +1,9 @@
 # Global institutional assessment dashboard
 
+## How to run the code
+
+The data for this project is not available on GitHub due to World Bank policies. To run the code, you will need to get access to the project's OneDrive folder, and copy the files inside the `data` folder to the `data` folder of your local repository clone.
+
 ## How to contribute
 
 The `main` branch in this repository is protected. Changes can only be made to it through approved pull requests. To make contributions, follow the workflow detailed below:
