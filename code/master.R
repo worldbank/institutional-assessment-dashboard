@@ -1,8 +1,8 @@
 library(knitr)
 
-# - Input: `data/db_variables.xlsx`
+# - Input: `data/indidcator_selection.csv`
 # - Outputs:
-#   - `data/final/db_variables.xlsx`
+#   - `data/final/db_variables.rds`
 #   - `data/final/definitions.rds`
 knit("select-indicators.Rmd")
 
