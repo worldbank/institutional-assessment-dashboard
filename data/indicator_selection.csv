@@ -1,13 +1,15 @@
 var_name,variable,api_id
 Absence of corruption,f2_corruption,41794
+Access to finance as a major constraint,es_finance_constraint,227
 Admin burdens on start-ups,barriers_startups,3305
-Budget Documentation,pefa_budgetdoc,41114
 Burden of customs procedures,customs_burden,724
-Burden of gov. regulation,govreg_burden,
+Budget documentation,pefa_budgetdoc,41114
+Burden of government regulation,govreg_burden,
 Bureaucratic quality ,bureaucraticqa,41814
+Business licensing and permits as a major constraint,es_permits_constraint,308
 Capital controls,efw_capitalcontrols,
 Central bank independence,cbi,
-"Centre of Government, influence",centregov_mean,
+"Centre of government, influence",centregov_mean,
 Challenging regulations,legaleff_challenging,40835
 Checks on government ,checks,41825
 Civil justice,f7_civiljustice,27919
@@ -17,12 +19,15 @@ Collective bargaining coverage,collective_barg,
 Competition regulation,competition_rules_fin,
 Complaint mechanisms,complaint_mechan,27894
 Complex regulatory procedures,complexity_procedures,3323
-Constraints on Gov. Powers,f1_govpowers,
+Constraints on government powers,f1_govpowers,
 Corruption ,corruption_vdem,41854
+Corruption as a major constraint,es_corruption_constraint,289
+Courts system as a major constraint,es_court_constraint,290
 Credit market regulations,efw_credit_mkt_reg,
 Criminal justice,f8_criminaljustice,27932
 Criteria for appointment decisions in the state administration,v2stcritrecadm,
 CSO entry and exit,v2cseeorgs,41857
+Customs and trade regulations as a major constraint,se_customs_constraint,320
 Debt management,pefa_debtmanage,41141
 Direct control over business enterprises,directcontroloverbusinessenterpr,3319
 Diversion of public funds,diversion_pfunds,664
@@ -30,7 +35,8 @@ Effectiveness of antimonopoly policy,eff_antimonopoly,698
 Efficiency of the clearance process,lpi_clearance_eff,
 Efficient use of assets,bti_efficiency,28748
 "Employment protection, regular",empl_protection_perm,
-"Employment protection, temp.",empl_protection_temp,
+"Employment protection, temporary",empl_protection_temp,
+Energy efficiency regulation,wef_energy,43072
 Engaged society,v2dlengage,41881
 Environmental policy,bti_environment,28749
 Executive bribery and corrupt exchanges ,corruption_exec,41882
@@ -48,17 +54,17 @@ Freedom of opinion and expression is effectively guaranteed,opinion_freedom,2790
 Fundamental labor rights are effectively guaranteed,wjp_labor,27904
 Fundamental rights,f4_rights,
 GCI 4.0: Active Labour policies,wef_labor,41718
-GCI 4.0: Energy efficiency regulation,wef_energy,43072
-GCI 4.0: Renewable energy regulation,wef_renewable,43075
+Global corruption barometer,gcb_corruption,32627
 Governance of state-owned enterprises,soe_governance,3326
 Government involvement in network sectors,governmentinvolvementinnetworkse,3321
 GovTech Maturity Index (GTMI),gtmi,
 "Hiring and firing practices, 1-7 (best)",hiring_pract,43034
-Impartial Public Administration,v2clrspct,42084
+Impartial public administration,v2clrspct,42084
 Integrity of the legal system,efw_integrity_legalsys,
 Irregular payments and bribes,bribes,668
 Judicial accountability,v2juaccnt,41951
 "Judicial independence, 1-7 (best)",wef_judindep,3370
+Labor regulations as a major constraint,es_labor_constraint,268
 Legislative scrutiny of budgets,pefa_legislative,41162
 Lower chamber female legislator,v2lgfemleg,
 Lower chamber gender quota,v2lgqugen,
@@ -70,13 +76,6 @@ Open government,f5_opengov,
 Order and security,f3_security,
 Other barriers to trade,barriers_trade_oth,3308
 Party Financing,partyfinance,40991
-Percent of firms identifying access to finance as a major constraint,es_finance_constraint,227
-Percent of firms identifying business licensing and permits as a major constraint,es_permits_constraint,308
-Percent of firms identifying corruption as a major constraint,es_corruption_constraint,289
-Percent of firms identifying customs and trade regulations as a major constraint,se_customs_constraint,320
-Percent of firms identifying labor regulations as a major constraint,es_labor_constraint,268
-Percent of firms identifying tax administration as a major constraint,es_tax_constraint,307
-Percent of firms identifying the courts system as a major constraint,es_court_constraint,290
 Political rights,e_fh_pr,40986
 Polity IV score,e_p_polity,568
 Power by gender,v2pepwrgen,
@@ -86,13 +85,14 @@ Price controls,price_controls,3311
 Procurement,pefa_procurement,41189
 Property rights,property_rights,44123
 "Protection of minority shareholders interests, 1-7 (best)",wef_minority,40954
+Protection of incumbents,protection_incumbents,3328
 Public access to information,pefa_info,41127
 Public asset management,pefa_asset,41137
 Public trust in politician,trust_pol,41322
 Publicized laws and government data,wjp_public,27885
 Regulatory enforcement,f6_regulatoryenf,
 Regulatory governance,regulatory_governance,
-Regulatory protection of incumbents,protection_incumbents,3328
+Renewable energy regulation,wef_renewable,43075
 Revenue administration,pefa_revenue,41167
 Right to information,right_to_info,27889
 Scope of state-owned enterprises,scopeofstateownedenterprises,3309
@@ -102,7 +102,7 @@ State identity,bti_identity,28780
 Steering Capability,steering_capability,28782
 Supervision efficiency-banking,efficiency_superv_bank,
 Supervision efficiency-financial,efficiency_superv_fin,
-To what extent do you think that corruption is a problem in the public sector in this country? (%),gcb_corruption,32627
 Transparency of government policymaking,transparency_polmak,688
+Tax administration as a major constraint,es_tax_constraint,307
 Union density,union_density,
 Use of command & control regulation,command_control,3310
