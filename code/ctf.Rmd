@@ -130,7 +130,7 @@ country_average <-
 
 ```{r}
 min_max <-
-  data %>%
+  data_rescaled %>%
   summarise(
     across(
       all_of(vars_all),
