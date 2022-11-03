@@ -75,6 +75,7 @@ data_api_raw = do.call(dplyr::bind_rows , datalist)
 ## Extract and aggregate governance data
 
 The code below imports the data from the API
+
 ```{r}
 data_api_governance <- 
   get_data360(
@@ -164,7 +165,8 @@ data_api_clean <-
     nesting(country_code, country_name),
     nesting(Indicator, year),
     fill = list(value = NA)
-  ) 
+  ) %>%
+  unique
 
 var_names <-
   db_variables %>%
@@ -197,7 +199,7 @@ data_api_labeled <-
     )
   ) %>%
   pivot_wider(
-    id_cols = c(country_name,country_code,year),
+    id_cols = c(country_name, country_code, year),
     names_from = var
   ) %>%
   filter(

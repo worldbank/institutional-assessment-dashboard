@@ -60,7 +60,6 @@ full_data <-
   select(-na_count)
 
 # Clean country names
-
 full_data <-
   full_data %>%
   mutate(
@@ -69,8 +68,36 @@ full_data <-
       str_replace_all("Macedonia", "North Macedonia") %>%
       str_replace_all("Swaziland", "Eswatini")
   )
+```
 
-# Save binded datasets ====================================================
+## Fix GCI data
+
+GCI indicators are supposed to take values from 1 to 7. However, each indicator has one country with a score above 7. In the code chunk below, we fix this issue.
+
+```{r}
+full_data <-
+  full_data %>%
+  mutate(
+    across(
+      c(
+        customs_burden,
+        legaleff_challenging,
+        eff_antimonopoly,
+        favoritism,
+        wef_judindep,
+        trust_pol,
+        wef_renewable,
+        legaleff_disputes
+      ),
+      ~ ifelse(. <= 7, ., NA)
+    )
+  )
+
+```
+
+## Save binded datasets ====================================================
+
+```{r}
 write_rds(
   full_data,
   here(
