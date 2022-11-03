@@ -37,45 +37,6 @@ db_variables <-
   )
 ```
 
-## Retrieve metadata from API
-
-For variables extracted from the Gov360 API, we want to make sure we are using the latest metadata from the API.
-
-```{r}
-# Extract meta data
-metadata_gov <-
-  get_metadata360(site = "gov", metadata_type = "indicators") 
-
-metadata_tc <-
-  get_metadata360(site = "tc", metadata_type = "indicators") 
-
-metadata <-
-  bind_rows(metadata_gov, metadata_tc) %>%
-  unique %>%
-  select(
-    api_id = id,
-    description = definition,
-    source = dataset
-  )
-
-# Combine with meta data about indicators not on the API
-db_variables <-
-  left_join(
-    db_variables,
-    metadata,
-    by = "api_id"
-  )
-
-# Replace missing values with data from API
-db_variables <-
-  db_variables %>%
-  mutate(
-    description = coalesce(description.y, description.x),
-    source = coalesce(source.y, source.x)
-  ) %>%
-  select(-contains(".x"), -contains(".y"))
-```
-
 ## Save list of selected indicators in R format
 
 ```{r}
