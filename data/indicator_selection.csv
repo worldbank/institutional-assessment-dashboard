@@ -1,6 +1,7 @@
 var_name,variable,api_id
 Absence of corruption,f2_corruption,41794
 Access to finance as a major constraint,es_finance_constraint,227
+Active Labour policies,wef_labor,41424
 Admin burdens on start-ups,barriers_startups,3305
 Burden of customs procedures,customs_burden,724
 Budget documentation,pefa_budgetdoc,41114
@@ -53,7 +54,6 @@ Freedom of opinion and expression is effectively guaranteed,opinion_freedom,2790
 "Freedom, foreign bank accounts",efw_free_foreign_curr,
 Fundamental labor rights are effectively guaranteed,wjp_labor,27904
 Fundamental rights,f4_rights,
-GCI 4.0: Active Labour policies,wef_labor,41718
 "GDP per capita, PPP",gdp_pc_ppp_const,946
 Global corruption barometer,gcb_corruption,32627
 Governance of state-owned enterprises,soe_governance,3326
