@@ -3,8 +3,8 @@ Absence of corruption,f2_corruption,41794
 Access to finance as a major constraint,es_finance_constraint,227
 Active Labour policies,wef_labor,41424
 Admin burdens on start-ups,barriers_startups,3305
-Burden of customs procedures,customs_burden,724
 Budget documentation,pefa_budgetdoc,41114
+Burden of customs procedures,customs_burden,723
 Burden of government regulation,govreg_burden,
 Bureaucratic quality ,bureaucraticqa,41814
 Business licensing and permits as a major constraint,es_permits_constraint,308
@@ -32,7 +32,7 @@ Customs and trade regulations as a major constraint,se_customs_constraint,320
 Debt management,pefa_debtmanage,41141
 Direct control over business enterprises,directcontroloverbusinessenterpr,3319
 Diversion of public funds,diversion_pfunds,664
-Effectiveness of antimonopoly policy,eff_antimonopoly,698
+Effectiveness of antimonopoly policy,eff_antimonopoly,40947
 Efficiency of the clearance process,lpi_clearance_eff,
 Efficient use of assets,bti_efficiency,28748
 "Employment protection, regular",empl_protection_perm,
@@ -43,7 +43,7 @@ Environmental policy,bti_environment,28749
 Executive bribery and corrupt exchanges ,corruption_exec,41882
 Executive constraints ,exec_constraints,41883
 Explicit barriers to trade,barriers_trade_expl,3307
-Extent of market dominance,mkt_dominance,520
+Extent of market dominance,mkt_dominance,519
 External audit,pefa_audit,41216
 Favoritism in decisions of government officials,favoritism,40951
 Fiscal strategy,pefa_fiscal,41149
@@ -62,9 +62,9 @@ GovTech Maturity Index (GTMI),gtmi,
 "Hiring and firing practices, 1-7 (best)",hiring_pract,43034
 Impartial public administration,v2clrspct,42084
 Integrity of the legal system,efw_integrity_legalsys,
-Irregular payments and bribes,bribes,668
+Irregular payments and bribes,bribes,667
 Judicial accountability,v2juaccnt,41951
-"Judicial independence, 1-7 (best)",wef_judindep,3370
+Judicial independence,wef_judindep,40828
 Labor regulations as a major constraint,es_labor_constraint,268
 Legislative scrutiny of budgets,pefa_legislative,41162
 Lower chamber female legislator,v2lgfemleg,
@@ -78,15 +78,15 @@ Order and security,f3_security,
 Other barriers to trade,barriers_trade_oth,3308
 Party Financing,partyfinance,40991
 Political rights,e_fh_pr,40986
-Polity IV score,e_p_polity,568
+Polity IV score,e_p_polity,27470
 Power by gender,v2pepwrgen,
 Power by social group,v2pepwrsoc,42025
 Power by socioeconomic position,v2pepwrses,42026
 Price controls,price_controls,3311
 Procurement,pefa_procurement,41189
 Property rights,property_rights,44123
-"Protection of minority shareholders interests, 1-7 (best)",wef_minority,40954
 Protection of incumbents,protection_incumbents,3328
+Protection of minority shareholders interests,wef_minority,40953
 Public access to information,pefa_info,41127
 Public asset management,pefa_asset,41137
 Public trust in politician,trust_pol,41322
@@ -103,7 +103,7 @@ State identity,bti_identity,28780
 Steering Capability,steering_capability,28782
 Supervision efficiency-banking,efficiency_superv_bank,
 Supervision efficiency-financial,efficiency_superv_fin,
-Transparency of government policymaking,transparency_polmak,688
 Tax administration as a major constraint,es_tax_constraint,307
+Transparency of government policymaking,transparency_polmak,687
 Union density,union_density,
 Use of command & control regulation,command_control,3310
