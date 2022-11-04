@@ -119,24 +119,53 @@ data_api <-
     data_api_raw,
     data_api_governance
   ) %>%
-  mutate(
-    Indicator = str_trim(Indicator)
+  mutate(Indicator = str_trim(Indicator))
+
+metadata_api_gov <-
+  get_metadata360(
+    site = "gov", 
+    metadata_type = "indicators"
   )
+
+metadata_api_tc <-
+  get_metadata360(
+    site = "tc", 
+    metadata_type = "indicators"
+  ) 
+
+metadata_api <-
+  metadata_api_gov %>%
+  bind_rows(metadata_api_tc) %>%
+  transmute(
+    api_id = id,
+    Indicator = str_trim(name)
+  ) %>%
+  filter(api_id %in% db_variables$api_id)
+
+data_api <-
+  data_api %>%
+  left_join(metadata_api) 
 ```
 
 # Cleaning API data ----
+
 ```{r}
 data_api_clean <- 
   data_api %>%
+  unique %>%
+  # Remove country-year-indicators with no data
   filter(!is.na(Observation)) %>%
+  # Make variable names more manageable
   rename(
     country_code = `Country ISO3`,
     country_name = `Country Name`,
     value = Observation
   ) %>%
+  # Sort
   arrange(
     Indicator, country_name
   ) %>%
+  # Same values are for a period, not a single year. We turn it into a year by taking the value of the last year in the period
   separate(
     Period,
     into = c("Year1", "year"),
@@ -150,16 +179,10 @@ data_api_clean <-
       year
     )
   ) %>%
-  group_by(
-    country_code, year, Indicator
-  ) %>%
-  mutate(count = n()) %>%
-  ungroup %>%
-  filter(
-    !((count > 1) & (year != Period))
-  ) %>%
+  # Hiring and firing has both year and period level data. We will keep only year level data
+  filter(!(api_id == 657 & str_detect(Period, "-"))) %>%
   select(
-    -c(`Subindicator Type`, Period, Year1, count)
+    -c(`Subindicator Type`, Period, Year1)
   ) %>%
   complete(
     nesting(country_code, country_name),
@@ -168,12 +191,25 @@ data_api_clean <-
   ) %>%
   unique
 
+# Check that data is uniquely identifed
+assert_that(
+  (data_api_clean %>% select(country_code, year, Indicator) %>% n_distinct()) ==
+    (data_api_clean %>% nrow)
+)
+```
+
+# Add cleaned variable labels
+
+These variable labels were manually cleaned by the G-BID team
+
+```{r}
 var_names <-
   db_variables %>%
   select(
     var = variable,
-    Indicator = var_api
-  )
+    api_id
+  ) %>%
+  filter(!is.na(api_id))
 
 data_api_labeled <-
   data_api_clean %>%
@@ -183,10 +219,14 @@ data_api_labeled <-
   ) %>% 
   left_join(
     var_names,
-    by = "Indicator"
-  ) 
+    by = "api_id"
+  )
+```
 
-data_api_labeled <-
+# Put data into panel format
+
+```{r}
+data_wide <-
   data_api_labeled %>%
   mutate(
     var = case_when(
@@ -219,7 +259,7 @@ data_api_labeled <-
 rm(datalist, data_api_raw, data_api_governance, indicator_ids, i)
 
 write_rds(
-  data_api_labeled,
+  data_wide,
   here(
     "..",
     "data",

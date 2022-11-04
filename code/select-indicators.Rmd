@@ -1,8 +1,7 @@
 # Process selected indicators
 
-- Input: `data/db_variables.xlsx`
+- Input: `data/select_indicators.csv`
 - Outputs: 
-  - `data/final/db_variables.xlsx`
   - `data/final/definitions.rds`
 
 ## Load packages
@@ -12,6 +11,7 @@ packages <-
   c(
     "tidyverse",
     "here",
+    "data360r",
     "readxl"
   )
 
@@ -28,11 +28,11 @@ This list is filled by hand in Excel.
 
 ```{r}
 db_variables <-
-  read_excel(
+  read_csv(
     here(
       "..",
       "data",
-      "db_variables.xlsx"
+      "indicator_selection.csv"
     )
   )
 ```
