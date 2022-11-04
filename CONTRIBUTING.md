@@ -1,6 +1,4 @@
-# Global institutional assessment dashboard
-
-## How to contribute
+# How to contribute
 
 The `main` branch in this repository is protected. Changes can only be made to it through approved pull requests. To make contributions, follow the workflow detailed below:
 
