@@ -1,4 +1,6 @@
-# How to run the code
+# Global Benchmarking Institutions Dashboard
+
+## How to run the code
 
 *Following World Bank policies, the data for this project is not available on GitHub. 
 To run the code, you will need to get access to the project's OneDrive folder, 
