@@ -1,10 +1,19 @@
 # Global Benchmarking Institutions Dashboard
 
-## How to run the code
+## Data availability
 
 *Following World Bank policies, the data for this project is not available on GitHub. 
 To run the code, you will need to get access to the project's OneDrive folder, 
 and copy the files inside the data folder to the data folder of your local repository clone.*
+
+## Software requirements
+
+- This code was last run using R version 4.2.1 and RStudio 2022.07.2 
+- The following packages are required:
+  - `pacman`
+  - `renv`
+
+## Instructions to reproduce the code
 
 1. Click on the green `Code` button in this repository and download or clone the files to your computer.
 1. Make sure the `data` folder contains the subfolders `raw`, `clean`, and `final`.
