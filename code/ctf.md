@@ -11,7 +11,8 @@
 
 ## Load packages
 
-```{r}
+
+```r
 packages <- 
   c(
     "tidyverse",
@@ -34,8 +35,8 @@ performance for indicator $i$ among all countries and in the last $y$ years (201
 
 Ideally, this will use data for the last 7 years in any given year
 
-```{r}
 
+```r
 definitions <-
   read_rds(
     here(
@@ -62,7 +63,8 @@ data <-
 
 2. Rescale indicators so a higher number is always a better performance
 
-```{r}
+
+```r
 data_rescaled <- 
   data %>%
   mutate(
@@ -111,7 +113,8 @@ data_rescaled <-
 
 3. Calculate country-level average for each indicator
 
-```{r}
+
+```r
 country_average <-
   data_rescaled %>%
   group_by(
@@ -126,11 +129,17 @@ country_average <-
   )
 ```
 
+```
+## `summarise()` has grouped output by 'country_code'. You can override using the `.groups`
+## argument.
+```
+
 4. Identify worst and best performance for each indicator
 
-```{r}
+
+```r
 min_max <-
-  data_rescaled %>%
+  data %>%
   summarise(
     across(
       all_of(vars_all),
@@ -148,9 +157,18 @@ min_max <-
   )
 ```
 
+```
+## Warning in min(wef_renewable, na.rm = TRUE): no non-missing arguments to min; returning Inf
+```
+
+```
+## Warning in max(wef_renewable, na.rm = TRUE): no non-missing arguments to max; returning -Inf
+```
+
 5. Calculate closeness to frontier at indicator level
 
-```{r}
+
+```r
 ctf <-
   country_average %>%
   pivot_longer(
@@ -184,9 +202,14 @@ ctf <-
   )
 ```
 
+```
+## Joining, by = c("country_name", "country_code")
+```
+
 ## Calculate median per group
 
-```{r}
+
+```r
 country_list <-
   read_rds(
     here(
@@ -216,7 +239,15 @@ group_ctf <-
     country_name = group,
     country_code = group_code
   ) 
+```
 
+```
+## Joining, by = c("country_code", "country_name")
+## `summarise()` has grouped output by 'group_code'. You can override using the `.groups`
+## argument.
+```
+
+```r
 ctf <-
   ctf %>%
   bind_rows(group_ctf) %>%
@@ -248,7 +279,14 @@ ctf_long <-
     country_list %>%
       select(country_name, group)
   )
+```
 
+```
+## Joining, by = "variable"
+## Joining, by = "country_name"
+```
+
+```r
 ctf_long <-
   ctf_long %>%
   group_by(family_name, family_var, country_name, country_code, group) %>%
@@ -259,7 +297,14 @@ ctf_long <-
     var_name = family_name
   ) %>%
   bind_rows(ctf_long)
+```
 
+```
+## `summarise()` has grouped output by 'family_name', 'family_var', 'country_name',
+## 'country_code'. You can override using the `.groups` argument.
+```
+
+```r
 write_rds(
   ctf_long,
   here(

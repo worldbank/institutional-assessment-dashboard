@@ -61,7 +61,6 @@ full_data <-
   select(-na_count)
 
 # Clean country names
-
 full_data <-
   full_data %>%
   mutate(
@@ -70,8 +69,141 @@ full_data <-
       str_replace_all("Macedonia", "North Macedonia") %>%
       str_replace_all("Swaziland", "Eswatini")
   )
+```
 
-# Save binded datasets ====================================================
+## Data quality assurance
+
+The indicators below are supposed to take values from 1 to 7. However, some indicator show values above 7. In the code chunk below, we fix this issue.
+
+```{r}
+full_data <-
+  full_data %>%
+  mutate(
+    across(
+      c(
+        e_fh_cl,
+        e_fh_pr,
+        customs_burden,
+        bribes,
+        diversion_pfunds,
+        mkt_dominance,
+        transparency_polmak,
+        eff_antimonopoly,
+        favoritism,
+        wef_minority,
+        trust_pol,
+        wef_judindep,
+        legaleff_challenging,
+        legaleff_disputes,
+        wef_labor,
+        hiring_pract
+      ),
+      ~ ifelse(. >= 1 & . <= 7, ., NA)
+    )
+  )
+```
+
+The indicators below are supposed to take values from 0 to 6. In case values are out of this range, they are replaced below.
+
+```{r}
+full_data <-
+  full_data %>%
+  mutate(
+    across(
+      c(
+        soe_governance,
+        price_controls,
+        command_control,
+        complexity_procedures,
+        barriers_startups,
+        protection_incumbents,
+        barriers_trade_expl,
+        barriers_trade_oth,
+        directcontroloverbusinessenterpr,
+        governmentinvolvementinnetworkse,
+        scopeofstateownedenterprises
+      ),
+      ~ ifelse(. >= 0 & . <= 6, ., NA)
+    )
+  )
+```
+
+The indicators below are supposed to take values from 0 to 1. In case values are out of this range, they are replaced below.
+
+```{r}
+full_data <-
+  full_data %>%
+  mutate(
+    across(
+      c(
+        v2clrspct,
+        bureaucraticqa,
+        f2_corruption,
+        corruption_exec,
+        corruption_vdem,
+        v2pepwrses,
+        v2pepwrsoc,
+        checks,
+        v2cseeorgs,
+        v2juaccnt,
+        exec_constraints,
+        v2clacfree,
+        v2dlengage
+      ),
+      ~ ifelse(. >= 0 & . <= 1, ., NA)
+    )
+  )
+```
+
+The indicators below are supposed to take values from 0 to 100. In case values are out of this range, they are replaced below.
+
+```{r}
+full_data <-
+  full_data %>%
+  mutate(
+    across(
+      c(
+        wef_renewable,
+        wef_energy
+      ),
+      ~ ifelse(. >= 0 & . <= 100, ., NA)
+    )
+  )
+```
+
+The indicators below are supposed to take values from 0 to 30. In case values are out of this range, they are replaced below.
+
+```{r}
+full_data <-
+  full_data %>%
+  mutate(
+    across(
+      c(
+        fx_constraint
+      ),
+      ~ ifelse(. >= 0 & . <= 30, ., NA)
+    )
+  )
+```
+
+The indicators below are supposed to take values from 1 to 5. In case values are out of this range, they are replaced below.
+
+```{r}
+full_data <-
+  full_data %>%
+  mutate(
+    across(
+      c(
+        gcb_corruption
+      ),
+      ~ ifelse(. >= 1 & . <= 5, ., NA)
+    )
+  )
+```
+
+## Save binded datasets ====================================================
+
+```{r}
 write_rds(
   full_data,
   here(
