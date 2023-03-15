@@ -223,6 +223,9 @@ ctf <-
   ungroup %>%
   arrange(country_name)
 
+ctf$diversion_pfunds<-(1-ctf$diversion_pfunds)
+
+
 write_rds(
   ctf,
   here(
@@ -232,6 +235,8 @@ write_rds(
     "closeness_to_frontier.rds"
   )
 )
+
+
 
 ctf_long <-
   ctf %>%

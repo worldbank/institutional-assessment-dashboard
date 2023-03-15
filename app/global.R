@@ -31,6 +31,12 @@ db_variables <-
       "db_variables.rds"
     )
   )
+
+
+db_variables<-subset(db_variables,var_name!='Global corruption barometer')
+db_variables<-subset(db_variables,var_name!='Foreign Currency Regulations')
+
+
 source(here("auxiliary", "vars-control.R"))
 
 # Function that defines quantiles based on country, comparison and variables
@@ -55,6 +61,8 @@ raw_data <-
          rowSums(!is.na(.)) > 3) %>%
   rename(Year = year)
 
+raw_data$country_name <- str_replace_all(raw_data$country_name, "Yugoslavia", "Serbia")
+
 global_data <-
   read_rds(
     here(
@@ -64,6 +72,8 @@ global_data <-
   ) %>%
   ungroup
 
+global_data$country_name <- str_replace_all(global_data$country_name, "Yugoslavia", "Serbia")
+
 ctf_long <-
   read_rds(
     here(
@@ -71,6 +81,8 @@ ctf_long <-
       "closeness_to_frontier_long.rds"
     )
   )
+
+ctf_long$country_name <- str_replace_all(ctf_long$country_name, "Yugoslavia", "Serbia")
 
 country_groups <-
   read_rds(
@@ -96,6 +108,9 @@ country_list <-
     )
   )
 
+country_list$country_name <- str_replace_all(country_list$country_name, "Yugoslavia", "Serbia")
+
+
 spatial_data <-
   read_rds(
     here(
@@ -103,6 +118,9 @@ spatial_data <-
       "indicators_map.rds"
     )
   )
+
+spatial_data$country_name <- str_replace_all(spatial_data$country_name, "Yugoslavia", "Serbia")
+
 
 st_crs(spatial_data) <- "+proj=robin"
 
