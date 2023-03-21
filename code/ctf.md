@@ -139,7 +139,7 @@ country_average <-
 
 ```r
 min_max <-
-  data %>%
+  data_rescaled %>%
   summarise(
     across(
       all_of(vars_all),
@@ -158,11 +158,12 @@ min_max <-
 ```
 
 ```
-## Warning in min(wef_renewable, na.rm = TRUE): no non-missing arguments to min; returning Inf
-```
-
-```
-## Warning in max(wef_renewable, na.rm = TRUE): no non-missing arguments to max; returning -Inf
+## Warning: There were 2 warnings in `summarise()`.
+## The first warning was:
+## ℹ In argument: `across(...)`.
+## Caused by warning in `min()`:
+## ! no non-missing arguments to min; returning Inf
+## ℹ Run ]8;;ide:run:dplyr::last_dplyr_warnings()dplyr::last_dplyr_warnings()]8;; to see the 1 remaining warning.
 ```
 
 5. Calculate closeness to frontier at indicator level
@@ -203,7 +204,7 @@ ctf <-
 ```
 
 ```
-## Joining, by = c("country_name", "country_code")
+## Joining with `by = join_by(country_name, country_code)`
 ```
 
 ## Calculate median per group
@@ -242,9 +243,8 @@ group_ctf <-
 ```
 
 ```
-## Joining, by = c("country_code", "country_name")
-## `summarise()` has grouped output by 'group_code'. You can override using the `.groups`
-## argument.
+## Joining with `by = join_by(country_code, country_name)`
+## `summarise()` has grouped output by 'group_code'. You can override using the `.groups` argument.
 ```
 
 ```r
@@ -253,6 +253,9 @@ ctf <-
   bind_rows(group_ctf) %>%
   ungroup %>%
   arrange(country_name)
+
+ctf$diversion_pfunds<-(1-ctf$diversion_pfunds)
+
 
 write_rds(
   ctf,
@@ -263,6 +266,8 @@ write_rds(
     "closeness_to_frontier.rds"
   )
 )
+
+
 
 ctf_long <-
   ctf %>%
@@ -282,8 +287,14 @@ ctf_long <-
 ```
 
 ```
-## Joining, by = "variable"
-## Joining, by = "country_name"
+## Joining with `by = join_by(variable)`
+## Joining with `by = join_by(country_name)`
+```
+
+```
+## Warning in left_join(., country_list %>% select(country_name, group)): Each row in `x` is expected to match at most 1 row in `y`.
+## ℹ Row 1 of `x` matches multiple rows.
+## ℹ If multiple matches are expected, set `multiple = "all"` to silence this warning.
 ```
 
 ```r
@@ -300,8 +311,8 @@ ctf_long <-
 ```
 
 ```
-## `summarise()` has grouped output by 'family_name', 'family_var', 'country_name',
-## 'country_code'. You can override using the `.groups` argument.
+## `summarise()` has grouped output by 'family_name', 'family_var', 'country_name', 'country_code'.
+## You can override using the `.groups` argument.
 ```
 
 ```r
