@@ -17,7 +17,8 @@ packages <-
     "tidyverse",
     "here",
     "skimr",
-    "labelled"
+    "labelled",
+    "tibble"
   )
 
 pacman::p_load(packages,
@@ -182,6 +183,7 @@ ctf <-
   mutate(
     log_gdp = log(gdp_pc_ppp_const)
   )
+
 ```
 
 ## Calculate median per group
@@ -217,13 +219,16 @@ group_ctf <-
     country_code = group_code
   ) 
 
+ctf<-add_column(ctf,group = 0,.after = 'country_code')
+group_ctf<-add_column(group_ctf,group=1,.after = 'country_code')
 ctf <-
   ctf %>%
   bind_rows(group_ctf) %>%
   ungroup %>%
   arrange(country_name)
+```
 
-
+```{r}
 write_rds(
   ctf,
   here(

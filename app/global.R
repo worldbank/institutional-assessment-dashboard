@@ -34,7 +34,8 @@ db_variables <-
 
 
 db_variables<-subset(db_variables,var_name!='Global corruption barometer')
-db_variables<-subset(db_variables,var_name!='Foreign Currency Regulations')
+
+db_variables<-subset(db_variables,var_name!='Foreign currency regulations') #
 
 
 source(here("auxiliary", "vars-control.R"))
