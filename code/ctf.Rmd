@@ -223,8 +223,6 @@ ctf <-
   ungroup %>%
   arrange(country_name)
 
-ctf$diversion_pfunds<-(1-ctf$diversion_pfunds)
-
 
 write_rds(
   ctf,
