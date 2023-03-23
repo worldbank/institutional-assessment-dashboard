@@ -39,7 +39,7 @@ ui <-
         menuItem("FAQ", tabName = "faq", icon = icon("question")),
         customItem("Feedback", 
                    icon = icon("comments", lib = "font-awesome"),
-                   href = "https://forms.office.com/pages/responsepage.aspx?id=wP6iMWsmZ0y1bieW2PWcNinZNsjDQVpApEPZJqaWiPlUMVJPWVdIVFhXMzRQMVVVTldPVzdJSEdMRy4u"),
+                   href = "mailto:cliar@worldbank.org"),
         customItem("Source code", 
                    icon = icon("github", lib = "font-awesome"),
                    href = "https://github.com/worldbank/institutional-assessment-dashboard/")
