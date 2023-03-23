@@ -862,8 +862,9 @@
 
       # Downloadable rds of selected dataset
       output$download_global_rds <-
+        
         downloadHandler(
-          filename = paste0(input$data_source,"-",input$data_value,"-gbid-data.rds"),
+          filename = function(){paste0(input$data_source,"-",input$data_value,"-gbid-data.rds")},
 
           content = function(file) {
             write_rds(
@@ -882,7 +883,7 @@
       # Downloadable csv of selected dataset
       output$download_global_csv <-
         downloadHandler(
-          filename = paste0(input$data_source,"-",input$data_value,"-gbid-data.csv"),
+          filename = function(){paste0(input$data_source,"-",input$data_value,"-gbid-data.csv")},
 
           content = function(file) {
             write_csv(
@@ -896,7 +897,7 @@
       # Downloadable dta of selected dataset
       output$download_global_dta <-
         downloadHandler(
-          filename = paste0(input$data_source,"-",input$data_value,"-gbid-data.dta"),
+          filename = function(){paste0(input$data_source,"-",input$data_value,"-gbid-data.dta")},
 
           content = function(file) {
             write_dta(
