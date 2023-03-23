@@ -218,13 +218,12 @@ ui <-
 
               column(
                 width = 3,
-                conditionalPanel(condition = "input.select== 1",
                                  downloadButton(
                                    "report",
                                    "Download editable report",
                                    style = "width:100%; background-color: #204d74; color: white"
                                  )
-                )
+                
 
               )
             )

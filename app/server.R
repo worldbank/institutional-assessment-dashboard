@@ -4,7 +4,7 @@
 
 
    # Handle inputs ======================================================================
-
+    
     ## Base country ------------------------------------------------------------
     base_country <-
       eventReactive(
@@ -68,6 +68,7 @@
           actionButton(
             "select",
             "Apply selection",
+            
             icon = icon("check"),
             class = "btn-success",
             width = "100%"
@@ -79,18 +80,20 @@
             "Select a base country and at least 10 comparison countries to apply selection",
             icon = icon("triangle-exclamation"),
             class = "btn-warning",
-            width = "100%"
+            width = "100%",
+            shinyjs::disable('report'),
           )
         }
       })
 
     observeEvent(
       input$countries,
-
+      
        {
          toggleState(
            id = "select",
-           condition = length(input$countries) >= 10
+           condition = length(input$countries) >= 10,
+           shinyjs::disable('report'),
          )
        },
 
@@ -113,7 +116,9 @@
               pull(variable) %>%
               unique
           }
+          
         }
+        
       )
 
     ## Comparison group note (group or countries) -------------------------
@@ -254,7 +259,8 @@
         # Create report
         toggleState(
           id = "report",
-          condition = input$select
+          condition = input$select,
+          shinyjs::disable('report')
         )
         
         # Cross-crountry comparison selection
