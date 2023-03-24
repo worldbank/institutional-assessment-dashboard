@@ -112,7 +112,7 @@ vars_api <-
   ) %>%
   pull(variable)
 
-# Variables from Additions source  ======================
+# Variables from Additional sources  ======================
 vars_additions <-
   db_variables %>%
   filter(
@@ -120,7 +120,6 @@ vars_additions <-
     data_source == "additions"
   ) %>%
   pull(variable)
-
 
 family_names <-
   db_variables %>%

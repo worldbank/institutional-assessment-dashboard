@@ -8,6 +8,26 @@
 - Outputs:
   - `data/final/compiled_indicators.rds`
 
+
+## Load packages
+
+```{r}
+packages <- 
+  c(
+    "tidyverse",
+    "here",
+    "testthat",
+    "naniar"
+  )
+
+pacman::p_load(
+  packages, 
+  character.only = TRUE
+)
+
+theme_set(theme_minimal())
+```
+
 ## Load data
 
 ```{r}
@@ -53,6 +73,7 @@ full_data <-
   )
 
 # count number of missing values
+# why are we establishing a manually determined (83) NA count here?
 full_data <-
   full_data %>%
   mutate(na_count = apply(is.na(.), 1, sum)) %>%

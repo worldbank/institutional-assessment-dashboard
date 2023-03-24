@@ -2,7 +2,7 @@ library(knitr)
 
 # - Input: `data/db_variables.xlsx`
 # - Outputs:
-#   - `data/final/db_variables.xlsx`
+#   - `data/final/db_variables.rds`
 #   - `data/final/definitions.rds`
 knit("select-indicators.Rmd")
 

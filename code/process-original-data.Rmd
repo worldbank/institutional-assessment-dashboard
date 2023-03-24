@@ -15,10 +15,29 @@ packages <-
 pacman::p_load(packages, character.only = TRUE)
 ```
 
+## Aux. funs
+
+```{r}
+plot_missingness <- function(data){
+  data |> 
+    select(
+    starts_with(var)
+    ) |> 
+    summarise(
+      var_name = var,
+      indicator_cor = cor(
+        .data[[paste0(var, ".dashboard")]],
+        .data[[paste0(var, ".revised")]],
+        use = "complete.obs"
+      )
+    )
+}
+```
+
 
 ## Import original data
 
-This data was originally received in Stata format, then saved as an R dataset
+This data was originally received in Stata format, then saved as an R dataset.
 
 ```{r}
 data_original <-
@@ -30,13 +49,25 @@ data_original <-
       "merged_for_residuals.rds"
     )
   )
+
+db_variables <- read_rds(
+  here(
+    "..",
+    "data",
+    "final",
+    "db_variables.rds"
+  )
+)
+
+source(
+  here("vars-control.R")
+)
 ```
 
 
 ## Rename variables
 
-Rename variables BECAUSE
-
+Rename variables because these are inherited from original stata files.
 
 ```{r}
 original_clean <-
@@ -98,6 +129,7 @@ original_clean <-
 
 rm(data_original)
 ```
+
 
 ## Save data
 

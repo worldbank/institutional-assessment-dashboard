@@ -1,0 +1,332 @@
+---
+title: "Data Quality Control: Preliminary Analysis"
+output: word_document
+date: "2023-03-21"
+---
+
+# Quality checks: Closeness to Frontier
+
+- Inputs:
+  - `data/final/wb_country_list.rds`
+  - `data/final/compiled_indicators.rds`
+  - `data/final/db_variables.rds`
+      
+- Outputs:
+  - Missingness visualizations
+ 
+
+## Load packages
+
+```{r, include = FALSE}
+packages <- 
+  c(
+    "tidyverse",
+    "here",
+    "testthat",
+    "naniar",
+    "tidytext"
+  )
+
+pacman::p_load(
+  packages, 
+  character.only = TRUE
+)
+
+theme_set(
+  theme_minimal(
+    base_size = 20
+  )
+)
+
+knitr::opts_chunk$set(
+  echo = FALSE, warning = FALSE, message = FALSE, 
+  fig.width = 10, fig.height = 14, dpi = 300
+)
+```
+
+## Read-in Data
+
+```{r, include = FALSE}
+wb_country_groups <- read_rds(
+  here("..", "data", "final", "wb_country_list.rds")
+) |>
+  # extract only regions
+  distinct(
+    country_code, country_name, .keep_all = TRUE 
+  ) |>
+  select(
+    country_code,
+    country_name,
+    region = group
+  )
+
+full_data <- read_rds(
+  here(
+    "..",
+    "data",
+    "final",
+    "compiled_indicators.rds"
+  )
+) |>
+  left_join(
+    wb_country_groups,
+    by = c("country_code", "country_name")
+  )
+
+# variable definitions
+db_variables <- read_rds(
+   here(
+    "..",
+    "data",
+    "final",
+    "db_variables.rds"
+  )
+)
+
+# import variable definitions
+source(here("vars-control.R"))
+```
+
+## Data Quality Control
+
+We test the data for the following metrics:
+
+  - Uniqueness of country-year observations.
+  - Missingness of indicators.
+  - Missingness of indicators over time.
+  - Missingness of indicators for a country.
+
+## 1. Uniqueness of country-year 
+
+```{r}
+n_unique_obs <- full_data |> 
+  distinct(
+    country_name,
+    country_code,
+    year
+  ) |> 
+  nrow()
+
+test_that("uniqueness of country-year",{
+  expect_success(
+    expect_equal(
+      n_unique_obs,
+      nrow(full_data)
+    )
+  )
+})
+```
+
+## 2. Missingness of indicators.
+  
+```{r}
+rename_from_dictionary <- function(data, dictionary){
+  # function to rename variables from dictionary
+  var_tibble <- tibble(
+    variable = colnames(data)
+  )
+  
+  # extract only variables contained in the data
+  vars_in_data <- dictionary |> 
+    inner_join(
+      var_tibble,
+      by = c("variable")
+    )
+  
+  vars_variable <- vars_in_data |> 
+    pull(variable)
+  
+  vars_complete_name <- vars_in_data |> 
+    pull(var_name)
+  
+  vars_dictionary <- vars_variable |>
+    set_names(
+      vars_complete_name
+    )
+  
+  data |>
+    rename(!!vars_dictionary)
+}
+
+full_data_indicators <- full_data |> 
+  select(
+    any_of(vars_all)
+  ) |>
+  rename_from_dictionary(db_variables)
+
+gg_miss_var(
+  full_data_indicators,
+  show_pct = TRUE
+) +
+  labs(
+    title = "Missingness by Indicators, Full Sample (2008-2020)",
+    caption = "Percentage of all observations (country-year)"
+  )
+```
+
+## 3. Missingness by year.
+
+```{r}
+select_indicators_by_family <- function(data, family, grouping = NULL){
+  # a function that takes each variable family
+  # and computes missingness of each indicator
+  # input: db_variables
+  selected_vars <- db_variables |> 
+    filter(family_name == family) |> 
+    pull(variable)
+  
+  vars_dictionary <- c(
+    selected_vars
+  ) |> 
+    set_names(
+      db_variables |> 
+      filter(family_name == family) |> 
+      pull(var_name)
+    )
+  
+  selected_data <- data |> 
+    select(any_of(selected_vars), {{grouping}}) |> 
+    rename(
+      !!vars_dictionary
+    )
+  
+  return(selected_data)
+}
+
+var_by_family <- db_variables |> 
+  select(
+    var_name,
+    variable,
+    family_name
+  )
+
+var_families <- db_variables |> 
+  distinct(family_name) |> 
+  pull()
+
+plots_missingness_by_family <- var_families |> 
+  map(
+    ~ select_indicators_by_family(
+      data = full_data,
+      family = .x,
+      grouping = year
+    ) |> 
+      gg_miss_var(
+        facet = year,
+        show_pct = TRUE
+      ) +
+      labs(
+        title = "Missingness by Indicators by Year,\n Full Sample (2008-2020)",
+        caption = "Percentage of all observations (country-year)"
+      )
+  ) |> 
+  set_names(var_families)
+
+plots_missingness_by_family
+```
+
+## 4. Missingness by country.
+
+```{r}
+full_data |> 
+  select(
+    any_of(vars_all), country_name, region
+  ) |>
+  add_prop_miss() |>
+  group_by(region, country_name) |>
+  summarise(
+    mean_prop_miss = mean(prop_miss_all),
+    .groups = "drop"
+  ) |>
+  mutate(
+    country_name = reorder_within(country_name, mean_prop_miss, region)
+  ) |>
+  ggplot(
+    aes(mean_prop_miss, reorder(country_name, mean_prop_miss))
+  ) +
+  geom_col(
+    width = 0.5
+  ) +
+  scale_y_reordered() +
+  scale_x_continuous(
+    labels = scales::percent_format(),
+    limits = c(0, 1)
+  ) +
+  facet_wrap(
+    vars(region),
+    scales = "free_y",
+    ncol = 2
+  ) +
+  labs(
+    x = "Average Missingness by Country",
+    y = "Country",
+    title = "Missingness by Country, Full Sample (2008-2020)",
+    caption = "Average Proportion of Missing Indicators"
+  )
+```
+
+## 5. Stress Tests for Coverage
+
+```{r}
+# 2.	We exclude variables that over the past 5 years have data on fewer than 100 countries (we can debate whether 100 is the right number but we need a number). This is the data cover at least once over the past 5 years (2018-2022) each of the 100 countries.
+
+# this line generates a table where each row is
+# a country-variable combination,
+# and the attributes are the number and percentage
+# of missingness for that combination
+country_coverage_last_5_years <- full_data |> 
+  filter(
+    between(as.numeric(year), 2016, 2022)
+  ) |>   
+  select(
+    c(country_name, any_of(vars_all))
+  ) |> 
+  pivot_longer(
+    cols = c(any_of(vars_all)),
+    names_to = "variable"
+  ) |> 
+  filter(!is.na(value)) |> 
+  group_by(variable) |>
+  summarise(
+    country_coverage = n_distinct(country_name)
+  ) |> 
+  # avoid excluding pefa variables
+  filter(!str_detect(variable, "pefa")) |> 
+  # fix variable names
+  pivot_wider(names_from = variable, values_from = country_coverage) |> 
+  rename_from_dictionary(db_variables) |> 
+  pivot_longer(
+    cols = c(everything()),
+    names_to = "variable",
+    values_to = "country_coverage"
+  )
+
+country_coverage_last_5_years |>
+  filter(country_coverage < 100) |> 
+  ggplot(
+    aes(country_coverage, reorder(variable, country_coverage))
+  ) +
+  geom_col(width = 0.5) +
+  geom_vline(
+    xintercept = 100,
+    linetype = "dashed"
+  ) +
+  labs(
+    x = "Countries Covered At Least Once in 2016-2022",
+    y = "Variable",
+    title = "Country Coverage by Variable: At Least Once from 2016-2022",
+    caption = "Excludes PEFA variables"
+  )
+
+
+country_coverage_last_5_years |> 
+  ggplot(
+    aes(country_coverage, reorder(variable, country_coverage))
+  ) +
+  geom_col(width = 0.5) +
+  geom_vline(
+    xintercept = 100,
+    linetype = "dashed"
+  )
+```
+
