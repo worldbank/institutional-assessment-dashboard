@@ -953,7 +953,10 @@
             family_data = data_family(),
             rank = input$rank,
             definitions = definitions,
-            variable_names = variable_names
+            variable_names = variable_names,
+            dots = input$benchmark_dots,
+            group_median = input$benchmark_median
+            
           )
 
         rmarkdown::render(

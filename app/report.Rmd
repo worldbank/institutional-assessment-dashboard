@@ -1,7 +1,9 @@
 ---
 title:
 output: 
-  word_document
+  word_document:
+    reference_docx: www/template.docx
+    
 params:
   base_country: NA
   variable_names: NA
@@ -10,7 +12,10 @@ params:
   data: NA
   family_data: NA
   rank: NA
+  dots: NA
+  group_median: NA
 ---
+
 
 ```{r, setup, include = FALSE}
 knitr::opts_chunk$set(
@@ -49,7 +54,6 @@ knitr::include_graphics("www/cliar.png")
 
 # Methodology
 
-
 1. **The World Bank Country-Level Institutional Assessment and Review (CLIAR) framework was used in order to assess the quality of institutional arrangements in** `r params$base_country` **vis-à-vis a set of comparator countries**. This exercise generates the empirical evidence needed to map out the country's institutional profile, and identifies its institutional strengths and weaknesses. The main advantage of the benchmarking analysis is that it offers a standardized, transparent, and replicable approach to identify key institutional areas where the performance may be deficient relative to that of comparator countries. This provides a robust empirical base to guide the selection of a subset of issues related to the identified gaps that can be subject to in-depth investigation. Despite these advantages, the benchmarking analysis has limitations, discussed in Appendix C.  
 
 2. **The benchmarking exercise clusters an array of well-established institutional indicators into nine institutional families**. There is no agreed theoretical framework that could guide the categorization process. The categorization process faces a trade-off between aggregation and narrowness, where the categories have to be broad enough to comprehensively capture the main indicators and policy spaces but also focused enough to guide an in-depth qualitative analysis as well as a productive dialogue in the country. The proposed categories, described in more detail in Appendix A, are based on an effort to balance this trade-off and capture key functions that different institutions perform (Figure 1): Anticorruption, transparency, and accountability; Business environment and trade; Financial market; Labor market; Justice; Political; Public sector; Social; and SOE corporate governance. The institutional benchmarking uses more than 80 indicators collected from a variety of data sources in order to provide a snapshot of governance and institutions according to the latest available international indicators, as of 2020. Details on the indicators used for the institutional benchmarking are provided in Appendix B.
@@ -74,6 +78,8 @@ params$family_data %>%
     params$base_country,
     "Country overview", 
     rank = params$rank,
+    group_median = params$group_median,
+    dots = params$dots,
     title = FALSE,
     note = paste(
       source,
