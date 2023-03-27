@@ -117,7 +117,39 @@ test_that("uniqueness of country-year",{
 })
 ```
 
-## 2. Missingness of indicators.
+## 2. Heatmap of Missingness
+
+```{r}
+indicators_missingness_by_country <- full_data |> 
+  select(
+    country_name,
+    any_of(vars_all)
+  ) |> 
+  group_by(country_name) |> 
+  miss_var_summary() |> 
+  select(-n_miss) |> 
+  pivot_wider(
+    id_cols = country_name,
+    names_from = variable,
+    values_from = pct_miss
+  ) |> 
+  ungroup() |> 
+  arrange(
+    desc(country_name)
+  )
+
+matrix_missingness_by_country <- indicators_missingness_by_country |> 
+  select(-country_name) |> 
+  as.matrix()
+
+rownames(matrix_missingness_by_country) <- indicators_missingness_by_country |> 
+  pull(country_name)
+
+heatmap(matrix_missingness_by_country, Colv = NA, Rowv = NA)
+```
+
+
+## 3. Missingness of indicators.
   
 ```{r}
 rename_from_dictionary <- function(data, dictionary){
@@ -164,7 +196,7 @@ gg_miss_var(
   )
 ```
 
-## 3. Missingness by year.
+## 4. Missingness by year.
 
 ```{r}
 select_indicators_by_family <- function(data, family, grouping = NULL){
@@ -225,7 +257,7 @@ plots_missingness_by_family <- var_families |>
 plots_missingness_by_family
 ```
 
-## 4. Missingness by country.
+## 5. Missingness by country.
 
 ```{r}
 full_data |> 
@@ -265,7 +297,7 @@ full_data |>
   )
 ```
 
-## 5. Stress Tests for Coverage
+## 6. Stress Tests for Coverage
 
 ```{r}
 # 2.	We exclude variables that over the past 5 years have data on fewer than 100 countries (we can debate whether 100 is the right number but we need a number). This is the data cover at least once over the past 5 years (2018-2022) each of the 100 countries.
