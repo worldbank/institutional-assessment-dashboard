@@ -111,6 +111,26 @@ ui <-
                 "The ",
                 tags$b("methodology"),
                 "tab includes metadata on the indicators, country groups and methods used in the analysis, and FAQs."
+              ),
+              tags$li(
+                "The ",
+                tags$b("Terms of use"),
+                "tab provides more information about the terms of use as well as citation information."
+              ),
+              tags$li(
+                "The ",
+                tags$b("FAQ"),
+                "tab shows and answers the most frequently asked questions about CLIAR."
+              ),
+              tags$li(
+                "The ",
+                tags$b("Feedback"),
+                "tab allows users to directly contact us to cliar@worldbank.org"
+              ),
+              tags$li(
+                "The ",
+                tags$b("Source Code"),
+                "tab takes users to our GitHub repository where they can access our source code."
               )
             )
           )
@@ -784,19 +804,19 @@ ui <-
 
             p("The dashboard uses established well-institutional indicators, clustered into nine main institutional families:",
               tags$ul(
-                tags$li("Anti-corruption, transparency and accountability institutions"),
+                tags$li("Anticorruption, transparency and accountability institutions"),
                 tags$li("Business environment and trade institutions"),
                 tags$li("Financial institutions"),
                 tags$li("SOE Corporate Governance"),
                 tags$li("Labor market institutions"),
-                tags$li("Legal institutions"),
+                tags$li("Justice institutions"),
                 tags$li("Political institutions"),
                 tags$li("Public sector institutions"),
                 tags$li("Social institutions")
               )
             ),
             p("There is no agreed theoretical framework that could guide the categorization process. The proposed families are based on an effort to capture key functions that different institutions perform. In so doing, the categorization process faces a trade-off between aggregation and narrowness, where the categories ought to be broad enough to capture enough indicators and policy spaces, but narrow enough to guide a deep qualitative analysis as well as a fruitful and engaged conversation with the country."),
-            p('All country-level indicators can be downloaded in the “Browse data” tab.')
+            p('All country-level indicators can be downloaded in the “Data” tab.')
           ),
 
           box(
@@ -937,7 +957,7 @@ ui <-
               "NO.
               You cannot add indicators to the dashboard.
               However, you can download the full database and augment it with additional indicators to customize the analysis.
-              You can also get in touch with the G-BID coordinator (scocciolo@worldbank.org) indicating which data you would like to be added in the database, and for which cluster.
+              You can also get in touch with the G-BID/CLAIR (cliar@worldbank.org) indicating which data you would like to be added in the database, and for which cluster.
               Each request will be reviewed by a team of technical experts and if the indicator meets the selection criteria indicated in the methodological note (quality and coverage) it will be added to the G-BID."
             )
           ),
@@ -1088,7 +1108,7 @@ ui <-
               sector experts and from the experiences of country teams in applying this tool.
               For example, the team is currently considering expanding the existing
               database in order to include indicators from additional data sources,
-              such as PEFA, Tax DIAMOND and Regional Barometers.
+              such as Tax DIAMOND and Regional Barometers.
               The list of indicators used in the G-BID will be periodically
               reviewed in order to include new governance and institutions indicators
               that may be become available in the future.
