@@ -219,8 +219,8 @@ group_ctf <-
     country_code = group_code
   ) 
 
-ctf<-add_column(ctf,group_countries = 0,.after = 'country_code')
-group_ctf<-add_column(group_ctf,group_countries=1,.after = 'country_code')
+ctf<-add_column(ctf,country_group = 0,.after = 'country_code')
+group_ctf<-add_column(group_ctf,country_group=1,.after = 'country_code')
 ctf <-
   ctf %>%
   bind_rows(group_ctf) %>%

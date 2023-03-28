@@ -800,7 +800,7 @@
         if (input$data_source != "Closeness to frontier") {
           vars_table <- c("Country", "Year", vars)
         } else {
-          vars_table <- c("Country", 'group_countries',vars)
+          vars_table <- c("Country", 'country_group',vars)
         }
         
         vars_table <- unname(vars_table)
