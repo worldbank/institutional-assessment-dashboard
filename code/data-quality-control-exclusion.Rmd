@@ -1,0 +1,190 @@
+---
+title: 'Data Quality Control: Exclusion'
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+output: word_document
+---
+
+```{r setup, include = FALSE}
+packages <- 
+  c(
+    "tidyverse",
+    "here",
+    "testthat",
+    "naniar",
+    "knitr",
+    "tidytext"
+  )
+
+pacman::p_load(
+  packages, 
+  character.only = TRUE
+)
+
+theme_set(
+  theme_minimal(
+    base_size = 20
+  )
+)
+
+opts_chunk$set(
+  echo = FALSE, warning = FALSE, message = FALSE, 
+  fig.width = 10, fig.height = 14, dpi = 300
+)
+```
+
+```{r readin, include = FALSE}
+wb_country_groups <- read_rds(
+  here("..", "data", "final", "wb_country_list.rds")
+) |>
+  # extract only regions
+  distinct(
+    country_code, country_name, .keep_all = TRUE 
+  ) |>
+  select(
+    country_code,
+    country_name,
+    region = group
+  )
+
+full_data <- read_rds(
+  here(
+    "..",
+    "data",
+    "final",
+    "compiled_indicators.rds"
+  )
+) |>
+  left_join(
+    wb_country_groups,
+    by = c("country_code", "country_name")
+  )
+
+# variable definitions
+db_variables <- read_rds(
+   here(
+    "..",
+    "data",
+    "final",
+    "db_variables.rds"
+  )
+)
+
+# import variable definitions
+source(
+  here("vars-control.R")
+)
+```
+
+# Quality checks: Coverage Criteria
+
+- Inputs:
+  - `data/final/wb_country_list.rds`
+  - `data/final/compiled_indicators.rds`
+  - `data/final/db_variables.rds`
+      
+- Outputs:
+  - Exclusion Diagnostics
+
+# Introduction:
+
+The objective of this quality check is to verify how different exclusion criteria affect availability of our indicators. In particular, we are interested in the application of the following criteria for exclusion:
+
+  1. **Discontinued Series**. We exclude any variables that have been discontinued. For that, we verify if there has been variation in the update frequency of a variable. For example, if a variable that was annual previously is no longer updated, we may drop it.
+  2. **Low country coverage**. We exclude variables that over the past 5 years have data on fewer than 100 countries (we can debate whether 100 is the right number but we need a number). The indicator must cover at least once over the past 5 years (2018-2022) each of the 100 countries.
+    2.a. As an exception to the previous rules we will include variables that that cover 50 to 100 countries over the past 5 years that cover all the bank region s (excluding high income). This will eliminate OECD type of data but would keep PEFA data. The OECD is normally missing in PEFA and ES because these datasets normally focus on client countries only.
+  3. **Minimal threshold**. We include only variables that have at least 2 years of data (not per country but overall). At least 10 countries per year.
+  
+For each one of these criteria, we produce the following indicators:
+
+  1. The set of indicators selected for exclusion.
+  2. Sensitivity to the exclusion criterion.
+  3. Change in missingness of data (as defined in `data-quality-control-missingness.Rmd`)
+
+# Discontinued Series
+
+We define a series as discontinued if in the past 5 years, a variable has not been updated for any of the countries.
+
+```{r discontinued}
+build_missingness_table <- function(data, dimension, vars){
+  # this function calculates the amount of missingness
+  # of a particular indicator, across a dimension,
+  # whether it be (1) a country or (2) a year
+  missingness_table <- data |> 
+    select(
+      {{dimension}},
+      any_of(vars)
+    ) |> 
+    group_by({{dimension}}) |> 
+    miss_var_summary() |> 
+    select(-n_miss) |> 
+    ungroup()
+  # |> 
+  #   pivot_wider(
+  #     id_cols = {{dimension}},
+  #     names_from = variable,
+  #     values_from = pct_miss
+  #   ) |> 
+  #   ungroup() |> 
+  #   arrange(
+  #     {{dimension}}
+  #   )
+  # 
+  return(missingness_table)
+}
+
+# identify variables that have not been updated in the past 5 years
+discontinued_indicators <- full_data |> 
+  build_missingness_table(
+    dimension = year,
+    vars = vars_all
+  ) |>
+  filter(year > (2020 - 5)) |> 
+  group_by(variable) |> 
+  summarise(
+    times_updated = sum(pct_miss != 100)
+  ) |> 
+  filter(
+    times_updated == 0
+  ) |> 
+  inner_join(
+    db_variables |> select(variable, var_name, family_name),
+    by = "variable"
+  ) |> 
+  select(
+    var_name, family_name
+  )
+
+kable(
+  discontinued_indicators,
+  col.names = c("Variable", "Family Name"),
+  caption = "Discontinued Indicators in the Past 5 Years"
+)
+```
+
+# Low Country Coverage
+
+We exclude variables that over the past 5 years have data on fewer than 100 countries (we can debate whether 100 is the right number but we need a number. Note that the number of countries included in the table are increasing over time. Why?). The indicator must cover at least once over the past 5 years (2018-2022) each of the 100 countries.
+
+```{r low_country}
+n_countries <- 162
+
+full_data |> 
+  # in the last 5 years
+  filter(year > (2020 - 5)) |> 
+  summarise(
+    across(
+      c(any_of(vars_all)),
+      ~ n_complete(.)
+    ) 
+  ) |> 
+  select(
+    year, any_of(vars_all)
+  ) |> 
+  group_by(year) |> 
+  miss_var_summary() |> 
+  select(-pct_miss) |> 
+  glimpse()
+
+
+```
+
