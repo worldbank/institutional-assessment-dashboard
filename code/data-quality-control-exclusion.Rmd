@@ -91,16 +91,16 @@ The objective of this quality check is to verify how different exclusion criteri
 
   1. **Discontinued Series**. We exclude any variables that have been discontinued. For that, we verify if there has been variation in the update frequency of a variable. For example, if a variable that was annual previously is no longer updated, we may drop it.
   2. **Low country coverage**. We exclude variables that over the past 5 years have data on fewer than 100 countries (we can debate whether 100 is the right number but we need a number). The indicator must cover at least once over the past 5 years (2018-2022) each of the 100 countries.
-    2.a. As an exception to the previous rules we will include variables that that cover 50 to 100 countries over the past 5 years that cover all the bank region s (excluding high income). This will eliminate OECD type of data but would keep PEFA data. The OECD is normally missing in PEFA and ES because these datasets normally focus on client countries only.
+    2.a. As an exception to the previous rules we will include variables that that cover 50 to 100 countries over the past 5 years that cover all the bank regions (excluding high income). This will eliminate OECD type of data but would keep PEFA data. The OECD is normally missing in PEFA and ES because these datasets normally focus on client countries only.
   3. **Minimal threshold**. We include only variables that have at least 2 years of data (not per country but overall). At least 10 countries per year.
   
-For each one of these criteria, we produce the following indicators:
+For each one of these criteria, we will produce the following indicators:
 
   1. The set of indicators selected for exclusion.
   2. Sensitivity to the exclusion criterion.
   3. Change in missingness of data (as defined in `data-quality-control-missingness.Rmd`)
 
-# Discontinued Series
+# 1. Discontinued Series
 
 We define a series as discontinued if in the past 5 years, a variable has not been updated for any of the countries.
 
@@ -132,6 +132,15 @@ build_missingness_table <- function(data, dimension, vars){
   return(missingness_table)
 }
 
+complete_var_names <- function(data, dictionary){
+  data |> 
+    inner_join(
+      dictionary |> select(variable, var_name, family_name),
+      by = "variable"
+    ) |> 
+    select(-variable)
+}
+
 # identify variables that have not been updated in the past 5 years
 discontinued_indicators <- full_data |> 
   build_missingness_table(
@@ -146,45 +155,137 @@ discontinued_indicators <- full_data |>
   filter(
     times_updated == 0
   ) |> 
-  inner_join(
-    db_variables |> select(variable, var_name, family_name),
-    by = "variable"
-  ) |> 
+  complete_var_names(db_variables) |> 
   select(
-    var_name, family_name
+    var_name,
+    family_name,
+    times_updated
   )
 
 kable(
   discontinued_indicators,
-  col.names = c("Variable", "Family Name"),
+  col.names = c("Variable", "Family Name", "Times Updated"),
   caption = "Discontinued Indicators in the Past 5 Years"
 )
 ```
 
-# Low Country Coverage
+# 2. Low Country Coverage
 
 We exclude variables that over the past 5 years have data on fewer than 100 countries (we can debate whether 100 is the right number but we need a number. Note that the number of countries included in the table are increasing over time. Why?). The indicator must cover at least once over the past 5 years (2018-2022) each of the 100 countries.
 
 ```{r low_country}
 n_countries <- 162
 
-full_data |> 
+calculate_country_and_region_coverage <- function(data, dictionary){
+  data |> 
+    summarise(
+      across(
+        c(any_of(vars_all)),
+        ~ n_distinct(country_code[!is.na(.)]),
+        .names = "{.col}__total_countries_covered"
+      ),
+      across(
+        c(any_of(vars_all)),
+        ~ n_distinct(region[!is.na(.)]),
+        .names = "{.col}__total_regions_covered"
+      )
+    ) |> 
+    # create a long-form table of all indicators, with
+    # two columns (1) countries covered and (2) regions covered
+    pivot_longer(
+      cols = c(everything()),
+      cols_vary = "slowest",
+      names_to = c("variable", ".value"),
+      names_pattern = "(\\w+)__(\\w+)"
+    ) |> 
+    # exclude indicators with less than 100 countries
+    # and less than 5 regions covered
+    filter(
+      total_countries_covered < 100 &
+        total_regions_covered < 5
+    ) |>
+    # inherits db_variables
+    complete_var_names(dictionary) |> 
+    select(
+      var_name,
+      family_name,
+      total_countries_covered,
+      total_regions_covered
+    )
+}
+
+low_coverage_indicators <- full_data |> 
   # in the last 5 years
   filter(year > (2020 - 5)) |> 
-  summarise(
-    across(
-      c(any_of(vars_all)),
-      ~ n_complete(.)
-    ) 
-  ) |> 
-  select(
-    year, any_of(vars_all)
-  ) |> 
-  group_by(year) |> 
-  miss_var_summary() |> 
-  select(-pct_miss) |> 
-  glimpse()
+  # compute total countries and regions covered for all vars
+  # note that it excludes, per variable, all missing variables
+  # and calculates distinct countries and regions
+  calculate_country_and_region_coverage(
+    dictionary = db_variables
+  )
 
-
+kable(
+  low_coverage_indicators,
+  col.names = c("Variable", "Family Name", "Total Countries Covered", "Total Regions Covered"),
+  caption = "Low Coverage Indicators in the Past 5 Years"
+)
 ```
+
+# 3. Minimal Threshold
+
+We exclude indicators that have less than 2 years of data (not per country but overall) and for each year covered, it covers less than 10 countries per year.
+
+```{r minimal}
+calculate_coverage <- function(data, grouping){
+  # calculate coverage across year or country
+  # if year, countries covered in that year
+  # if country, years covered for that country
+  if(grouping == "year"){
+    value <- "country"
+  } else{
+    value <- "year"
+  }
+  
+  data |> 
+    group_by(
+      across(any_of(grouping))
+    ) |> 
+    summarise(
+      across(
+        any_of(vars_all),
+        n_complete
+      )
+    ) |> 
+    pivot_longer(
+      !year,
+      names_to = "variable",
+      values_to = paste0(value, "_coverage")
+    )
+}
+
+calculate_minimal_threshold <- function(data, dictionary){
+  data |> 
+    filter(country_coverage >= 10) |> 
+    group_by(variable) |> 
+    summarise(
+      year_coverage = n_distinct(year)
+    ) |> 
+    filter(year_coverage <= 2) |> 
+    complete_var_names(dictionary) |> 
+    select(var_name, family_name, year_coverage)
+}
+
+minimal_threshold_indicators <- full_data |> 
+  calculate_coverage("year") |> 
+  calculate_minimal_threshold(
+    dictionary = db_variables
+  )
+
+kable(
+  minimal_threshold_indicators,
+  col.names = c("Variable", "Family Name", "Year Coverage"),
+  caption = "Minimal Threshold Indicators"
+)
+```
+
 
