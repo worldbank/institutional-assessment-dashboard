@@ -1,3 +1,10 @@
+# Notes:
+
+- Fixed our documentation to state that it is the average, not last value of indicators.
+- Fixed the cut-off year to 2014, as specified in the CLIAR Methodology.
+- What is happening to the `Inf` values
+- Refactored the `ctf` into a function [To-Do].
+
 # Calculate distance to frontier
 
 - Inputs:
@@ -22,11 +29,25 @@ packages <-
 
 pacman::p_load(packages,
                character.only = TRUE)
+
+# import variable definitions
+db_variables <- read_rds(
+   here(
+    "..",
+    "data",
+    "final",
+    "db_variables.rds"
+  )
+)
+
+source(
+  here("vars-control.R")
+)
 ```
 
 ## Calculate global closeness to frontier
 
-Closeness to frontier (CTF) is global, meaning that we identify the worst and best performance in the full sample (all countries). For each indicator $i$, we compare the last available value of indicator $i$ with the worst and best
+Closeness to frontier (CTF) is global, meaning that we identify the worst and best performance in the full sample (all countries). For each indicator $i$, we compare the average value of indicator $i$ in the years of 2014-2019 with the worst and best
 performance for indicator $i$ among all countries and in the last $y$ years (2013 - most recent data).^[In [the doing business report](https://www.doingbusiness.org/content/dam/doingBusiness/media/Annual-Reports/English/DB17-Chapters/DB17-DTF-and-DBRankings.pdf) they consider the last 5 years, but here for some indicators we have shorter time series].
 
 
@@ -46,7 +67,7 @@ definitions <-
     )
   )
 
-data <-
+compiled_indicators <-
   read_rds(
     here(
       "..",
@@ -56,64 +77,15 @@ data <-
     )
   ) %>%
   filter(
-    year >= 2013
+    year >= 2014
   )
 ```
 
-2. Rescale indicators so a higher number is always a better performance
-
-```{r}
-data_rescaled <- 
-  data %>%
-  mutate(
-    e_p_polity = ifelse(e_p_polity < -10, NA, e_p_polity),
-    # PRM indicators: Countries are graded between 0 (less control/involvement) and 6 (more control/involvement). Methodological note for PRM indicates that 1998 and 2013 indicators are comparable, but not with 2018 due to change in methodology, so we remove 2018 data
-    across(
-      c(
-        soe_governance,
-        price_controls,
-        command_control,
-        complexity_procedures,
-        barriers_startups,
-        protection_incumbents,
-        barriers_trade_expl,
-        barriers_trade_oth,
-        directcontroloverbusinessenterpr,
-        governmentinvolvementinnetworkse,
-        scopeofstateownedenterprises
-      ),
-      ~ ifelse(year == 2018, NA, 6 - .x)
-    ),
-    # Enterprise Survey: Percent Of Firms Identifying X As A Major Constraint
-    across(
-      c(
-        es_finance_constraint,
-        es_permits_constraint,
-        es_court_constraint,
-        se_customs_constraint,
-        es_labor_constraint,
-        es_corruption_constraint,
-        es_tax_constraint
-      ),
-      ~ 100 - .
-    ),
-    # Freedom house: Countries are graded between 1 (most free) and 7 (least free)
-    across(
-      c(
-        e_fh_pr,
-        e_fh_cl
-      ),
-      ~ (8 - .x)
-    )
-  )
-```
-
-
-3. Calculate country-level average for each indicator
+2. Calculate country-level average for each indicator
 
 ```{r}
 country_average <-
-  data_rescaled %>%
+  compiled_indicators %>%
   group_by(
     country_code,
     country_name
@@ -126,11 +98,11 @@ country_average <-
   )
 ```
 
-4. Identify worst and best performance for each indicator
+3. Identify worst and best performance for each indicator
 
 ```{r}
 min_max <-
-  data_rescaled %>%
+  compiled_indicators %>%
   summarise(
     across(
       all_of(vars_all),
@@ -148,7 +120,7 @@ min_max <-
   )
 ```
 
-5. Calculate closeness to frontier at indicator level
+4. Calculate closeness to frontier at indicator level
 
 ```{r}
 ctf <-
@@ -184,7 +156,7 @@ ctf <-
   )
 ```
 
-## Calculate median per group
+5. Calculate median per group
 
 ```{r}
 country_list <-
@@ -215,7 +187,7 @@ group_ctf <-
   rename(
     country_name = group,
     country_code = group_code
-  ) 
+  )
 
 ctf <-
   ctf %>%
@@ -223,9 +195,13 @@ ctf <-
   ungroup %>%
   arrange(country_name)
 
+# why is there an arbitrary inversion here?
 ctf$diversion_pfunds<-(1-ctf$diversion_pfunds)
+```
 
+6. Data write-out
 
+```{r}
 write_rds(
   ctf,
   here(
@@ -235,8 +211,6 @@ write_rds(
     "closeness_to_frontier.rds"
   )
 )
-
-
 
 ctf_long <-
   ctf %>%

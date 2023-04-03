@@ -92,9 +92,12 @@ write_rds(
 )
 ```
 
-## Define list of variables
+## Define list of variables, disaggregating by different families and sources (e.g., API)
 
 
 ```r
+# Note that this is a fragile definition, and a set of environmental variables that cascade down the pipeline
+# without a clear sense of where it is relevant, and where it is not.
+# We should refactor this part and only read-in these variables as needed.
 source(here("vars-control.R"))
 ```

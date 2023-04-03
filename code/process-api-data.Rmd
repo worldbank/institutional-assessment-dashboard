@@ -1,7 +1,7 @@
 # Process API data
 
 - Input: `data/final/db_variables.rds`
-- Output: `data/clean/original_data.rds`
+- Output: `data/clean/api_data.rds`
  
  
 ```{r}
