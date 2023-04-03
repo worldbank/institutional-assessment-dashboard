@@ -97,7 +97,7 @@ The objective of this quality check is to verify how different exclusion criteri
 For each one of these criteria, we will produce the following indicators:
 
   1. The set of indicators selected for exclusion.
-  2. Sensitivity to the exclusion criterion: correlation between original and modified CTF indicator. [To-Do].
+  2. Sensitivity to the exclusion criterion: cannot use correlation between original and modified CTF indicator, because dropped indicators fall out of sample. [To-Do].
   3. Change in missingness of data: Proportion of missingness, measured as the ratio of missing to number of elements (cells) in the dataset.
 
 
@@ -119,17 +119,7 @@ build_missingness_table <- function(data, dimension, vars){
     miss_var_summary() |> 
     select(-n_miss) |> 
     ungroup()
-  # |> 
-  #   pivot_wider(
-  #     id_cols = {{dimension}},
-  #     names_from = variable,
-  #     values_from = pct_miss
-  #   ) |> 
-  #   ungroup() |> 
-  #   arrange(
-  #     {{dimension}}
-  #   )
-  # 
+  
   return(missingness_table)
 }
 
@@ -138,8 +128,19 @@ complete_var_names <- function(data, dictionary){
     inner_join(
       dictionary |> select(variable, var_name, family_name),
       by = "variable"
-    ) |> 
-    select(-variable)
+    )
+}
+
+drop_indicators <- function(data, excluded_indicators){
+  indicators_to_exclude <- excluded_indicators %>%
+    pull(variable)
+  
+  pruned_data <- data |> 
+    select(
+      -any_of(indicators_to_exclude)
+    )
+  
+  return(pruned_data)
 }
 
 # identify variables that have not been updated in the past 5 years
@@ -158,17 +159,32 @@ discontinued_indicators <- full_data |>
   ) |> 
   complete_var_names(db_variables) |> 
   select(
+    variable,
     var_name,
     family_name,
     times_updated
   )
 
 kable(
-  discontinued_indicators,
+  discontinued_indicators |> select(-variable),
   col.names = c("Variable", "Family Name", "Times Updated"),
   caption = "Discontinued Indicators in the Past 5 Years"
 )
 ```
+
+## Stress Test for Exclusion: Discontinued Series
+
+```{r}
+discontinued_prop_complete <- full_data |> 
+  drop_indicators(discontinued_indicators) |> 
+  naniar::prop_complete() |> 
+  round(2)
+
+full_prop_complete <- full_data |> 
+  prop_complete()
+```
+
+We calculate the proportion of complete cases for the pruned dataset (excluding the discontinued indicators) and compare it to the original proportion of complete cases for the full data. We find that there is an increase in the proportion of complete cases by `discontinued_prop_complete - full_prop_complete`, from `r full_prop_complete` to `r discontinued_prop_complete`.
 
 # 2. Low Country Coverage
 
@@ -208,6 +224,7 @@ calculate_country_and_region_coverage <- function(data, dictionary){
     # inherits db_variables
     complete_var_names(dictionary) |> 
     select(
+      variable, 
       var_name,
       family_name,
       total_countries_covered,
@@ -226,11 +243,22 @@ low_coverage_indicators <- full_data |>
   )
 
 kable(
-  low_coverage_indicators,
+  low_coverage_indicators |> select(-variable),
   col.names = c("Variable", "Family Name", "Total Countries Covered", "Total Regions Covered"),
   caption = "Low Coverage Indicators in the Past 5 Years"
 )
 ```
+
+## Stress Test for Exclusion: Low Country Coverage
+
+```{r}
+low_coverage_prop_complete <- full_data |> 
+  drop_indicators(low_coverage_indicators) |> 
+  naniar::prop_complete() |> 
+  round(2)
+```
+
+We calculate the proportion of complete cases for the pruned dataset (excluding the discontinued indicators) and compare it to the original proportion of complete cases for the full data. We find that there is an increase in the proportion of complete cases by `low_coverage_prop_complete - full_prop_complete`, from `r full_prop_complete` to `r low_coverage_prop_complete`.
 
 # 3. Minimal Threshold
 
@@ -273,7 +301,7 @@ calculate_minimal_threshold <- function(data, dictionary){
     ) |> 
     filter(year_coverage <= 2) |> 
     complete_var_names(dictionary) |> 
-    select(var_name, family_name, year_coverage)
+    select(variable, var_name, family_name, year_coverage)
 }
 
 minimal_threshold_indicators <- full_data |> 
@@ -283,10 +311,19 @@ minimal_threshold_indicators <- full_data |>
   )
 
 kable(
-  minimal_threshold_indicators,
+  minimal_threshold_indicators |> select(-variable),
   col.names = c("Variable", "Family Name", "Year Coverage"),
   caption = "Minimal Threshold Indicators"
 )
 ```
 
+## Stress Test for Exclusion: Minimal Threshold
 
+```{r}
+minimal_threshold_prop_complete <- full_data |> 
+  drop_indicators(minimal_threshold_indicators) |> 
+  naniar::prop_complete() |> 
+  round(2)
+```
+
+We calculate the proportion of complete cases for the pruned dataset (excluding the discontinued indicators) and compare it to the original proportion of complete cases for the full data. We find that there is an increase in the proportion of complete cases by `minimal_threshold_prop_complete - full_prop_complete`, from `r full_prop_complete` to `r minimal_threshold_prop_complete`.
