@@ -97,8 +97,9 @@ The objective of this quality check is to verify how different exclusion criteri
 For each one of these criteria, we will produce the following indicators:
 
   1. The set of indicators selected for exclusion.
-  2. Sensitivity to the exclusion criterion [To-Do].
-  3. Change in missingness of data (as defined in `data-quality-control-missingness.Rmd`)
+  2. Sensitivity to the exclusion criterion: correlation between original and modified CTF indicator. [To-Do].
+  3. Change in missingness of data: Proportion of missingness, measured as the ratio of missing to number of elements (cells) in the dataset.
+
 
 # 1. Discontinued Series
 
