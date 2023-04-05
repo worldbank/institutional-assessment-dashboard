@@ -71,17 +71,11 @@ data_rescaled <-
     # PRM indicators: Countries are graded between 0 (less control/involvement) and 6 (more control/involvement). Methodological note for PRM indicates that 1998 and 2013 indicators are comparable, but not with 2018 due to change in methodology, so we remove 2018 data
     across(
       c(
-        soe_governance,
-        price_controls,
-        command_control,
         complexity_procedures,
         barriers_startups,
         protection_incumbents,
         barriers_trade_expl,
-        barriers_trade_oth,
-        directcontroloverbusinessenterpr,
-        governmentinvolvementinnetworkse,
-        scopeofstateownedenterprises
+        barriers_trade_oth
       ),
       ~ ifelse(year == 2018, NA, 6 - .x)
     ),
