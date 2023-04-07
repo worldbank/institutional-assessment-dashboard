@@ -1,15 +1,70 @@
 ---
 title: "Data Quality Control: Validation"
-output: word_document
+output: html_document
 date: '`r format(Sys.Date(), "%B %d, %Y")`'
 ---
+
+# Notes:
+
+When producing data quality control reports, we should have two audiences in mind:
+
+  1. Data scientists, interested in the back-end data pipelines feeding into the dashboard.
+  2. Stakeholders, including users, who are interested in how data quality affects the user experience.
+  
+There needs to be a clear integration and dialogue between these two teams.
+
+## Load packages
+
+```{r, include = FALSE}
+library(dplyr)
+library(ggplot2)
+library(here)
+library(testthat)
+library(naniar)
+library(tidytext)
+library(readr)
+library(pointblank)
+
+knitr::opts_chunk$set(
+  echo = FALSE, warning = FALSE, message = FALSE, 
+  fig.width = 10, fig.height = 14, dpi = 300
+)
+```
+
+## Read-in Data
+
+```{r, include = FALSE}
+full_data <- read_rds(
+  here(
+    "..",
+    "data",
+    "final",
+    "compiled_indicators.rds"
+  )
+)
+
+# variable definitions
+db_variables <- read_rds(
+   here(
+    "..",
+    "data",
+    "final",
+    "db_variables.rds"
+  )
+)
+
+# import variable definitions
+source(
+  here("vars-control.R")
+)
+```
 
 # Introduction:
 
 This document provides a protocol for data validation when manually importing data into CLIAR. Mitigate the following risks:
 
   1. Change in data structure and indicator names over time.
-  2. 
+  2. Harmonization of country names and codes across data sources.
 
 # Steps for Validation of Manual Data Import:
 
@@ -19,17 +74,51 @@ This document provides a protocol for data validation when manually importing da
   4. **Review and approve the data import:** Once the data has been imported and quality checked for each data source, it should be reviewed and approved by a designated individual or team for each data source. This ensures that the data meets the necessary standards and can be used for analysis or other purposes.
   5. **Store the data for each data source:** Finally, it is important to store the imported data for each data source in a separate and secure location that is easily accessible to authorized individuals. This includes documenting the location of the data, the date of the import, and any other relevant information for each data source.
 
+Data validation will be performed using the `R` package [`pointblank`](https://rich-iannone.github.io/pointblank/).
+
 # How to Validate a Manual Import of Data:
 
-Below, we provide acode example of how to validate a manual import of data.
+Below, we provide a code example of how to validate a manual import of data.
 
 ```{r, echo = FALSE}
 # library(tidyverse)
 # library(lubridate)
 # library(readxl)
-# library(assertthat)
 
 knitr::opts_chunk$set(eval=FALSE)
+```
+
+
+## Test using `pointblank` package
+
+**Note:** We should add information on the different sources for each one of the indicators. Additionally, there should be a common prefix
+
+```{r validate = TRUE, eval = TRUE}
+scan_data(
+  full_data,
+  sections = "OVS"
+)
+# informant <-
+#   create_informant(
+#     tbl = full_data,
+#     tbl_name = "Full data",
+#     label = "Compiled indicators for Global Benchmarking Institutions Dashboard"
+#   ) |> 
+#   info_tabular(
+#     description = "This table is included in the **pointblank** pkg."
+#   ) |> 
+#   # info_columns(
+#   #   columns = "date_time",
+#   #   info = "This column is full of timestamps."
+#   # ) %>%
+#   info_section(
+#     section_name = "further information", 
+#     `examples and documentation` = "Examples for how to use the `info_*()` functions
+#     (and many more) are available at the 
+#     [**pointblank** site](https://rich-iannone.github.io/pointblank/)."
+#   )
+# 
+# informant
 ```
 
 ## 1. Document Data Source
