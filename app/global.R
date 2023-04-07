@@ -121,12 +121,12 @@ clean_country <-
 
 for(i in 1:nrow(clean_country)){
   if (clean_country[i,'Clean_Names']!=""){
-    country_list$country_name <- str_replace_all(country_list$country_name, clean_country[i,'Country'], clean_country[i,'Clean_Names'])
-    ctf_long$country_name <- str_replace_all(ctf_long$country_name, clean_country[i,'Country'], clean_country[i,'Clean_Names'])
-    raw_data$country_name <- str_replace_all(raw_data$country_name, clean_country[i,'Country'], clean_country[i,'Clean_Names'])
-    global_data$country_name <- str_replace_all(global_data$country_name, clean_country[i,'Country'], clean_country[i,'Clean_Names'])
-    spatial_data$country_name <- str_replace_all(spatial_data$country_name, clean_country[i,'Country'], clean_country[i,'Clean_Names'])
-  }
+    country_list$country_name[country_list$country_name==clean_country[i,'Country']]=clean_country[i,'Clean_Names']
+    ctf_long$country_name[ctf_long$country_name==clean_country[i,'Country']]=clean_country[i,'Clean_Names']
+    raw_data$country_name[raw_data$country_name==clean_country[i,'Country']]=clean_country[i,'Clean_Names']
+    global_data$country_name[global_data$country_name==clean_country[i,'Country']]=clean_country[i,'Clean_Names']
+    spatial_data$country_name[spatial_data$country_name==clean_country[i,'Country']]=clean_country[i,'Clean_Names']
+ }
 } 
 
 
