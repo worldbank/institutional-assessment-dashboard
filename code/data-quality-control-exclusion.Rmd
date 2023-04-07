@@ -177,14 +177,15 @@ kable(
 ```{r}
 discontinued_prop_complete <- full_data |> 
   drop_indicators(discontinued_indicators) |> 
-  naniar::prop_complete() |> 
+  n_miss() |> 
   round(2)
 
 full_prop_complete <- full_data |> 
-  prop_complete()
+  n_miss() |> 
+  round(2)
 ```
 
-We calculate the proportion of complete cases for the pruned dataset (excluding the discontinued indicators) and compare it to the original proportion of complete cases for the full data. We find that there is an increase in the proportion of complete cases by `discontinued_prop_complete - full_prop_complete`, from `r full_prop_complete` to `r discontinued_prop_complete`.
+We calculate the proportion of complete cases for the pruned dataset (excluding the discontinued indicators) and compare it to the original proportion of complete cases for the full data. We find that there is an increase in the proportion of complete cases by `r discontinued_prop_complete - full_prop_complete`, from `r full_prop_complete` to `r discontinued_prop_complete`.
 
 # 2. Low Country Coverage
 
@@ -254,11 +255,11 @@ kable(
 ```{r}
 low_coverage_prop_complete <- full_data |> 
   drop_indicators(low_coverage_indicators) |> 
-  naniar::prop_complete() |> 
+  n_miss() |> 
   round(2)
 ```
 
-We calculate the proportion of complete cases for the pruned dataset (excluding the discontinued indicators) and compare it to the original proportion of complete cases for the full data. We find that there is an increase in the proportion of complete cases by `low_coverage_prop_complete - full_prop_complete`, from `r full_prop_complete` to `r low_coverage_prop_complete`.
+We calculate the proportion of complete cases for the pruned dataset (excluding the discontinued indicators) and compare it to the original proportion of complete cases for the full data. We find that there is an increase in the proportion of complete cases by `r `low_coverage_prop_complete - full_prop_complete`, from `r full_prop_complete` to `r low_coverage_prop_complete`.
 
 # 3. Minimal Threshold
 
@@ -282,7 +283,7 @@ calculate_coverage <- function(data, grouping){
     summarise(
       across(
         any_of(vars_all),
-        n_complete
+        n_miss
       )
     ) |> 
     pivot_longer(
@@ -322,8 +323,8 @@ kable(
 ```{r}
 minimal_threshold_prop_complete <- full_data |> 
   drop_indicators(minimal_threshold_indicators) |> 
-  naniar::prop_complete() |> 
+  n_miss() |> 
   round(2)
 ```
 
-We calculate the proportion of complete cases for the pruned dataset (excluding the discontinued indicators) and compare it to the original proportion of complete cases for the full data. We find that there is an increase in the proportion of complete cases by `minimal_threshold_prop_complete - full_prop_complete`, from `r full_prop_complete` to `r minimal_threshold_prop_complete`.
+We calculate the proportion of complete cases for the pruned dataset (excluding the discontinued indicators) and compare it to the original proportion of complete cases for the full data. We find that there is an increase in the proportion of complete cases by `r `minimal_threshold_prop_complete - full_prop_complete`, from `r full_prop_complete` to `r minimal_threshold_prop_complete`.

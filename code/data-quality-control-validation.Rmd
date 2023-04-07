@@ -1,0 +1,124 @@
+---
+title: "Data Quality Control: Validation"
+output: word_document
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+---
+
+# Introduction:
+
+This document provides a protocol for data validation when manually importing data into CLIAR. Mitigate the following risks:
+
+  1. Change in data structure and indicator names over time.
+  2. 
+
+# Steps for Validation of Manual Data Import:
+
+  1. **Document data source:** Document each data source separately, including the name of the file, the location of the file, the date of the file, and any other relevant information. It is important to document the import process for each data source separately to ensure that it is reproducible in the future. This includes recording the steps taken during the import process, any issues encountered, and any solutions implemented.
+  2. **Set expectations in a data import template:** To ensure consistency in data entry, it is recommended to create a separate data import template for each data source. Each template should include all the necessary fields and data types for the specific dataset.
+  3. **Validate the data:** To further ensure the accuracy of the data, it is recommended to use a data validation tool for each data source. This tool can check for errors and inconsistencies in the data, such as missing or invalid values, incorrect formatting, or duplicates.
+  4. **Review and approve the data import:** Once the data has been imported and quality checked for each data source, it should be reviewed and approved by a designated individual or team for each data source. This ensures that the data meets the necessary standards and can be used for analysis or other purposes.
+  5. **Store the data for each data source:** Finally, it is important to store the imported data for each data source in a separate and secure location that is easily accessible to authorized individuals. This includes documenting the location of the data, the date of the import, and any other relevant information for each data source.
+
+# How to Validate a Manual Import of Data:
+
+Below, we provide acode example of how to validate a manual import of data.
+
+```{r, echo = FALSE}
+# library(tidyverse)
+# library(lubridate)
+# library(readxl)
+# library(assertthat)
+
+knitr::opts_chunk$set(eval=FALSE)
+```
+
+## 1. Document Data Source
+
+This section specifies both the data source and location of the imported data file:
+
+- Data Source: `url`
+- Data Location: `/path/to/file1.xlsx`
+- Data Import Date: `r format(Sys.Date(), "%B %d, %Y")`
+
+Here we also specify what steps were taken during the import process, issues encoutered and solutions implemented.
+
+## 2. Set Expectations in a Data Import Template
+
+This defines our expectations of the expected format of the data. This should specify both the type of indicator (e.g., `string`, `integer`),  as well as indicator names.
+
+```{r}
+data_template <- tibble(
+  id = integer(),
+  date = date(),
+  value = numeric()
+)
+
+print(data_template)
+```
+
+## 3. Validate the Data
+
+In this section, we define our expectations of the structure of the data. For example, whether it contains all the columns outlined in the `data_template` specified above. Additionally, whether it contains any missing values. 
+
+These should be specified on a data source basis, but will be crucial for ensuring that we have validation procedures set in place.
+
+```{r}
+# Read in data
+data_raw <- read_excel("/path/to/file1.xlsx", sheet = "Sheet1")
+
+# Validate data
+assertthat(all(names(data_raw) %in% c("id", "date", "value")), 
+          msg = "Data columns do not match template.")
+assertthat(all(is.na(data_raw) == FALSE), 
+          msg = "Data contains missing values.")
+assertthat(all(data_raw$id > 0), 
+          msg = "Data contains invalid values.")
+assertthat(all(duplicated(data_raw$id) == FALSE), 
+          msg = "Data contains duplicate values.")
+
+```
+
+We can draw on the existing code in `data-qualit-control-missingness.Rmd` to generate some quality checks regarding missingness, along with other inconsistencies in the data.
+
+```{r}
+# Check data quality: generate a heatmap
+indicators_missingness_by_country <- data_raw |> 
+  select(
+    country_name,
+    any_of(vars_all)
+  ) |> 
+  group_by(country_name) |> 
+  miss_var_summary() |> 
+  select(-n_miss) |> 
+  pivot_wider(
+    id_cols = country_name,
+    names_from = variable,
+    values_from = pct_miss
+  ) |> 
+  ungroup() |> 
+  arrange(
+    desc(country_name)
+  )
+
+matrix_missingness_by_country <- indicators_missingness_by_country |> 
+  select(-country_name) |> 
+  as.matrix()
+
+rownames(matrix_missingness_by_country) <- indicators_missingness_by_country |> 
+  pull(country_name)
+
+heatmap(matrix_missingness_by_country, Colv = NA, Rowv = NA)
+```
+
+## 4. Review and approve the data import
+
+In this review section, we document our interpretation of the diagnostics, as well as whether or not we have approved the data import. We should also specify who approved it.
+
+## 5. Store the data
+
+```{r}
+# Store data
+saveRDS(data_raw, "/path/to/data_raw.rds")
+saveRDS(data_quality, "/path/to/data_quality.rds")
+```
+
