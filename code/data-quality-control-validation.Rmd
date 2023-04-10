@@ -4,18 +4,7 @@ output: html_document
 date: '`r format(Sys.Date(), "%B %d, %Y")`'
 ---
 
-# Notes:
-
-When producing data quality control reports, we should have two audiences in mind:
-
-  1. Data scientists, interested in the back-end data pipelines feeding into the dashboard.
-  2. Stakeholders, including users, who are interested in how data quality affects the user experience.
-  
-There needs to be a clear integration and dialogue between these two teams.
-
-## Load packages
-
-```{r, include = FALSE}
+```{r setup, include = FALSE}
 library(dplyr)
 library(ggplot2)
 library(here)
@@ -25,13 +14,14 @@ library(tidytext)
 library(readr)
 library(pointblank)
 
+# note that echo has to be set TRUE to display pointblank output
 knitr::opts_chunk$set(
-  echo = FALSE, warning = FALSE, message = FALSE, 
+  echo = FALSE, warning = FALSE, 
   fig.width = 10, fig.height = 14, dpi = 300
 )
-```
 
-## Read-in Data
+validate_rmd()
+```
 
 ```{r, include = FALSE}
 full_data <- read_rds(
@@ -57,22 +47,24 @@ db_variables <- read_rds(
 source(
   here("vars-control.R")
 )
+
+# knitr::opts_chunk$set(eval = FALSE)
 ```
 
 # Introduction:
 
-This document provides a protocol for data validation when manually importing data into CLIAR. Mitigate the following risks:
+This document provides a protocol for data validation when manually importing data into CLIAR. The goal is to mitigate the following risks:
 
   1. Change in data structure and indicator names over time.
-  2. Harmonization of country names and codes across data sources.
+  2. Inconsistency in country names and codes across data sources.
 
 # Steps for Validation of Manual Data Import:
 
-  1. **Document data source:** Document each data source separately, including the name of the file, the location of the file, the date of the file, and any other relevant information. It is important to document the import process for each data source separately to ensure that it is reproducible in the future. This includes recording the steps taken during the import process, any issues encountered, and any solutions implemented.
-  2. **Set expectations in a data import template:** To ensure consistency in data entry, it is recommended to create a separate data import template for each data source. Each template should include all the necessary fields and data types for the specific dataset.
-  3. **Validate the data:** To further ensure the accuracy of the data, it is recommended to use a data validation tool for each data source. This tool can check for errors and inconsistencies in the data, such as missing or invalid values, incorrect formatting, or duplicates.
-  4. **Review and approve the data import:** Once the data has been imported and quality checked for each data source, it should be reviewed and approved by a designated individual or team for each data source. This ensures that the data meets the necessary standards and can be used for analysis or other purposes.
-  5. **Store the data for each data source:** Finally, it is important to store the imported data for each data source in a separate and secure location that is easily accessible to authorized individuals. This includes documenting the location of the data, the date of the import, and any other relevant information for each data source.
+  1. **Document data source:** For each data source, specify (a) the `url` to download the data, (b) where the data is stored and (c) when the data was downloaded.
+  2. **Set expectations in a data import template:** To ensure consistency in data entry, there will be data import template for each data source. Each template specifies the indicators and data types.
+  3. **Validate the data:** We use the package `pointblank` to validate the dataset. We specify rules to detect errors and inconsistencies in the data, such as missing or invalid values, incorrect formatting, or duplicates.
+  4. **Review and approve the data import:** The diagnostic is reviewed and approved by a designated individual or team for each data import This ensures that the data meets the necessary review standards.
+  5. **Store the data for each data source:** Imported data for each data source is stored in a designated location that is easily accessible to authorized individuals.
 
 Data validation will be performed using the `R` package [`pointblank`](https://rich-iannone.github.io/pointblank/).
 
@@ -85,41 +77,8 @@ Below, we provide a code example of how to validate a manual import of data.
 # library(lubridate)
 # library(readxl)
 
-knitr::opts_chunk$set(eval=FALSE)
 ```
 
-
-## Test using `pointblank` package
-
-**Note:** We should add information on the different sources for each one of the indicators. Additionally, there should be a common prefix
-
-```{r validate = TRUE, eval = TRUE}
-scan_data(
-  full_data,
-  sections = "OVS"
-)
-# informant <-
-#   create_informant(
-#     tbl = full_data,
-#     tbl_name = "Full data",
-#     label = "Compiled indicators for Global Benchmarking Institutions Dashboard"
-#   ) |> 
-#   info_tabular(
-#     description = "This table is included in the **pointblank** pkg."
-#   ) |> 
-#   # info_columns(
-#   #   columns = "date_time",
-#   #   info = "This column is full of timestamps."
-#   # ) %>%
-#   info_section(
-#     section_name = "further information", 
-#     `examples and documentation` = "Examples for how to use the `info_*()` functions
-#     (and many more) are available at the 
-#     [**pointblank** site](https://rich-iannone.github.io/pointblank/)."
-#   )
-# 
-# informant
-```
 
 ## 1. Document Data Source
 
@@ -129,20 +88,19 @@ This section specifies both the data source and location of the imported data fi
 - Data Location: `/path/to/file1.xlsx`
 - Data Import Date: `r format(Sys.Date(), "%B %d, %Y")`
 
-Here we also specify what steps were taken during the import process, issues encoutered and solutions implemented.
+Here we also specify what steps were taken during the import process, issues found and solutions implemented.
 
 ## 2. Set Expectations in a Data Import Template
 
 This defines our expectations of the expected format of the data. This should specify both the type of indicator (e.g., `string`, `integer`),  as well as indicator names.
 
-```{r}
-data_template <- tibble(
-  id = integer(),
-  date = date(),
-  value = numeric()
-)
+We verify that all relevant indicators are contained in the dataset, as specified by all variables contained in `vars_all`.
 
-print(data_template)
+```{r validate = TRUE, echo = TRUE}
+full_data |> 
+  col_exists(
+    columns = c(vars_all)
+  ) 
 ```
 
 ## 3. Validate the Data
@@ -151,52 +109,29 @@ In this section, we define our expectations of the structure of the data. For ex
 
 These should be specified on a data source basis, but will be crucial for ensuring that we have validation procedures set in place.
 
-```{r}
-# Read in data
-data_raw <- read_excel("/path/to/file1.xlsx", sheet = "Sheet1")
+In this example, we conduct validation tests on two sets of indicators: (1) Freedom House and (2) PEFA. The test is specified as: "No more than 10% of the values should be above a certain threshold". Note that because PEFA has so many missing values (96%), it fails its test.
 
-# Validate data
-assertthat(all(names(data_raw) %in% c("id", "date", "value")), 
-          msg = "Data columns do not match template.")
-assertthat(all(is.na(data_raw) == FALSE), 
-          msg = "Data contains missing values.")
-assertthat(all(data_raw$id > 0), 
-          msg = "Data contains invalid values.")
-assertthat(all(duplicated(data_raw$id) == FALSE), 
-          msg = "Data contains duplicate values.")
+```{r validation, validate = TRUE, echo = TRUE}
+al <- action_levels(
+  warn_at = 0.1
+)
 
-```
-
-We can draw on the existing code in `data-qualit-control-missingness.Rmd` to generate some quality checks regarding missingness, along with other inconsistencies in the data.
-
-```{r}
-# Check data quality: generate a heatmap
-indicators_missingness_by_country <- data_raw |> 
-  select(
-    country_name,
-    any_of(vars_all)
-  ) |> 
-  group_by(country_name) |> 
-  miss_var_summary() |> 
-  select(-n_miss) |> 
-  pivot_wider(
-    id_cols = country_name,
-    names_from = variable,
-    values_from = pct_miss
-  ) |> 
-  ungroup() |> 
-  arrange(
-    desc(country_name)
-  )
-
-matrix_missingness_by_country <- indicators_missingness_by_country |> 
-  select(-country_name) |> 
-  as.matrix()
-
-rownames(matrix_missingness_by_country) <- indicators_missingness_by_country |> 
-  pull(country_name)
-
-heatmap(matrix_missingness_by_country, Colv = NA, Rowv = NA)
+full_data |> 
+  create_agent() |>
+  # verify that freedom-house columns are less than or equal to 7
+  col_vals_lte(
+    columns = starts_with("e_fh"),
+    value = 7,
+    label = "Verify Freedom House indicators are less than 7",
+    actions = al
+  ) |>
+  col_vals_lte(
+    columns = starts_with("pefa_"),
+    value = 4,
+    label = "Verify PEFA indicators are less than 4",
+    actions = al
+  ) |>
+  interrogate()
 ```
 
 ## 4. Review and approve the data import
@@ -205,9 +140,22 @@ In this review section, we document our interpretation of the diagnostics, as we
 
 ## 5. Store the data
 
-```{r}
+We should ideally store the approved data in a centralized data infrastructure, as discussed in our knowledge transfer meeting. We should avoid to the extent possible having local copies of the same data.
+
+```{r, eval = FALSE}
 # Store data
 saveRDS(data_raw, "/path/to/data_raw.rds")
 saveRDS(data_quality, "/path/to/data_quality.rds")
 ```
 
+
+## Appendix 1: Full Summary of Indicators
+
+**Note:** We should add information on the different sources for each one of the indicators. Additionally, there should be a common prefix
+
+```{r echo = TRUE, eval = TRUE}
+scan_data(
+  full_data,
+  sections = "OVS"
+)
+```

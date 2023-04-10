@@ -89,10 +89,10 @@ source(
 
 The objective of this quality check is to verify how different exclusion criteria affect availability of our indicators. In particular, we are interested in the application of the following criteria for exclusion:
 
-  1. **Discontinued Series**. We exclude any variables that have been discontinued. For that, we verify if there has been variation in the update frequency of a variable. For example, if a variable that was annual previously is no longer updated, we may drop it.
-  2. **Low country coverage**. We exclude variables that over the past 5 years have data on fewer than 100 countries (we can debate whether 100 is the right number but we need a number). The indicator must cover at least once over the past 5 years (2018-2022) each of the 100 countries.
+  1. **Discontinued Series**. We exclude any variables that have been discontinued. We verify that there have been no updates in the data for the past five years (2015 in the Global Dashboard).
+  2. **Low country coverage**. We exclude variables that over the past 5 years have data on fewer than 100 countries (we can debate whether 100 is the right number but we need a number). The indicator must cover at least once over the past 5 years (2015-2020) each of the 100 countries.
     2.a. As an exception to the previous rules we will include variables that that cover 50 to 100 countries over the past 5 years that cover all the bank regions (excluding high income). This will eliminate OECD type of data but would keep PEFA data. The OECD is normally missing in PEFA and ES because these datasets normally focus on client countries only.
-  3. **Minimal threshold**. We include only variables that have at least 2 years of data (not per country but overall). At least 10 countries per year.
+  3. **Minimal threshold**. We include only variables that have at least 2 years of data (not per country but overall). Additionally, for each year to count, coverage must be of at least 10 countries
   
 For each one of these criteria, we will produce the following indicators:
 
@@ -143,26 +143,37 @@ drop_indicators <- function(data, excluded_indicators){
   return(pruned_data)
 }
 
+exclude_discontinued <- function(data, variables = vars_all, dictionary){
+  # compute missingness across years
+  data |> 
+    build_missingness_table(
+      dimension = year,
+      vars = variables
+    ) |> 
+    group_by(variable) |> 
+    summarise(
+      times_updated = sum(pct_miss != 100)
+    ) |> 
+    filter(
+      times_updated == 0
+    ) |> 
+    complete_var_names(db_variables) |> 
+    arrange(
+      var_name
+    ) |> 
+    select(
+      variable,
+      var_name,
+      family_name,
+      times_updated
+    )
+}
+
 # identify variables that have not been updated in the past 5 years
 discontinued_indicators <- full_data |> 
-  build_missingness_table(
-    dimension = year,
-    vars = vars_all
-  ) |>
   filter(year > (2020 - 5)) |> 
-  group_by(variable) |> 
-  summarise(
-    times_updated = sum(pct_miss != 100)
-  ) |> 
-  filter(
-    times_updated == 0
-  ) |> 
-  complete_var_names(db_variables) |> 
-  select(
-    variable,
-    var_name,
-    family_name,
-    times_updated
+  exclude_discontinued(
+    dictionary = db_variables
   )
 
 kable(
@@ -177,28 +188,30 @@ kable(
 ```{r}
 discontinued_prop_complete <- full_data |> 
   drop_indicators(discontinued_indicators) |> 
-  n_miss() |> 
+  prop_complete() |> 
   round(2)
 
 full_prop_complete <- full_data |> 
-  n_miss() |> 
+  prop_complete() |> 
   round(2)
 ```
 
-We calculate the proportion of complete cases for the pruned dataset (excluding the discontinued indicators) and compare it to the original proportion of complete cases for the full data. We find that there is an increase in the proportion of complete cases by `r discontinued_prop_complete - full_prop_complete`, from `r full_prop_complete` to `r discontinued_prop_complete`.
+We calculate the number of complete entries (individual cells in the tablet for the pruned dataset (excluding the discontinued indicators) and compare it to the original proportion of complete cases for the full data. We find that there is an increase in the proportion of complete cases by `r discontinued_prop_complete - full_prop_complete`, from `r full_prop_complete` to `r discontinued_prop_complete`.
 
 # 2. Low Country Coverage
 
-We exclude variables that over the past 5 years have data on fewer than 100 countries (we can debate whether 100 is the right number but we need a number. Note that the number of countries included in the table are increasing over time. Why?). The indicator must cover at least once over the past 5 years (2018-2022) each of the 100 countries.
+We exclude variables that over the past 5 years have data on fewer than 100 countries (we can debate whether 100 is the right number but we need a number. Note that the number of countries included in the table are increasing over time.). The indicator must cover at least once over the past 5 years (2018-2022) each of the 100 countries. We note that the indicators for the Low Country Coverage criterion are the same as the ones excluded for the Discontinued Series criterion.
 
 ```{r low_country}
 n_countries <- 162
 
-calculate_country_and_region_coverage <- function(data, dictionary){
+exclude_country_and_region_coverage <- function(data, variables = vars_all, dictionary){
   data |> 
+    # compute (1) number of distinct country codes
+    # (2) number of distinct regions covered
     summarise(
       across(
-        c(any_of(vars_all)),
+        c(any_of(variables)),
         ~ n_distinct(country_code[!is.na(.)]),
         .names = "{.col}__total_countries_covered"
       ),
@@ -224,6 +237,9 @@ calculate_country_and_region_coverage <- function(data, dictionary){
     ) |>
     # inherits db_variables
     complete_var_names(dictionary) |> 
+    arrange(
+      var_name
+    ) |> 
     select(
       variable, 
       var_name,
@@ -239,7 +255,7 @@ low_coverage_indicators <- full_data |>
   # compute total countries and regions covered for all vars
   # note that it excludes, per variable, all missing variables
   # and calculates distinct countries and regions
-  calculate_country_and_region_coverage(
+  exclude_country_and_region_coverage(
     dictionary = db_variables
   )
 
@@ -255,18 +271,18 @@ kable(
 ```{r}
 low_coverage_prop_complete <- full_data |> 
   drop_indicators(low_coverage_indicators) |> 
-  n_miss() |> 
+  prop_complete() |> 
   round(2)
 ```
 
-We calculate the proportion of complete cases for the pruned dataset (excluding the discontinued indicators) and compare it to the original proportion of complete cases for the full data. We find that there is an increase in the proportion of complete cases by `r `low_coverage_prop_complete - full_prop_complete`, from `r full_prop_complete` to `r low_coverage_prop_complete`.
+We calculate the proportion of complete cases for the pruned dataset (excluding the discontinued indicators) and compare it to the original proportion of complete cases for the full data. We find that there is an increase in the proportion of complete cases by `r low_coverage_prop_complete - full_prop_complete`, from `r full_prop_complete` to `r low_coverage_prop_complete`.
 
 # 3. Minimal Threshold
 
 We exclude indicators that have less than 2 years of data (not per country but overall) and for each year covered, it covers less than 10 countries per year.
 
 ```{r minimal}
-calculate_coverage <- function(data, grouping){
+calculate_coverage <- function(data, variables = vars_all, grouping){
   # calculate coverage across year or country
   # if year, countries covered in that year
   # if country, years covered for that country
@@ -282,7 +298,7 @@ calculate_coverage <- function(data, grouping){
     ) |> 
     summarise(
       across(
-        any_of(vars_all),
+        any_of(variables),
         n_miss
       )
     ) |> 
@@ -302,11 +318,14 @@ calculate_minimal_threshold <- function(data, dictionary){
     ) |> 
     filter(year_coverage <= 2) |> 
     complete_var_names(dictionary) |> 
+    arrange(
+      var_name
+    ) |> 
     select(variable, var_name, family_name, year_coverage)
 }
 
 minimal_threshold_indicators <- full_data |> 
-  calculate_coverage("year") |> 
+  calculate_coverage(grouping = "year") |> 
   calculate_minimal_threshold(
     dictionary = db_variables
   )
@@ -323,8 +342,8 @@ kable(
 ```{r}
 minimal_threshold_prop_complete <- full_data |> 
   drop_indicators(minimal_threshold_indicators) |> 
-  n_miss() |> 
+  prop_complete() |> 
   round(2)
 ```
 
-We calculate the proportion of complete cases for the pruned dataset (excluding the discontinued indicators) and compare it to the original proportion of complete cases for the full data. We find that there is an increase in the proportion of complete cases by `r `minimal_threshold_prop_complete - full_prop_complete`, from `r full_prop_complete` to `r minimal_threshold_prop_complete`.
+We calculate the proportion of complete cases for the pruned dataset (excluding the discontinued indicators) and compare it to the original proportion of complete cases for the full data. We find that there is a decrease in the proportion of complete cases by `r abs(minimal_threshold_prop_complete - full_prop_complete)`, from `r full_prop_complete` to `r minimal_threshold_prop_complete`.
