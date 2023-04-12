@@ -1,6 +1,6 @@
 # Process original data
 
-- Input: `data/raw/merged_for_residuals.rds`
+- Input: `data/raw/merged_for_residuals-v2.rds`
 - Input: `data/raw/CBIData_Romelli2022.dta`
 - Output: `data/clean/original_data.rds`
 
@@ -29,9 +29,11 @@ data_original <-
       "..",
       "data",
       "raw",
-      "merged_for_residuals.rds"
+      "merged_for_residuals-v2.rds"
     )
   )
+
+
 ```
 
 
@@ -57,7 +59,7 @@ original_clean <-
   data_original %>%
   rename(
     country_name = countryname,
-    country_code = code,
+    country_code = iso3code,
     telecom_infr = telecommunicationinfrastructurei,
     daigov_2016 = daigovernmentsubindex_2016,
     contract_manag_score = contract_management_score,
@@ -76,7 +78,6 @@ original_clean <-
     credit_registry_cov = gettingcreditcreditregistry,
     barriers_trade_expl = barriers_trade_explicit,
     barriers_trade_oth = barriers_trade_other,
-    cbi = lvau,
     efw_inv_restr = efw_foreign_invest_restr,
     efw_tourist = efw_freedomofforeignerstovisit
   )
