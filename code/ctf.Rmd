@@ -75,7 +75,13 @@ data_rescaled <-
         barriers_startups,
         protection_incumbents,
         barriers_trade_expl,
-        barriers_trade_oth
+        barriers_trade_oth,
+        governanceofstateownedenterprise,
+        useofcommandcontrolregulation,
+        directcontroloverbusinessenterpr,
+        governmentinvolvementinnetworkse,
+        pricecontrols,
+        scopeofstateownedenterprises
       ),
       ~ ifelse(year == 2018, NA, 6 - .x)
     ),
