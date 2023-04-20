@@ -88,6 +88,77 @@ source(
 )
 ```
 
+```{r aux_funs}
+plot_missingness_heatmap <- function(data, family, dictionary){
+  # plot a heatmap for all indicators in a given family
+  
+  family_indicators <- get(family)
+  
+  data_missingness <- data |> 
+    select(
+    country_name,
+    any_of(family_indicators)
+  ) |> 
+    rename_from_dictionary(dictionary) |> 
+    group_by(country_name) |> 
+    miss_var_summary() |> 
+    select(-n_miss) |> 
+    pivot_wider(
+      id_cols = country_name,
+      names_from = variable,
+      values_from = pct_miss
+    ) |> 
+    ungroup() |> 
+    arrange(
+      country_name
+    )
+
+  matrix_missingness_by_country <- data_missingness |> 
+    select(-country_name) |> 
+    as.matrix() |> 
+    t()
+  
+  colnames(matrix_missingness_by_country) <- data_missingness |> 
+    pull(country_name)
+  
+  heatmap(
+    matrix_missingness_by_country, scale = "none", Colv = NA, Rowv = NA,
+    main = sprintf("Missingness Heatmap by Indicator Family: %s", family)
+  )
+}
+
+
+rename_from_dictionary <- function(data, dictionary){
+  # function to rename variables from dictionary
+  var_tibble <- tibble(
+    variable = colnames(data)
+  )
+  
+  # extract only variables contained in the data
+  vars_in_data <- dictionary |> 
+    inner_join(
+      var_tibble,
+      by = c("variable")
+    )
+  
+  vars_variable <- vars_in_data |> 
+    pull(variable)
+  
+  vars_complete_name <- vars_in_data |> 
+    pull(var_name)
+  
+  vars_dictionary <- vars_variable |>
+    set_names(
+      vars_complete_name
+    )
+  
+  data |>
+    rename(!!vars_dictionary)
+}
+
+```
+
+
 ## Data Quality Control
 
 We test the data for the following metrics:
@@ -121,66 +192,19 @@ test_that("uniqueness of country-year",{
 ## 2. Heatmap of Missingness
 
 ```{r}
-indicators_missingness_by_country <- full_data |> 
-  select(
-    country_name,
-    any_of(vars_all)
-  ) |> 
-  group_by(country_name) |> 
-  miss_var_summary() |> 
-  select(-n_miss) |> 
-  pivot_wider(
-    id_cols = country_name,
-    names_from = variable,
-    values_from = pct_miss
-  ) |> 
-  ungroup() |> 
-  arrange(
-    desc(country_name)
+vars_family |> 
+  map(
+    ~ plot_missingness_heatmap(
+      data = full_data,
+      family = .,
+      dictionary = db_variables
+    )
   )
-
-matrix_missingness_by_country <- indicators_missingness_by_country |> 
-  select(-country_name) |> 
-  as.matrix()
-
-rownames(matrix_missingness_by_country) <- indicators_missingness_by_country |> 
-  pull(country_name)
-
-heatmap(matrix_missingness_by_country, Colv = NA, Rowv = NA)
 ```
-
 
 ## 3. Missingness of indicators.
   
 ```{r}
-rename_from_dictionary <- function(data, dictionary){
-  # function to rename variables from dictionary
-  var_tibble <- tibble(
-    variable = colnames(data)
-  )
-  
-  # extract only variables contained in the data
-  vars_in_data <- dictionary |> 
-    inner_join(
-      var_tibble,
-      by = c("variable")
-    )
-  
-  vars_variable <- vars_in_data |> 
-    pull(variable)
-  
-  vars_complete_name <- vars_in_data |> 
-    pull(var_name)
-  
-  vars_dictionary <- vars_variable |>
-    set_names(
-      vars_complete_name
-    )
-  
-  data |>
-    rename(!!vars_dictionary)
-}
-
 full_data_indicators <- full_data |> 
   select(
     any_of(vars_all)
