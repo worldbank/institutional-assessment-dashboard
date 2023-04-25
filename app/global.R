@@ -58,7 +58,10 @@ raw_data <-
   ) %>%
   filter(year >= 1990,
          rowSums(!is.na(.)) > 3) %>%
-  rename(Year = year)
+  rename(Year = year) %>%
+  mutate(Year = as.double(Year))
+
+
 
 
 global_data <-
