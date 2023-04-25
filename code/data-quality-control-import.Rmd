@@ -16,6 +16,7 @@ library(readr)
 library(pointblank)
 library(janitor)
 library(DT)
+library(scales)
 
 # note that echo has to be set TRUE to display pointblank output
 knitr::opts_chunk$set(
@@ -50,7 +51,7 @@ compute_coverage <- function(data, country_id, year_id){
           country_coverage = ~ calculate_coverage(.x, {{country_id}}),
           year_coverage = ~ calculate_coverage(.x, {{year_id}}),
           year_range = ~ calculate_time_range({{year_id}}),
-          prop_complete_records = ~ prop_complete(.x)
+          percent_complete_records = ~ percent(prop_complete(.x))
         ),
         .names = "{.col}__{.fn}"
       )
@@ -69,7 +70,7 @@ compute_coverage <- function(data, country_id, year_id){
       `Country Coverage` = country_coverage,
       `Year Coverage` = year_coverage,
       `Year Range` = year_range,
-      `Proportion of Complete Records` = prop_complete_records
+      `Percentage of Complete Records` = percent_complete_records
     )
   
   return(data_coverage)
@@ -89,14 +90,14 @@ We provide an example of the data import workflow using the [ID4D database](http
 # Steps for Validation of Manual Data Import:
 
   1. **Document data source:** For each data source, specify (a) the `url` to download the data, (b) where the data is stored and (c) when the data was downloaded.
-  2. **Set expectations in a data import template:** To ensure consistency in data entry, there will be data import template for each data source. Each template specifies the indicators and data types.
+  2. **Set expectations on data import:** We set our expectations for data to be tidy. We describe this further in the `Data has to be Tidy` section.
   3. **Validate the data:** We use the package `pointblank` to validate the dataset. We specify rules to detect errors and inconsistencies in the data, such as missing or invalid values, incorrect formatting, or duplicates.
-  4. **Review and approve the data import:** The diagnostic is reviewed and approved by a designated individual or team for each data import This ensures that the data meets the necessary review standards.
+  4. **Review and approve the data import:** The diagnostic is reviewed and approved by a designated individual or team for each data import This ensures that the data meets the necessary review standards, including: (1) quantitative review and (2) substantive review.
   5. **Store the data for each data source:** Imported data for each data source is stored in a designated location that is easily accessible to authorized individuals.
 
 Data validation will be performed using the `R` packages: (1) [`pointblank`](https://rich-iannone.github.io/pointblank/) and (2) [`naniar`](https://naniar.njtierney.com/).
 
-# Requirements
+# Data has to be Tidy
 
 We specify a set of requirements that need to hold in order for the data to be imported.
 
@@ -106,19 +107,18 @@ We specify a set of requirements that need to hold in order for the data to be i
 
 # How to Validate a Manual Import of Data:
 
-Below, we provide a code example of how to validate a manual import of data, as applied to the ID4D data.
+Below, we provide a code example of how to validate a manual import of data, as applied to the ID4D data. To adapt it to your needs, you will have to modify the following parameters:
 
-```{r, echo = FALSE}
-id4d <- read_csv(
+  1. The `input dataset`, defined in line 115.
+  2. The `country_id` and `year_id`, defined in the `chunks`: (a) `validation` and (b) `coverage`.
+
+```{r, echo = FALSE, message = FALSE}
+input_dataset <- read_csv(
   here("..", "data", "raw", "data-quality-control", "id4d.csv")
 )
 
-id4d_clean <- id4d |> 
+dataset_clean <- input_dataset |> 
   clean_names()
-
-# specify country and year id's with respect to the clean names
-country_id <- "Country Code"
-year_id <- "Time"
 ```
 
 
@@ -134,15 +134,24 @@ Here we also specify what steps were taken during the import process, issues fou
 
 ## 2. Set Expectations in a Data Import Template
 
-This defines our expectations of the expected format of the data. This should specify both the type of indicator (e.g., `string`, `integer`),  as well as indicator names.
+This section refers to the expectations on tidy data. As such, we verify that the data is indeed tidy, along with having `country` and `year` identifiers. Each combination of these identifiers has to be unique.
 
-We verify that all relevant indicators are contained in the dataset, as specified by all variables contained in `vars_all`.
+```{r expectation, validate = TRUE, echo = TRUE}
+# specify country and year ids
+country_id <- "country_code"
+year_id <- "time"
 
-```{r validate = TRUE, echo = TRUE, eval = FALSE}
-id4d_clean |>
+dataset_clean |> 
+  create_agent() |> 
+  # 1. existence of year and country id
   col_exists(
-    columns = c(vars_all)
-  )
+    columns = c(country_id, year_id)
+  ) |> 
+  # 2. tidy data: each combination of identifiers is unique (long form)
+  rows_distinct(
+    columns = c(country_id, year_id)
+  ) |> 
+  interrogate()
 ```
 
 ## 3. Validate the Data
@@ -151,26 +160,29 @@ In this section, we define our expectations of the structure of the data. For ex
 
 These should be specified on a data source basis, but will be crucial for ensuring that we have validation procedures set in place.
 
-In this example, we conduct validation tests on two sets of indicators: (1) Freedom House and (2) PEFA. The test is specified as: "No more than 10% of the values should be above a certain threshold". Note that because PEFA has so many missing values (96%), it fails its test.
+In this example, we conduct validation tests on all indicators that claim to be percentage. We find that a few of them have values that exceed 100 percent.
 
 ```{r validation, validate = TRUE, echo = TRUE}
 al <- action_levels(
   warn_at = 0.1
 )
 
-id4d_clean |> 
+dataset_clean |> 
   create_agent() |>
-  # verify that freedom-house columns are less than or equal to 7
+  # verify that all percentages are less than 100
   col_vals_lte(
     columns = contains("percent"),
     value = 100,
     label = "Verify Percentage Indicators are Less than 100",
-    actions = al
+    actions = al,
+    na_pass = TRUE
   ) |>
   interrogate()
 ```
 
-## 4. Quantitative Review of the Data
+## 4. Review of the Data
+
+Quantitative Review:
 
 In this section we compute a set of diagnostics that assess the coverage of the dataset indicators. These diagnostics are:
   1. Country Coverage,
@@ -180,23 +192,22 @@ In this section we compute a set of diagnostics that assess the coverage of the 
   
 This section provides a set of diagnostic of all indicators.
 
-```{r}
-id4d_coverage <- id4d_clean |> 
+```{r coverage}
+# specify country and year id's with respect to the clean names
+id4d_coverage <- dataset_clean |> 
   compute_coverage(
     country_id = country_code,
     year_id = time
   )
+```
 
+```{r, echo = FALSE}
 datatable(
-  id4d_coverage,
-  colnames = c("Indicator", "")
+  id4d_coverage
 )
 ```
 
-
-## 4. Review and approve the data import
-
-In this review section, we document our interpretation of the diagnostics, as well as whether or not we have approved the data import. We should also specify who approved it.
+Substantive Review: TBD
 
 ## 5. Store the data
 
@@ -208,16 +219,4 @@ We also store the diagnostics, for quantitative review diagnostics, for future r
 # Store data
 saveRDS(data_raw, "/path/to/data_raw.rds")
 saveRDS(data_quality, "/path/to/data_quality.rds")
-```
-
-
-## Appendix 1: Full Summary of Indicators
-
-**Note:** We should add information on the different sources for each one of the indicators. Additionally, there should be a common prefix
-
-```{r echo = TRUE, eval = TRUE}
-scan_data(
-  id4d,
-  sections = "OVS"
-)
 ```
