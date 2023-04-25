@@ -10,9 +10,12 @@ library(ggplot2)
 library(here)
 library(testthat)
 library(naniar)
+library(tidyr)
 library(tidytext)
 library(readr)
 library(pointblank)
+library(janitor)
+library(DT)
 
 # note that echo has to be set TRUE to display pointblank output
 knitr::opts_chunk$set(
@@ -23,32 +26,54 @@ knitr::opts_chunk$set(
 validate_rmd()
 ```
 
-```{r, include = FALSE}
-full_data <- read_rds(
-  here(
-    "..",
-    "data",
-    "final",
-    "compiled_indicators.rds"
-  )
-)
+```{r funs, include = FALSE}
+calculate_coverage <- function(indicator, id) {
+  coverage_id <- n_distinct({{id}}[!is.na(indicator)])
+  
+  return(coverage_id)
+}
 
-# variable definitions
-db_variables <- read_rds(
-   here(
-    "..",
-    "data",
-    "final",
-    "db_variables.rds"
-  )
-)
+calculate_time_range <- function(time_id){
+  year_range <- paste0(min({{time_id}}, na.rm = TRUE), "-", max({{time_id}}, na.rm = TRUE))
+  
+  return(year_range)
+}
 
-# import variable definitions
-source(
-  here("vars-control.R")
-)
-
-# knitr::opts_chunk$set(eval = FALSE)
+compute_coverage <- function(data, country_id, year_id){
+  data_coverage <- data |> 
+    # compute (1) number of distinct country codes
+    # (2) range of years covered
+   summarise(
+      across(
+        c(everything()),
+        list(
+          country_coverage = ~ calculate_coverage(.x, {{country_id}}),
+          year_coverage = ~ calculate_coverage(.x, {{year_id}}),
+          year_range = ~ calculate_time_range({{year_id}}),
+          prop_complete_records = ~ prop_complete(.x)
+        ),
+        .names = "{.col}__{.fn}"
+      )
+  ) |>
+  pivot_longer(
+      cols = c(everything()),
+      cols_vary = "slowest",
+      names_to = c("indicator", ".value"),
+      names_pattern = "(\\w+)__(\\w+)"
+  ) |> 
+    arrange(
+      indicator
+    ) |> 
+    select(
+      Indicator = indicator,
+      `Country Coverage` = country_coverage,
+      `Year Coverage` = year_coverage,
+      `Year Range` = year_range,
+      `Proportion of Complete Records` = prop_complete_records
+    )
+  
+  return(data_coverage)
+}
 ```
 
 # Introduction:
@@ -59,6 +84,8 @@ This document provides a protocol for data validation when manually importing da
   2. Change in data structure and indicator names over time.
   3. Inconsistency in country names and codes across data sources.
 
+We provide an example of the data import workflow using the [ID4D database](https://id4d.worldbank.org/global-dataset).
+
 # Steps for Validation of Manual Data Import:
 
   1. **Document data source:** For each data source, specify (a) the `url` to download the data, (b) where the data is stored and (c) when the data was downloaded.
@@ -67,17 +94,31 @@ This document provides a protocol for data validation when manually importing da
   4. **Review and approve the data import:** The diagnostic is reviewed and approved by a designated individual or team for each data import This ensures that the data meets the necessary review standards.
   5. **Store the data for each data source:** Imported data for each data source is stored in a designated location that is easily accessible to authorized individuals.
 
-Data validation will be performed using the `R` package [`pointblank`](https://rich-iannone.github.io/pointblank/).
+Data validation will be performed using the `R` packages: (1) [`pointblank`](https://rich-iannone.github.io/pointblank/) and (2) [`naniar`](https://naniar.njtierney.com/).
+
+# Requirements
+
+We specify a set of requirements that need to hold in order for the data to be imported.
+
+  1. Data is [tidy](https://r4ds.had.co.nz/tidy-data.html). Namely: (1) indicators are in columns, (2) observations are in rows, and (3) values are in cells.
+  2. Data has `country` and `year` identifiers.
+  3. If any of the above does not hold, data has to be cleaned, and the data cleaning process will be documented in a separate script.
 
 # How to Validate a Manual Import of Data:
 
-Below, we provide a code example of how to validate a manual import of data.
+Below, we provide a code example of how to validate a manual import of data, as applied to the ID4D data.
 
 ```{r, echo = FALSE}
-# library(tidyverse)
-# library(lubridate)
-# library(readxl)
+id4d <- read_csv(
+  here("..", "data", "raw", "data-quality-control", "id4d.csv")
+)
 
+id4d_clean <- id4d |> 
+  clean_names()
+
+# specify country and year id's with respect to the clean names
+country_id <- "Country Code"
+year_id <- "Time"
 ```
 
 
@@ -85,8 +126,8 @@ Below, we provide a code example of how to validate a manual import of data.
 
 This section specifies both the data source and location of the imported data file:
 
-- Data Source: `url`
-- Data Location: `/path/to/file1.xlsx`
+- Data Source: `https://databank.worldbank.org/source/identification-for-development-(id4d)-data`
+- Data Location: `/path/to/data.csv`
 - Data Import Date: `r format(Sys.Date(), "%B %d, %Y")`
 
 Here we also specify what steps were taken during the import process, issues found and solutions implemented.
@@ -97,11 +138,11 @@ This defines our expectations of the expected format of the data. This should sp
 
 We verify that all relevant indicators are contained in the dataset, as specified by all variables contained in `vars_all`.
 
-```{r validate = TRUE, echo = TRUE}
-full_data |> 
+```{r validate = TRUE, echo = TRUE, eval = FALSE}
+id4d_clean |>
   col_exists(
     columns = c(vars_all)
-  ) 
+  )
 ```
 
 ## 3. Validate the Data
@@ -117,23 +158,41 @@ al <- action_levels(
   warn_at = 0.1
 )
 
-full_data |> 
+id4d_clean |> 
   create_agent() |>
   # verify that freedom-house columns are less than or equal to 7
   col_vals_lte(
-    columns = starts_with("e_fh"),
-    value = 7,
-    label = "Verify Freedom House indicators are less than 7",
-    actions = al
-  ) |>
-  col_vals_lte(
-    columns = starts_with("pefa_"),
-    value = 4,
-    label = "Verify PEFA indicators are less than 4",
+    columns = contains("percent"),
+    value = 100,
+    label = "Verify Percentage Indicators are Less than 100",
     actions = al
   ) |>
   interrogate()
 ```
+
+## 4. Quantitative Review of the Data
+
+In this section we compute a set of diagnostics that assess the coverage of the dataset indicators. These diagnostics are:
+  1. Country Coverage,
+  2. Year Range,
+  2. Year Coverage, and
+  3. Proportion of Complete Records.
+  
+This section provides a set of diagnostic of all indicators.
+
+```{r}
+id4d_coverage <- id4d_clean |> 
+  compute_coverage(
+    country_id = country_code,
+    year_id = time
+  )
+
+datatable(
+  id4d_coverage,
+  colnames = c("Indicator", "")
+)
+```
+
 
 ## 4. Review and approve the data import
 
@@ -142,6 +201,8 @@ In this review section, we document our interpretation of the diagnostics, as we
 ## 5. Store the data
 
 We should ideally store the approved data in a centralized data infrastructure, as discussed in our knowledge transfer meeting. We should avoid to the extent possible having local copies of the same data.
+
+We also store the diagnostics, for quantitative review diagnostics, for future reference.
 
 ```{r, eval = FALSE}
 # Store data
@@ -156,7 +217,7 @@ saveRDS(data_quality, "/path/to/data_quality.rds")
 
 ```{r echo = TRUE, eval = TRUE}
 scan_data(
-  full_data,
+  id4d,
   sections = "OVS"
 )
 ```

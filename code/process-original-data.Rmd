@@ -3,13 +3,15 @@
 - Input: `data/raw/merged_for_residuals.rds`
 - Output: `data/clean/original_data.rds`
 
+*Notes*: We have to address the country name bug from the source. We use the `countrycode` package in each data import and cleaning in order to verify the country name and code. The objective is to create a unique, consistent identifier for country identifications for all data imports.
 
 ```{r}
 packages <-
   c(
     "here",
     "tidyverse",
-    "labelled"
+    "labelled",
+    "countrycode"
   )
 
 pacman::p_load(packages, character.only = TRUE)
@@ -33,7 +35,6 @@ plot_missingness <- function(data){
     )
 }
 ```
-
 
 ## Import original data
 
@@ -102,6 +103,27 @@ original_clean <-
 ## Fix country names
 
 ```{r}
+original_clean_test <- original_clean |> 
+  mutate(
+    country_code_test = countrycode(
+      country_name, 
+      origin = "country.name", 
+      destination = "wb",
+      nomatch = NA_character_
+    )
+  )
+
+original_clean_test |> 
+  filter(country_code != country_code_test) |> 
+  distinct(country_name, .keep_all = TRUE) |> 
+  select(starts_with("country"))
+
+
+original_clean_countrycode_nomatch <- original_clean_test |> 
+  filter(
+    is.na(country_code_test)
+  )
+
 original_clean <-
   original_clean %>%
   mutate(
@@ -125,7 +147,7 @@ original_clean <-
     year,
     all_of(vars_original)
   ) %>%
-  remove_labels()
+  # remove_labels()
 
 rm(data_original)
 ```

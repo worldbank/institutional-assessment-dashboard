@@ -15,7 +15,8 @@
       "tidyverse",
       "here",
       "readxl",
-      "assertthat"
+      "assertthat",
+      "countrycode"
     )
 
   pacman::p_load(packages,
