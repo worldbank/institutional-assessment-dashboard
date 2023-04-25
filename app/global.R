@@ -31,6 +31,11 @@ db_variables <-
     )
   )
 
+
+db_variables<-db_variables %>% 
+      mutate(across(where(is.character), str_squish))
+
+
 source(here("auxiliary", "vars-control.R"))
 
 # Function that defines quantiles based on country, comparison and variables
