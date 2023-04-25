@@ -862,12 +862,14 @@
         datatable(
           browse_data(),
           rownames = FALSE,
+          extensions = c('FixedColumns'),
           filter = 'none',
           options = list(
             scrollX = TRUE,
             pageLength = 13,
             autoWidth = TRUE,
-            dom = "lftipr"
+            dom = "lftipr",
+            fixedColumns = list(leftColumns = 1, rightColumns = 0)
           )
         )
       )
