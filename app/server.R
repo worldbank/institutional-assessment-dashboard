@@ -830,14 +830,26 @@
           )
         
         if (input$data_value == "Rank") {
-          data <-
+          data1 <-
             data %>%
+            filter(country_group == '0') %>%
             mutate(
               across(
-                2:ncol(.),
+                3:ncol(.),
                 ~ dense_rank(desc(.))
               )
             )
+          
+          data2<-data %>%
+            filter(country_group == '1') %>%
+            mutate(
+              across(
+                3:ncol(.),
+                ~ dense_rank(desc(.))
+              )
+            )
+          
+          data<-rbind(data1,data2)
         }
         
         return(data)
@@ -1015,7 +1027,7 @@
     # Download csv with definitions
     output$download_indicators <-
       downloadHandler(
-        filename = "Institutional assessment indicators.csv",
+        filename = "CLIAR Indicators.csv",
 
         content = function(file) {
           write_csv(
