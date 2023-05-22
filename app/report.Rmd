@@ -136,6 +136,7 @@ for (category in c("Strong", "Emerging", "Weak")) {
             data,
             params$base_country,
             rank = params$rank,
+            dots = params$dots,
             family,
             title = FALSE,
             note = source
