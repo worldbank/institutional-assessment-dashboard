@@ -1028,7 +1028,7 @@
           #file.copy("www/", tmp_dir, recursive = TRUE)
           #file.copy("CLAR_template.pptx", tempReport, overwrite = TRUE)
           
-          ppt<-read_pptx("CLIAR_template.pptx")
+          ppt<-read_pptx("www/CLIAR_template.pptx")
           
           
           plot1<-data_family() %>%
