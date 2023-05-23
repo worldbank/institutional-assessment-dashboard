@@ -176,7 +176,8 @@
               country_list,
               input$countries,
               vars_all,
-              variable_names
+              variable_names,
+              input$threshold
             )
         }
       )
@@ -195,7 +196,8 @@
               country_list,
               input$countries,
               vars_family,
-              family_names
+              family_names,
+              input$threshold
             )
         }
       )
