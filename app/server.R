@@ -82,6 +82,7 @@
             class = "btn-warning",
             width = "100%",
             shinyjs::disable('report'),
+            shinyjs::disable('pptreport'),
           )
         }
       })
@@ -94,6 +95,11 @@
            id = "select",
            condition = length(input$countries) >= 10,
            shinyjs::disable('report'),
+         )
+         toggleState(
+           id = "select",
+           condition = length(input$countries) >= 10,
+           shinyjs::disable('pptpptreport'),
          )
        },
 
@@ -263,6 +269,11 @@
           id = "report",
           condition = input$select,
           shinyjs::disable('report')
+        )
+        toggleState(
+          id = "pptreport",
+          condition = input$select,
+          shinyjs::disable('pptreport')
         )
         
         # Cross-crountry comparison selection
@@ -982,9 +993,70 @@
           envir = new.env(parent = globalenv()),
           knit_root_dir = getwd()
         )
+        
+        
       }
     )
 
+# PPT Report ================================================================================
+      
+      output$pptreport <- downloadHandler(
+        
+        filename =
+          reactive(
+            paste0(
+              "CLIAR-PPT-",
+              base_country(),
+              ".pptx"
+            )
+          )
+        ,
+        
+        content = function(file) {
+          
+          show_modal_spinner(
+            color = "#17a2b8",
+            text = "Compiling report",
+          )
+          
+          on.exit(remove_modal_spinner())
+          
+          tmp_dir <- tempdir()
+          
+          tempReport <- file.path(tmp_dir, "CLAR_template.pptx")
+          
+          #file.copy("www/", tmp_dir, recursive = TRUE)
+          #file.copy("CLAR_template.pptx", tempReport, overwrite = TRUE)
+          
+          ppt<-read_pptx("CLIAR_template.pptx")
+          
+          
+          plot1<-data_family() %>%
+            static_plot(
+              base_country(),
+              "Country overview", 
+              rank = input$rank,
+              group_median = input$benchmark_median,
+              dots = input$benchmark_dots,
+              title = FALSE,
+            )
+          
+          ppt <- ppt %>% 
+            on_slide(index = 4) %>% 
+            ph_with(value = plot1, location = ph_location(
+              left = 1.5, top = 1.2,
+              width = 7.2, height = 4.63, bg = "transparent"
+            ))
+          
+          print(ppt, file)
+          
+          
+        }
+      )
+      
+      
+      
+      
    # Definitions ===========================================================================
 
     output$definition <-

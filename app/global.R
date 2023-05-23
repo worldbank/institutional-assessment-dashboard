@@ -20,7 +20,7 @@ library(data.table)
 library(hrbrthemes)
 library(bsplus)
 library(htmltools)
-
+library(officer)
 ## Auxiliary functions -----------------------------------------------------------------
 
 db_variables <-

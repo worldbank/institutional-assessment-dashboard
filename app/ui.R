@@ -226,8 +226,21 @@ ui <-
                   value = FALSE,
                   icon = icon("check"),
                   status = "success"
-                )
+                ),
+               
               ),
+              
+              column(
+                width = 3,
+                sliderInput(
+                  inputId = "threshold", 
+                  label = "Benchmarking Thresholds",
+                  min = 0, 
+                  max = 100, 
+                  value = c(25,50)
+                ),
+              ),
+
               
               column(
                 width = 3,
@@ -235,7 +248,8 @@ ui <-
                   "select_button"
                 )
               ),
-
+            ),
+            fluidRow(
               column(
                 width = 3,
                                  downloadButton(
@@ -245,7 +259,19 @@ ui <-
                                  )
                 
 
-              )
+              ),
+              
+              column(
+                width = 3,
+                downloadButton(
+                  "pptreport",
+                  "Download PPT report",
+                  style = "width:100%; background-color: #204d74; color: white"
+                )
+                
+                
+              ),
+              
             )
 
           ),
