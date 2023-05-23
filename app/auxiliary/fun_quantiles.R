@@ -65,7 +65,8 @@ def_quantiles <- function(data, base_country, country_list, comparison_countries
         dtt <= .25 ~ "Weak\n(bottom 25%)",
         dtt > .25 & dtt <= .50 ~ "Emerging\n(25% - 50%)",
         dtt > .50 ~ "Strong\n(top 50%)"
-      )
+      ),
+      nrank = rank(-value)
     ) %>%
     ungroup %>%
     rename(dtf = value)

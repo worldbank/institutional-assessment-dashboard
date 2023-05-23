@@ -72,7 +72,7 @@ static_plot <-
           text = paste(
             " Country:", country_name, "<br>",
             "Closeness to frontier:", round(dtf, 3), "<br>",
-            "Rank:", row_number(dtf)
+            "Rank:", nrank
           )
         )
       
