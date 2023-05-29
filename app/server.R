@@ -207,7 +207,7 @@
             )
         }
       )
-
+    
     # Missing variables from base country
     na_indicators <-
       eventReactive(
@@ -1045,6 +1045,8 @@
               title = FALSE,
               threshold = input$threshold
             )
+          
+          plot1 <- dml(ggobj = plot1)
           
           ppt <- ppt %>% 
             on_slide(index = 4) %>% 
