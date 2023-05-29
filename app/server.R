@@ -511,7 +511,8 @@
                   input$family,
                   input$rank,
                   dots = input$benchmark_dots,
-                  group_median = input$benchmark_median
+                  group_median = input$benchmark_median,
+                  threshold = input$threshold
                 ) %>%
                 interactive_plot(
                   base_country(),
@@ -549,7 +550,8 @@
                   input$family,
                   input$rank,
                   dots = input$benchmark_dots,
-                  group_median = input$benchmark_median
+                  group_median = input$benchmark_median,
+                  threshold = input$threshold
                 ) %>%
                 interactive_plot(
                   base_country(),
@@ -1039,6 +1041,7 @@
               group_median = input$benchmark_median,
               dots = input$benchmark_dots,
               title = FALSE,
+              threshold = input$threshold
             )
           
           ppt <- ppt %>% 

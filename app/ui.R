@@ -232,12 +232,10 @@ ui <-
               
               column(
                 width = 3,
-                sliderInput(
+                selectInput(
                   inputId = "threshold", 
                   label = "Benchmarking Thresholds",
-                  min = 0, 
-                  max = 100, 
-                  value = c(25,50)
+                  choices = c("0-25, 25-50, >50","0-33, 33-66, >66 ")
                 ),
               ),
 
