@@ -881,7 +881,8 @@
           filter = 'none',
           options = list(
             scrollX = TRUE,
-            pageLength = 13,
+            scrollY = "550px",
+            pageLength = 25,
             autoWidth = TRUE,
             dom = "lftipr",
             fixedColumns = list(leftColumns = 1, rightColumns = 0)
