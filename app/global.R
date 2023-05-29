@@ -21,6 +21,7 @@ library(hrbrthemes)
 library(bsplus)
 library(htmltools)
 library(officer)
+library(rvg)
 ## Auxiliary functions -----------------------------------------------------------------
 
 db_variables <-
