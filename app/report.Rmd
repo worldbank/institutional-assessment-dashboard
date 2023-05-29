@@ -14,6 +14,7 @@ params:
   rank: NA
   dots: NA
   group_median: NA
+  threshold: NA
 ---
 
 
@@ -85,7 +86,8 @@ params$family_data %>%
       source,
       str_wrap(note, 174),
       sep = "\n"
-    )
+    ),
+    threshold = params$threshold
   )
 ```
 
@@ -139,7 +141,8 @@ for (category in c("Strong", "Emerging", "Weak")) {
             dots = params$dots,
             family,
             title = FALSE,
-            note = source
+            note = source,
+            threshold = params$threshold
           )
         )
       )

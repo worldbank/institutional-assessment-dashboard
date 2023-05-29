@@ -984,7 +984,8 @@
             definitions = definitions,
             variable_names = variable_names,
             dots = input$benchmark_dots,
-            group_median = input$benchmark_median
+            group_median = input$benchmark_median,
+            threshold = input$threshold
             
           )
 
