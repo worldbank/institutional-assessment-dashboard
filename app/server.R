@@ -1052,7 +1052,7 @@
             on_slide(index = 4) %>% 
             ph_with(value = plot1, location = ph_location(
               left = 1.5, top = 1.2,
-              width = 10.6, height = 5.42, bg = "transparent"
+              width = 10.04, height = 4.67, bg = "transparent"
             ))
           
           print(ppt, file)
