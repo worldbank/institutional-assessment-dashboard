@@ -152,10 +152,16 @@ db_variables <-
   db_variables %>%
   filter(variable %in% vars_all | var_level == "family")
 
-# Add Label Attirbutes to DTA file
+
+#Add Label Attirbutes to DTA file
 for (i in colnames(global_data)[3:length(colnames(global_data))]){
-  attr(global_data[[i]],'label')<-subset(db_variables$var_name,db_variables$variable==i)
+  attr(global_data[[i]],'var.labels')<-subset(db_variables$var_name,db_variables$variable==i)
 }
+
+for (i in colnames(raw_data)[4:length(colnames(raw_data))]){
+  attr(raw_data[[i]],'var.labels')<-subset(db_variables$var_name,db_variables$variable==i)
+}
+
 
 # Options ---------------------------------------------------------
 
