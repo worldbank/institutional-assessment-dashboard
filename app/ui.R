@@ -235,7 +235,7 @@ ui <-
                 selectInput(
                   inputId = "threshold", 
                   label = "Benchmarking Thresholds",
-                  choices = c("0-25, 25-50, >50","0-33, 33-66, >66 ")
+                  choices = c("0-25, 25-50, >50","0-33, 33-66, >66")
                 ),
               ),
 

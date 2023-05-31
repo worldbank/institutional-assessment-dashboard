@@ -31,7 +31,7 @@ static_plot <-
     
     if (threshold=="0-25, 25-50, >50"){
       cutoff<-c(25,50)
-    }else if (threshold=="0-25, 25-50, >50")
+    }else if (threshold=="0-33, 33-66, >66")
     {
       cutoff<-c(33,66)
     }

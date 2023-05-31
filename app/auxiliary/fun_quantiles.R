@@ -50,7 +50,7 @@ def_quantiles <- function(data, base_country, country_list, comparison_countries
 
 if (threshold=="0-25, 25-50, >50"){
     cutoff<-c(25,50)
-}else if (threshold=="0-25, 25-50, >50")
+}else if (threshold=="0-33, 33-66, >66")
 {
   cutoff<-c(33,66)
 }
@@ -58,10 +58,8 @@ if (threshold=="0-25, 25-50, >50"){
 # Calculate quantiles
   quantiles <-
     quantiles %>%
-
     # Remove missing values
     filter(!is.na(value)) %>%
-
     # Calculate relevant indicators
     group_by(variable, var_name) %>%
     mutate(
