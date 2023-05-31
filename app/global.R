@@ -22,6 +22,7 @@ library(bsplus)
 library(htmltools)
 library(officer)
 library(rvg)
+
 ## Auxiliary functions -----------------------------------------------------------------
 
 db_variables <-
@@ -155,14 +156,22 @@ db_variables <-
 
 
 #Add Label Attirbutes to DTA file
-for (i in colnames(global_data)[3:length(colnames(global_data))]){
-  attr(global_data[[i]],'var.labels')<-subset(db_variables$var_name,db_variables$variable==i)
-}
+for (i in colnames(global_data)[4:length(colnames(global_data))]){
+  name<-subset(db_variables$var_name,db_variables$variable==i)
+  if(length(name)>0){
+    name<-str_replace_all(name, "[[:punct:]]", "")
+    attr(global_data[[i]],'label')<-name
+  }}
 
 for (i in colnames(raw_data)[4:length(colnames(raw_data))]){
-  attr(raw_data[[i]],'var.labels')<-subset(db_variables$var_name,db_variables$variable==i)
+  attr(raw_data[[i]],'label')<-subset(db_variables$var_name,db_variables$variable==i)
 }
-
+for (i in colnames(raw_data)[4:length(colnames(raw_data))]){
+  name<-subset(db_variables$var_name,db_variables$variable==i)
+  if(length(name)>0){
+    name<-str_replace_all(name, "[[:punct:]]", "")
+    attr(raw_data[[i]],'label')<-name
+  }}
 
 # Options ---------------------------------------------------------
 
