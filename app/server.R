@@ -847,24 +847,24 @@
         if (input$data_value == "Rank") {
           data1 <-
             data %>%
-            filter(country_group == '0') %>%
+            filter(country_group == 0) %>%
             mutate(
               across(
-                3:ncol(.),
-                ~ dense_rank(desc(.))
+                4:ncol(.),
+                ~ rank(desc(.),ties.method = 'min')
               )
             )
           
-          data2<-data %>%
-            filter(country_group == '1') %>%
-            mutate(
-              across(
-                3:ncol(.),
-                ~ dense_rank(desc(.))
-              )
-            )
+          # data2<-data %>%
+          #   filter(country_group == 1) %>%
+          #   mutate(
+          #     across(
+          #       4:ncol(.),
+          #       ~ dense_rank(desc(.))
+          #     )
+          #   )
           
-          data<-rbind(data1,data2)
+          data<-data1
         }
         
         return(data)
