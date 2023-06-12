@@ -29,9 +29,9 @@ static_plot <-
            note = NULL,
            threshold) {
     
-    if (threshold=="0-25, 25-50, >50"){
+    if (threshold=="default"){
       cutoff<-c(25,50)
-    }else if (threshold=="0-33, 33-66, >66")
+    }else if (threshold=="terciles")
     {
       cutoff<-c(33,66)
     }

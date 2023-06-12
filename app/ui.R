@@ -1,5 +1,17 @@
 # UI ###########################################################################
 
+js <- "
+var mytips = ['0-25, 25-50, >50', '0-33, 33-66, >66'];
+$('#threshold').on('shown.bs.select', function() {
+  var $lis = $($(this).data('selectpicker').selectpicker.current.elements);
+  $lis.each(function(i) {
+    $(this).attr('title', mytips[i]);
+  });
+});"
+
+
+
+
 ui <-
   dashboardPage(
 
@@ -232,12 +244,14 @@ ui <-
               
               column(
                 width = 3,
-                selectInput(
+                pickerInput(
                   inputId = "threshold", 
                   label = "Benchmarking Thresholds",
-                  choices = c("0-25, 25-50, >50","0-33, 33-66, >66")
+                  choices = c("default","terciles")
                 ),
               ),
+              
+              tags$script(HTML(js)),
 
               
               column(
