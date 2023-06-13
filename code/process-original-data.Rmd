@@ -1,6 +1,7 @@
 # Process original data
 
-- Input: `data/raw/merged_for_residuals.rds`
+- Input: `data/raw/merged_for_residuals-v2.rds`
+- Input: `data/raw/CBIData_Romelli2022.dta`
 - Output: `data/clean/original_data.rds`
 
 *Notes*: We have to address the country name bug from the source. We use the `countrycode` package in each data import and cleaning in order to verify the country name and code. The objective is to create a unique, consistent identifier for country identifications for all data imports.
@@ -11,7 +12,8 @@ packages <-
     "here",
     "tidyverse",
     "labelled",
-    "countrycode"
+    "countrycode",
+    'haven'
   )
 
 pacman::p_load(packages, character.only = TRUE)
@@ -47,7 +49,22 @@ data_original <-
       "..",
       "data",
       "raw",
-      "merged_for_residuals.rds"
+      "merged_for_residuals-v2.rds"
+    )
+  )
+
+
+```
+
+
+```{r}
+cbi_data <-
+  read_dta(
+    here(
+      "..",
+      "data",
+      "raw",
+      "CBIData_Romelli2022.dta"
     )
   )
 
@@ -65,7 +82,6 @@ source(
 )
 ```
 
-
 ## Rename variables
 
 Rename variables because these are inherited from original stata files.
@@ -75,7 +91,7 @@ original_clean <-
   data_original %>%
   rename(
     country_name = countryname,
-    country_code = code,
+    country_code = iso3code,
     telecom_infr = telecommunicationinfrastructurei,
     daigov_2016 = daigovernmentsubindex_2016,
     contract_manag_score = contract_management_score,
@@ -94,7 +110,6 @@ original_clean <-
     credit_registry_cov = gettingcreditcreditregistry,
     barriers_trade_expl = barriers_trade_explicit,
     barriers_trade_oth = barriers_trade_other,
-    cbi = lvau,
     efw_inv_restr = efw_foreign_invest_restr,
     efw_tourist = efw_freedomofforeignerstovisit
   )
@@ -152,6 +167,36 @@ original_clean <-
 rm(data_original)
 ```
 
+Remove CBI from API and replace it with David Romelli data
+```{r}
+
+cbi_data <-
+  cbi_data %>%
+  select(
+    admin,
+    wb_a3,
+    year,
+    LVAU
+  ) %>%
+  remove_labels()
+  
+cbi_data <-
+  cbi_data %>%
+  rename(
+    country_name = admin,
+    country_code = wb_a3,
+    cbi = LVAU
+  )
+
+cbi_data$year <- as.character(cbi_data$year)
+
+original_clean <-
+  original_clean %>%
+  left_join(
+    cbi_data,
+    by = c("country_name","country_code", "year")
+  )
+```
 
 ## Save data
 

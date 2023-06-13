@@ -26,7 +26,15 @@ static_plot <-
            group_median = NULL,
            title = TRUE,
            dots = FALSE,
-           note = NULL) {
+           note = NULL,
+           threshold) {
+    
+    if (threshold=="default"){
+      cutoff<-c(25,50)
+    }else if (threshold=="terciles")
+    {
+      cutoff<-c(33,66)
+    }
 
     data$var_name <-
       factor(
@@ -42,13 +50,19 @@ static_plot <-
       unique %>%
       unlist %>%
       unname
-
+    if (cutoff[[1]]==25){
     colors <-
       c("Weak\n(bottom 25%)" = "#D2222D",
         "Emerging\n(25% - 50%)" = "#FFBF00",
         "Strong\n(top 50%)" = "#238823"
-      )
-
+      )}else if (cutoff[[1]]==33){
+        colors <-c(
+        "Weak\n(bottom 33%)" = "#D2222D",
+        "Emerging\n(33% - 66%)" = "#FFBF00",
+        "Strong\n(top 66%)" = "#238823"
+        )
+      }
+  
     if (rank == FALSE) {
       x_lab <- "Closeness to frontier"
       
@@ -66,13 +80,13 @@ static_plot <-
       data <-
         data %>%
         mutate(
-          q25 = .25,
-          q50 = .5,
+          q25 = cutoff[[1]]/100,
+          q50 = cutoff[[2]]/100,
           var = dtt,
           text = paste(
             " Country:", country_name, "<br>",
             "Closeness to frontier:", round(dtf, 3), "<br>",
-            "Rank:", row_number(dtf)
+            "Rank:", nrank
           )
         )
       

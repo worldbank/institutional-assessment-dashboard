@@ -6,7 +6,7 @@ library(knitr)
 #   - `data/final/definitions.rds`
 knit("select-indicators.Rmd")
 
-# - Input: `data/raw/merged_for_residuals.rds`
+# - Input: `data/raw/merged_for_residuals-v2.rds`
 # - Output: `data/clean/original_data.rds`
 knit("process-original-data.Rmd")
 
@@ -57,3 +57,4 @@ knit("map.Rmd")
 
 # Move final data to app folder
 knit("copy-final-data.Rmd")
+

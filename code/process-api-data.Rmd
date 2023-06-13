@@ -41,9 +41,12 @@ governance_data <- c(
 All other indicators are coming from the list of selected indicators.
 
 ```{r}
+
+
 # Get data360
 indicator_ids <-
   db_variables %>%
+  arrange(api_id)%>%
   filter(
     !is.na(api_id),
     !(api_id %in% governance_data)

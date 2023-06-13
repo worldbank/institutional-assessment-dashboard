@@ -24,7 +24,8 @@ packages <-
     "tidyverse",
     "here",
     "skimr",
-    "labelled"
+    "labelled",
+    "tibble"
   )
 
 pacman::p_load(packages,
@@ -81,7 +82,56 @@ compiled_indicators <-
   )
 ```
 
-2. Calculate country-level average for each indicator
+2. Rescale indicators so a higher number is always a better performance
+
+```{r}
+data_rescaled <- 
+  data %>%
+  mutate(
+    e_p_polity = ifelse(e_p_polity < -10, NA, e_p_polity),
+    # PRM indicators: Countries are graded between 0 (less control/involvement) and 6 (more control/involvement). Methodological note for PRM indicates that 1998 and 2013 indicators are comparable, but not with 2018 due to change in methodology, so we remove 2018 data
+    across(
+      c(
+        complexity_procedures,
+        barriers_startups,
+        protection_incumbents,
+        barriers_trade_expl,
+        barriers_trade_oth,
+        governanceofstateownedenterprise,
+        useofcommandcontrolregulation,
+        directcontroloverbusinessenterpr,
+        governmentinvolvementinnetworkse,
+        pricecontrols,
+        scopeofstateownedenterprises
+      ),
+      ~ ifelse(year == 2018, NA, 6 - .x)
+    ),
+    # Enterprise Survey: Percent Of Firms Identifying X As A Major Constraint
+    across(
+      c(
+        es_finance_constraint,
+        es_permits_constraint,
+        es_court_constraint,
+        se_customs_constraint,
+        es_labor_constraint,
+        es_corruption_constraint,
+        es_tax_constraint
+      ),
+      ~ 100 - .
+    ),
+    # Freedom house: Countries are graded between 1 (most free) and 7 (least free)
+    across(
+      c(
+        e_fh_pr,
+        e_fh_cl
+      ),
+      ~ (8 - .x)
+    )
+  )
+```
+
+
+3. Calculate country-level average for each indicator
 
 ```{r}
 country_average <-
@@ -154,6 +204,7 @@ ctf <-
   mutate(
     log_gdp = log(gdp_pc_ppp_const)
   )
+
 ```
 
 5. Calculate median per group
@@ -189,14 +240,13 @@ group_ctf <-
     country_code = group_code
   )
 
+ctf<-add_column(ctf,country_group = 0,.after = 'country_code')
+group_ctf<-add_column(group_ctf,country_group=1,.after = 'country_code')
 ctf <-
   ctf %>%
   bind_rows(group_ctf) %>%
   ungroup %>%
   arrange(country_name)
-
-# why is there an arbitrary inversion here?
-ctf$diversion_pfunds<-(1-ctf$diversion_pfunds)
 ```
 
 6. Data write-out

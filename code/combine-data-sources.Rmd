@@ -41,6 +41,16 @@ original_data <-
     )
   )
 
+
+original_data <-
+  original_data %>%
+  mutate(
+    country_code = ifelse(country_code == "ROM", "ROU", country_code),
+  )
+```
+
+
+```{r}
 additional_data <-
   read_rds(
     here(
@@ -72,6 +82,10 @@ full_data <-
     by = c("country_code","year")
   )
 
+
+```
+
+```{r}
 # count number of missing values
 # why are we establishing a manually determined (83) NA count here?
 full_data <-
@@ -107,7 +121,7 @@ full_data <-
         favoritism,
         wef_judindep,
         trust_pol,
-        wef_renewable,
+        #wef_renewable,
         legaleff_disputes
       ),
       ~ ifelse(. <= 7, ., NA)

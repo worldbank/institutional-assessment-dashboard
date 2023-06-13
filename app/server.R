@@ -4,7 +4,7 @@
 
 
    # Handle inputs ======================================================================
-
+    
     ## Base country ------------------------------------------------------------
     base_country <-
       eventReactive(
@@ -68,6 +68,7 @@
           actionButton(
             "select",
             "Apply selection",
+            
             icon = icon("check"),
             class = "btn-success",
             width = "100%"
@@ -79,18 +80,26 @@
             "Select a base country and at least 10 comparison countries to apply selection",
             icon = icon("triangle-exclamation"),
             class = "btn-warning",
-            width = "100%"
+            width = "100%",
+            shinyjs::disable('report'),
+            shinyjs::disable('pptreport'),
           )
         }
       })
 
     observeEvent(
       input$countries,
-
+      
        {
          toggleState(
            id = "select",
-           condition = length(input$countries) >= 10
+           condition = length(input$countries) >= 10,
+           shinyjs::disable('report'),
+         )
+         toggleState(
+           id = "select",
+           condition = length(input$countries) >= 10,
+           shinyjs::disable('pptpptreport'),
          )
        },
 
@@ -113,7 +122,9 @@
               pull(variable) %>%
               unique
           }
+          
         }
+        
       )
 
     ## Comparison group note (group or countries) -------------------------
@@ -171,7 +182,8 @@
               country_list,
               input$countries,
               vars_all,
-              variable_names
+              variable_names,
+              input$threshold
             )
         }
       )
@@ -190,11 +202,12 @@
               country_list,
               input$countries,
               vars_family,
-              family_names
+              family_names,
+              input$threshold
             )
         }
       )
-
+    
     # Missing variables from base country
     na_indicators <-
       eventReactive(
@@ -254,7 +267,13 @@
         # Create report
         toggleState(
           id = "report",
-          condition = input$select
+          condition = input$select,
+          shinyjs::disable('report')
+        )
+        toggleState(
+          id = "pptreport",
+          condition = input$select,
+          shinyjs::disable('pptreport')
         )
         
         # Cross-crountry comparison selection
@@ -492,7 +511,8 @@
                   input$family,
                   input$rank,
                   dots = input$benchmark_dots,
-                  group_median = input$benchmark_median
+                  group_median = input$benchmark_median,
+                  threshold = input$threshold
                 ) %>%
                 interactive_plot(
                   base_country(),
@@ -530,7 +550,8 @@
                   input$family,
                   input$rank,
                   dots = input$benchmark_dots,
-                  group_median = input$benchmark_median
+                  group_median = input$benchmark_median,
+                  threshold = input$threshold
                 ) %>%
                 interactive_plot(
                   base_country(),
@@ -794,7 +815,7 @@
         if (input$data_source != "Closeness to frontier") {
           vars_table <- c("Country", "Year", vars)
         } else {
-          vars_table <- c("Country", vars)
+          vars_table <- c("Country", 'country_code','country_group',vars)
         }
         
         vars_table <- unname(vars_table)
@@ -824,14 +845,26 @@
           )
         
         if (input$data_value == "Rank") {
-          data <-
+          data1 <-
             data %>%
+            filter(country_group == 0) %>%
             mutate(
               across(
-                2:ncol(.),
-                ~ dense_rank(desc(.))
+                4:ncol(.),
+                ~ rank(desc(.),ties.method = 'min')
               )
             )
+          
+          # data2<-data %>%
+          #   filter(country_group == 1) %>%
+          #   mutate(
+          #     across(
+          #       4:ncol(.),
+          #       ~ dense_rank(desc(.))
+          #     )
+          #   )
+          
+          data<-data1
         }
         
         return(data)
@@ -844,20 +877,24 @@
         datatable(
           browse_data(),
           rownames = FALSE,
+          extensions = c('FixedColumns'),
           filter = 'none',
           options = list(
             scrollX = TRUE,
-            pageLength = 13,
+            scrollY = "550px",
+            pageLength = 25,
             autoWidth = TRUE,
-            dom = "lftipr"
+            dom = "lftipr",
+            fixedColumns = list(leftColumns = 1, rightColumns = 0)
           )
         )
       )
 
       # Downloadable rds of selected dataset
       output$download_global_rds <-
+        
         downloadHandler(
-          filename = "gbid-data.rds",
+          filename = function(){paste0(input$data_source,"-",input$data_value,"-gbid-data.rds")},
 
           content = function(file) {
             write_rds(
@@ -876,7 +913,7 @@
       # Downloadable csv of selected dataset
       output$download_global_csv <-
         downloadHandler(
-          filename = "gbid-data.csv",
+          filename = function(){paste0(input$data_source,"-",input$data_value,"-gbid-data.csv")},
 
           content = function(file) {
             write_csv(
@@ -890,7 +927,7 @@
       # Downloadable dta of selected dataset
       output$download_global_dta <-
         downloadHandler(
-          filename = "gbid-data.dta",
+          filename = function(){paste0(input$data_source,"-",input$data_value,"-gbid-data.dta")},
 
           content = function(file) {
             write_dta(
@@ -946,7 +983,11 @@
             family_data = data_family(),
             rank = input$rank,
             definitions = definitions,
-            variable_names = variable_names
+            variable_names = variable_names,
+            dots = input$benchmark_dots,
+            group_median = input$benchmark_median,
+            threshold = input$threshold
+            
           )
 
         rmarkdown::render(
@@ -956,9 +997,73 @@
           envir = new.env(parent = globalenv()),
           knit_root_dir = getwd()
         )
+        
+        
       }
     )
 
+# PPT Report ================================================================================
+      
+      output$pptreport <- downloadHandler(
+        
+        filename =
+          reactive(
+            paste0(
+              "CLIAR-PPT-",
+              base_country(),
+              ".pptx"
+            )
+          )
+        ,
+        
+        content = function(file) {
+          
+          show_modal_spinner(
+            color = "#17a2b8",
+            text = "Compiling report",
+          )
+          
+          on.exit(remove_modal_spinner())
+          
+          tmp_dir <- tempdir()
+          
+          tempReport <- file.path(tmp_dir, "CLAR_template.pptx")
+          
+          #file.copy("www/", tmp_dir, recursive = TRUE)
+          #file.copy("CLAR_template.pptx", tempReport, overwrite = TRUE)
+          
+          ppt<-read_pptx("www/CLIAR_template.pptx")
+          
+          
+          plot1<-data_family() %>%
+            static_plot(
+              base_country(),
+              "Country overview", 
+              rank = input$rank,
+              group_median = input$benchmark_median,
+              dots = input$benchmark_dots,
+              title = FALSE,
+              threshold = input$threshold
+            )
+          
+          plot1 <- dml(ggobj = plot1)
+          
+          ppt <- ppt %>% 
+            on_slide(index = 4) %>% 
+            ph_with(value = plot1, location = ph_location(
+              left = 1.5, top = 1.2,
+              width = 10.04, height = 4.67, bg = "transparent"
+            ))
+          
+          print(ppt, file)
+          
+          
+        }
+      )
+      
+      
+      
+      
    # Definitions ===========================================================================
 
     output$definition <-
@@ -1005,7 +1110,7 @@
     # Download csv with definitions
     output$download_indicators <-
       downloadHandler(
-        filename = "Institutional assessment indicators.csv",
+        filename = "CLIAR Indicators.csv",
 
         content = function(file) {
           write_csv(
