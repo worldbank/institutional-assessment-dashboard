@@ -1,5 +1,4 @@
 # Packages ----------------------------------------------------------------
-
 library(tidyverse)
 library(DT)
 library(plotly)
@@ -21,6 +20,8 @@ library(data.table)
 library(hrbrthemes)
 library(bsplus)
 library(htmltools)
+library(officer)
+library(rvg)
 
 ## Auxiliary functions -----------------------------------------------------------------
 
@@ -33,8 +34,8 @@ db_variables <-
   )
 
 
-db_variables<-subset(db_variables,var_name!='Global corruption barometer')
-db_variables<-subset(db_variables,var_name!='Foreign Currency Regulations')
+db_variables<-db_variables %>% 
+      mutate(across(where(is.character), str_squish))
 
 
 source(here("auxiliary", "vars-control.R"))
@@ -59,9 +60,11 @@ raw_data <-
   ) %>%
   filter(year >= 1990,
          rowSums(!is.na(.)) > 3) %>%
-  rename(Year = year)
+  rename(Year = year) %>%
+  mutate(Year = as.double(Year))
 
-raw_data$country_name <- str_replace_all(raw_data$country_name, "Yugoslavia", "Serbia")
+
+
 
 global_data <-
   read_rds(
@@ -72,7 +75,6 @@ global_data <-
   ) %>%
   ungroup
 
-global_data$country_name <- str_replace_all(global_data$country_name, "Yugoslavia", "Serbia")
 
 ctf_long <-
   read_rds(
@@ -82,7 +84,6 @@ ctf_long <-
     )
   )
 
-ctf_long$country_name <- str_replace_all(ctf_long$country_name, "Yugoslavia", "Serbia")
 
 country_groups <-
   read_rds(
@@ -108,7 +109,6 @@ country_list <-
     )
   )
 
-country_list$country_name <- str_replace_all(country_list$country_name, "Yugoslavia", "Serbia")
 
 
 spatial_data <-
@@ -119,7 +119,32 @@ spatial_data <-
     )
   )
 
-spatial_data$country_name <- str_replace_all(spatial_data$country_name, "Yugoslavia", "Serbia")
+
+
+clean_country <-
+  read.csv(
+    here(
+      "data",
+      "Country_name_list.csv"
+    )
+  )  
+
+for(i in 1:nrow(clean_country)){
+  if (clean_country[i,'Clean_Names']!=""){
+    country_list$country_name[country_list$country_name==clean_country[i,'Country']]=clean_country[i,'Clean_Names']
+    ctf_long$country_name[ctf_long$country_name==clean_country[i,'Country']]=clean_country[i,'Clean_Names']
+    raw_data$country_name[raw_data$country_name==clean_country[i,'Country']]=clean_country[i,'Clean_Names']
+    global_data$country_name[global_data$country_name==clean_country[i,'Country']]=clean_country[i,'Clean_Names']
+    spatial_data$country_name[spatial_data$country_name==clean_country[i,'Country']]=clean_country[i,'Clean_Names']
+ }
+} 
+
+
+country_list = country_list[order(country_list$country_name, decreasing = FALSE), ]
+ctf_long = ctf_long[order(ctf_long$country_name, decreasing = FALSE), ]
+raw_data = raw_data[order(raw_data$country_name, decreasing = FALSE), ]
+global_data = global_data[order(global_data$country_name, decreasing = FALSE), ]
+spatial_data = spatial_data[order(spatial_data$country_name, decreasing = FALSE), ]
 
 
 st_crs(spatial_data) <- "+proj=robin"
@@ -128,6 +153,25 @@ st_crs(spatial_data) <- "+proj=robin"
 db_variables <-
   db_variables %>%
   filter(variable %in% vars_all | var_level == "family")
+
+
+#Add Label Attirbutes to DTA file
+for (i in colnames(global_data)[4:length(colnames(global_data))]){
+  name<-subset(db_variables$var_name,db_variables$variable==i)
+  if(length(name)>0){
+    name<-str_replace_all(name, "[[:punct:]]", "")
+    attr(global_data[[i]],'label')<-name
+  }}
+
+for (i in colnames(raw_data)[4:length(colnames(raw_data))]){
+  attr(raw_data[[i]],'label')<-subset(db_variables$var_name,db_variables$variable==i)
+}
+for (i in colnames(raw_data)[4:length(colnames(raw_data))]){
+  name<-subset(db_variables$var_name,db_variables$variable==i)
+  if(length(name)>0){
+    name<-str_replace_all(name, "[[:punct:]]", "")
+    attr(raw_data[[i]],'label')<-name
+  }}
 
 # Options ---------------------------------------------------------
 

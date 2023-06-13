@@ -19,7 +19,7 @@ pacman::p_load(packages, character.only = TRUE)
 
 ## Import data
 ```{r}
-additions <- 
+additions_gtmi <- 
   read_dta(
     here(
       "..",
@@ -28,6 +28,32 @@ additions <-
       "20211118_new_additions_notGov360.dta"
     )
   )
+
+additions_gtmi <-
+  additions_gtmi %>%
+  filter(year == 2020) %>%
+  select(
+    country,
+    countryname,
+    iso3code,
+    ccode,
+    year,
+    gtmi
+  )
+
+
+
+additions <- 
+  read_dta(
+    here(
+      "..",
+      "data",
+      "raw",
+      "20211118_new_additions_notGov360_PMR.dta"
+    )
+  )
+
+additions<-merge(additions,additions_gtmi, by=c('country','countryname','iso3code','ccode','year'),all=TRUE)
 ```
 
 ## Keep only relevant data

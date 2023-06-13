@@ -17,7 +17,8 @@ packages <-
     "tidyverse",
     "here",
     "skimr",
-    "labelled"
+    "labelled",
+    "tibble"
   )
 
 pacman::p_load(packages,
@@ -70,16 +71,16 @@ data_rescaled <-
     # PRM indicators: Countries are graded between 0 (less control/involvement) and 6 (more control/involvement). Methodological note for PRM indicates that 1998 and 2013 indicators are comparable, but not with 2018 due to change in methodology, so we remove 2018 data
     across(
       c(
-        soe_governance,
-        price_controls,
-        command_control,
         complexity_procedures,
         barriers_startups,
         protection_incumbents,
         barriers_trade_expl,
         barriers_trade_oth,
+        governanceofstateownedenterprise,
+        useofcommandcontrolregulation,
         directcontroloverbusinessenterpr,
         governmentinvolvementinnetworkse,
+        pricecontrols,
         scopeofstateownedenterprises
       ),
       ~ ifelse(year == 2018, NA, 6 - .x)
@@ -182,6 +183,7 @@ ctf <-
   mutate(
     log_gdp = log(gdp_pc_ppp_const)
   )
+
 ```
 
 ## Calculate median per group
@@ -217,15 +219,16 @@ group_ctf <-
     country_code = group_code
   ) 
 
+ctf<-add_column(ctf,country_group = 0,.after = 'country_code')
+group_ctf<-add_column(group_ctf,country_group=1,.after = 'country_code')
 ctf <-
   ctf %>%
   bind_rows(group_ctf) %>%
   ungroup %>%
   arrange(country_name)
+```
 
-ctf$diversion_pfunds<-(1-ctf$diversion_pfunds)
-
-
+```{r}
 write_rds(
   ctf,
   here(
