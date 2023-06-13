@@ -1,4 +1,4 @@
-def_quantiles <- function(data, base_country, country_list, comparison_countries, vars, variable_names) {
+def_quantiles <- function(data, base_country, country_list, comparison_countries, vars, variable_names,threshold) {
 
 # List all relevant countries
   comparison_list <-
@@ -48,24 +48,30 @@ def_quantiles <- function(data, base_country, country_list, comparison_countries
       by = "variable"
     )
 
+if (threshold=="default"){
+    cutoff<-c(25,50)
+}else if (threshold=="terciles")
+{
+  cutoff<-c(33,66)
+}
+  
 # Calculate quantiles
   quantiles <-
     quantiles %>%
-
     # Remove missing values
     filter(!is.na(value)) %>%
-
     # Calculate relevant indicators
     group_by(variable, var_name) %>%
     mutate(
       dtt = percent_rank(value),
-      q25 = quantile(value, c(0.25)),
-      q50 = quantile(value, c(0.5)),
+      q25 = quantile(value, c(cutoff[1]/100)),
+      q50 = quantile(value, c(cutoff[2]/100)),
       status = case_when(
-        dtt <= .25 ~ "Weak\n(bottom 25%)",
-        dtt > .25 & dtt <= .50 ~ "Emerging\n(25% - 50%)",
-        dtt > .50 ~ "Strong\n(top 50%)"
-      )
+        dtt <= cutoff[1]/100 ~ paste0("Weak\n(bottom ", cutoff[1],"%)"),
+        dtt > cutoff[1]/100 & dtt <= cutoff[2]/100 ~ paste0("Emerging\n(",cutoff[1],"% - ",cutoff[2],"%)"),
+        dtt > cutoff[2]/100 ~ paste0("Strong\n(top ",cutoff[2],"%)")
+      ),
+      nrank = rank(-value)
     ) %>%
     ungroup %>%
     rename(dtf = value)
