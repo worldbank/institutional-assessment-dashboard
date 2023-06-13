@@ -100,7 +100,7 @@ full_data <-
         favoritism,
         wef_judindep,
         trust_pol,
-        wef_renewable,
+        #wef_renewable,
         legaleff_disputes
       ),
       ~ ifelse(. <= 7, ., NA)
