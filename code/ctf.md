@@ -1,3 +1,10 @@
+# Notes:
+
+- Fixed our documentation to state that it is the average, not last value of indicators.
+- Fixed the cut-off year to 2014, as specified in the CLIAR Methodology.
+- What is happening to the `Inf` values
+- Refactored the `ctf` into a function [To-Do].
+
 # Calculate distance to frontier
 
 - Inputs:
@@ -18,16 +25,31 @@ packages <-
     "tidyverse",
     "here",
     "skimr",
-    "labelled"
+    "labelled",
+    "tibble"
   )
 
 pacman::p_load(packages,
                character.only = TRUE)
+
+# import variable definitions
+db_variables <- read_rds(
+   here(
+    "..",
+    "data",
+    "final",
+    "db_variables.rds"
+  )
+)
+
+source(
+  here("vars-control.R")
+)
 ```
 
 ## Calculate global closeness to frontier
 
-Closeness to frontier (CTF) is global, meaning that we identify the worst and best performance in the full sample (all countries). For each indicator $i$, we compare the last available value of indicator $i$ with the worst and best
+Closeness to frontier (CTF) is global, meaning that we identify the worst and best performance in the full sample (all countries). For each indicator $i$, we compare the average value of indicator $i$ in the years of 2014-2019 with the worst and best
 performance for indicator $i$ among all countries and in the last $y$ years (2013 - most recent data).^[In [the doing business report](https://www.doingbusiness.org/content/dam/doingBusiness/media/Annual-Reports/English/DB17-Chapters/DB17-DTF-and-DBRankings.pdf) they consider the last 5 years, but here for some indicators we have shorter time series].
 
 
@@ -47,7 +69,7 @@ definitions <-
     )
   )
 
-data <-
+compiled_indicators <-
   read_rds(
     here(
       "..",
@@ -57,7 +79,7 @@ data <-
     )
   ) %>%
   filter(
-    year >= 2013
+    year >= 2014
   )
 ```
 
@@ -72,16 +94,16 @@ data_rescaled <-
     # PRM indicators: Countries are graded between 0 (less control/involvement) and 6 (more control/involvement). Methodological note for PRM indicates that 1998 and 2013 indicators are comparable, but not with 2018 due to change in methodology, so we remove 2018 data
     across(
       c(
-        soe_governance,
-        price_controls,
-        command_control,
         complexity_procedures,
         barriers_startups,
         protection_incumbents,
         barriers_trade_expl,
         barriers_trade_oth,
+        governanceofstateownedenterprise,
+        useofcommandcontrolregulation,
         directcontroloverbusinessenterpr,
         governmentinvolvementinnetworkse,
+        pricecontrols,
         scopeofstateownedenterprises
       ),
       ~ ifelse(year == 2018, NA, 6 - .x)
@@ -110,13 +132,17 @@ data_rescaled <-
   )
 ```
 
+```
+## Error in UseMethod("mutate"): no applicable method for 'mutate' applied to an object of class "function"
+```
+
 
 3. Calculate country-level average for each indicator
 
 
 ```r
 country_average <-
-  data_rescaled %>%
+  compiled_indicators %>%
   group_by(
     country_code,
     country_name
@@ -130,16 +156,21 @@ country_average <-
 ```
 
 ```
-## `summarise()` has grouped output by 'country_code'. You can override using the `.groups`
-## argument.
+## Error in `summarise()`:
+## ℹ In argument: `across(all_of(vars_all), ~mean(., na.rm = TRUE))`.
+## Caused by error in `across()`:
+## ! Problem while evaluating `all_of(vars_all)`.
+## Caused by error in `all_of()`:
+## ! Can't subset elements that don't exist.
+## ✖ Elements `governanceofstateownedenterprise`, `useofcommandcontrolregulation`, `directcontroloverbusinessenterpr`, `governmentinvolvementinnetworkse`, `pricecontrols`, etc. don't exist.
 ```
 
-4. Identify worst and best performance for each indicator
+3. Identify worst and best performance for each indicator
 
 
 ```r
 min_max <-
-  data_rescaled %>%
+  compiled_indicators %>%
   summarise(
     across(
       all_of(vars_all),
@@ -158,15 +189,16 @@ min_max <-
 ```
 
 ```
-## Warning: There were 2 warnings in `summarise()`.
-## The first warning was:
+## Error in `summarise()`:
 ## ℹ In argument: `across(...)`.
-## Caused by warning in `min()`:
-## ! no non-missing arguments to min; returning Inf
-## ℹ Run ]8;;ide:run:dplyr::last_dplyr_warnings()dplyr::last_dplyr_warnings()]8;; to see the 1 remaining warning.
+## Caused by error in `across()`:
+## ! Problem while evaluating `all_of(vars_all)`.
+## Caused by error in `all_of()`:
+## ! Can't subset elements that don't exist.
+## ✖ Elements `governanceofstateownedenterprise`, `useofcommandcontrolregulation`, `directcontroloverbusinessenterpr`, `governmentinvolvementinnetworkse`, `pricecontrols`, etc. don't exist.
 ```
 
-5. Calculate closeness to frontier at indicator level
+4. Calculate closeness to frontier at indicator level
 
 
 ```r
@@ -204,10 +236,10 @@ ctf <-
 ```
 
 ```
-## Joining with `by = join_by(country_name, country_code)`
+## Error in pivot_longer(., all_of(vars_all), names_to = "variable"): object 'country_average' not found
 ```
 
-## Calculate median per group
+5. Calculate median per group
 
 
 ```r
@@ -239,12 +271,27 @@ group_ctf <-
   rename(
     country_name = group,
     country_code = group_code
-  ) 
+  )
 ```
 
 ```
-## Joining with `by = join_by(country_code, country_name)`
-## `summarise()` has grouped output by 'group_code'. You can override using the `.groups` argument.
+## Error in is.data.frame(y): object 'ctf' not found
+```
+
+```r
+ctf<-add_column(ctf,country_group = 0,.after = 'country_code')
+```
+
+```
+## Error in is.data.frame(.data): object 'ctf' not found
+```
+
+```r
+group_ctf<-add_column(group_ctf,country_group=1,.after = 'country_code')
+```
+
+```
+## Error in is.data.frame(.data): object 'group_ctf' not found
 ```
 
 ```r
@@ -253,10 +300,16 @@ ctf <-
   bind_rows(group_ctf) %>%
   ungroup %>%
   arrange(country_name)
+```
 
-ctf$diversion_pfunds<-(1-ctf$diversion_pfunds)
+```
+## Error in list2(...): object 'ctf' not found
+```
+
+6. Data write-out
 
 
+```r
 write_rds(
   ctf,
   here(
@@ -266,9 +319,13 @@ write_rds(
     "closeness_to_frontier.rds"
   )
 )
+```
 
+```
+## Error in saveRDS(x, con, version = version, refhook = refhook, ascii = text): object 'ctf' not found
+```
 
-
+```r
 ctf_long <-
   ctf %>%
   pivot_longer(
@@ -287,14 +344,7 @@ ctf_long <-
 ```
 
 ```
-## Joining with `by = join_by(variable)`
-## Joining with `by = join_by(country_name)`
-```
-
-```
-## Warning in left_join(., country_list %>% select(country_name, group)): Each row in `x` is expected to match at most 1 row in `y`.
-## ℹ Row 1 of `x` matches multiple rows.
-## ℹ If multiple matches are expected, set `multiple = "all"` to silence this warning.
+## Error in pivot_longer(., all_of(vars_all), names_to = "variable"): object 'ctf' not found
 ```
 
 ```r
@@ -311,8 +361,7 @@ ctf_long <-
 ```
 
 ```
-## `summarise()` has grouped output by 'family_name', 'family_var', 'country_name', 'country_code'.
-## You can override using the `.groups` argument.
+## Error in group_by(., family_name, family_var, country_name, country_code, : object 'ctf_long' not found
 ```
 
 ```r
@@ -325,4 +374,8 @@ write_rds(
     "closeness_to_frontier_long.rds"
   )
 )
+```
+
+```
+## Error in saveRDS(x, con, version = version, refhook = refhook, ascii = text): object 'ctf_long' not found
 ```

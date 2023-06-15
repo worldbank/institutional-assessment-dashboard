@@ -21,7 +21,7 @@ pacman::p_load(packages, character.only = TRUE)
 ## Import data
 
 ```r
-additions <- 
+additions_gtmi <- 
   read_dta(
     here(
       "..",
@@ -30,6 +30,42 @@ additions <-
       "20211118_new_additions_notGov360.dta"
     )
   )
+
+additions_gtmi <-
+  additions_gtmi %>%
+  filter(year == 2020) %>%
+  select(
+    country,
+    countryname,
+    iso3code,
+    ccode,
+    year,
+    gtmi
+  )
+
+
+
+additions <- 
+  read_dta(
+    here(
+      "..",
+      "data",
+      "raw",
+      "20211118_new_additions_notGov360_PMR.dta"
+    )
+  )
+```
+
+```
+## Error: 'C:/Users/wb438023/OneDrive - WBG/github/institutional-assessment-dashboard/code/../data/raw/20211118_new_additions_notGov360_PMR.dta' does not exist.
+```
+
+```r
+additions<-merge(additions,additions_gtmi, by=c('country','countryname','iso3code','ccode','year'),all=TRUE)
+```
+
+```
+## Error in merge(additions, additions_gtmi, by = c("country", "countryname", : object 'additions' not found
 ```
 
 ## Keep only relevant data
@@ -48,6 +84,10 @@ additions_selected <-
     year,
     all_of(vars_additions)
   )
+```
+
+```
+## Error in filter(., year >= 2015): object 'additions' not found
 ```
 
 
@@ -72,8 +112,7 @@ additions_clean <-
 ```
 
 ```
-## `summarise()` has grouped output by 'country_code'. You can override using the `.groups`
-## argument.
+## Error in remove_labels(.): object 'additions_selected' not found
 ```
 
 ## Save data
@@ -89,4 +128,8 @@ write_rds(
     "additional_data.rds"
   )
 )
+```
+
+```
+## Error in saveRDS(x, con, version = version, refhook = refhook, ascii = text): object 'additions_clean' not found
 ```

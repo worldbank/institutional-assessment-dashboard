@@ -16,7 +16,8 @@
       "tidyverse",
       "here",
       "readxl",
-      "assertthat"
+      "assertthat",
+      "countrycode"
     )
 
   pacman::p_load(packages,
@@ -51,7 +52,7 @@
 
 ```
 ## Rows: 17 Columns: 2
-## ── Column specification ──────────────────────────────────────────────────────────────────────────
+## ── Column specification ──────────────────────────────────────────────────────────
 ## Delimiter: ","
 ## chr (2): group_name, group_category
 ## 
@@ -97,7 +98,8 @@ country_list <-
 ```
 ## Warning in left_join(., country_list): Each row in `x` is expected to match at most 1 row in `y`.
 ## ℹ Row 1 of `x` matches multiple rows.
-## ℹ If multiple matches are expected, set `multiple = "all"` to silence this warning.
+## ℹ If multiple matches are expected, set `multiple = "all"` to silence this
+##   warning.
 ```
 
 ## Subset groups

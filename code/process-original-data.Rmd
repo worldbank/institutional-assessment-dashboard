@@ -64,6 +64,8 @@ cbi_data <-
       "..",
       "data",
       "raw",
+      "CBI",
+      "Romelli2022",
       "CBIData_Romelli2022.dta"
     )
   )
@@ -162,7 +164,7 @@ original_clean <-
     year,
     all_of(vars_original)
   ) %>%
-  # remove_labels()
+  remove_labels()
 
 rm(data_original)
 ```

@@ -833,7 +833,7 @@
               round, 3
             )
           ) %>%
-          select(all_of(vars_table))
+          select(any_of(vars_table))
         
         data <-
           data %>%

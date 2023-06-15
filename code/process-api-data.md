@@ -1,7 +1,7 @@
 # Process API data
 
 - Input: `data/final/db_variables.rds`
-- Output: `data/clean/original_data.rds`
+- Output: `data/clean/api_data.rds`
  
  
 
@@ -47,6 +47,7 @@ All other indicators are coming from the list of selected indicators.
 # Get data360
 indicator_ids <-
   db_variables %>%
+  arrange(api_id)%>%
   filter(
     !is.na(api_id),
     !(api_id %in% governance_data)
@@ -73,36 +74,27 @@ for(i in 1:length(indicator_ids)){
 ```
 
 ```
-## Warning in melt.data.table(df_compiled, id.vars = intersect(nondate_cols, : 'measure.vars' [1975,
-## 1976, 1977, 1978, ...] are not all of the same type. By order of hierarchy, the molten data value
-## column will be of type 'double'. All measure variables not of type 'double' will be coerced too.
-## Check DETAILS in ?melt.data.table for more on coercion.
-
-## Warning in melt.data.table(df_compiled, id.vars = intersect(nondate_cols, : 'measure.vars' [1975,
-## 1976, 1977, 1978, ...] are not all of the same type. By order of hierarchy, the molten data value
-## column will be of type 'double'. All measure variables not of type 'double' will be coerced too.
-## Check DETAILS in ?melt.data.table for more on coercion.
+## Warning in melt.data.table(df_compiled, id.vars = intersect(nondate_cols, :
+## 'measure.vars' [1800, 1801, 1802, 1803, ...] are not all of the same type. By
+## order of hierarchy, the molten data value column will be of type 'double'. All
+## measure variables not of type 'double' will be coerced too. Check DETAILS in
+## ?melt.data.table for more on coercion.
 ```
 
 ```
-## Warning in melt.data.table(df_compiled, id.vars = intersect(nondate_cols, : 'measure.vars' [1800,
-## 1801, 1802, 1803, ...] are not all of the same type. By order of hierarchy, the molten data value
-## column will be of type 'double'. All measure variables not of type 'double' will be coerced too.
-## Check DETAILS in ?melt.data.table for more on coercion.
+## Warning in melt.data.table(df_compiled, id.vars = intersect(nondate_cols, :
+## 'measure.vars' [2006, 2007, 2008, 2009, ...] are not all of the same type. By
+## order of hierarchy, the molten data value column will be of type 'double'. All
+## measure variables not of type 'double' will be coerced too. Check DETAILS in
+## ?melt.data.table for more on coercion.
 ```
 
 ```
-## Warning in melt.data.table(df_compiled, id.vars = intersect(nondate_cols, : 'measure.vars' [1973,
-## 1974, 1975, 1976, ...] are not all of the same type. By order of hierarchy, the molten data value
-## column will be of type 'double'. All measure variables not of type 'double' will be coerced too.
-## Check DETAILS in ?melt.data.table for more on coercion.
-```
-
-```
-## Warning in melt.data.table(df_compiled, id.vars = intersect(nondate_cols, : 'measure.vars' [2005,
-## 2006, 2007, 2008, ...] are not all of the same type. By order of hierarchy, the molten data value
-## column will be of type 'double'. All measure variables not of type 'double' will be coerced too.
-## Check DETAILS in ?melt.data.table for more on coercion.
+## Warning in melt.data.table(df_compiled, id.vars = intersect(nondate_cols, :
+## 'measure.vars' [1973, 1974, 1975, 1976, ...] are not all of the same type. By
+## order of hierarchy, the molten data value column will be of type 'double'. All
+## measure variables not of type 'double' will be coerced too. Check DETAILS in
+## ?melt.data.table for more on coercion.
 ```
 
 ```r
@@ -152,13 +144,13 @@ data_api_governance <-
 ```
 
 ```
-## Warning: Expected 1 pieces. Additional pieces discarded in 356 rows [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
-## 12, 13, 14, 15, 16, 17, 18, 19, 20, ...].
+## Warning: Expected 1 pieces. Additional pieces discarded in 356 rows [1, 2, 3, 4, 5, 6, 7,
+## 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...].
 ```
 
 ```
-## `summarise()` has grouped output by 'Country ISO3', 'Country Name', 'Indicator'. You can override
-## using the `.groups` argument.
+## `summarise()` has grouped output by 'Country ISO3', 'Country Name', 'Indicator'.
+## You can override using the `.groups` argument.
 ```
 
 ## Combine all indicators
@@ -222,8 +214,8 @@ data_api_clean <-
 ```
 
 ```
-## Warning: Expected 2 pieces. Missing pieces filled with `NA` in 165693 rows [1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-## 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...].
+## Warning: Expected 2 pieces. Missing pieces filled with `NA` in 160991 rows [1, 2, 3, 4, 5,
+## 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...].
 ```
 
 ```r

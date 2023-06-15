@@ -149,6 +149,12 @@ ctf <-
   )
 ```
 
+```
+## Error in `pivot_longer()`:
+## ! Can't subset columns that don't exist.
+## ✖ Columns `governanceofstateownedenterprise`, `useofcommandcontrolregulation`, and `pricecontrols` don't exist.
+```
+
 ## Raw data
 
 
