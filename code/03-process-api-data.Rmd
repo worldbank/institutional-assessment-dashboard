@@ -1,29 +1,13 @@
-# Process API data
+# 03. Process API data
 
 - Input: `data/final/db_variables.rds`
 - Output: `data/clean/original_data.rds`
  
- 
-
-```r
-packages <- 
-  c(
-    "tidyverse",
-    "here",
-    "data360r",
-    "skimr"
-  )
-
-pacman::p_load(packages,
-               character.only = TRUE)
-```
-
 ## List indicators to retrieve
 
 Governance indicators are calculated in a disaggregate manner, so we will import them separately, aggregate them, and combine with the other indicators.
 
-
-```r
+```{r}
 governance_data <- c(
   42099, # SOE board of directors independence (Mining)
   42100, # SOE board of directors independence (Oil & Gas)
@@ -42,8 +26,9 @@ governance_data <- c(
 
 All other indicators are coming from the list of selected indicators.
 
+```{r}
 
-```r
+
 # Get data360
 indicator_ids <-
   db_variables %>%
@@ -60,8 +45,8 @@ indicator_ids <-
   )
 ```
 
+```{r}
 
-```r
 datalist = list()
 
 for(i in 1:length(indicator_ids)){
@@ -71,33 +56,7 @@ for(i in 1:length(indicator_ids)){
            output_type = 'long'
           )
 }
-```
 
-```
-## Warning in melt.data.table(df_compiled, id.vars = intersect(nondate_cols, :
-## 'measure.vars' [1800, 1801, 1802, 1803, ...] are not all of the same type. By
-## order of hierarchy, the molten data value column will be of type 'double'. All
-## measure variables not of type 'double' will be coerced too. Check DETAILS in
-## ?melt.data.table for more on coercion.
-```
-
-```
-## Warning in melt.data.table(df_compiled, id.vars = intersect(nondate_cols, :
-## 'measure.vars' [2006, 2007, 2008, 2009, ...] are not all of the same type. By
-## order of hierarchy, the molten data value column will be of type 'double'. All
-## measure variables not of type 'double' will be coerced too. Check DETAILS in
-## ?melt.data.table for more on coercion.
-```
-
-```
-## Warning in melt.data.table(df_compiled, id.vars = intersect(nondate_cols, :
-## 'measure.vars' [1973, 1974, 1975, 1976, ...] are not all of the same type. By
-## order of hierarchy, the molten data value column will be of type 'double'. All
-## measure variables not of type 'double' will be coerced too. Check DETAILS in
-## ?melt.data.table for more on coercion.
-```
-
-```r
 data_api_raw = do.call(dplyr::bind_rows , datalist)
 ```
 
@@ -106,8 +65,7 @@ data_api_raw = do.call(dplyr::bind_rows , datalist)
 
 The code below imports the data from the API
 
-
-```r
+```{r}
 data_api_governance <- 
   get_data360(
     indicator_id = governance_data,
@@ -117,8 +75,7 @@ data_api_governance <-
 
 These indicators are calculated separately for the mining and oil & gas industries. We are interested in a more aggregate measure, so we will take the average of the two by country and period.
 
-
-```r
+```{r}
 data_api_governance <- 
   data_api_governance %>%
   # Harmonize indicator name across industries
@@ -143,20 +100,9 @@ data_api_governance <-
   )
 ```
 
-```
-## Warning: Expected 1 pieces. Additional pieces discarded in 356 rows [1, 2, 3, 4, 5, 6, 7,
-## 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...].
-```
-
-```
-## `summarise()` has grouped output by 'Country ISO3', 'Country Name', 'Indicator'.
-## You can override using the `.groups` argument.
-```
-
 ## Combine all indicators
 
-
-```r
+```{r}
 data_api <-
   bind_rows(
     data_api_raw,
@@ -167,9 +113,8 @@ data_api <-
   )
 ```
 
-# Cleaning API data ----
-
-```r
+## Cleaning API data
+```{r}
 data_api_clean <- 
   data_api %>%
   filter(!is.na(Observation)) %>%
@@ -211,14 +156,7 @@ data_api_clean <-
     fill = list(value = NA)
   ) %>%
   unique
-```
 
-```
-## Warning: Expected 2 pieces. Missing pieces filled with `NA` in 160991 rows [1, 2, 3, 4, 5,
-## 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...].
-```
-
-```r
 var_names <-
   db_variables %>%
   select(
@@ -266,9 +204,12 @@ data_api_labeled <-
     all_of(vars_api)
   )
 
-# Drop partial data ----
+# Drop partial data
 rm(datalist, data_api_raw, data_api_governance, indicator_ids, i)
+```
 
+## Save data
+```{r}
 write_rds(
   data_api_labeled,
   here(
@@ -278,4 +219,5 @@ write_rds(
     "api_data.rds"
   )
 )
+
 ```

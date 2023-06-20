@@ -1,26 +1,9 @@
-# Process selected indicators
+# 01. Process selected indicators
 
 - Input: `data/db_variables.xlsx`
 - Outputs: 
   - `data/final/db_variables.xlsx`
   - `data/final/definitions.rds`
-
-## Load packages
-
-```{r}
-packages <- 
-  c(
-    "tidyverse",
-    "here",
-    "readxl"
-  )
-
-pacman::p_load(
-  packages, 
-  character.only = TRUE
-)
-```
-
 
 ## Load list of selected indicators
 
@@ -86,10 +69,4 @@ write_rds(
     "definitions.rds"
   )
 )
-```
-
-## Define list of variables
-
-```{r}
-source(here("vars-control.R"))
 ```
