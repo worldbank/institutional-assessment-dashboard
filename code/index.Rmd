@@ -1,10 +1,13 @@
 --- 
 title: "Data processing"
 author: "Luiza Andrade, Serena Cocciolo, Eric Braian Arias, Gabriel Vaz de Melo"
-output: bookdown::gitbook
+site: "bookdown::bookdown_site"
+output: 
+  bookdown::gitbook
 config:
     toc:
       collapse: subsection
+    download: ["pdf"] 
 documentclass: book
 link-citations: yes
 ---
