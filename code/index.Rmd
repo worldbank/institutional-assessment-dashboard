@@ -35,3 +35,5 @@ bookdown::render_book()
 ```
 
 To render this example to PDF as a `bookdown::pdf_book`, you'll need to install XeLaTeX. You are recommended to install TinyTeX (which includes XeLaTeX): <https://yihui.org/tinytex/>.
+
+This bookdown workflow raises an error if it does not compile properly.
