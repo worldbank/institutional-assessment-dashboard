@@ -883,7 +883,6 @@ static_scatter <-
         high_group, by = c("country_code")
       )
 
-
     
     ggplot(
       data,
@@ -898,8 +897,7 @@ static_scatter <-
         size = 4,
         shape = 1,
         color = "#60C2F7"
-      ) +
-      geom_smooth(method=lm)+
+      )+
       geom_point(
         aes(
           color = type,
@@ -944,6 +942,7 @@ static_scatter <-
           paste0("<b>", x_scatter,"<br>(closeness to frontier)</b>")
         )
       )
+    
   }
 
 interactive_scatter <-
