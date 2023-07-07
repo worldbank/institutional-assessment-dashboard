@@ -109,7 +109,7 @@ full_data <-
 
 ```
 
-## Save binded datasets ====================================================
+## Save binded datasets
 
 ```{r}
 write_rds(

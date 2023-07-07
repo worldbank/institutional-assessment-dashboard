@@ -1,4 +1,4 @@
-# 02. Process original data
+# Process original data
 
 - Input: `data/raw/merged_for_residuals-v2.rds`
 - Input: `data/raw/CBIData_Romelli2022.dta`
