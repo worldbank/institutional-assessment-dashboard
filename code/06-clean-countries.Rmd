@@ -9,20 +9,6 @@
   - `data/final/wb_country_list.rds`
   - `data/final/wb_country_groups.rds`
 
-```{r}
-  packages <-
-    c(
-      "tidyverse",
-      "here",
-      "readxl",
-      "assertthat"
-    )
-
-  pacman::p_load(packages,
-                 character.only = TRUE)
-```
-
-
 ## Inputs
 
 ```{r}

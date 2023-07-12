@@ -8,23 +8,6 @@
   
 - Output:
   - `data/final/indicators_map.rds`
-  
-## Packages 
-
-```{r}
-packages <-
-  c(
-    "tidyverse",
-    "rmapshaper",
-    "sf",
-    "here"
-  )
-
-pacman::p_load(
-  packages,
-  character.only = TRUE
-)
-```
 
 ## Input data 
 

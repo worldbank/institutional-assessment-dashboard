@@ -1,4 +1,4 @@
-# 03. Process API data
+# Process API data
 
 - Input: `data/final/db_variables.rds`
 - Output: `data/clean/original_data.rds`
