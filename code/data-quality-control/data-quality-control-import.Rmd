@@ -4,6 +4,19 @@ output: html_document
 date: '`r format(Sys.Date(), "%B %d, %Y")`'
 ---
 
+# To-Do:
+
+We require the following modifications:
+
+1. Coverage in the last five years
+2. Flagging system for the following inclusion criteria:
+
+  a. **Continued Series**. We exclude any variables that have been discontinued. We verify that there have been updates in the data for the past five years (2015 in the Global Dashboard).
+  b. **Country coverage**. We exclude variables that over the past 5 years have data on fewer than 100 countries (we can debate whether 100 is the right number but we need a number). The indicator must cover at least once over the past 5 years (2015-2020) each of the 100 countries.
+    b.1. As an exception to the previous rules we will include variables that that cover 50 to 100 countries over the past 5 years that cover all the bank regions (excluding high income). This will eliminate OECD type of data but would keep PEFA data. The OECD is normally missing in PEFA and ES because these datasets normally focus on client countries only.
+  c. **Minimal threshold**. We include only variables that have at least 2 years of data (not per country but overall). Additionally, for each year to count, coverage must be of at least 10 countries
+  
+
 ```{r setup, include = FALSE}
 library(dplyr)
 library(ggplot2)
@@ -34,6 +47,10 @@ calculate_coverage <- function(indicator, id) {
   return(coverage_id)
 }
 
+flag_discontinued <- function(indicator, year_id){
+  
+}
+  
 calculate_time_range <- function(time_id){
   year_range <- paste0(min({{time_id}}, na.rm = TRUE), "-", max({{time_id}}, na.rm = TRUE))
   
@@ -75,6 +92,23 @@ compute_coverage <- function(data, country_id, year_id){
   
   return(data_coverage)
 }
+
+build_missingness_table <- function(data, dimension, vars){
+  # this function calculates the amount of missingness
+  # of a particular indicator, across a dimension,
+  # whether it be (1) a country or (2) a year
+  missingness_table <- data |> 
+    select(
+      {{dimension}},
+      any_of(vars)
+    ) |> 
+    group_by({{dimension}}) |> 
+    miss_var_summary() |> 
+    select(-n_miss) |> 
+    ungroup()
+  
+  return(missingness_table)
+}
 ```
 
 # Introduction:
@@ -111,14 +145,13 @@ Below, we provide a code example of how to validate a manual import of data, as 
   2. The `country_id` and `year_id`, defined in the `chunks`: (a) `validation` and (b) `coverage`.
 
 ```{r, echo = FALSE, message = FALSE}
-input_dataset <- read_csv(
-  "id4d.csv"
+input_dataset <- read_rds(
+  here("..", "data", "final", "compiled_indicators.rds")
   )
 
 dataset_clean <- input_dataset |> 
   clean_names()
 ```
-
 
 ## 1. Document Data Source
 
@@ -136,7 +169,7 @@ This section refers to the expectations on tidy data. As such, we verify that th
 ```{r expectation, validate = TRUE, echo = TRUE}
 # specify country and year ids
 country_id <- "country_code"
-year_id <- "time"
+year_id <- "year"
 
 dataset_clean |> 
   create_agent() |> 
