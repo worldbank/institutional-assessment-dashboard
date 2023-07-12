@@ -1,0 +1,219 @@
+---
+title: "Data Quality Control: Validation"
+output: html_document
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+---
+
+```{r setup, include = FALSE}
+library(dplyr)
+library(ggplot2)
+library(here)
+library(testthat)
+library(naniar)
+library(tidyr)
+library(tidytext)
+library(readr)
+library(pointblank)
+library(janitor)
+library(DT)
+library(scales)
+
+# note that echo has to be set TRUE to display pointblank output
+knitr::opts_chunk$set(
+  echo = FALSE, warning = FALSE, 
+  fig.width = 10, fig.height = 14, dpi = 300
+)
+
+validate_rmd()
+```
+
+```{r funs, include = FALSE}
+calculate_coverage <- function(indicator, id) {
+  coverage_id <- n_distinct({{id}}[!is.na(indicator)])
+  
+  return(coverage_id)
+}
+
+calculate_time_range <- function(time_id){
+  year_range <- paste0(min({{time_id}}, na.rm = TRUE), "-", max({{time_id}}, na.rm = TRUE))
+  
+  return(year_range)
+}
+
+compute_coverage <- function(data, country_id, year_id){
+  data_coverage <- data |> 
+    # compute (1) number of distinct country codes
+    # (2) range of years covered
+   summarise(
+      across(
+        c(everything()),
+        list(
+          country_coverage = ~ calculate_coverage(.x, {{country_id}}),
+          year_coverage = ~ calculate_coverage(.x, {{year_id}}),
+          year_range = ~ calculate_time_range({{year_id}}),
+          percent_complete_records = ~ percent(prop_complete(.x))
+        ),
+        .names = "{.col}__{.fn}"
+      )
+  ) |>
+  pivot_longer(
+      cols = c(everything()),
+      cols_vary = "slowest",
+      names_to = c("indicator", ".value"),
+      names_pattern = "(.*)__(.*)"
+  ) |> 
+    arrange(
+      indicator
+    ) |> 
+    select(
+      Indicator = indicator,
+      `Country Coverage` = country_coverage,
+      `Year Coverage` = year_coverage,
+      `Year Range` = year_range,
+      `Percentage of Complete Records` = percent_complete_records
+    )
+  
+  return(data_coverage)
+}
+```
+
+# Introduction:
+
+This document provides a protocol for data validation when manually importing data into CLIAR. The goal is to mitigate the following risks:
+
+  1. Low data quality, measured in terms of country and year coverage.
+  2. Change in data structure and indicator names over time.
+  3. Inconsistency in country names and codes across data sources.
+
+# Steps for Validation of Manual Data Import:
+
+  1. **Document data source:** For each data source, specify (a) the `url` to download the data, (b) where the data is stored and (c) when the data was downloaded.
+  2. **Set expectations on data import:** We set our expectations for data to be tidy. We describe this further in the `Data has to be Tidy` section.
+  3. **Validate the data:** We use the package `pointblank` to validate the dataset. We specify rules to detect errors and inconsistencies in the data, such as missing or invalid values, incorrect formatting, or duplicates.
+  4. **Review and approve the data import:** The diagnostic is reviewed and approved by a designated individual or team for each data import This ensures that the data meets the necessary review standards, including: (1) quantitative review and (2) substantive review.
+  5. **Store the data for each data source:** Imported data for each data source is stored in a designated location that is easily accessible to authorized individuals.
+
+Data validation will be performed using the `R` packages: (1) [`pointblank`](https://rich-iannone.github.io/pointblank/) and (2) [`naniar`](https://naniar.njtierney.com/).
+
+# Data has to be Tidy
+
+We specify a set of requirements that need to hold in order for the data to be imported.
+
+  1. Data is [tidy](https://r4ds.had.co.nz/tidy-data.html). Namely: (1) indicators are in columns, (2) observations are in rows, and (3) values are in cells.
+  2. Data has `country` and `year` identifiers.
+  3. If any of the above does not hold, data has to be cleaned, and the data cleaning process will be documented in a separate script.
+
+# How to Validate a Manual Import of Data:
+
+Below, we provide a code example of how to validate a manual import of data, as applied to the ID4D data. To adapt it to your needs, you will have to modify the following parameters:
+
+  1. The `input dataset`, defined in line 115.
+  2. The `country_id` and `year_id`, defined in the `chunks`: (a) `validation` and (b) `coverage`.
+
+```{r, echo = FALSE, message = FALSE}
+input_dataset <- read_csv(
+  "id4d.csv"
+  )
+
+dataset_clean <- input_dataset |> 
+  clean_names()
+```
+
+
+## 1. Document Data Source
+
+This section specifies both the data source and date of import:
+
+- Data Source: `https://databank.worldbank.org/source/identification-for-development-(id4d)-data`
+- Data Import Date: `r format(Sys.Date(), "%B %d, %Y")`
+
+Here we also specify what steps were taken during the import process, issues found and solutions implemented.
+
+## 2. Set Expectations in a Data Import Template
+
+This section refers to the expectations on tidy data. As such, we verify that the data is indeed tidy, along with having `country` and `year` identifiers. Each combination of these identifiers has to be unique.
+
+```{r expectation, validate = TRUE, echo = TRUE}
+# specify country and year ids
+country_id <- "country_code"
+year_id <- "time"
+
+dataset_clean |> 
+  create_agent() |> 
+  # 1. existence of year and country id
+  col_exists(
+    columns = c(country_id, year_id)
+  ) |> 
+  # 2. tidy data: each combination of identifiers is unique (long form)
+  rows_distinct(
+    columns = c(country_id, year_id)
+  ) |> 
+  interrogate()
+```
+
+## 3. Validate the Data
+
+In this section, we define our expectations of the structure of the data. For example, whether it contains all the columns outlined in the `data_template` specified above. Additionally, whether it contains any missing values. 
+
+These should be specified on a data source basis, but will be crucial for ensuring that we have validation procedures set in place.
+
+In this example, we conduct validation tests on all indicators that claim to be percentage. We find that a few of them have values that exceed 100 percent.
+
+```{r validation, validate = TRUE, echo = TRUE}
+al <- action_levels(
+  warn_at = 0.1
+)
+
+dataset_clean |> 
+  create_agent() |>
+  # verify that all percentages are less than 100
+  col_vals_lte(
+    columns = contains("percent"),
+    value = 100,
+    label = "Verify Percentage Indicators are Less than 100",
+    actions = al,
+    na_pass = TRUE
+  ) |>
+  interrogate()
+```
+
+## 4. Review of the Data
+
+Quantitative Review:
+
+In this section we compute a set of diagnostics that assess the coverage of the dataset indicators. These diagnostics are:
+  1. Country Coverage,
+  2. Year Range,
+  2. Year Coverage, and
+  3. Proportion of Complete Records.
+  
+This section provides a set of diagnostic of all indicators.
+
+```{r coverage}
+# specify country and year id's with respect to the clean names
+dataset_coverage <- dataset_clean |> 
+  compute_coverage(
+    country_id = country_code,
+    year_id = time
+  )
+```
+
+```{r, echo = FALSE}
+datatable(
+  dataset_coverage
+)
+```
+
+Substantive Review: TBD
+
+## 5. Store the data
+
+We should ideally store the approved data in a centralized data infrastructure, as discussed in our knowledge transfer meeting. We should avoid to the extent possible having local copies of the same data.
+
+We also store the diagnostics, for quantitative review diagnostics, for future reference.
+
+```{r, eval = TRUE}
+# Store data
+# saveRDS(data_raw, "/path/to/data_raw.rds")
+write_csv(dataset_coverage, "data_diagnostics.csv")
+```

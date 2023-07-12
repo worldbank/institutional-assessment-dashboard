@@ -1,0 +1,349 @@
+---
+title: 'Data Quality Control: Exclusion'
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+output: word_document
+---
+
+```{r setup, include = FALSE}
+packages <- 
+  c(
+    "tidyverse",
+    "here",
+    "testthat",
+    "naniar",
+    "knitr",
+    "tidytext"
+  )
+
+pacman::p_load(
+  packages, 
+  character.only = TRUE
+)
+
+theme_set(
+  theme_minimal(
+    base_size = 20
+  )
+)
+
+opts_chunk$set(
+  echo = FALSE, warning = FALSE, message = FALSE, 
+  fig.width = 10, fig.height = 14, dpi = 300
+)
+```
+
+```{r readin, include = FALSE}
+wb_country_groups <- read_rds(
+  here("..", "data", "final", "wb_country_list.rds")
+) |>
+  # extract only regions
+  distinct(
+    country_code, country_name, .keep_all = TRUE 
+  ) |>
+  select(
+    country_code,
+    country_name,
+    region = group
+  )
+
+full_data <- read_rds(
+  here(
+    "..",
+    "data",
+    "final",
+    "compiled_indicators.rds"
+  )
+) |>
+  left_join(
+    wb_country_groups,
+    by = c("country_code", "country_name")
+  )
+
+# variable definitions
+db_variables <- read_rds(
+   here(
+    "..",
+    "data",
+    "final",
+    "db_variables.rds"
+  )
+)
+
+# import variable definitions
+source(
+  here("vars-control.R")
+)
+```
+
+# Quality checks: Coverage Criteria
+
+- Inputs:
+  - `data/final/wb_country_list.rds`
+  - `data/final/compiled_indicators.rds`
+  - `data/final/db_variables.rds`
+      
+- Outputs:
+  - Exclusion Diagnostics
+
+# Introduction:
+
+The objective of this quality check is to verify how different exclusion criteria affect availability of our indicators. In particular, we are interested in the application of the following criteria for exclusion:
+
+  1. **Discontinued Series**. We exclude any variables that have been discontinued. We verify that there have been no updates in the data for the past five years (2015 in the Global Dashboard).
+  2. **Low country coverage**. We exclude variables that over the past 5 years have data on fewer than 100 countries (we can debate whether 100 is the right number but we need a number). The indicator must cover at least once over the past 5 years (2015-2020) each of the 100 countries.
+    2.a. As an exception to the previous rules we will include variables that that cover 50 to 100 countries over the past 5 years that cover all the bank regions (excluding high income). This will eliminate OECD type of data but would keep PEFA data. The OECD is normally missing in PEFA and ES because these datasets normally focus on client countries only.
+  3. **Minimal threshold**. We include only variables that have at least 2 years of data (not per country but overall). Additionally, for each year to count, coverage must be of at least 10 countries
+  
+For each one of these criteria, we will produce the following indicators:
+
+  1. The set of indicators selected for exclusion.
+  2. Sensitivity to the exclusion criterion: cannot use correlation between original and modified CTF indicator, because dropped indicators fall out of sample. [To-Do].
+  3. Change in missingness of data: Proportion of missingness, measured as the ratio of missing to number of elements (cells) in the dataset.
+
+
+# 1. Discontinued Series
+
+We define a series as discontinued if in the past 5 years, a variable has not been updated for any of the countries.
+
+```{r discontinued}
+build_missingness_table <- function(data, dimension, vars){
+  # this function calculates the amount of missingness
+  # of a particular indicator, across a dimension,
+  # whether it be (1) a country or (2) a year
+  missingness_table <- data |> 
+    select(
+      {{dimension}},
+      any_of(vars)
+    ) |> 
+    group_by({{dimension}}) |> 
+    miss_var_summary() |> 
+    select(-n_miss) |> 
+    ungroup()
+  
+  return(missingness_table)
+}
+
+complete_var_names <- function(data, dictionary){
+  data |> 
+    inner_join(
+      dictionary |> select(variable, var_name, family_name),
+      by = "variable"
+    )
+}
+
+drop_indicators <- function(data, excluded_indicators){
+  indicators_to_exclude <- excluded_indicators %>%
+    pull(variable)
+  
+  pruned_data <- data |> 
+    select(
+      -any_of(indicators_to_exclude)
+    )
+  
+  return(pruned_data)
+}
+
+exclude_discontinued <- function(data, variables = vars_all, dictionary){
+  # compute missingness across years
+  data |> 
+    build_missingness_table(
+      dimension = year,
+      vars = variables
+    ) |> 
+    group_by(variable) |> 
+    summarise(
+      times_updated = sum(pct_miss != 100)
+    ) |> 
+    filter(
+      times_updated == 0
+    ) |> 
+    complete_var_names(db_variables) |> 
+    arrange(
+      var_name
+    ) |> 
+    select(
+      variable,
+      var_name,
+      family_name,
+      times_updated
+    )
+}
+
+# identify variables that have not been updated in the past 5 years
+discontinued_indicators <- full_data |> 
+  filter(year > (2020 - 5)) |> 
+  exclude_discontinued(
+    dictionary = db_variables
+  )
+
+kable(
+  discontinued_indicators |> select(-variable),
+  col.names = c("Variable", "Family Name", "Times Updated"),
+  caption = "Discontinued Indicators in the Past 5 Years"
+)
+```
+
+## Stress Test for Exclusion: Discontinued Series
+
+```{r}
+discontinued_prop_complete <- full_data |> 
+  drop_indicators(discontinued_indicators) |> 
+  prop_complete() |> 
+  round(2)
+
+full_prop_complete <- full_data |> 
+  prop_complete() |> 
+  round(2)
+```
+
+We calculate the number of complete entries (individual cells in the tablet for the pruned dataset (excluding the discontinued indicators) and compare it to the original proportion of complete cases for the full data. We find that there is an increase in the proportion of complete cases by `r discontinued_prop_complete - full_prop_complete`, from `r full_prop_complete` to `r discontinued_prop_complete`.
+
+# 2. Low Country Coverage
+
+We exclude variables that over the past 5 years have data on fewer than 100 countries (we can debate whether 100 is the right number but we need a number. Note that the number of countries included in the table are increasing over time.). The indicator must cover at least once over the past 5 years (2018-2022) each of the 100 countries. We note that the indicators for the Low Country Coverage criterion are the same as the ones excluded for the Discontinued Series criterion.
+
+```{r low_country}
+n_countries <- 162
+
+exclude_country_and_region_coverage <- function(data, variables = vars_all, dictionary){
+  data |> 
+    # compute (1) number of distinct country codes
+    # (2) number of distinct regions covered
+    summarise(
+      across(
+        c(any_of(variables)),
+        ~ n_distinct(country_code[!is.na(.)]),
+        .names = "{.col}__total_countries_covered"
+      ),
+      across(
+        c(any_of(vars_all)),
+        ~ n_distinct(region[!is.na(.)]),
+        .names = "{.col}__total_regions_covered"
+      )
+    ) |> 
+    # create a long-form table of all indicators, with
+    # two columns (1) countries covered and (2) regions covered
+    pivot_longer(
+      cols = c(everything()),
+      cols_vary = "slowest",
+      names_to = c("variable", ".value"),
+      names_pattern = "(\\w+)__(\\w+)"
+    ) |> 
+    # exclude indicators with less than 100 countries
+    # and less than 5 regions covered
+    filter(
+      total_countries_covered < 100 &
+        total_regions_covered < 5
+    ) |>
+    # inherits db_variables
+    complete_var_names(dictionary) |> 
+    arrange(
+      var_name
+    ) |> 
+    select(
+      variable, 
+      var_name,
+      family_name,
+      total_countries_covered,
+      total_regions_covered
+    )
+}
+
+low_coverage_indicators <- full_data |> 
+  # in the last 5 years
+  filter(year > (2020 - 5)) |> 
+  # compute total countries and regions covered for all vars
+  # note that it excludes, per variable, all missing variables
+  # and calculates distinct countries and regions
+  exclude_country_and_region_coverage(
+    dictionary = db_variables
+  )
+
+kable(
+  low_coverage_indicators |> select(-variable),
+  col.names = c("Variable", "Family Name", "Total Countries Covered", "Total Regions Covered"),
+  caption = "Low Coverage Indicators in the Past 5 Years"
+)
+```
+
+## Stress Test for Exclusion: Low Country Coverage
+
+```{r}
+low_coverage_prop_complete <- full_data |> 
+  drop_indicators(low_coverage_indicators) |> 
+  prop_complete() |> 
+  round(2)
+```
+
+We calculate the proportion of complete cases for the pruned dataset (excluding the discontinued indicators) and compare it to the original proportion of complete cases for the full data. We find that there is an increase in the proportion of complete cases by `r low_coverage_prop_complete - full_prop_complete`, from `r full_prop_complete` to `r low_coverage_prop_complete`.
+
+# 3. Minimal Threshold
+
+We exclude indicators that have less than 2 years of data (not per country but overall) and for each year covered, it covers less than 10 countries per year.
+
+```{r minimal}
+calculate_coverage <- function(data, variables = vars_all, grouping){
+  # calculate coverage across year or country
+  # if year, countries covered in that year
+  # if country, years covered for that country
+  if(grouping == "year"){
+    value <- "country"
+  } else{
+    value <- "year"
+  }
+  
+  data |> 
+    group_by(
+      across(any_of(grouping))
+    ) |> 
+    summarise(
+      across(
+        any_of(variables),
+        n_miss
+      )
+    ) |> 
+    pivot_longer(
+      !year,
+      names_to = "variable",
+      values_to = paste0(value, "_coverage")
+    )
+}
+
+calculate_minimal_threshold <- function(data, dictionary){
+  data |> 
+    filter(country_coverage >= 10) |> 
+    group_by(variable) |> 
+    summarise(
+      year_coverage = n_distinct(year)
+    ) |> 
+    filter(year_coverage <= 2) |> 
+    complete_var_names(dictionary) |> 
+    arrange(
+      var_name
+    ) |> 
+    select(variable, var_name, family_name, year_coverage)
+}
+
+minimal_threshold_indicators <- full_data |> 
+  calculate_coverage(grouping = "year") |> 
+  calculate_minimal_threshold(
+    dictionary = db_variables
+  )
+
+kable(
+  minimal_threshold_indicators |> select(-variable),
+  col.names = c("Variable", "Family Name", "Year Coverage"),
+  caption = "Minimal Threshold Indicators"
+)
+```
+
+## Stress Test for Exclusion: Minimal Threshold
+
+```{r}
+minimal_threshold_prop_complete <- full_data |> 
+  drop_indicators(minimal_threshold_indicators) |> 
+  prop_complete() |> 
+  round(2)
+```
+
+We calculate the proportion of complete cases for the pruned dataset (excluding the discontinued indicators) and compare it to the original proportion of complete cases for the full data. We find that there is a decrease in the proportion of complete cases by `r abs(minimal_threshold_prop_complete - full_prop_complete)`, from `r full_prop_complete` to `r minimal_threshold_prop_complete`.
