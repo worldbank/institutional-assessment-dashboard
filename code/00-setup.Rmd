@@ -9,6 +9,6 @@ library(skimr)
 library(knitr)
 library(assertthat)
 library(tibble)
-library(sf)
 library(rmapshaper)
+library(sf)
 ```
