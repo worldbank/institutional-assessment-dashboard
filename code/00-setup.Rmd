@@ -7,4 +7,9 @@ library(haven)
 library(data360r)
 library(skimr)
 library(knitr)
+library(assertthat)
+library(tibble)
+library(rmapshaper)
+library(sf)
+
 ```

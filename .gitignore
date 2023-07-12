@@ -63,3 +63,7 @@ passwords.*
 password/
 passwords/
 data/raw/CLASS.xlsx
+
+#######################
+# renv file
+!renv.lock
