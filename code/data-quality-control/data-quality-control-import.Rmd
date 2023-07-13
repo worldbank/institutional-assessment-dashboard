@@ -48,7 +48,11 @@ calculate_coverage <- function(indicator, id) {
 }
 
 flag_discontinued <- function(indicator, year_id){
+  times_updated <- length(indicator[{{year_id}} >= 2015 & !is.na(indicator)])
   
+  flag_discontinued <- if_else(times_updated == 0, 1, 0)
+  
+  return(flag_discontinued)
 }
   
 calculate_time_range <- function(time_id){
@@ -63,14 +67,16 @@ compute_coverage <- function(data, country_id, year_id){
     # (2) range of years covered
    summarise(
       across(
-        c(everything()),
-        list(
-          country_coverage = ~ calculate_coverage(.x, {{country_id}}),
-          year_coverage = ~ calculate_coverage(.x, {{year_id}}),
-          year_range = ~ calculate_time_range({{year_id}}),
-          percent_complete_records = ~ percent(prop_complete(.x))
-        ),
-        .names = "{.col}__{.fn}"
+        c(
+          everything()),
+          list(
+            country_coverage = ~ calculate_coverage(.x, {{country_id}}),
+            year_coverage = ~ calculate_coverage(.x, {{year_id}}),
+            flag_discontinued = ~ flag_discontinued(.x, {{year_id}}),
+            year_range = ~ calculate_time_range({{year_id}}),
+            percent_complete_records = ~ percent(prop_complete(.x))
+          ),
+          .names = "{.col}__{.fn}"
       )
   ) |>
   pivot_longer(
@@ -86,6 +92,7 @@ compute_coverage <- function(data, country_id, year_id){
       Indicator = indicator,
       `Country Coverage` = country_coverage,
       `Year Coverage` = year_coverage,
+      `Flag Discontinued` = flag_discontinued,
       `Year Range` = year_range,
       `Percentage of Complete Records` = percent_complete_records
     )
@@ -227,7 +234,7 @@ This section provides a set of diagnostic of all indicators.
 dataset_coverage <- dataset_clean |> 
   compute_coverage(
     country_id = country_code,
-    year_id = time
+    year_id = year
   )
 ```
 
