@@ -1,21 +1,8 @@
 ---
-title: "Data Quality Control: Validation"
+title: "Data Quality Control: Import Validation"
 output: html_document
 date: '`r format(Sys.Date(), "%B %d, %Y")`'
 ---
-
-# To-Do:
-
-We require the following modifications:
-
-1. Coverage in the last five years
-2. Flagging system for the following inclusion criteria.
-
-  a. **Continued Series**. We exclude any variables that have been discontinued. We verify that there have been updates in the data for the past five years (2015 in the Global Dashboard).
-  b. **Country coverage**. We exclude variables that over the past 5 years have data on fewer than 100 countries (we can debate whether 100 is the right number but we need a number). The indicator must cover at least once over the past 5 years (2015-2020) each of the 100 countries.
-    b.1. As an exception to the previous rules we will include variables that that cover 50 to 100 countries over the past 5 years that cover all the bank regions (excluding high income). This will eliminate OECD type of data but would keep PEFA data. The OECD is normally missing in PEFA and ES because these datasets normally focus on client countries only (this can only take place once we have region information, using the `countrycode` package.)
-  c. **Minimal threshold**. We include only variables that have at least 2 years of data (not per country but overall). Additionally, for each year to count, coverage must be of at least 10 countries
-  
 
 ```{r setup, include = FALSE}
 library(dplyr)
@@ -268,8 +255,14 @@ Quantitative Review:
 In this section we compute a set of diagnostics that assess the coverage of the dataset indicators. These diagnostics are:
   1. Country Coverage,
   2. Year Range,
-  2. Year Coverage, and
-  3. Proportion of Complete Records.
+  3. Year Coverage, and
+  4. Proportion of Complete Records.
+  5. Additionally, we introduce the following flags:
+    5.a. **Discontinued**. We flag any indicators that has been discontinued. We verify that there have been updates in the data for the past five years (2015 in the Global Dashboard).
+    5.b. **Low Country Coverage**. We flag any indicators that over the past 5 years has data on fewer than 100 countries. The indicator must cover at least once over the past 5 years (2015-2020) each of the 100 countries.
+      5.b.1. As an exception to the previous rules we will include variables that that cover 50 to 100 countries over the past 5 years that cover all the bank regions (excluding high income). This will eliminate OECD type of data but would keep PEFA data. The OECD is normally missing in PEFA and ES because these datasets normally focus on client countries only (this can only take place once we have region information, using the `countrycode` package.)
+    5.c. **Minimum Coverage**. We include only variables that have at least 2 years of data (not per country but overall). Additionally, for each year to count, coverage must be of at least 10 countries
+
   
 This section provides a set of diagnostic of all indicators.
 
