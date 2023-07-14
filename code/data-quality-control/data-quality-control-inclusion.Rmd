@@ -90,7 +90,7 @@ source(
 The objective of this quality check is to verify how different exclusion criteria affect availability of our indicators. In particular, we are interested in the application of the following criteria for exclusion:
 
   1. **Discontinued Series**. We exclude any variables that have been discontinued. We verify that there have been no updates in the data for the past five years (2015 in the Global Dashboard).
-  2. **Low country coverage**. We exclude variables that over the past 5 years have data on fewer than 100 countries (we can debate whether 100 is the right number but we need a number). The indicator must cover at least once over the past 5 years (2015-2020) each of the 100 countries.
+  2. **Low country coverage**. We exclude variables that over the past 5 years have data on fewer than 100 countries. The indicator must cover at least once over the past 5 years (2015-2020) each of the 100 countries.
     2.a. As an exception to the previous rules we will include variables that that cover 50 to 100 countries over the past 5 years that cover all the bank regions (excluding high income). This will eliminate OECD type of data but would keep PEFA data. The OECD is normally missing in PEFA and ES because these datasets normally focus on client countries only.
   3. **Minimal threshold**. We include only variables that have at least 2 years of data (not per country but overall). Additionally, for each year to count, coverage must be of at least 10 countries
   
