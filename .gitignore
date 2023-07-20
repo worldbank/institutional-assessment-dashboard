@@ -49,8 +49,8 @@
 .Rproj.user
 
 # Markdown
-!/**/*.md
-!*.csv
+##!/**/*.md
+##!*.csv
 
 #######################
 # Include all the files with passwords or tokens here. All files named
@@ -63,3 +63,9 @@ passwords.*
 password/
 passwords/
 data/raw/CLASS.xlsx
+
+#######################
+.DS_Store
+
+
+
