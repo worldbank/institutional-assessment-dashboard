@@ -49,6 +49,7 @@
 .Rproj.user
 
 # Markdown
+# Temporarily commented the two lines of code below
 ##!/**/*.md
 ##!*.csv
 
