@@ -63,3 +63,10 @@ passwords.*
 password/
 passwords/
 data/raw/CLASS.xlsx
+
+
+########################
+# git ignore data just to be safe
+
+data/
+.DS_Store
