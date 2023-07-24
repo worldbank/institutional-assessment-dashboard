@@ -59,6 +59,11 @@ ui <-
     ),
 
     dashboardBody(
+      
+      tags$style(HTML("
+      .load_save_btns .bttn-primary{background-color: #e94152;}
+                      ")),
+      
       tabItems(
 
         ## Landing page --------------------------------------------------------
@@ -153,6 +158,7 @@ ui <-
         tabItem(
           tabName = "benchmark",
           useShinyjs(),
+          shinyFeedback::useShinyFeedback(), ## enables display of toast messages
 
           bs4Card(
             title = "Select information to display",
@@ -160,6 +166,18 @@ ui <-
             solidHeader = TRUE,
             width = 12,
 
+            shiny::fluidRow(
+              ## Load inputs button
+              column(
+                width = 3,
+                buttons_func(id = "load_inputs",
+                             lab = "Load Inputs"
+                ),
+                
+              )
+            ),
+            shiny::fluidRow(style = "height:30px;"),
+            
             fluidRow(
 
               column(
@@ -283,6 +301,19 @@ ui <-
                 
                 
               ),
+              
+              column(
+                width = 3
+              ),
+              
+              ## Save inputs button
+              column(
+                align = "right",
+                width = 3,
+                buttons_func(id = "save_inputs",
+                             lab = "Save Inputs"
+                )
+              )
               
             )
 

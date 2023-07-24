@@ -4,6 +4,99 @@
 
 
    # Handle inputs ======================================================================
+   
+    ## Hide save inputs button at onset
+    shinyjs::hide("save_inputs")
+    
+    
+    ## When load inputs button is clicked
+    
+    shiny::observeEvent(input$load_inputs, {
+      
+      ## If an input file doesn't exist....
+      
+      if(!check_input_file_exists()){
+        
+        ## Show a modal message communicating the same ...
+        modal_function(title = shiny::span("Important!",
+                                           style = "font-size:16px; font-weight:bold;"), 
+                       mes = "You do not have an input file. 
+                         Please fill in all the necessary data and then save your work")
+      }
+      
+      ## If an input file exists....
+        
+        
+        if(check_input_file_exists()){
+          
+        ## Read in the file, 
+        saved_inputs_df <- readRDS(fs::path(user_data_dir(), "cliar_inputs.rds"))
+          
+
+        ## show a waiter object as the inputs are being populated
+        waiter::waiter_show(html = shiny::tagList(
+          waiter::spin_ring(),
+          shiny::h4("Fetching data ...")
+        ))
+        
+        
+        ## update inputs 
+        ### country
+        shinyWidgets::updatePickerInput(session = session,
+                                        inputId = "country", 
+                                        selected = saved_inputs_df$country
+                                        )
+        
+        ### comparison groups
+        shinyWidgets::updatePickerInput(session = session,
+                                        inputId = "groups", 
+                                        selected = unlist(strsplit(saved_inputs_df$groups, ";"))
+        )
+        
+        ### institutional family
+        shinyWidgets::updatePickerInput(session = session,
+                                        inputId = "family",
+                                        selected = saved_inputs_df$family
+        )
+        
+        ### group median
+        shinyWidgets::updatePickerInput(session = session,
+                                        inputId = "benchmark_median", 
+                                        selected = unlist(strsplit(saved_inputs_df$benchmark_median, ";"))
+        )
+        
+        
+        ### show comparison countries
+        shinyWidgets::updatePrettyCheckbox(session = session,
+                                           inputId = "benchmark_dots",
+                                           value = saved_inputs_df$benchmark_dots
+                                           )
+        
+        ### show rank instead of value
+        shinyWidgets::updatePrettyCheckbox(session = session,
+                                           inputId = "rank",
+                                           value = saved_inputs_df$rank
+        ) 
+        
+        ### benchmarking thresholds
+        shinyWidgets::updatePickerInput(session = session,
+                                        inputId = "threshold", 
+                                        selected = saved_inputs_df$threshold
+                                        )
+        
+      
+      ## exit waiter once that process is finished 
+        waiter::waiter_hide()
+        
+      ## show save inputs button
+      shinyjs::show("save_inputs")
+      
+      ## and automatically trigger the "Apply selection" button
+      # shinyjs::click("select")
+      
+      }
+      
+    })
     
     ## Base country ------------------------------------------------------------
     base_country <-
@@ -435,6 +528,19 @@
       input$country,
 
       {
+
+        ## updating family at this point overwrites the update made once the user loads the input file,
+        ## so ...
+        
+        if(check_input_file_exists() & ## if an input file exists and
+           input$load_inputs == 1 ## the user has clicked the load input file button
+           ){
+          saved_inputs_df <- readRDS(fs::path(user_data_dir(), "cliar_inputs.rds")) ## read in the data
+          sel_family = saved_inputs_df$family ## the family selected by default is the one saved in the input file
+        }else{
+          sel_family = NULL ## the first one in the "family list" by default
+        }
+
         valid_vars <-
           ctf_long %>%
           filter(
@@ -452,12 +558,14 @@
           choices = c(
             "Overview",
             intersect(names(variable_list), valid_vars)
-          )
+          ),
+          selected = sel_family ## the selected family depends on the condition above
         )
       },
 
       ignoreNULL = FALSE
     )
+
 
     ## Median data ------------------------------------------------------------
 
@@ -1069,6 +1177,11 @@
     output$definition <-
       renderTable({
 
+        shiny::req(input$family) ## very crucial. As the app reads the family from the input file, 
+        # we don't want it to display "Warning: Error in if: argument is of length zero". This happens during transitions.
+        # This line ensures that the table is only displayed when family is not NULL. It's null when we
+        # transition from the default "Overview" to the family saved in the setup file.
+        
         variables <-
           db_variables %>%
           filter(var_level == "indicator")
@@ -1137,6 +1250,40 @@
         }
 
       )
+    
+    
+    # When 'apply selection' button is clicked, show the save button
+    shiny::observeEvent(input$select, {
+      shinyjs::show("save_inputs")
+    })
+    
+    
+    # When save button is clicked, Save inputs in a .rds file in construct_user_data_dir() (this function is defined in fun_loadInputs)
 
+    shiny::observeEvent(input$save_inputs, {
+      
+    cliar_inputs <- data.frame(
+      country = input$country , #base country
+      groups = paste(c(input$groups), collapse = ";"), #comparison groups
+      family  = input$family, #institutional family
+      benchmark_median = paste(c(input$benchmark_median), collapse = ";"), #group median
+      benchmark_dots = input$benchmark_dots, #show comparison countries
+      rank = input$rank, #show rank instead of value
+      threshold = input$threshold #threshold
+    )
+    
+    if(!check_input_file_exists()){
+      dir.create(fs::path(user_data_dir()))
+    }
+    
+    
+    saveRDS(cliar_inputs, fs::path(user_data_dir(), "cliar_inputs.rds"))
+    
+    print(paste0("Data has been saved here: ", user_data_dir()))
+    
+    ## show toast messaging alerting the user that input data has been saved successfully
+    toast_messages_func(type = "success", text = "Inputs saved successfully")
+    
+    })
   }
 
