@@ -67,3 +67,6 @@ data/raw/CLASS.xlsx
 #######################
 # renv file
 !renv.lock
+!settings.json
+!activate.R
+!.Rprofile.R
