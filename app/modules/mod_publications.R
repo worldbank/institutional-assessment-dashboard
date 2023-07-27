@@ -13,6 +13,21 @@ publicationsUI <- function(id) {
   tagList(
     shinyWidgets::useBs4Dash(),
 
+    tags$style(
+      "
+  .pubs:hover {
+    -webkit-transform: scale(1.01,1.01);
+    -webkit-transition-timing-function: ease-out;
+    -webkit-transition-duration: 250ms;
+    -moz-transform: scale(1.05,1.07);
+    -moz-transition-timing-function: ease-out;
+    -moz-transition-duration: 250ms;
+    position: relative;
+    z-index: 99;
+} 
+  "
+    ),
+    
     ## 
     shiny::fluidRow(style = "height:15px"),
     
@@ -55,7 +70,7 @@ publicationsServer <- function(id) {
     
       
       output$publications <- renderUI({
-        print(sel_country())
+
         ## Each card will be a publications title
         n_cards <- length(unique(pubList$title))
         ui_cards <- c()
@@ -107,6 +122,7 @@ publicationsServer <- function(id) {
                           shiny::column(
                             width = 3,
                               pub_function(image = pubList_per_card$image[j],
+                                           link = pubList_per_card$weblink[j],
                                            title = pubList_per_card$title[j],
                                            country = pubList_per_card$country[j],
                                            year = pubList_per_card$year[j],
@@ -120,6 +136,7 @@ publicationsServer <- function(id) {
                           width = 3,
                           if(sel_country() %in% pubList_per_card$country){
                             pub_function(image = pubList_per_card$image[pubList_per_card$country == sel_country()],
+                                         link = pubList_per_card$weblink[pubList_per_card$country == sel_country()],
                                          title = pubList_per_card$title[pubList_per_card$country == sel_country()],
                                          country = pubList_per_card$country[pubList_per_card$country == sel_country()],
                                          year = pubList_per_card$year[pubList_per_card$country == sel_country()],

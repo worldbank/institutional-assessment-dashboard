@@ -17,17 +17,19 @@
 pubList <- readxl::read_excel("www/publications/publicationsList.xlsx")
 
 pub_function <- function(image,
+                         link,
                          title,
                          country,
                          year,
                          authors) {
-  
-  
-  if(country %in% pubList$country[pubList$title == title]){
+
+  tags$a(href = link,
 
   shiny::div(
+    class = "pubs",
     style = 
-     "height: 100%;
+     "
+     height: 100%;
     /* grid-column-gap: 1.5625vw; */
     grid-row-gap: 1.5625vw;
     grid-template-rows: auto;
@@ -79,9 +81,7 @@ pub_function <- function(image,
       )
     )
   )
-}else{
-  shiny::HTML(paste0("No report found for ", country))
-}
+  )
 }
 
 # pub_function(image = "publications/CEM_Croatia.png",
