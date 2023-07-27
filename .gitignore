@@ -46,12 +46,10 @@
 !*.Rmd
 !*.Rproj
 !code/notebook/*.css
-.Rproj.user
+
 
 # Markdown
-# Temporarily commented the two lines of code below
 !/**/*.md
-!*.csv
 
 #######################
 # Include all the files with passwords or tokens here. All files named
@@ -66,8 +64,16 @@ passwords/
 data/raw/CLASS.xlsx
 
 #######################
+
+# Ignore the data and code (to confirm) folders
 data/
-code/*.md
+!data/db_variables.csv
+
+*.md
+
+######################
+# Ignore other miscelleneous stuff
+.Rproj.user
 .DS_Store
 
 
