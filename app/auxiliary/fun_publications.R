@@ -1,21 +1,23 @@
 #' pub_function
 #' 
-#' Displays the publication cards
+#' Displays the publication cards. The main div (class = "pubs") contains two divs, 
+#' one that carries the image (class = "pubs_image") and another
+#' that holds the publication metadata (class = "pubs_content"). These details are read from 
+#' the publicationsList file saved in OneDrive
 #'
 #' @param image
 #' @param title
 #' @param country
 #' @param year
 #' @param authors
-#' @param downloadID
 #'
 #' @return
 #' @export
-#'
-#' @examples
 
-pubList <- readxl::read_excel("www/publications/publicationsList.xlsx")
+## Load the file that contains publications metadata
+pubList <- readxl::read_excel("data/publicationsList.xlsx")
 
+## Function that displays the publications as cards
 pub_function <- function(image,
                          link,
                          title,
@@ -23,89 +25,38 @@ pub_function <- function(image,
                          year,
                          authors) {
 
+  ## A link that redirects users to the publication site is embedded on the card  -----------
   tags$a(href = link,
 
   shiny::div(
     class = "pubs",
-    style = 
-     "
-     height: 100%;
-    /* grid-column-gap: 1.5625vw; */
-    grid-row-gap: 1.5625vw;
-    grid-template-rows: auto;
-    grid-template-columns: 25% 75%;
-    grid-auto-columns: 1fr;
-    display: grid;
-    border: 4px solid #051f3f;
-    /*width: 352px; */
-    ",
+    
+    ## image of publication -----------
     shiny::div(
-      style = 
-        "background-color: #d8dcdb;
-       justify-content: center;
-        align-items: center;
-        display: flex;
-              ",
+      class = "pubs_image",
       shiny::img(
         src = image,
         style = "width: 80%; "
       )
     ),
+    
+    ## metadata -----------
+    
     shiny::div(
-      style = 
-        "display: flex;
-       /*height: 250px;*/
-      flex-direction: column;
-      justify-content: space-evenly;
-      align-items: left;
-      background-color: white;
-      /*border-radius: 0px 0px 10px 10px;*/
-      border: 0 solid rgba(0,0,0,0.125);
-      background: white;
-      /*margin: 30px 0 0 0;*/
-      padding: 5px 15px;
-      text-align: left;
-      color: #051f3f;'
-      ",
+      class = "pubs_content",
       shiny::span(paste0(title),
-                  style = "font-size:14px; font-weight:bold; padding: 5px 0;"
+                  style = "font-size:16px; font-weight:bold; padding: 5px 0;"
       ),
       shiny::span(paste0(country),
-                  style = "font-size:12px; font-weight:bold; padding: 5px 0;"
+                  style = "font-size:14px; font-weight:bold; padding: 5px 0;"
       ),
       shiny::span(paste0(year),
-                  style = "font-size:10px; padding: 5px 0;"
+                  style = "font-size:12px; padding: 5px 0;"
       ),
       shiny::span(paste0(authors),
-                  style = "font-size:10px; font-style:italic; padding: 5px 0;"
+                  style = "font-size:12px; font-style:italic; padding: 5px 0;"
       )
     )
   )
   )
 }
-
-# pub_function(image = "publications/CEM_Croatia.png",
-#              title =  "Climate Change Institutional Assessment (CCIA)",
-#              country = "Croatia",
-#              year = "2022",
-#             authors = "World Bank")
-  
-
-#' pub_function_download
-#'
-#' Contains code used to download publications
-#' 
-#' @param filename
-#'
-#' @return
-#' @export
-#'
-#' @examples
-# pub_function_download <- function(filename) {
-#   shiny::downloadHandler(
-#     filename = filename,
-#     content = function(file) {
-#       file.copy(paste0("www/publications/", filename), file)
-#     }
-#   )
-# }
