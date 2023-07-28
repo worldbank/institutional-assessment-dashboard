@@ -34,26 +34,28 @@ calculate_coverage <- function(indicator, id) {
   return(coverage_id)
 }
 
-flag_discontinued <- function(indicator, year_id, ref_year = 2015){
+flag_continued <- function(indicator, year_id, ref_year = 2015){
   # this function returns a flag for discontinued series
   # 1. compute the number of times the indicator is measured
   # since a reference year
   times_updated <- length(indicator[{{year_id}} >= ref_year & !is.na(indicator)])
   
-  flag_discontinued <- if_else(times_updated == 0, 1, 0)
+  flag_continued <- if_else(times_updated > 0, 1, 0)
   
-  return(flag_discontinued)
+  return(flag_continued)
 }
 
-flag_low_country <- function(indicator, country_id, year_id, ref_year = 2015){
+flag_country <- function(indicator, country_id, year_id, ref_year = 2015){
   # this function returns a flag for the low country coverage
   # 1. compute the number of distinct country ids for indicators
   # if they are not missing and more recent than a reference year
   country_coverage <- n_distinct({{country_id}}[{{year_id}} >= ref_year & !is.na(indicator)])
   
-  flag_low_country <- if_else(country_coverage < 100, 1, 0)
+  flag_country <- if_else(country_coverage >= 100, 1, 0)
   
-  return(flag_low_country)
+  # still need to add the exception to the rule
+  
+  return(flag_country)
 }
 
 flag_minimum_coverage <- function(indicator, country_id, year_id){
@@ -78,8 +80,8 @@ flag_minimum_coverage <- function(indicator, country_id, year_id){
       country_coverage >= 10
     )
   
-  # return a flag 1 if less than two years (nrows) are available for that indicator
-  flag_minimum_coverage <- if_else(nrow(minimum_country_coverage) < 2, 1, 0)
+  # return a flag 1 if more than two years (nrows) are available for that indicator
+  flag_minimum_coverage <- if_else(nrow(minimum_country_coverage) >= 2, 1, 0)
 }
   
 calculate_time_range <- function(time_id){
@@ -99,8 +101,8 @@ compute_coverage <- function(data, country_id, year_id){
           list(
             country_coverage = ~ calculate_coverage(.x, {{country_id}}),
             year_coverage = ~ calculate_coverage(.x, {{year_id}}),
-            flag_discontinued = ~ flag_discontinued(.x, {{year_id}}),
-            flag_low_country = ~ flag_low_country(.x, {{country_id}}, {{year_id}}),
+            flag_continued = ~ flag_continued(.x, {{year_id}}),
+            flag_country = ~ flag_country(.x, {{country_id}}, {{year_id}}),
             flag_minimum_coverage = ~ flag_minimum_coverage(.x, {{country_id}}, {{year_id}}),
             year_range = ~ calculate_time_range({{year_id}}),
             percent_complete_records = ~ percent(prop_complete(.x))
@@ -121,8 +123,8 @@ compute_coverage <- function(data, country_id, year_id){
       Indicator = indicator,
       `Country Coverage` = country_coverage,
       `Year Coverage` = year_coverage,
-      `Flag Discontinued` = flag_discontinued,
-      `Flag Low Country Coverage` = flag_low_country,
+      `Flag Discontinued` = flag_continued,
+      `Flag Low Country Coverage` = flag_country,
       `Flag Minimum Coverage` = flag_minimum_coverage,
       `Year Range` = year_range,
       `Percentage of Complete Records` = percent_complete_records
@@ -150,10 +152,10 @@ In this section we compute a set of diagnostics that assess the coverage of the 
   3. Year Coverage, and
   4. Proportion of Complete Records.
   5. Additionally, we introduce the following flags:
-    5.a. **Discontinued**. We flag any indicators that has been discontinued. We verify that there have been updates in the data for the past five years (2015 in the Global Dashboard).
-    5.b. **Low Country Coverage**. We flag any indicators that over the past 5 years has data on fewer than 100 countries. The indicator must cover at least once over the past 5 years (2015-2020) each of the 100 countries.
+    5.a. **Continuity**. We verify that there have been updates in the data for the past five years (2015 in the Global Dashboard).
+    5.b. **Country Coverage**. The indicator must cover at least once over the past 5 years (2015-2020) each of the 100 countries.
       5.b.1. As an exception to the previous rules we will include variables that that cover 50 to 100 countries over the past 5 years that cover all the bank regions (excluding high income). This will eliminate OECD type of data but would keep PEFA data. The OECD is normally missing in PEFA and ES because these datasets normally focus on client countries only (this can only take place once we have region information, using the `countrycode` package.)
-    5.c. **Minimum Coverage**. We include only variables that have at least 2 years of data (not per country but overall). Additionally, for each year to count, coverage must be of at least 10 countries
+    5.c. **Year Coverage**. We include only variables that have at least 2 years of data (not per country but overall). Additionally, for each year to count, coverage must be of at least 10 countries.
 
 This section provides a set of diagnostic of coverage for all indicators.
 
