@@ -3,7 +3,7 @@
 #' Displays the publication cards. The main div (class = "pubs") contains two divs, 
 #' one that carries the image (class = "pubs_image") and another
 #' that holds the publication metadata (class = "pubs_content"). These details are read from 
-#' the publicationsList file saved in OneDrive
+#' the data/publicationsList.xlsx file saved in OneDrive
 #'
 #' @param image
 #' @param title
@@ -15,6 +15,11 @@
 #' @export
 
 ## Load the file that contains publications metadata
+
+## Note: Please pick the publicationsList.xlsx file from data/publicationsList.xlsx in 
+## OneDrive and paste it in app/data/ to always get the latest list of publications
+
+
 pubList <- readxl::read_excel("data/publicationsList.xlsx")
 
 ## Function that displays the publications as cards
