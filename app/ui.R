@@ -60,8 +60,16 @@ ui <-
 
     dashboardBody(
       
+      ## universal css styles
       tags$style(HTML("
+      
+      /* Changed the background of the load and save input buttons a shade of red */
       .load_save_btns .bttn-primary{background-color: #e94152;}
+      
+      /* Changed the background of the selected country or countries to a shade of blue */
+      .dropdown-item.active, .dropdown-item:active,
+      .dropdown-item.opt.selected
+      {background-color: #007bff6b;}
                       ")),
       
       tabItems(
