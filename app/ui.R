@@ -189,7 +189,8 @@ ui <-
                   selected = NULL,
                   multiple = FALSE,
                   options = list(
-                    size = 20,
+                    # size = 20,
+                    `live-search` = TRUE,
                     `actions-box` = TRUE
                   )
                 )
