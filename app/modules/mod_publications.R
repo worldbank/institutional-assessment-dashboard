@@ -16,7 +16,7 @@ publicationsUI <- function(id) {
     tags$style(
       "
   .pubs:hover {
-    -webkit-transform: scale(1.01,1.01);
+    -webkit-transform: scale(1.05,1.05);
     -webkit-transition-timing-function: ease-out;
     -webkit-transition-duration: 250ms;
     -moz-transform: scale(1.05,1.07);
@@ -41,7 +41,8 @@ publicationsUI <- function(id) {
         selected = "All",
         multiple = FALSE,
         options = list(
-          size = 20,
+          # size = 20,
+          `live-search` = TRUE,
           `actions-box` = TRUE
         )
       )
