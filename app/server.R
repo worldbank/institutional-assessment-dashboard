@@ -83,7 +83,6 @@
                                         inputId = "threshold", 
                                         selected = saved_inputs_df$threshold
                                         )
-        
       
       ## exit waiter once that process is finished 
         waiter::waiter_hide()
@@ -136,15 +135,32 @@
             pluck(1)
 
         }
+        
+        ## Since we are loading data from an input file, get the intersection between the selected object above and the list
+        ## in the input file
 
+        ## The lines below are commented since the following warning is being thrown: 
+        ## Warning: Error in where: Predicate must return `TRUE` or `FALSE`, not an empty logical vector.
+        # We'll get back to this once we re-do grouping methodology
+        # 
+        # if(check_input_file_exists()){
+        #   
+        #   ## previously selected comparison countries
+        #   saved_inputs_df <- readRDS(fs::path(user_data_dir(), "cliar_inputs.rds"))
+        #   previously_selected <- unlist(strsplit(saved_inputs_df$comp_countries, ";"))
+        #   selected <- union(selected, previously_selected)
+        # }
+
+        
         updateCheckboxGroupButtons(
           session,
           "countries",
           label = NULL,
           choices = countries,
+          # status = "success",
           checkIcon = list(
-            yes = icon("ok",
-                       lib = "glyphicon")
+            yes = icon("square-check"),
+            no = icon("square")
           ),
           selected = selected
         )
@@ -587,9 +603,10 @@
     output$plot <-
       renderPlotly({
 
+        
         if (length(input$countries) >= 10) {
           input$select
-
+          
           isolate(
 
             if (input$family == "Overview") {
@@ -1269,7 +1286,8 @@
       benchmark_median = paste(c(input$benchmark_median), collapse = ";"), #group median
       benchmark_dots = input$benchmark_dots, #show comparison countries
       rank = input$rank, #show rank instead of value
-      threshold = input$threshold #threshold
+      threshold = input$threshold, #threshold,
+      comp_countries = paste(c(input$countries), collapse = ";") #comparison countries
     )
     
     if(!check_input_file_exists()){
