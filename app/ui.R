@@ -70,7 +70,16 @@ ui <-
       .dropdown-item.active, .dropdown-item:active,
       .dropdown-item.opt.selected
       {background-color: #007bff6b;}
-                      ")),
+       
+       .far.fa-square-check{
+            background-color: #e94152e8;
+            color: white;
+       }               
+                      
+                      "
+                      
+                      
+                      )),
       
       tabItems(
 
@@ -340,9 +349,10 @@ ui <-
               label = NULL,
               choices = countries,
               selected = NULL, 
+              status = "primary",
               checkIcon = list(
-                yes = icon("ok",
-                           lib = "glyphicon")
+                yes = icon("square-check"),
+                no = icon("square")
               )
             )
           ),
@@ -448,10 +458,8 @@ ui <-
               label = NULL,
               choices = countries,
               checkIcon = list(
-                yes = icon(
-                  "ok",
-                  lib = "glyphicon"
-                )
+                yes = icon("square-check"),
+                no = icon("square")
               )
             )
           ),
