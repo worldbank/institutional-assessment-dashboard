@@ -840,7 +840,8 @@ static_scatter <-
   function(data, 
            base_country, comparison_countries, high_group,
            y_scatter, x_scatter,
-           variable_names, country_list) {
+           variable_names, country_list,
+           linear_fit) {
     
     y <-
       ifelse(
@@ -869,29 +870,45 @@ static_scatter <-
     data <-
       data %>%
       mutate(
-        label = paste0(
-          "Country: ", country_name, "<br>"
-        ),
+        # label = paste0(
+        #   "Country: ", country_name, "<br>"
+        # ),
         log = log(gdp_pc_ppp_const),
         type = case_when(
           country_name == base_country ~ "Base country",
           country_name %in% comparison_countries ~ "Comparison countries",
           TRUE ~ "Others"
-        )
+        ),
+
       ) %>%
       left_join(
         high_group, by = c("country_code")
       )
 
+   
+  ## generate a different label
+    xvar <- sym(x)
+    yvar <- sym(y)
     
-    ggplot(
-      data,
-      aes_string(
-        x = x,
-        y = y,
-        text = "label"
+    data <- data %>% 
+      dplyr::rowwise() %>% 
+      mutate(label = 
+               paste0(
+                 "Country: ", country_name, "<br>","<br>",
+                 "x: ", {{xvar}} , "<br>","<br>",
+                 "y: ", {{yvar}} , "<br>", "<br>"
+               )
       )
-      ) +
+    
+    
+  sc_plot <-  ggplot(
+      data,
+      aes(
+        x = {{xvar}},
+        y = {{yvar}},
+        text = label 
+      )
+      )+
       geom_point(
         data = data %>% filter(group %in% high_group$group),
         size = 4,
@@ -905,6 +922,7 @@ static_scatter <-
         ),
         size = 2
       ) +
+
       scale_color_manual(
         values = c(
           "Base country" = "#FB8500",
@@ -941,8 +959,28 @@ static_scatter <-
           "<b>Log GDP per capita, PPP</b>",
           paste0("<b>", x_scatter,"<br>(closeness to frontier)</b>")
         )
-      )
-    
+      ) 
+
+  
+
+  if(linear_fit == TRUE){
+    sc_plot <- sc_plot + geom_smooth(
+                                   aes(
+                                    x = {{xvar}},
+                                    y = {{yvar}}
+                                    ),
+                                     method = "lm", 
+                                     color = "red", 
+                                     formula = 'y ~ x',
+                                     linewidth = 0.5,
+                                     se = FALSE,
+                                     inherit.aes = FALSE
+                                     )
+
+  }else
+    sc_plot <- sc_plot
+   
+  return(sc_plot) 
   }
 
 interactive_scatter <-
@@ -1004,8 +1042,9 @@ interactive_scatter <-
         )
     }
 
+    
     plot %>%
-      ggplotly(tooltip = c("text","x","y")) %>%
+      ggplotly(tooltip = c("text")) %>%
       layout(
         margin = list(
           t = 50,
