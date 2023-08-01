@@ -466,10 +466,7 @@ ui <-
                 pickerInput(
                   "y_scatter",
                   label = "Select indicator for Y axis",
-                  choices = append(
-                    "Log GDP per capita, PPP",
-                    variable_list
-                  ),
+                  choices = y_scatter_choices,
                   selected = NULL,
                   options = list(
                     `live-search` = TRUE,
@@ -485,11 +482,8 @@ ui <-
                 pickerInput(
                   "x_scatter",
                   label = "Select indicator for X axis",
-                  choices = append(
-                    "Log GDP per capita, PPP",
-                    variable_list
-                  ),
-                  selected = "Log GDP per capita, PPP",
+                  choices = NULL,
+                  selected = NULL,
                   options = list(
                     `live-search` = TRUE,
                     size = 20,
@@ -519,6 +513,17 @@ ui <-
               )
 
 
+            ),
+            fluidRow(
+              column(
+                width = 3,
+                shinyWidgets::materialSwitch(
+                  inputId = "linear_fit",
+                  label = "Show linear fit line", 
+                  value = FALSE,
+                  status = "success"
+                )
+              )
             )
           ),
 
