@@ -886,8 +886,9 @@ static_scatter <-
       )
 
    
-  ## generate a different label
-    xvar <- sym(x)
+  ## generate a different label, one that is a combination of country, x axis and y axis variable
+  
+    xvar <- sym(x) # sym() enables us to use a string variable as is, as long as we wrap them in {{...}}
     yvar <- sym(y)
     
     data <- data %>% 
@@ -904,7 +905,7 @@ static_scatter <-
   sc_plot <-  ggplot(
       data,
       aes(
-        x = {{xvar}},
+        x = {{xvar}}, ## see how xvar is defined above
         y = {{yvar}},
         text = label 
       )
@@ -962,7 +963,7 @@ static_scatter <-
       ) 
 
   
-
+## linear fit line
   if(linear_fit == TRUE){
     sc_plot <- sc_plot + geom_smooth(
                                    aes(
@@ -970,7 +971,7 @@ static_scatter <-
                                     y = {{yvar}}
                                     ),
                                      method = "lm", 
-                                     color = "red", 
+                                     color = "#e94152", 
                                      formula = 'y ~ x',
                                      linewidth = 0.5,
                                      se = FALSE,
@@ -1044,7 +1045,7 @@ interactive_scatter <-
 
     
     plot %>%
-      ggplotly(tooltip = c("text")) %>%
+      ggplotly(tooltip = c("text")) %>% 
       layout(
         margin = list(
           t = 50,

@@ -244,15 +244,17 @@ customItem <-
   }
 
 
-# ----------------------------------------------------------
+# Bivariate correlation ----------------------------------------------------------
 
-## In the bivariate tab, we need to avoid x and y being the same variables
+## y axis variable choices  
 
 y_scatter_choices <- append(
   "Log GDP per capita, PPP",
   variable_list
 )
 
+
+## x axis variable choices will be everything apart from the y axis variable selected
 x_scatter_choices <- function(yvar){
   
 extract_xvar_choices <-
