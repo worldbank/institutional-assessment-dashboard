@@ -62,11 +62,11 @@ disputed_areas <-
       "..",
       "data",
       "raw",
-      "WB_disputed_areas_Admin0_10m_lowres.geojson"
+      "WB_disputed_areas_Admin0_10m_lowres.geohttp://127.0.0.1:28759/graphics/plot_zoom_png?width=1842&height=1057json"
     )
   )
 ```
-
+http://127.0.0.1:28759/graphics/plot_zoom_png?width=1842&height=1057
 # Clean maps 
 
 ```{r}
@@ -86,18 +86,21 @@ world_map <-
   world_map %>%
   bind_rows(
     disputed_areas
-  ) %>%
-  ms_simplify(
-    keep = 0.04,
-    keep_shapes = T
   )
 
-st_crs(world_map) <- "WGS84"
-
-world_map <-
+# simplify map to improve loading performance
+simple_world_map <-
   world_map %>%
-  st_transform("+proj=robin")
-
+  # fix wrapping of dateline to avoid spurious ribbon
+  # source: https://github.com/r-spatial/sf/issues/1046
+  st_transform(4326) %>% 
+  st_wrap_dateline() |> 
+  # project into robinson coordinate system
+  st_transform(crs = '+proj=robin') %>%
+  # simplify polygons to improve rendering
+  st_simplify(
+    dTolerance = 0.05
+  ) 
 ```
 
 
@@ -145,7 +148,7 @@ raw <-
     names_from = name
   )
 
-map <-
+final_world_map <-
   world_map %>%
   left_join(
     raw
@@ -159,7 +162,7 @@ map <-
 # Save datasets
 
 ```{r}
-map %>%
+final_world_map %>%
   write_rds(
     here(
       "..",
