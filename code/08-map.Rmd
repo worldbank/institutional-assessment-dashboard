@@ -62,12 +62,14 @@ disputed_areas <-
       "..",
       "data",
       "raw",
-      "WB_disputed_areas_Admin0_10m_lowres.geohttp://127.0.0.1:28759/graphics/plot_zoom_png?width=1842&height=1057json"
+      "WB_disputed_areas_Admin0_10m_lowres.geojson"
     )
   )
 ```
-http://127.0.0.1:28759/graphics/plot_zoom_png?width=1842&height=1057
+
 # Clean maps 
+
+In this section, we combine the world map data with disputed areas, in order to address potential boundary conflicts. We also simplify the world map through the `st_simplify` command in order to improve loading performance on our Shiny App.
 
 ```{r}
 disputed_areas <-
