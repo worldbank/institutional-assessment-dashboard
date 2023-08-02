@@ -3,6 +3,8 @@
 
 Our goal is to provide you with an overview of the data infrastructure for CLIAR, describing entities, their relationships, as well as a description on the data pipeline, including (1) data extraction, (2) data quality controls, (3) data transformation and (4) data loading. As such, the document provides an overview of the data ETL process for CLIAR. We also present an overview of how data from CLIAR is used in the CLIAR Dashboard, providing an end-to-end documentation of how data is applied for analytics. This documentation is replicated in bookdown, in the [`_book/index.html`](`_book/index.html`) file.
 
+To run the pipeline and render the documentation, please open the `index.Rmd file`. There, you have the option to either point and click on `RStudio` using the `Build Book` command, or enter the `bookdown::render_book()` command on the console. If instead, you plan on testing particular sections in the pipeline, you may simply run the `00-setup.Rmd` file to load all required packages, and test individual sections.
+
 ## Data Model:
 
 This section provides you with an overview of the data model, in particular an Entity Relationship Diagram (ERD) of all entities contained in CLIAR. Note that this diagram describes the finalized data infrastructure, once all the data has been ingested, quality controlled and ingested. Given that the current data model is still evolving, we first provide a Conceptual Model of the CLIAR data infrastructure which will evolve in granularity as the requirements for CLIAR mature.
