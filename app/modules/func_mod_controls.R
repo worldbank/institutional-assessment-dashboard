@@ -1,6 +1,5 @@
 CLASS_new <- readRDS("data/CLASS_new.rds")
 
-# ui_names <- names(CLASS_new)[!names(CLASS_new) %in% c("Economy" , "Code")]
 
 combi_names <- grep(":", names(CLASS_new), value = TRUE, ignore.case = TRUE)
 other_names <- names(CLASS_new)[!names(CLASS_new) %in% c("Economy", "Code", combi_names)]
@@ -28,3 +27,17 @@ if (length(comp_cat) != 1) {
   out <- list(label, choices)
   return(out)
 }
+
+
+
+
+func_custom_grp <- function(category, name, countriez){
+ out <-  data.frame(Category = category, Grp = name,  Countries = countriez)
+ return(out)
+}
+
+  
+  
+  
+  
+  
