@@ -5,8 +5,29 @@
 library(readxl)
 CLASS <- read_excel("~/Documents/Github/institutional-assessment-dashboard/data/raw/CLASS.xlsx")
 
+## Add conflict classification as listed here: https://www.worldbank.org/en/topic/fragilityconflictviolence/brief/harmonized-list-of-fragile-situations
+## and here: https://thedocs.worldbank.org/en/doc/608a53dd83f21ef6712b5dfef050b00b-0090082023/original/FCSListFY24-final.pdf
+
+# FCS: Fragile and conflict-affected situations
+# Conflict:
+
+
+conflicts <- c("Afghanistan", "Burkina Faso", "Cameroon", "Central African Republic", "Congo, Democratic Republic of",
+  "Ethiopia", "Iraq", "Mali", "Mozambique", "Myanmar", "Niger", "Nigeria", "Somalia", "South Sudan", "Sudan",
+  "Syrian Arab Republic", "Ukraine", "West Bank and Gaza (territory)", "Yemen, Republic of")
+
+isfs <- c("Burundi", "Chad", "Comoros", "Congo, Republic of", "Eritrea", "Guinea-Bissau", "Haiti",
+  "Kiribati", "Kosovo", "Lebanon", "Libya", "Marshall Islands", "Micronesia, Federated States of",
+  "Papua New Guinea", "São Tomé and Príncipe", "Solomon Islands", "Timor-Leste", "Tuvalu", "Venezuela, RB",
+  "Zimbabwe")
+
+CLASS <- CLASS %>%
+           mutate(FCS = ifelse(Economy %in% conflicts, "Conflict",
+                          ifelse(Economy %in% isfs, "Institutional and Social Fragility",
+                            NA)))
+
+
 var_names <- names(CLASS)[!names(CLASS) %in% c("Economy", "Code")]
-# var_names[var_names == "Other (EMU or HIPC)"] = "Other"
 
 
 # Function to get unique combinations
@@ -69,13 +90,28 @@ for (i in 1: nrow(vec_combinations)){
                  mutate(var = ifelse(is.na({{var1}}) | is.na({{var2}})| is.na({{var3}}) | is.na({{var4}}), NA, var))
   }
 
+  if(length(vars) == 5){
+    var1 <-      sym(vars[1])
+    var2 <-      sym(vars[2])
+    var3 <-      sym(vars[3])
+    var4 <-      sym(vars[4])
+    var5 <-      sym(vars[5])
+
+    CLASS_new <- CLASS_new %>%
+      rowwise %>%
+      mutate(var = paste({{var1}}, {{var2}}, {{var3}}, {{var4}}, {{var5}}, sep = " : ")) %>%
+      mutate(var = ifelse(is.na({{var1}}) | is.na({{var2}})| is.na({{var3}}) | is.na({{var4}}) | is.na({{var5}}), NA, var))
+  }
+
   names(CLASS_new)[names(CLASS_new) == "var"] = new_name
 
-  CLASS_new <- CLASS_new %>%
-      mutate(across(where(is.character), trimws))
-
-  CLASS_new <- CLASS_new %>%
-    filter(!is.na(Region))
 }
+
+
+CLASS_new <- CLASS_new %>%
+  mutate(across(where(is.character), trimws))
+
+CLASS_new <- CLASS_new %>%
+  filter(!is.na(Region))
 
 saveRDS(CLASS_new, "data/CLASS_new.rds")

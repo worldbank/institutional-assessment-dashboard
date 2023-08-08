@@ -9,12 +9,29 @@ controlsUI <- function(id) {
     shinyjs::useShinyjs(),
     shiny::fluidRow(style = "height: 15px;"),
     shiny::fluidRow(
+      
+      column(
+        width = 3,
+        pickerInput(
+          "country",
+          label = "Select a base country",
+          choices = c("", countries),
+          selected = NULL,
+          multiple = FALSE,
+          options = list(
+            `actions-box` = TRUE,
+            `live-search` = TRUE
+            
+          )
+        )
+      ),
+      
       shiny::column(
         width = 3,
         shinyWidgets::pickerInput(
           inputId = ns("comp_cat"),
           label = "Select grouping variable",
-          choices = c("Region", "Income group", "Lending category", "Other (EMU or HIPC)"),
+          choices = c("Region", "Income group", "Lending category", "Other (EMU or HIPC)", "FCS"),
           multiple = TRUE
         )
       ),
@@ -31,8 +48,6 @@ controlsUI <- function(id) {
     shiny::fluidRow(
       shiny::column(
         width = 3,
-      shiny::column(
-        width = 6,
         align = "left",
         shinyWidgets::prettyCheckbox(
           inputId = ns("create_custom_grps"),
@@ -43,19 +58,13 @@ controlsUI <- function(id) {
         )
       ),
       shiny::column(
-        width = 6,
-        align = "right",
-        shiny::actionButton(ns("reset_btn"), label = "", icon = icon("info"))
-      )
-    ),
-      shiny::column(
         width = 3,
         shiny::numericInput(
           inputId = ns("custom_grps_count"),
           label = "Indicate number of groups",
           value = 1,
           min = 1,
-          max = 3
+          max = 6
         )
       ),
       shiny::column(
@@ -82,13 +91,10 @@ controlsServer <- function(id) {
       ## Hide custom group fields until one chooses to create them ---------------
       shinyjs::hide("custom_grps_count")
       shinyjs::hide("custom_grps")
-      shinyjs::hide("reset_btn")
-      # shinyjs::hide("custom_groups_table")
 
 
       ## Object that holds reactives
       rv <- shiny::reactiveValues(
-        
         custom_group_fields_reactive = NULL,
         custom_grps_count = NULL
       )
@@ -111,16 +117,12 @@ controlsServer <- function(id) {
       shiny::observeEvent(input$create_custom_grps, {
         
         if (input$create_custom_grps == T) {
+          
           shinyjs::show("custom_grps_count")
-          # shinyjs::reset("custom_grps_count")
           shinyjs::show("custom_grps")
-          shinyjs::reset("custom_grps")
-          shinyjs::show("reset_btn")
         } else {
           shinyjs::hide("custom_grps_count")
           shinyjs::hide("custom_grps")
-          shinyjs::reset("custom_grps")
-          shinyjs::hide("reset_btn")
         }
       })
       
@@ -180,6 +182,26 @@ controlsServer <- function(id) {
       })
       })
 
+      observeEvent(input$create_custom_grps, {
+        
+        if (input$create_custom_grps) {
+          
+          for (i in 1:input$custom_grps_count) {
+            shinyjs::hide(id = paste("custom_grps_names", i, sep = "_"))
+            shinyjs::reset(id = paste("custom_grps_names", i, sep = "_"))
+            shinyjs::hide(id = paste("custom_grps_countries", i, sep = "_"))
+            shinyjs::reset(id = paste("custom_grps_countries", i, sep = "_"))
+          }
+          
+        } else {
+          shinyjs::reset("custom_grps_count")
+          
+          for (i in 1:input$custom_grps_count) {
+            shinyjs::reset(id = paste("custom_grps_names", i, sep = "_"))
+            shinyjs::reset(id = paste("custom_grps_countries", i, sep = "_"))
+          }
+        }
+      })
       
       shiny::observeEvent(input$create_custom_grps, {
         
@@ -190,34 +212,9 @@ controlsServer <- function(id) {
         })
       })
       
-      # shiny::observeEvent(input$custom_grps_count, {
-      #   
-      # rv$custom_grps_count <-  input$custom_grps_count
-      # })
-      # 
-      # 
-      # shiny::observeEvent(input$reset_btn, {
-      #   
-      #   for(i in 1: rv$custom_grps_count){
-      #     
-      #     # shiny::updateTextInput(
-      #     #   session = session,
-      #     #   inputId = paste("custom_grps_names", i, sep = "_"),
-      #     #   value = ""
-      #     # )
-      #     
-      #     shinyWidgets::updatePickerInput(
-      #       session = session,
-      #       inputId = paste("custom_grps_countries", i, sep = "_"),
-      #       selected = NULL
-      #     ) 
-      # 
-      #   }
-      # })
+
 
       ## table
-
-
 
         predetermined_groups_table_reactive <- shiny::eventReactive(input$submit_btn, {
           comp_cat <- input$comp_cat
@@ -287,3 +284,24 @@ server <- function(input, output, session) {
 }
 
 shinyApp(ui, server)
+
+
+
+# Source: https://en.wikipedia.org/wiki/Jim_O%27Neill,_Baron_O%27Neill_of_Gatley#Next_Eleven
+# BRICS: a grouping acronym referring to the developing countries of Brazil, Russia, India, China and South Africa 
+# which are identified as rising economic powers. These are fast-growing economies that would collectively dominate 
+# the global economy by 2050
+
+# N11 countries or the Next 11 countries refers to a group of eleven countries—specifically 
+# Bangladesh, Egypt, Indonesia, Iran, Mexico, Nigeria, Pakistan, the Philippines, Turkey, 
+# South Korea, and Vietnam—which have emerging markets that could potentially become some of 
+# the world's largest economies
+#
+# Source: https://www.eac.int/overview-of-eac
+# EAC: Burundi, Congo, Kenya, Rwanda, South Sudan, Uganda, Tanzania.
+#
+# Source: https://ischoolconnect.com/blog/worlds-top-powerful-countries-some-exciting-facts-about-them/
+# Top 5 Superpowers: USA, China, Russia, Germany, United Kingdom
+#
+# Source: https://www.un.org/ohrlls/content/list-ldcs
+# LDCs: 

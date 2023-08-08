@@ -171,8 +171,8 @@ ui <-
                   selected = NULL,
                   multiple = FALSE,
                   options = list(
-                    size = 20,
-                    `actions-box` = TRUE
+                    `actions-box` = TRUE,
+                    `live-search` = TRUE 
                   )
                 )
               ),
@@ -220,9 +220,65 @@ ui <-
                 )
               )
             ),
-
+            
+            fluidRow(style = "height: 15px;"),
+            
             fluidRow(
+              shiny::column(3,
+                shinyWidgets::prettyCheckbox(
+                  inputId = "create_custom_grps",
+                  label = "Create custom groups",
+                  value = FALSE,
+                  icon = icon("check"),
+                  status = "success"
+                )
+                ),
+              shiny::conditionalPanel(
+               "input.create_custom_grps == true" ,
+              shiny::column(12,
+                shinyWidgets:: materialSwitch(
+                  inputId = "show_custom_grps_ui",
+                  label = "Show custom groups",
+                  status = "success",
+                  value = TRUE
+                )
+              )
+              )
+             
+            ),
 
+            shiny::conditionalPanel(
+              "input.create_custom_grps == true",
+              fluidRow(
+                    shiny::column(
+                      width = 3,
+                      shiny::numericInput(
+                        inputId = "custom_grps_count",
+                        label = "Number of groups",
+                        value = 1,
+                        min = 1,
+                        max = 3
+                      )
+                    ),
+                    shiny::column(
+                      width = 6,
+                      
+                     shiny::conditionalPanel(
+                      "input.custom_grps_count >= 1",
+                      shiny::uiOutput("custom_grps")
+                      )
+              ),
+              column(
+                width = 3,
+                align = "center",
+                shiny::actionButton("save_custom_grps", "Save")
+                
+              )
+              
+              )
+              ),
+            fluidRow(style = "height: 15px;"),
+            fluidRow(
               column(
                 width = 3,
                 prettyCheckbox(
@@ -380,6 +436,7 @@ ui <-
                   choices = c("", countries),
                   selected = NULL,
                   multiple = FALSE
+                  
                 )
               ),
 

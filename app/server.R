@@ -13,6 +13,165 @@
         ignoreNULL = FALSE
       )
 
+    ## Create comparison group inputs where users can insert custom group names and countries that 
+    ## they'd want to place in those groups
+    
+    ## a reactive object that willhold all these information
+    custom_group_fields_reactive <- shiny::reactive({
+      
+      # shiny::req(input$custom_grps_count)
+      
+      ## number of fields to create
+      n_fields <- input$custom_grps_count
+      
+      
+      ## create an object that will hold each custom group field (name and country drop-downs)
+      ui_fields <- c()
+      
+      ## for each custom group ....
+      lapply(1:n_fields, function(i) {
+        
+        custom_names <- ""
+        custom_countries <- NULL
+        
+        if(n_fields >= 1){
+          
+          custom_names <- isolate(input[[paste("custom_grps_names", i, sep = "_")]])
+          custom_countries <- isolate(input[[paste("custom_grps_countries", i, sep = "_")]])
+          
+          
+          ui_fields[[i]] <- shiny::fluidRow(
+            width = 6,
+            shiny::column(
+              width = 6,
+              shiny::textInput(
+                inputId = paste("custom_grps_names", i, sep = "_"),
+                label = paste("Insert the name of group ", i),
+                value = custom_names
+              )
+            ),
+            shiny::column(
+              width = 6,
+              shinyWidgets::pickerInput(
+                inputId = paste("custom_grps_countries", i, sep = "_"),
+                label = paste("Select countries that fall into group ", i),
+                choices = c("", countries),
+                selected = custom_countries,
+                multiple = TRUE,
+                options = list(
+                  `actions-box` = TRUE,
+                  `live-search` = TRUE
+                )
+              )
+            )
+          )
+        }
+      })
+    })
+    
+    ## displaying the ui
+      output$custom_grps <- renderUI({
+        custom_group_fields_reactive()
+    })
+      
+      ## Create a list of the custom groups
+      
+      custom_grps_df <- shiny::eventReactive(input$save_custom_grps, {
+
+        n_fields <- input$custom_grps_count
+        
+        if(n_fields > 0){
+          
+      
+        custom_grps_list <- list()
+        
+        for (i in 1:n_fields) {
+          grp_name <- as.character(input[[paste("custom_grps_names", i, sep = "_")]])
+          country_selection <- as.vector(input[[paste("custom_grps_countries", i, sep = "_")]])
+          custom_grps_list[[i]] <- data.frame(Category = "Custom", Grp = grp_name, Countries = country_selection)
+        }
+        
+        custom_grps_df <- dplyr::bind_rows(custom_grps_list)
+        }else{
+          custom_grps_df <- NULL  
+        }
+        return(custom_grps_df)
+        
+      })
+      
+      shiny::observeEvent(input$save_custom_grps, {
+        print(custom_grps_df())
+        })
+      
+      ## Unselect the save custom group check box so that the ui disappears
+      shiny::observeEvent(input$save_custom_grps, {
+
+        shinyWidgets::updateMaterialSwitch(
+          session = session,
+          inputId = "show_custom_grps_ui",
+          value = FALSE
+        )
+
+      })
+      
+      
+      shiny::observeEvent(input$show_custom_grps_ui, {
+        if(input$show_custom_grps_ui == TRUE){
+          shinyjs::show(id = "custom_grps_count")
+          shinyjs::show(id = "custom_grps")
+          shinyjs::show(id = "save_custom_grps")
+          
+        }else{
+          shinyjs::hide(id = "custom_grps_count")
+          shinyjs::hide(id = "custom_grps")
+          shinyjs::hide(id = "save_custom_grps")
+        }
+        
+      })
+      
+      ## Edit the "Select comparison groups" and "Show group median" fields to include these custom groups
+      
+      shiny::observeEvent(input$save_custom_grps, {
+        
+      shinyWidgets::updatePickerInput(
+        session = session,
+          inputId = "groups",
+          choices = append(group_list, list("Custom" = unique(custom_grps_df()$Grp))),
+          selected = c(input$groups, unique(custom_grps_df()$Grp))
+        )
+    
+        shinyWidgets::updatePickerInput(
+          session = session,
+          inputId = "benchmark_median",
+          choices = append(group_list, list("Custom" = unique(custom_grps_df()$Grp)))
+        ) 
+      })
+
+      
+      # observeEvent(input$create_custom_grps, {
+      #   
+      #   if (!input$create_custom_grps) {
+      #     
+      #     shinyjs::reset("custom_grps_count")
+      #     
+      #     for (i in 1:input$custom_grps_count) {
+      #       
+      #       shiny::updateTextInput(
+      #         session = session,
+      #         inputId = paste("custom_grps_names", i, sep = "_"),
+      #         value = ""
+      #       )
+      #       
+      #       shinyWidgets::updatePickerInput(
+      #         session = session,
+      #         inputId = paste("custom_grps_countries", i, sep = "_"),
+      #         selected = "Kenya"
+      #       ) 
+      #       
+      #     }
+      #   }
+      # })
+    
     ## Comparison countries ----------------------------------------------------
 
     observeEvent(
