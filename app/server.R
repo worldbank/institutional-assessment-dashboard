@@ -18,7 +18,18 @@
     ## Create comparison group inputs where users can insert custom group names and countries that 
     ## they'd want to place in those groups ------
     
-    ## Reactive object that willhold all these information
+    # shinyjs::disable("create_custom_grps")
+    # 
+    # shiny::observeEvent(input$country, {
+    #   if(!is.null(input$country)){
+    #     shinyjs::enable("create_custom_grps")
+    #   }else{
+    #     shinyjs::disable("create_custom_grps")
+    #   }
+    # })
+
+    
+    ## Reactive object that will hold all these information
     custom_group_fields_reactive <- shiny::reactive({
       
       # shiny::req(input$custom_grps_count)
@@ -121,30 +132,62 @@
     
       shiny::observeEvent(input$save_custom_grps, {
 
-        ### turn off the "Show custom groups" switch
-        shinyWidgets::updateMaterialSwitch(
-          session = session,
-          inputId = "show_custom_grps",
-          value = FALSE
-        )
+        # browser()
+        ### check if any of the custom group names is part of group list. 
+        ### If so, ask the user to change the name
+        
+        if(any(custom_grps_df()$Grp %in% unlist(group_list))){
+          
+          dup_grp_names <- unique(custom_grps_df()$Grp[custom_grps_df()$Grp %in% unlist(group_list)])
+          
+          shiny::showModal(
+            modalDialog(
+              shiny::tagList(
+                shiny::tags$p(
+                  paste0("The list below contains group name(s) that already exist(s) in the 
+                    original group list. Please edit the group name(s) to proceed")
+                ), 
+                
+                shiny::tags$p(
+                  paste(as.character(dup_grp_names), collapse = " , ")
+                )
+                )
+              )
+              
+            )
+          
+        }else{  
 
-      ## and edit the "Select comparison groups" and "Show group median" fields to include these custom groups
-   
-      Custom = list(unique(custom_grps_df()$Grp))
-      names(Custom) = "Custom"
-      
-      shinyWidgets::updatePickerInput(
-        session = session,
-          inputId = "groups",
-          choices = append(group_list, Custom),
-          selected = c(input$groups, unique(custom_grps_df()$Grp))
-        )
-    
-        shinyWidgets::updatePickerInput(
-          session = session,
-          inputId = "benchmark_median",
-          choices = append(group_list, Custom)
-        ) 
+          ### turn off the "Show custom groups" switch
+          shinyWidgets::updateMaterialSwitch(
+            session = session,
+            inputId = "show_custom_grps",
+            value = FALSE
+          )
+          
+          ## and edit the "Select comparison groups" and "Show group median" fields to include these custom groups
+          
+          Custom = list(unique(custom_grps_df()$Grp))
+          names(Custom) = "Custom"
+          
+          shinyWidgets::updatePickerInput(
+            session = session,
+            inputId = "groups",
+            choices = append(group_list, Custom),
+            selected = c(input$groups, unique(custom_grps_df()$Grp))
+          )
+          
+          shinyWidgets::updatePickerInput(
+            session = session,
+            inputId = "benchmark_median",
+            choices = append(group_list, Custom)
+          ) 
+          
+       
+         
+          
+        }
+
       })
 
     
@@ -204,18 +247,24 @@
 
       
       
-      ## When custom groups are selected, append the countries to the initial list of countries 
-      ## displayed
+    # When custom groups are selected, append the countries to the initial list of countries
+    # displayed
       observeEvent(
-        c(input$save_custom_grps,
-        input$groups),
+       input$save_custom_grps,
         
-        { 
+        {
 
       if(!is.null(custom_grps_df())){
-        
+
         custom_grp_countries <- custom_grps_df()$Countries
-        
+        preselected_grp_countries <- country_list %>% filter(group %in% input$group) %>% pull(country_name)
+
+        if(length(preselected_grp_countries) > 0) {
+          selected_c <- unique(c(custom_grp_countries, preselected_grp_countries))
+        }else{
+          selected_c <- custom_grp_countries
+        }
+
         updateCheckboxGroupButtons(
           session,
           "countries",
@@ -226,7 +275,7 @@
               lib = "glyphicon",
               style = "color: #e94152")
           ),
-          selected = c(input$countries, custom_grp_countries)
+          selected = selected_c
         )
       }
     })
@@ -1049,7 +1098,7 @@
       })
     
     output$benchmark_datatable <-
-      renderDataTable(
+      DT::renderDataTable(
         server = FALSE,
         datatable(
           browse_data(),
