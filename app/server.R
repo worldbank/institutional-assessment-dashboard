@@ -13,10 +13,12 @@
         ignoreNULL = FALSE
       )
 
+    ## Start of benchmark tab ----------------------
+ 
     ## Create comparison group inputs where users can insert custom group names and countries that 
-    ## they'd want to place in those groups
+    ## they'd want to place in those groups ------
     
-    ## a reactive object that willhold all these information
+    ## Reactive object that willhold all these information
     custom_group_fields_reactive <- shiny::reactive({
       
       # shiny::req(input$custom_grps_count)
@@ -55,7 +57,7 @@
               shinyWidgets::pickerInput(
                 inputId = paste("custom_grps_countries", i, sep = "_"),
                 label = paste("Select countries that fall into group ", i),
-                choices = c("", countries),
+                choices = c("", countries[!countries %in% input$country]),
                 selected = custom_countries,
                 multiple = TRUE,
                 options = list(
@@ -69,14 +71,13 @@
       })
     })
     
-    ## displaying the ui
+    ## Display the ui
       output$custom_grps <- renderUI({
         custom_group_fields_reactive()
     })
       
-      ## Create a list of the custom groups
-      
-      custom_grps_df <- shiny::eventReactive(input$save_custom_grps, {
+    ## Generate a dataframe containing the custom groups
+    custom_grps_df <- shiny::eventReactive(input$save_custom_grps, {
 
         n_fields <- input$custom_grps_count
         
@@ -95,89 +96,66 @@
         }else{
           custom_grps_df <- NULL  
         }
-        return(custom_grps_df)
         
+        print(custom_grps_df)
+        return(custom_grps_df)
       })
+
+    ## Turning on the "Show custom groups" switch shows the custom groups ui
+    shiny::observeEvent(input$show_custom_grps, {
       
-      shiny::observeEvent(input$save_custom_grps, {
-        print(custom_grps_df())
-        })
+      if(input$show_custom_grps == TRUE){
+        shinyjs::show(id = "custom_grps_count")
+        shinyjs::show(id = "custom_grps")
+        shinyjs::show(id = "save_custom_grps")
+        
+      }else{
+        shinyjs::hide(id = "custom_grps_count")
+        shinyjs::hide(id = "custom_grps")
+        shinyjs::hide(id = "save_custom_grps")
+      }
       
-      ## Unselect the save custom group check box so that the ui disappears
+    })
+    
+    ### Once the save button is clicked 
+    
       shiny::observeEvent(input$save_custom_grps, {
 
+        ### turn off the "Show custom groups" switch
         shinyWidgets::updateMaterialSwitch(
           session = session,
-          inputId = "show_custom_grps_ui",
+          inputId = "show_custom_grps",
           value = FALSE
         )
 
-      })
+      ## and edit the "Select comparison groups" and "Show group median" fields to include these custom groups
+   
+      Custom = list(unique(custom_grps_df()$Grp))
+      names(Custom) = "Custom"
       
-      
-      shiny::observeEvent(input$show_custom_grps_ui, {
-        if(input$show_custom_grps_ui == TRUE){
-          shinyjs::show(id = "custom_grps_count")
-          shinyjs::show(id = "custom_grps")
-          shinyjs::show(id = "save_custom_grps")
-          
-        }else{
-          shinyjs::hide(id = "custom_grps_count")
-          shinyjs::hide(id = "custom_grps")
-          shinyjs::hide(id = "save_custom_grps")
-        }
-        
-      })
-      
-      ## Edit the "Select comparison groups" and "Show group median" fields to include these custom groups
-      
-      shiny::observeEvent(input$save_custom_grps, {
-        
       shinyWidgets::updatePickerInput(
         session = session,
           inputId = "groups",
-          choices = append(group_list, list("Custom" = unique(custom_grps_df()$Grp))),
+          choices = append(group_list, Custom),
           selected = c(input$groups, unique(custom_grps_df()$Grp))
         )
     
         shinyWidgets::updatePickerInput(
           session = session,
           inputId = "benchmark_median",
-          choices = append(group_list, list("Custom" = unique(custom_grps_df()$Grp)))
+          choices = append(group_list, Custom)
         ) 
       })
 
-      
-      # observeEvent(input$create_custom_grps, {
-      #   
-      #   if (!input$create_custom_grps) {
-      #     
-      #     shinyjs::reset("custom_grps_count")
-      #     
-      #     for (i in 1:input$custom_grps_count) {
-      #       
-      #       shiny::updateTextInput(
-      #         session = session,
-      #         inputId = paste("custom_grps_names", i, sep = "_"),
-      #         value = ""
-      #       )
-      #       
-      #       shinyWidgets::updatePickerInput(
-      #         session = session,
-      #         inputId = paste("custom_grps_countries", i, sep = "_"),
-      #         selected = "Kenya"
-      #       ) 
-      #       
-      #     }
-      #   }
-      # })
     
-    ## Comparison countries ----------------------------------------------------
+    
+      ## Comparison countries ----------------------------------------------------
 
     observeEvent(
       input$groups,
 
       {
+  
         selected_groups  <- input$groups
         selected_country <- input$country
 
@@ -203,6 +181,8 @@
 
         }
 
+
+        
         updateCheckboxGroupButtons(
           session,
           "countries",
@@ -210,15 +190,47 @@
           choices = countries,
           checkIcon = list(
             yes = icon("ok",
-                       lib = "glyphicon")
+              lib = "glyphicon",
+              style = "color: #e94152")
           ),
           selected = selected
         )
+        
       },
 
       ignoreNULL = FALSE
     )
 
+
+      
+      
+      ## When custom groups are selected, append the countries to the initial list of countries 
+      ## displayed
+      observeEvent(
+        c(input$save_custom_grps,
+        input$groups),
+        
+        { 
+
+      if(!is.null(custom_grps_df())){
+        
+        custom_grp_countries <- custom_grps_df()$Countries
+        
+        updateCheckboxGroupButtons(
+          session,
+          "countries",
+          label = NULL,
+          choices = countries,
+          checkIcon = list(
+            yes = icon("ok",
+              lib = "glyphicon",
+              style = "color: #e94152")
+          ),
+          selected = c(input$countries, custom_grp_countries)
+        )
+      }
+    })
+      
     ## Validate options -------------------------------------------------------
 
     output$select_button <-
@@ -265,9 +277,9 @@
        ignoreNULL = FALSE
     )
 
-    # Reactive objects ==============================================
+    ## Reactive objects ==============================================
 
-    ## Benchmark data -----------------------------------------------
+    ### Benchmark data -----------------------------------------------
     vars <-
       eventReactive(
         input$select,
@@ -286,7 +298,8 @@
         
       )
 
-    ## Comparison group note (group or countries) -------------------------
+    ### Comparison group note (group or countries) -------------------------
+    ### To be edited to include custom groups
     note_compare <-
       eventReactive(
         input$select,
@@ -313,7 +326,7 @@
       )
 
 
-    ## Indicators with low variance -------------------------------------------
+    ### Indicators with low variance -------------------------------------------
     low_variance_indicators <-
       eventReactive(
         input$select,
@@ -383,7 +396,7 @@
         }
       )
 
-    ## Update inputs based on benchmark selection ------------------------------
+    ### Update inputs based on benchmark selection ------------------------------
     observeEvent(
       input$select,
 
@@ -478,6 +491,147 @@
       ignoreNULL = TRUE
     )
 
+    
+    ## Make sure only valid groups are chosen ----------------------------------
+    
+    observeEvent(
+      input$country,
+      
+      {
+        valid_vars <-
+          ctf_long %>%
+          filter(
+            country_name == input$country,
+            !is.na(value)
+          ) %>%
+          select(family_name) %>%
+          unique %>%
+          unlist %>%
+          unname
+        
+        updatePickerInput(
+          session,
+          "family",
+          choices = c(
+            "Overview",
+            intersect(names(variable_list), valid_vars)
+          )
+        )
+      },
+      
+      ignoreNULL = FALSE
+    )
+    
+    ## Median data ------------------------------------------------------------
+    
+    data_family_median <-
+      eventReactive(
+        input$select,
+        
+        {
+          family_data(
+            global_data,
+            base_country(),
+            variable_names
+          )
+        }
+      )
+    
+    ## Benchmark plot ============================================================
+    
+    output$plot <-
+      renderPlotly({
+        
+        if (length(input$countries) >= 10) {
+          input$select
+          
+          isolate(
+            
+            if (input$family == "Overview") {
+              
+              missing_variables <-
+                global_data %>%
+                missing_var(
+                  base_country(),
+                  country_list,
+                  input$countries,
+                  vars_all,
+                  variable_names
+                )
+              
+              low_variance_variables <-
+                low_variance_indicators() %>%
+                data.frame() %>%
+                rename("variable" = ".") %>%
+                left_join(variable_names %>% select(variable,var_name), by = "variable") %>%
+                .$var_name
+              
+              missing_variables <- c(missing_variables, low_variance_variables)
+              
+              data_family()  %>%
+                static_plot(
+                  base_country(),
+                  input$family,
+                  input$rank,
+                  dots = input$benchmark_dots,
+                  group_median = input$benchmark_median,
+                  threshold = input$threshold
+                ) %>%
+                interactive_plot(
+                  base_country(),
+                  note_compare(),
+                  input$family,
+                  plotly_remove_buttons,
+                  missing_variables
+                )
+              
+            } else {
+              
+              missing_variables <-
+                global_data %>%
+                missing_var(
+                  base_country(),
+                  country_list,
+                  input$countries,
+                  vars(),
+                  variable_names
+                )
+              
+              low_variance_variables <-
+                low_variance_indicators() %>%
+                data.frame() %>%
+                rename("variable"=".") %>%
+                left_join(variable_names %>% select(variable,var_name), by = "variable") %>%
+                .$var_name
+              
+              missing_variables <- c(missing_variables,low_variance_variables)
+              
+              data() %>%
+                filter(variable %in% vars()) %>%
+                static_plot(
+                  base_country(),
+                  input$family,
+                  input$rank,
+                  dots = input$benchmark_dots,
+                  group_median = input$benchmark_median,
+                  threshold = input$threshold
+                ) %>%
+                interactive_plot(
+                  base_country(),
+                  note_compare(),
+                  input$family,
+                  plotly_remove_buttons,
+                  missing_variables
+                )
+            }
+          )
+        }
+        
+      })
+    
+    ## End of benchmark tab ----------------------
+    
+    
     ## Change variable selection in all tabs --------------------------
 
     observeEvent(
@@ -588,142 +742,6 @@
       ignoreNULL = FALSE
     )
 
-    ## Make sure only valid groups are chosen ----------------------------------
-
-    observeEvent(
-      input$country,
-
-      {
-        valid_vars <-
-          ctf_long %>%
-          filter(
-            country_name == input$country,
-            !is.na(value)
-          ) %>%
-          select(family_name) %>%
-          unique %>%
-          unlist %>%
-          unname
-
-        updatePickerInput(
-          session,
-          "family",
-          choices = c(
-            "Overview",
-            intersect(names(variable_list), valid_vars)
-          )
-        )
-      },
-
-      ignoreNULL = FALSE
-    )
-
-    ## Median data ------------------------------------------------------------
-
-    data_family_median <-
-      eventReactive(
-        input$select,
-
-        {
-          family_data(
-            global_data,
-            base_country(),
-            variable_names
-          )
-        }
-      )
-
-   # Benchmark plot ============================================================
-
-    output$plot <-
-      renderPlotly({
-
-        if (length(input$countries) >= 10) {
-          input$select
-
-          isolate(
-
-            if (input$family == "Overview") {
-
-              missing_variables <-
-                global_data %>%
-                missing_var(
-                  base_country(),
-                  country_list,
-                  input$countries,
-                  vars_all,
-                  variable_names
-                )
-
-              low_variance_variables <-
-                low_variance_indicators() %>%
-                data.frame() %>%
-                rename("variable" = ".") %>%
-                left_join(variable_names %>% select(variable,var_name), by = "variable") %>%
-                .$var_name
-
-              missing_variables <- c(missing_variables, low_variance_variables)
-
-              data_family()  %>%
-                static_plot(
-                  base_country(),
-                  input$family,
-                  input$rank,
-                  dots = input$benchmark_dots,
-                  group_median = input$benchmark_median,
-                  threshold = input$threshold
-                ) %>%
-                interactive_plot(
-                  base_country(),
-                  note_compare(),
-                  input$family,
-                  plotly_remove_buttons,
-                  missing_variables
-                )
-
-            } else {
-
-              missing_variables <-
-                global_data %>%
-                missing_var(
-                  base_country(),
-                  country_list,
-                  input$countries,
-                  vars(),
-                  variable_names
-                )
-
-              low_variance_variables <-
-                low_variance_indicators() %>%
-                data.frame() %>%
-                rename("variable"=".") %>%
-                left_join(variable_names %>% select(variable,var_name), by = "variable") %>%
-                .$var_name
-
-              missing_variables <- c(missing_variables,low_variance_variables)
-
-              data() %>%
-                filter(variable %in% vars()) %>%
-                static_plot(
-                  base_country(),
-                  input$family,
-                  input$rank,
-                  dots = input$benchmark_dots,
-                  group_median = input$benchmark_median,
-                  threshold = input$threshold
-                ) %>%
-                interactive_plot(
-                  base_country(),
-                  note_compare(),
-                  input$family,
-                  plotly_remove_buttons,
-                  missing_variables
-                )
-            }
-          )
-        }
-
-      })
 
  # Bar plot ==================================================================
 

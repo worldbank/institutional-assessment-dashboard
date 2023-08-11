@@ -214,8 +214,7 @@ group_list <-
   list(
     `Economic` = country_groups %>% filter(group_category == "Economic") %>% pull(group_name),
     `Region` = country_groups %>% filter(group_category == "Region") %>% pull(group_name),
-    `Income` = country_groups %>% filter(group_category == "Income") %>% pull(group_name)#,
-    #`Custom` =list("Create custom groups")
+    `Income` = country_groups %>% filter(group_category == "Income") %>% pull(group_name)
   )
 
 

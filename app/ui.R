@@ -237,7 +237,7 @@ ui <-
                "input.create_custom_grps == true" ,
               shiny::column(12,
                 shinyWidgets:: materialSwitch(
-                  inputId = "show_custom_grps_ui",
+                  inputId = "show_custom_grps",
                   label = "Show custom groups",
                   status = "success",
                   value = TRUE
