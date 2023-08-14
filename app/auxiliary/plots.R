@@ -206,6 +206,8 @@ static_plot <-
           value,
           country_name
         )
+      
+      
 
       if ("Comparison countries" %in% group_median) {
 

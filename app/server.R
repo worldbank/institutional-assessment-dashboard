@@ -17,18 +17,7 @@
  
     ## Create comparison group inputs where users can insert custom group names and countries that 
     ## they'd want to place in those groups ------
-    
-    # shinyjs::disable("create_custom_grps")
-    # 
-    # shiny::observeEvent(input$country, {
-    #   if(!is.null(input$country)){
-    #     shinyjs::enable("create_custom_grps")
-    #   }else{
-    #     shinyjs::disable("create_custom_grps")
-    #   }
-    # })
 
-    
     ## Reactive object that will hold all these information
     custom_group_fields_reactive <- shiny::reactive({
       
@@ -46,13 +35,24 @@
         
         custom_names <- ""
         custom_countries <- NULL
+        c_groups <- input$groups[!input$groups %in% unlist(group_list)]
         
         if(n_fields >= 1){
-          
+        
           custom_names <- isolate(input[[paste("custom_grps_names", i, sep = "_")]])
           custom_countries <- isolate(input[[paste("custom_grps_countries", i, sep = "_")]])
+        
+          value_textInput = custom_names
+          selected_pickerinput = custom_countries
           
-          
+        # if(length(c_groups) > 0 & i > length(c_groups)){
+        #   value_textInput = NULL
+        #   selected_pickerinput = NULL
+        # }else{
+        #   value_textInput = custom_names
+        #   selected_pickerinput = custom_countries
+        # }
+
           ui_fields[[i]] <- shiny::fluidRow(
             width = 6,
             shiny::column(
@@ -60,7 +60,7 @@
               shiny::textInput(
                 inputId = paste("custom_grps_names", i, sep = "_"),
                 label = paste("Insert the name of group ", i),
-                value = custom_names
+                value = value_textInput
               )
             ),
             shiny::column(
@@ -69,7 +69,7 @@
                 inputId = paste("custom_grps_countries", i, sep = "_"),
                 label = paste("Select countries that fall into group ", i),
                 choices = c("", countries[!countries %in% input$country]),
-                selected = custom_countries,
+                selected = selected_pickerinput,
                 multiple = TRUE,
                 options = list(
                   `actions-box` = TRUE,
@@ -108,7 +108,7 @@
           custom_grps_df <- NULL  
         }
         
-        print(custom_grps_df)
+        print(custom_grps_df %>% arrange(Countries))
         return(custom_grps_df)
       })
 
@@ -131,7 +131,7 @@
     ### Once the save button is clicked 
     
       shiny::observeEvent(input$save_custom_grps, {
-
+        
         # browser()
         ### check if any of the custom group names is part of group list. 
         ### If so, ask the user to change the name
@@ -144,8 +144,8 @@
             modalDialog(
               shiny::tagList(
                 shiny::tags$p(
-                  paste0("The list below contains group name(s) that already exist(s) in the 
-                    original group list. Please edit the group name(s) to proceed")
+                  paste0("The following list includes group name(s) that already exist(s) within the 
+                    original group list. Please modify the group name(s) to continue.")
                 ), 
                 
                 shiny::tags$p(
@@ -182,10 +182,7 @@
             inputId = "benchmark_median",
             choices = append(group_list, Custom)
           ) 
-          
-       
-         
-          
+
         }
 
       })
@@ -249,15 +246,16 @@
       
     # When custom groups are selected, append the countries to the initial list of countries
     # displayed
+    # Problem is here
       observeEvent(
-       input$save_custom_grps,
-        
+        input$groups, 
         {
 
+          
       if(!is.null(custom_grps_df())){
 
-        custom_grp_countries <- custom_grps_df()$Countries
-        preselected_grp_countries <- country_list %>% filter(group %in% input$group) %>% pull(country_name)
+        custom_grp_countries <- custom_grps_df()$Countries[custom_grps_df()$Grp %in% input$groups]
+        preselected_grp_countries <- country_list %>% filter(group %in% input$groups) %>% pull(country_name)
 
         if(length(preselected_grp_countries) > 0) {
           selected_c <- unique(c(custom_grp_countries, preselected_grp_countries))
@@ -279,6 +277,64 @@
         )
       }
     })
+      
+      
+      
+      observeEvent(
+        input$save_custom_grps, 
+        {
+          if(!is.null(custom_grps_df())){
+            
+            custom_grp_countries <-  custom_grps_df()$Countries[custom_grps_df()$Grp %in% input$groups]    
+            preselected_grp_countries <- country_list %>% filter(group %in% input$groups) %>% pull(country_name)
+            
+            if(length(preselected_grp_countries) > 0) {
+              selected_c <- unique(c(custom_grp_countries, preselected_grp_countries))
+            }else{
+              selected_c <- custom_grp_countries
+            }
+            
+            updateCheckboxGroupButtons(
+              session,
+              "countries",
+              label = NULL,
+              choices = countries,
+              checkIcon = list(
+                yes = icon("ok",
+                  lib = "glyphicon",
+                  style = "color: #e94152")
+              ),
+              selected = selected_c
+            )
+          }
+        })
+     
+      
+      # observeEvent(
+      #   input$save_custom_grps, 
+      #   {
+      #     
+      #     n_fields <- input$custom_grps_count
+      #     
+      #     lapply(1:n_fields, function(i) {
+      #       
+      #       if(i > length(custom_grps_df()$Grp)){
+      #         
+      #         shiny::updateTextInput(
+      #           inputId = paste("custom_grps_names", i, sep = "_"),
+      #           value = NULL
+      #         )
+      #         
+      #         shinyWidgets::updatePickerInput(
+      #           inputId = paste("custom_grps_countries", i, sep = "_"),
+      #           selected = NULL
+      #         )
+      #         
+      #       }
+      # 
+      #     })
+      #     
+      #   })
       
     ## Validate options -------------------------------------------------------
 
@@ -354,15 +410,22 @@
         input$select,
         {
           
+          # browser()
+          
           if (is.null(input$groups)) {
             return(input$countries)
           } else if (
             all(
-              unique(input$countries) ==
+              unique(input$countries) %in%
               unique(
-                country_list %>%
-                filter(group %in% input$groups) %>%
-                pull(country_name)
+                c(
+                  country_list %>%
+                    filter(group %in% input$groups) %>%
+                    pull(country_name)
+                ), 
+                c(
+                  custom_grps_df()$Countries[custom_grps_df()$Grp %in% input$groups]
+                )
               )
             )
           ) {
@@ -370,7 +433,6 @@
           } else {
             return(input$countries)
           }
-
         }
       )
 
