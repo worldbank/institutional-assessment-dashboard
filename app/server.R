@@ -180,7 +180,11 @@
           shinyWidgets::updatePickerInput(
             session = session,
             inputId = "benchmark_median",
-            choices = append(group_list, Custom)
+            choices = append("Comparison countries", append(group_list, Custom)),
+            options = list(
+              `live-search` = TRUE,
+              maxOptions = 3
+            )
           ) 
 
         }
@@ -686,6 +690,7 @@
                   input$rank,
                   dots = input$benchmark_dots,
                   group_median = input$benchmark_median,
+                  custom_df = custom_grps_df()[custom_grps_df()$Grp %in% input$benchmark_median, ],
                   threshold = input$threshold
                 ) %>%
                 interactive_plot(
@@ -725,6 +730,7 @@
                   input$rank,
                   dots = input$benchmark_dots,
                   group_median = input$benchmark_median,
+                  custom_df = custom_grps_df()[custom_grps_df()$Grp %in% input$benchmark_median, ],
                   threshold = input$threshold
                 ) %>%
                 interactive_plot(
@@ -1330,6 +1336,7 @@
               rank = input$rank,
               group_median = input$benchmark_median,
               dots = input$benchmark_dots,
+              custom_df = custom_grps_df()[custom_grps_df()$Grp %in% input$benchmark_median, ],
               title = FALSE,
               threshold = input$threshold
             )

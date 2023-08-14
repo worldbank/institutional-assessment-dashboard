@@ -24,6 +24,7 @@ static_plot <-
            tab_name,
            rank,
            group_median = NULL,
+           custom_df = NULL,
            title = TRUE,
            dots = FALSE,
            note = NULL,
@@ -194,7 +195,24 @@ static_plot <-
     }
 
     if (!is.null(group_median) & !rank) {
-
+      
+      # if(any(group_median %in% country_list$group)){
+      #   
+      #   median_data <-
+      #     ctf_long %>%
+      #     filter(
+      #       var_name %in% vars,
+      #       country_name %in% group_median
+      #     ) %>%
+      #     select(
+      #       var_name,
+      #       value,
+      #       country_name
+      #     )
+      # }else{
+      #   median_data <- NULL
+      # }
+      
       median_data <-
         ctf_long %>%
         filter(
@@ -206,6 +224,41 @@ static_plot <-
           value,
           country_name
         )
+      
+
+      if(any(group_median %in% custom_df$Grp)){
+        
+        custom_grp_median_data <- list()
+        selected_custom_grps <- unique(custom_df$Grp)
+        
+        for(i in 1: length(selected_custom_grps)){
+          
+          custom_df_per_group <- custom_df %>% filter(Grp == selected_custom_grps[i])
+          
+          custom_grp_median_data[[i]] <-
+            ctf_long %>%
+            filter(
+              var_name %in% vars,
+              country_name %in% custom_df_per_group$Countries
+            ) %>%
+            mutate(
+              country_name = unique(custom_df_per_group$Grp),
+              group = NA
+            ) %>%
+            unique %>%
+            group_by(
+              country_name,
+              var_name
+            ) %>%
+            summarise(value = median(value, na.rm = TRUE)) %>%
+            ungroup
+        }
+        
+        custom_grp_median_data <- bind_rows(custom_grp_median_data)
+        
+        median_data <- median_data %>% 
+                         bind_rows(custom_grp_median_data)
+      } 
       
       
 
