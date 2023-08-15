@@ -294,8 +294,8 @@ static_plot <-
           size = 3
         ) +
         scale_shape_manual(
-          values = 22:25,
-          lab = NULL
+          values = 22:25 #,
+          #lab = NULL
         )
     }
 
@@ -306,7 +306,7 @@ static_plot <-
         aes(
           y = var_name,
           x = var,
-          fill = status,
+          fill = status ,
           text = text
         ),
         size = 3,
@@ -330,9 +330,9 @@ interactive_plot <-
           "Notes:\n\n",
           y,
           " compared to ",
-          paste(z, collapse = ", "),
+          str_wrap(paste(z, collapse = ", "), note_chars),
           ".\n\nThe following indicators are not considered because base country has no information or because of low variance:\n",
-          paste(miss_var, collapse = ", "),
+          str_wrap(paste(miss_var, collapse = ", "), note_chars),
           "."
         )
 
@@ -345,7 +345,7 @@ interactive_plot <-
           "Notes:\n ",
           y,
           " compared to ",
-          paste(z, collapse = ", "),
+          str_wrap(paste(z, collapse = ", "), note_chars),
           "."
         )
 
@@ -362,7 +362,7 @@ interactive_plot <-
     int_plot <- x %>%
       ggplotly(tooltip = "text") %>%
       layout(
-        margin = list(l = 50, r = 50, t = 75, b = 200),
+        margin = list(l = 50, r = 50, t = 75, b = 250),
         annotations =
           list(
             x = -0.2,
