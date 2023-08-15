@@ -157,9 +157,10 @@ static_plot <-
           shape = NULL,
           caption = note
         ) +
-        scale_fill_manual(
-          values = colors
-        )
+      scale_fill_manual(
+        values = colors
+      )
+
     
     if (rank) {
       plot <-
@@ -196,23 +197,6 @@ static_plot <-
 
     if (!is.null(group_median) & !rank) {
       
-      # if(any(group_median %in% country_list$group)){
-      #   
-      #   median_data <-
-      #     ctf_long %>%
-      #     filter(
-      #       var_name %in% vars,
-      #       country_name %in% group_median
-      #     ) %>%
-      #     select(
-      #       var_name,
-      #       value,
-      #       country_name
-      #     )
-      # }else{
-      #   median_data <- NULL
-      # }
-      
       median_data <-
         ctf_long %>%
         filter(
@@ -226,15 +210,18 @@ static_plot <-
         )
       
 
+      if(!is.null(custom_df)){
+     
       if(any(group_median %in% custom_df$Grp)){
-        
+
         custom_grp_median_data <- list()
         selected_custom_grps <- unique(custom_df$Grp)
-        
+
         for(i in 1: length(selected_custom_grps)){
-          
-          custom_df_per_group <- custom_df %>% filter(Grp == selected_custom_grps[i])
-          
+
+          custom_df_per_group <- custom_df %>% 
+                filter(Grp == selected_custom_grps[i])
+
           custom_grp_median_data[[i]] <-
             ctf_long %>%
             filter(
@@ -253,14 +240,14 @@ static_plot <-
             summarise(value = median(value, na.rm = TRUE)) %>%
             ungroup
         }
-        
+
         custom_grp_median_data <- bind_rows(custom_grp_median_data)
-        
-        median_data <- median_data %>% 
+
+        median_data <- median_data %>%
                          bind_rows(custom_grp_median_data)
+      }
+ 
       } 
-      
-      
 
       if ("Comparison countries" %in% group_median) {
 
@@ -340,11 +327,11 @@ interactive_plot <-
 
       notes <-
         paste0(
-          "<b>Notes:</b> ",
+          "Notes:\n\n",
           y,
           " compared to ",
           paste(z, collapse = ", "),
-          ". Indicators not considered because base country has no information or because of low variance: ",
+          ".\n\nThe following indicators are not considered because base country has no information or because of low variance:\n",
           paste(miss_var, collapse = ", "),
           "."
         )
@@ -355,7 +342,7 @@ interactive_plot <-
 
       notes <-
         paste0(
-          "<b>Notes:</b> ",
+          "Notes:\n ",
           y,
           " compared to ",
           paste(z, collapse = ", "),
@@ -368,11 +355,11 @@ interactive_plot <-
       notes <-
         paste(
           notes,
-          "Family-level closeness to frontier is calculated by taking the average closeness to frontier for all the latest available indicators in each family."
+          "\nFamily-level closeness to frontier is calculated by taking the average closeness to frontier for all the latest available indicators in each family."
         )
     }
 
-    x %>%
+    int_plot <- x %>%
       ggplotly(tooltip = "text") %>%
       layout(
         margin = list(l = 50, r = 50, t = 75, b = 200),
@@ -380,7 +367,7 @@ interactive_plot <-
           list(
             x = -0.2,
             y = -0.6,
-            text = HTML(str_wrap(notes, note_chars)),
+            text = shiny::HTML(notes),
             showarrow = F,
             xref = 'paper',
             yref = 'paper',
@@ -394,6 +381,18 @@ interactive_plot <-
                                    width = 1100,
                                    height =  1000)
       )
+    
+    ## Solution to remove ",1" that appears on the legend
+    ## https://stackoverflow.com/questions/49133395/strange-formatting-of-legend-in-ggplotly-in-r
+    
+    for (i in 1:length(int_plot$x$data)){
+      if (!is.null(int_plot$x$data[[i]]$name)){
+        int_plot$x$data[[i]]$name =  gsub("\\(","",str_split(int_plot$x$data[[i]]$name,",")[[1]][1])
+      }
+    }
+    
+    return(int_plot)
+    
   }
 
 # Maps #########################################################################

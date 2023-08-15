@@ -45,13 +45,6 @@
           value_textInput = custom_names
           selected_pickerinput = custom_countries
           
-        # if(length(c_groups) > 0 & i > length(c_groups)){
-        #   value_textInput = NULL
-        #   selected_pickerinput = NULL
-        # }else{
-        #   value_textInput = custom_names
-        #   selected_pickerinput = custom_countries
-        # }
 
           ui_fields[[i]] <- shiny::fluidRow(
             width = 6,
@@ -414,22 +407,24 @@
         input$select,
         {
           
-          # browser()
+          group_list_countries <- country_list %>%
+            filter(group %in% input$groups) %>%
+              pull(country_name)
+
+          custom_df_countries = NULL 
+          if(input$create_custom_grps == TRUE){
+            custom_df_countries = custom_grps_df()$Countries[custom_grps_df()$Grp %in% input$groups &
+                custom_grps_df()$Countries %in% input$countries]
+          }
           
+    
           if (is.null(input$groups)) {
             return(input$countries)
           } else if (
             all(
               unique(input$countries) %in%
               unique(
-                c(
-                  country_list %>%
-                    filter(group %in% input$groups) %>%
-                    pull(country_name)
-                ), 
-                c(
-                  custom_grps_df()$Countries[custom_grps_df()$Grp %in% input$groups]
-                )
+                c(group_list_countries, custom_df_countries)
               )
             )
           ) {
@@ -660,6 +655,7 @@
         if (length(input$countries) >= 10) {
           input$select
           
+          # browser()
           isolate(
             
             if (input$family == "Overview") {
@@ -683,6 +679,13 @@
               
               missing_variables <- c(missing_variables, low_variance_variables)
               
+              if(input$create_custom_grps == TRUE){
+                custom_df = custom_grps_df()[custom_grps_df()$Grp %in% input$benchmark_median &
+                    custom_grps_df()$Countries %in% input$countries, ]
+              }else{
+                custom_df = NULL
+              }
+              
               data_family()  %>%
                 static_plot(
                   base_country(),
@@ -690,7 +693,7 @@
                   input$rank,
                   dots = input$benchmark_dots,
                   group_median = input$benchmark_median,
-                  custom_df = custom_grps_df()[custom_grps_df()$Grp %in% input$benchmark_median, ],
+                  custom_df = custom_df,
                   threshold = input$threshold
                 ) %>%
                 interactive_plot(
@@ -722,6 +725,13 @@
               
               missing_variables <- c(missing_variables,low_variance_variables)
               
+              if(input$create_custom_grps == TRUE){
+                custom_df = custom_grps_df()[custom_grps_df()$Grp %in% input$benchmark_median &
+                    custom_grps_df()$Countries %in% input$countries, ]
+              }else{
+                custom_df = NULL
+              }
+              
               data() %>%
                 filter(variable %in% vars()) %>%
                 static_plot(
@@ -730,7 +740,7 @@
                   input$rank,
                   dots = input$benchmark_dots,
                   group_median = input$benchmark_median,
-                  custom_df = custom_grps_df()[custom_grps_df()$Grp %in% input$benchmark_median, ],
+                  custom_df = custom_df,
                   threshold = input$threshold
                 ) %>%
                 interactive_plot(
@@ -1329,6 +1339,13 @@
           ppt<-read_pptx("www/CLIAR_template.pptx")
           
           
+          if(input$create_custom_grps == TRUE){
+            custom_df = custom_grps_df()[custom_grps_df()$Grp %in% input$benchmark_median &
+                custom_grps_df()$Countries %in% input$countries, ]
+          }else{
+            custom_df = NULL
+          }
+          
           plot1<-data_family() %>%
             static_plot(
               base_country(),
@@ -1336,7 +1353,7 @@
               rank = input$rank,
               group_median = input$benchmark_median,
               dots = input$benchmark_dots,
-              custom_df = custom_grps_df()[custom_grps_df()$Grp %in% input$benchmark_median, ],
+              custom_df = custom_df,
               title = FALSE,
               threshold = input$threshold
             )
