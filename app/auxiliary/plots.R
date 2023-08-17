@@ -24,7 +24,7 @@ static_plot <-
            tab_name,
            rank,
            group_median = NULL,
-           custom_df = NULL,
+           custom_df = NULL, ## New addition made by Shel in August 2023 to accomodate custom groups
            title = TRUE,
            dots = FALSE,
            note = NULL,
@@ -180,7 +180,7 @@ static_plot <-
     if (dots) {
       plot <-
         plot +
-        geom_point(
+       suppressWarnings(geom_point(
           data = data,
           aes(
             y = var_name,
@@ -192,7 +192,7 @@ static_plot <-
           color = "gray30",
           fill = "white",
           alpha = .5
-        )
+        ))  
     }
 
     if (!is.null(group_median) & !rank) {
@@ -210,26 +210,52 @@ static_plot <-
         )
       
 
+      ## ------------------------------------------------------------------------------------
+      ## This is how custom median groups are calculated, only if custom_df exists and is not null
+
       if(!is.null(custom_df)){
      
+      ## If any of the benchmark medians is a custom group
       if(any(group_median %in% custom_df$Grp)){
 
+        ## create a place holder that will hold the medians for all the groups
         custom_grp_median_data <- list()
+        
+        ## create a vector of these groups
         selected_custom_grps <- unique(custom_df$Grp)
 
+        ## for each custom group
         for(i in 1: length(selected_custom_grps)){
 
+          ## extract its data from the custom_df data. See sample custom_df data below
+          
+          #     Category Grp           Countries
+          # 1    Custom  xd             Denmark
+          # 2    Custom  xd  Russian Federation
+          # 3    Custom  xd              Sweden
+          # 4    Custom  ts          Tajikistan
+          # 5    Custom  ts            Thailand
+          # 6    Custom  ts Trinidad and Tobago
+          # 7    Custom  ts             Tunisia
+          # 8    Custom  ts        Turkmenistan
+          # 9    Custom POL          Uzbekistan
+          # 10   Custom POL       Venezuela, RB
+          # 11   Custom POL             Vietnam
+          # 12   Custom POL         Yemen, Rep.
           custom_df_per_group <- custom_df %>% 
                 filter(Grp == selected_custom_grps[i])
 
+          
+          ## calculate medians for each group
           custom_grp_median_data[[i]] <-
             ctf_long %>%
             filter(
               var_name %in% vars,
-              country_name %in% custom_df_per_group$Countries
+              country_name %in% custom_df_per_group$Countries ## extract countries that fall in this group
             ) %>%
             mutate(
-              country_name = unique(custom_df_per_group$Grp),
+              country_name = unique(custom_df_per_group$Grp), ## the country name will be the 
+              ## name of the group.
               group = NA
             ) %>%
             unique %>%
@@ -241,14 +267,18 @@ static_plot <-
             ungroup
         }
 
+        ## append all the group median datasets to one
         custom_grp_median_data <- bind_rows(custom_grp_median_data)
 
+        ## and append this to median data generated for pre-determined groups
         median_data <- median_data %>%
                          bind_rows(custom_grp_median_data)
       }
  
       } 
 
+      ## ------------------------------------------------------------------------------------
+      
       if ("Comparison countries" %in% group_median) {
 
         countries <-
@@ -277,7 +307,7 @@ static_plot <-
 
       plot <-
         plot +
-        geom_point(
+        suppressWarnings(geom_point(
           data = median_data,
           aes(
             y = var_name,
@@ -292,7 +322,7 @@ static_plot <-
           color = "black",
           fill = "white",
           size = 3
-        ) +
+        )) +
         scale_shape_manual(
           values = 22:25 #,
           #lab = NULL
@@ -301,7 +331,7 @@ static_plot <-
 
     plot <-
       plot +
-      geom_point(
+      suppressWarnings(geom_point(
         data = data %>% filter(country_name == base_country),
         aes(
           y = var_name,
@@ -312,7 +342,7 @@ static_plot <-
         size = 3,
         shape = 21,
         color = "gray0"
-      )
+      ))
 
     return(plot)
 
@@ -325,6 +355,7 @@ interactive_plot <-
 
     if (length(miss_var) > 0) {
 
+      ## Shel added "\n" to include line breaks in the notes
       notes <-
         paste0(
           "Notes:\n\n",
@@ -389,7 +420,9 @@ interactive_plot <-
       if (!is.null(int_plot$x$data[[i]]$name)){
         int_plot$x$data[[i]]$name =  gsub("\\(","",str_split(int_plot$x$data[[i]]$name,",")[[1]][1])
       }
+      
     }
+
     
     return(int_plot)
     

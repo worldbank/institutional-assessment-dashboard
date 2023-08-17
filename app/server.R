@@ -11,7 +11,7 @@ server <- function(input, output, session) {
       ignoreNULL = FALSE
     )
 
-  ## Start of benchmark tab ----------------------
+  ## Start of benchmark tab control inputs----------------------
 
   ## Create comparison group inputs where users can insert custom group names and countries that
   ## they'd want to place in those groups
@@ -75,20 +75,9 @@ server <- function(input, output, session) {
     custom_group_fields_reactive()
   })
 
-  ## When the save button is clicked, check to see if all the data has been filled, 
-  ## if not, throw an error
-  ## 
-  # custom_grps_df <- shiny::observeEvent(input$save_custom_grps, {
-  #   
-  # 
-  #   
-  #   
-  # })
-  # 
-  
-  
   ## Generate a dataframe containing the custom groups
   custom_grps_df <- shiny::eventReactive(input$save_custom_grps, {
+    
     n_fields <- input$custom_grps_count
 
     if (n_fields > 0) {
@@ -99,34 +88,43 @@ server <- function(input, output, session) {
         grp_name <- as.character(input[[paste("custom_grps_names", i, sep = "_")]])
         country_selection <- as.vector(input[[paste("custom_grps_countries", i, sep = "_")]])
         
+        ## if both fields are filled, create a dataframe 
         if(!is.null(grp_name) & !is.null(country_selection)){
           
           custom_grps_list[[i]] <- data.frame(Category = "Custom", Grp = grp_name, Countries = country_selection)
         }else{
+          
+          ## else return a NULL object
           custom_grps_list[[i]] <- NULL
         }
         
       }
 
+      ## append all the dataframes into one. 
       custom_grps_df <- dplyr::bind_rows(custom_grps_list)
     } else {
       custom_grps_df <- NULL
     }
     
+    ## if we don't have any custom group data (fields are blank), return a NULL object
     if(nrow(custom_grps_df) == 0){
       custom_grps_df <- NULL
     }
-
-    print(custom_grps_df)
+    
+    ## temporary code that checks the countries that are captured in the custom group dataset
+    #print(custom_grps_df)
     
     return(custom_grps_df)
   })
   
   
+  ## once the save button is clicked
   shiny::observeEvent(input$save_custom_grps, {
     
+    ## if the custom group dataframe is NULL
     if(is.null(custom_grps_df())){
      
+      ## unselect the create_custom_grps field
       shinyWidgets::updatePrettyCheckbox(
         session = session,
         inputId = "create_custom_grps",
@@ -135,7 +133,7 @@ server <- function(input, output, session) {
       
     }
     
-    
+    ## and convert the custom_grps_df reactive to NULL. 
     if(input$create_custom_grps == FALSE){
     custom_grps_df() <- NULL
     }
@@ -188,7 +186,6 @@ server <- function(input, output, session) {
       )
 
       ## and edit the "Select comparison groups" and "Show group median" fields to include these custom groups
-
       Custom <- list(unique(custom_grps_df()$Grp))
       names(Custom) <- "Custom"
 
@@ -212,7 +209,8 @@ server <- function(input, output, session) {
     }
   })
 
-  ## Unselecting the "Create custom groups" field should reset all custom group fields
+  ## Unselecting the "Create custom groups" field should reset all custom group fields,
+  ## but retain all other inputs
 
   shiny::observeEvent(input$create_custom_grps, {
     
@@ -253,7 +251,7 @@ server <- function(input, output, session) {
 
 
 
-  ## Comparison countries ----------------------------------------------------
+  ## Comparison countries
 
   observeEvent(
     input$groups,
@@ -301,24 +299,28 @@ server <- function(input, output, session) {
     ignoreNULL = FALSE
   )
 
-
-
-
-  # When custom groups are selected, append the countries to the initial list of countries
+  # When custom groups are included and the group field is updated, append the countries to the initial list of countries
   # displayed
   observeEvent(
     input$groups,
     {
       if (!is.null(custom_grps_df())) {
+        
+        ## custom group countries
         custom_grp_countries <- custom_grps_df()$Countries[custom_grps_df()$Grp %in% input$groups]
+        
+        ## countries in the group-list groups
         preselected_grp_countries <- country_list %>%
           filter(group %in% input$groups) %>%
           pull(country_name)
+        
+        ## countries that are selected from the "Select individual comparison countries" directly
+        other_countries <- input$countries[!input$countries %in% c(custom_grp_countries, preselected_grp_countries)]
 
         if (length(preselected_grp_countries) > 0) {
-          selected_c <- unique(c(custom_grp_countries, preselected_grp_countries))
+          selected_c <- unique(c(custom_grp_countries, preselected_grp_countries, other_countries))
         } else {
-          selected_c <- custom_grp_countries
+          selected_c <- unique(c(custom_grp_countries, other_countries))
         }
 
         updateCheckboxGroupButtons(
@@ -339,20 +341,29 @@ server <- function(input, output, session) {
   )
 
 
-
+  ## Repeat the same above if edits are made in the custom groups where groups aren't updated e.g 
+  ## removing or adding countries in the already specified custom groups
   observeEvent(
     input$save_custom_grps,
     {
+
       if (!is.null(custom_grps_df())) {
+        
+        ## custom group countries
         custom_grp_countries <- custom_grps_df()$Countries[custom_grps_df()$Grp %in% input$groups]
+        
+        ## countries in the group-list groups
         preselected_grp_countries <- country_list %>%
           filter(group %in% input$groups) %>%
           pull(country_name)
 
+        ## countries that are selected from the "Select individual comparison countries" card directly
+        other_countries <- input$countries[!input$countries %in% c(custom_grp_countries, preselected_grp_countries)]
+        
         if (length(preselected_grp_countries) > 0) {
-          selected_c <- unique(c(custom_grp_countries, preselected_grp_countries))
+          selected_c <- unique(c(custom_grp_countries, preselected_grp_countries, other_countries))
         } else {
-          selected_c <- custom_grp_countries
+          selected_c <- unique(c(custom_grp_countries, other_countries))
         }
 
         updateCheckboxGroupButtons(
@@ -373,7 +384,7 @@ server <- function(input, output, session) {
   )
 
 
-  ## Validate options -------------------------------------------------------
+  ## Validate options
 
   output$select_button <-
     renderUI({
@@ -414,6 +425,8 @@ server <- function(input, output, session) {
     },
     ignoreNULL = FALSE
   )
+  
+  ## End of benchmark tab control inputs----------------------
 
   ## Reactive objects ==============================================
 
@@ -439,20 +452,38 @@ server <- function(input, output, session) {
     eventReactive(
       input$select,
       {
+        
+        ## countries that fall under input$groups
+        ## 
         group_list_countries <- country_list %>%
           filter(group %in% input$groups) %>%
           pull(country_name)
 
+        
+        ## custom groups countries that fall under input$groups and are selected in the 
+        ## "Select individual comparison countries" card. We don't care about those that are unselected.
         custom_df_countries <- NULL
+        
         if (input$create_custom_grps == TRUE) {
           custom_df_countries <- custom_grps_df()$Countries[custom_grps_df()$Grp %in% input$groups &
             custom_grps_df()$Countries %in% input$countries]
         }
+        
+        ## if we ever want to see which countries are in custom_grps_df() but unselected (not in input$countries), run
+        ## the following code.
+        ## Do not activate this line here coz the app will not work
+        # dropped_custom_countries =  custom_grps_df()$Countries[!custom_grps_df()$Countries %in% input$countries]
 
 
+        ## if no groups are selected
         if (is.null(input$groups)) {
+          
+          ## return the countries
           return(input$countries)
+          
         } else if (
+          ## else if all the countries are part of the group-list and custom group countries ... 
+          
           all(
             unique(input$countries) %in%
               unique(
@@ -460,8 +491,13 @@ server <- function(input, output, session) {
               )
           )
         ) {
+          ## return the groups instead
           return(input$groups)
         } else {
+          
+          ## else return countries (this would occur if we directly selected some countries in the 
+          ## "Select individual comparison countries" card that are not part of the group-list groups 
+          ## or custom groups)
           return(input$countries)
         }
       }
@@ -671,15 +707,24 @@ server <- function(input, output, session) {
   output$plot <-
     renderPlotly({
       if (length(input$countries) >= 10) {
+        
         input$select
 
+
+        # browser()
         
+        ## Important!
+        ## Shel added custom_df as an argument in the static_plot function to accommodate the custom groups
+     
+        ## custom dataset will be used here if the groups in it are part of the benchmark median groups and its countries 
+        ## are selected
         if (input$create_custom_grps == TRUE) {
           custom_df <- custom_grps_df()[custom_grps_df()$Grp %in% input$benchmark_median &
               custom_grps_df()$Countries %in% input$countries, ]
         } else {
           custom_df <- NULL
         }
+
         
         isolate(
           if (input$family == "Overview") {

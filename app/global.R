@@ -22,6 +22,7 @@ invisible(lapply(pkgs,library,character.only=TRUE))
 ### v) Clear memory by removing objects that are no longer needed.
 rm(miss_pkgs, pkgs)
 
+options(dplyr.summarise.inform = FALSE)
 
 ## Auxiliary functions -----------------------------------------------------------------
 
