@@ -75,27 +75,73 @@ server <- function(input, output, session) {
     custom_group_fields_reactive()
   })
 
+  ## When the save button is clicked, check to see if all the data has been filled, 
+  ## if not, throw an error
+  ## 
+  # custom_grps_df <- shiny::observeEvent(input$save_custom_grps, {
+  #   
+  # 
+  #   
+  #   
+  # })
+  # 
+  
+  
   ## Generate a dataframe containing the custom groups
   custom_grps_df <- shiny::eventReactive(input$save_custom_grps, {
     n_fields <- input$custom_grps_count
 
     if (n_fields > 0) {
+      
       custom_grps_list <- list()
 
       for (i in 1:n_fields) {
         grp_name <- as.character(input[[paste("custom_grps_names", i, sep = "_")]])
         country_selection <- as.vector(input[[paste("custom_grps_countries", i, sep = "_")]])
-        custom_grps_list[[i]] <- data.frame(Category = "Custom", Grp = grp_name, Countries = country_selection)
+        
+        if(!is.null(grp_name) & !is.null(country_selection)){
+          
+          custom_grps_list[[i]] <- data.frame(Category = "Custom", Grp = grp_name, Countries = country_selection)
+        }else{
+          custom_grps_list[[i]] <- NULL
+        }
+        
       }
 
       custom_grps_df <- dplyr::bind_rows(custom_grps_list)
     } else {
       custom_grps_df <- NULL
     }
+    
+    if(nrow(custom_grps_df) == 0){
+      custom_grps_df <- NULL
+    }
 
-    print(custom_grps_df %>% arrange(Countries))
+    print(custom_grps_df)
+    
     return(custom_grps_df)
   })
+  
+  
+  shiny::observeEvent(input$save_custom_grps, {
+    
+    if(is.null(custom_grps_df())){
+     
+      shinyWidgets::updatePrettyCheckbox(
+        session = session,
+        inputId = "create_custom_grps",
+        value = FALSE
+      )
+      
+    }
+    
+    
+    if(input$create_custom_grps == FALSE){
+    custom_grps_df() <- NULL
+    }
+
+  })
+  
 
   ## Turning on the "Show custom groups" switch shows the custom groups ui
   shiny::observeEvent(input$show_custom_grps, {
@@ -113,7 +159,7 @@ server <- function(input, output, session) {
   ### Once the save button is clicked
 
   shiny::observeEvent(input$save_custom_grps, {
-    # browser()
+
     ### check if any of the custom group names is part of group list.
     ### If so, ask the user to change the name
 
@@ -157,11 +203,11 @@ server <- function(input, output, session) {
         session = session,
         inputId = "benchmark_median",
         choices = append("Comparison countries", append(group_list, Custom)),
+        selected = c(input$benchmark_median, unique(custom_grps_df()$Grp))[1:3],
         options = list(
           `live-search` = TRUE,
           maxOptions = 3
-        ),
-        selected = input$benchmark_median
+        )
       )
     }
   })
@@ -169,6 +215,7 @@ server <- function(input, output, session) {
   ## Unselecting the "Create custom groups" field should reset all custom group fields
 
   shiny::observeEvent(input$create_custom_grps, {
+    
     if (input$create_custom_grps == FALSE) {
       shinyWidgets::updatePickerInput(
         session = session,
@@ -181,6 +228,7 @@ server <- function(input, output, session) {
         session = session,
         inputId = "benchmark_median",
         choices = append("Comparison countries", group_list),
+        selected = input$benchmark_median[!input$benchmark_median %in% unique(custom_grps_df()$Grp)],
         options = list(
           `live-search` = TRUE,
           maxOptions = 3
@@ -198,28 +246,8 @@ server <- function(input, output, session) {
             style = "color: #e94152"
           )
         ),
-        selected = input$countries[input$countries %in% group_list]
+        selected = input$countries[!input$countries %in% unique(custom_grps_df()$Countries)]
       )
-
-      # n_fields <- input$custom_grps_count
-
-      # lapply(1:n_fields, function(i) {
-      #
-      #
-      #     shiny::updateTextInput(
-      #       session,
-      #       inputId = paste("custom_grps_names", i, sep = "_"),
-      #       value = NULL
-      #     )
-      #
-      #     shinyWidgets::updatePickerInput(
-      #       session,
-      #       inputId = paste("custom_grps_countries", i, sep = "_"),
-      #       selected = NULL
-      #     )
-      #
-      #
-      # })
     }
   })
 
@@ -645,6 +673,14 @@ server <- function(input, output, session) {
       if (length(input$countries) >= 10) {
         input$select
 
+        
+        if (input$create_custom_grps == TRUE) {
+          custom_df <- custom_grps_df()[custom_grps_df()$Grp %in% input$benchmark_median &
+              custom_grps_df()$Countries %in% input$countries, ]
+        } else {
+          custom_df <- NULL
+        }
+        
         isolate(
           if (input$family == "Overview") {
             missing_variables <-
@@ -665,13 +701,6 @@ server <- function(input, output, session) {
               .$var_name
 
             missing_variables <- c(missing_variables, low_variance_variables)
-
-            if (input$create_custom_grps == TRUE) {
-              custom_df <- custom_grps_df()[custom_grps_df()$Grp %in% input$benchmark_median &
-                custom_grps_df()$Countries %in% input$countries, ]
-            } else {
-              custom_df <- NULL
-            }
 
             data_family() %>%
               static_plot(
@@ -709,13 +738,6 @@ server <- function(input, output, session) {
               .$var_name
 
             missing_variables <- c(missing_variables, low_variance_variables)
-
-            if (input$create_custom_grps == TRUE) {
-              custom_df <- custom_grps_df()[custom_grps_df()$Grp %in% input$benchmark_median &
-                custom_grps_df()$Countries %in% input$countries, ]
-            } else {
-              custom_df <- NULL
-            }
 
             data() %>%
               filter(variable %in% vars()) %>%
