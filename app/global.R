@@ -113,13 +113,13 @@ country_list <-
 
 
 
-# spatial_data <-
-#   read_rds(
-#     here(
-#       "data",
-#       "indicators_map.rds"
-#     )
-#   )
+spatial_data <-
+  read_rds(
+    here(
+      "data",
+      "indicators_map.rds"
+    )
+  )
 
 
 
@@ -137,7 +137,7 @@ for(i in 1:nrow(clean_country)){
     ctf_long$country_name[ctf_long$country_name==clean_country[i,'Country']]=clean_country[i,'Clean_Names']
     raw_data$country_name[raw_data$country_name==clean_country[i,'Country']]=clean_country[i,'Clean_Names']
     global_data$country_name[global_data$country_name==clean_country[i,'Country']]=clean_country[i,'Clean_Names']
-    # spatial_data$country_name[spatial_data$country_name==clean_country[i,'Country']]=clean_country[i,'Clean_Names']
+    spatial_data$country_name[spatial_data$country_name==clean_country[i,'Country']]=clean_country[i,'Clean_Names']
   }
 } 
 
@@ -146,10 +146,10 @@ country_list = country_list[order(country_list$country_name, decreasing = FALSE)
 ctf_long = ctf_long[order(ctf_long$country_name, decreasing = FALSE), ]
 raw_data = raw_data[order(raw_data$country_name, decreasing = FALSE), ]
 global_data = global_data[order(global_data$country_name, decreasing = FALSE), ]
-# spatial_data = spatial_data[order(spatial_data$country_name, decreasing = FALSE), ]
+spatial_data = spatial_data[order(spatial_data$country_name, decreasing = FALSE), ]
 
 
-# st_crs(spatial_data) <- "+proj=robin"
+st_crs(spatial_data) <- "+proj=robin"
 
 # Load data control
 db_variables <-
