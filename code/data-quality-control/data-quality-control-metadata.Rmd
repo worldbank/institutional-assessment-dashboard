@@ -91,6 +91,8 @@ calculate_time_range <- function(time_id){
 }
 
 compute_coverage <- function(data, country_id, year_id){
+  ref_year <- 2018
+  
   data_coverage <- data |> 
     # compute (1) number of distinct country codes
     # (2) range of years covered
@@ -105,7 +107,8 @@ compute_coverage <- function(data, country_id, year_id){
             flag_country = ~ flag_country(.x, {{country_id}}, {{year_id}}),
             flag_minimum_coverage = ~ flag_minimum_coverage(.x, {{country_id}}, {{year_id}}),
             year_range = ~ calculate_time_range({{year_id}}),
-            percent_complete_records = ~ percent(prop_complete(.x))
+            percent_complete_records = ~ percent(prop_complete(.x)),
+            percent_complete_records_last_five = ~ percent(prop_complete(.x[{{year_id}} >= ref_year]))
           ),
           .names = "{.col}__{.fn}"
       )
@@ -127,7 +130,8 @@ compute_coverage <- function(data, country_id, year_id){
       `Flag Low Country Coverage` = flag_country,
       `Flag Minimum Coverage` = flag_minimum_coverage,
       `Year Range` = year_range,
-      `Percentage of Complete Records` = percent_complete_records
+      `Percentage of Complete Records` = percent_complete_records,
+      `Percentage of Complete Records in Last Five Years` = percent_complete_records_last_five
     )
   
   return(data_coverage)
