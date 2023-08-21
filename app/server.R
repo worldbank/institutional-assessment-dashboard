@@ -539,7 +539,11 @@ server <- function(input, output, session) {
   data_family <-
     eventReactive(
       input$select,
+      
       {
+        
+        browser()
+        
         family_data(
           global_data,
           base_country(),
@@ -555,6 +559,8 @@ server <- function(input, output, session) {
           )
       }
     )
+  
+  
 
   # Missing variables from base country
   na_indicators <-
