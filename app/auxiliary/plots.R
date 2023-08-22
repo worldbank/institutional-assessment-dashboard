@@ -349,6 +349,10 @@ static_map <-
   function(source, var, title,
            selected, base_country, comparison_countries) {
 
+    spatial_data <-  spatial_data %>%
+      st_cast("MULTIPOLYGON")
+    
+    
     if (source == "raw") {
 
       color <- paste0("value_", var)
