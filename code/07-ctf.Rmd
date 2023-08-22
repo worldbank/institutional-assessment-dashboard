@@ -9,22 +9,6 @@
  - `data/final/closeness_to_frontier.rds`
  - `data/final/closeness_to_frontier_long.rds`
 
-## Load packages
-
-```{r}
-packages <- 
-  c(
-    "tidyverse",
-    "here",
-    "skimr",
-    "labelled",
-    "tibble"
-  )
-
-pacman::p_load(packages,
-               character.only = TRUE)
-```
-
 ## Calculate global closeness to frontier
 
 Closeness to frontier (CTF) is global, meaning that we identify the worst and best performance in the full sample (all countries). For each indicator $i$, we compare the last available value of indicator $i$ with the worst and best
