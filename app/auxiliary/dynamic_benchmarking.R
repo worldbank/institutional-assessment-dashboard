@@ -1,27 +1,9 @@
-base_country <- "Afghanistan"
-tab_name <- "Overview"
-rank <- FALSE
-threshold  <- "default"
-countries <- country_list %>% 
-              filter(group == "Sub-Saharan Africa") %>% 
-               distinct(country_name) %>% 
-               pull()
-comparison_countries <- countries[!countries %in% base_country]
-vars <- vars_all
 
-data <- family_data_year(
-  closeness_to_frontier_year,
-  base_country,
-  variable_names
-) %>%
-  def_quantiles_year(
-    base_country,
-    country_list,
-    countries,
-    vars_family,
-    family_names,
-    threshold
-  )
+source("global.R")
+
+closeness_to_frontier_year <- readRDS("../data/final/closeness_to_frontier_year.rds")
+
+closeness_to_frontier_year_long <- readRDS("../data/final/closeness_to_frontier_year_long.rds")
 
 
 static_plot <-
@@ -55,12 +37,12 @@ static_plot <-
     
     data <- data %>% 
       rowwise() %>% 
-      mutate(var_name2 = paste(var_name, year, sep = ":")) %>% 
+      mutate(var_name2 = paste(var_name, year, sep = " : ")) %>% 
       arrange(var_name2)
     
     closeness_to_frontier_year_long <- closeness_to_frontier_year_long %>% 
       rowwise() %>% 
-      mutate(var_name2 = paste(var_name, year, sep = ":")) %>% 
+      mutate(var_name2 = paste(var_name, year, sep = " : ")) %>% 
       arrange(var_name2)
       
     
@@ -115,13 +97,14 @@ static_plot <-
       x_lab <- "Rank"
     }
     
+    #var_name2
     plot <-
       ggplot() +
       geom_segment(
         data = data,
         aes(
-          y = reorder(var_name2, desc(var_name2)),
-          yend = reorder(var_name2, desc(var_name2)),
+          y = var_name2,
+          yend = var_name2,
           x = 0,
           xend = q25
         ),
@@ -132,8 +115,8 @@ static_plot <-
       geom_segment(
         data = data,
         aes(
-          y = reorder(var_name2, desc(var_name2)),
-          yend = reorder(var_name2, desc(var_name2)),
+          y = var_name2,
+          yend = var_name2,
           x = q25,
           xend = q50
         ),
@@ -144,8 +127,8 @@ static_plot <-
       geom_segment(
         data = data,
         aes(
-          y = reorder(var_name2, desc(var_name2)),
-          yend = reorder(var_name2, desc(var_name2)),
+          y = var_name2,
+          yend = var_name2,
           x = q50,
           xend = 1
         ),
@@ -175,22 +158,6 @@ static_plot <-
       scale_fill_manual(
         values = colors
       ) 
-    
-    ynames <- sort(ggplot_build(plot)$layout$panel_params[[1]]$y$get_labels(), 
-      decreasing = T)
-    
-    ynames_df <- data.frame(ynames)
-    ynames_df <- ynames_df %>% 
-      rowwise() %>% 
-      mutate(varname = strsplit(ynames, split = ":")[[1]][1],
-        year = strsplit(ynames, split = ":")[[1]][2]
-        ) %>% 
-      group_by(varname) %>% 
-      mutate(sequence = seq_along(year)) %>% 
-      mutate(ynames = ifelse(sequence != max(sequence), year, ynames))
-    
-    plot <- plot +
-      scale_y_discrete(labels = ynames_df$ynames )
     
     if (rank) {
       plot <-
@@ -243,13 +210,7 @@ static_plot <-
       
       ## ------------------------------------------------------------------------------------
       ## This is how custom median groups are calculated, only if custom_df exists and is not null
-      
-      Category <- "Custom"
-      Grp = c("xd", "xd", "xd","ts", "ts", "ts", "ts", "ts", "POL", "POL", "POL", "POL")
-      Countries <- c("Denmark", "Russian Federation", "Sweden", "Tajikistan", "Thailand", 
-        "Trinidad and Tobago", "Tunisia", "Turkmenistan", "Uzbekistan",
-        "Venezuela, RB", "Vietnam", "Yemen, Rep.")
-      custom_df <- data.frame(Category, Grp, Countries)
+
       
       if(!is.null(custom_df)){
         
@@ -305,7 +266,8 @@ static_plot <-
                 year,
                 var_name2
               ) %>%
-              summarise(value = median(value, na.rm = TRUE)) %>%
+              mutate(value = median(value, na.rm = TRUE)) %>%
+              distinct(var_name, year, value, country_name) %>% 
               ungroup
           }
           
@@ -348,10 +310,19 @@ static_plot <-
           bind_rows(countries)
       }
       
+
+      median_data <- median_data %>% 
+        rowwise() %>% 
+        mutate(var_name2 = paste(var_name, year, sep = " : ")) %>% 
+        arrange(var_name2)
+      
+      # median_data <- median_data %>%
+      #   mutate(value = ifelse(is.na(value), 0, value))
+
       plot <-
         plot +
         suppressWarnings(geom_point(
-          data = median_data,
+          data = median_data %>% filter(!is.na(value)),
           aes(
             y = var_name2,
             x = value,
@@ -364,7 +335,7 @@ static_plot <-
           alpha = .5,
           color = "black",
           fill = "white",
-          size = 3
+          size = 2
         )) +
         scale_shape_manual(
           values = 22:25 #,
@@ -382,12 +353,107 @@ static_plot <-
           fill = status ,
           text = text
         ),
-        size = 3,
+        size = 2,
         shape = 21,
         color = "gray0"
       ))
-    
+
+    ynames_df <- data.frame(ynames = sort(ggplot_build(plot)$layout$panel_params[[1]]$y$get_labels()))
+
+    ynames_df <- ynames_df %>%
+      rowwise() %>%
+      mutate(varname = strsplit(ynames, split = ":")[[1]][1],
+        year = strsplit(ynames, split = ":")[[1]][2]
+      ) %>%
+      group_by(varname) %>%
+      mutate(sequence = seq_along(year)) %>%
+      mutate(ynames = ifelse(sequence != max(sequence), year, ynames))
+
+
+
+    plot <- plot +
+      scale_y_discrete(labels = ynames_df$ynames)
+
     return(plot)
-    
-    
   }
+
+base_country <- "Afghanistan"
+tab_name <- "Financial market"
+rank <- FALSE
+threshold  <- "default"
+countries <- country_list %>% 
+  filter(group == "Sub-Saharan Africa") %>% 
+  distinct(country_name) %>% 
+  pull()
+
+comparison_countries <- countries[!countries %in% base_country]
+
+family_names <- family_names
+
+# vars <- vars_family
+vars <- variable_names %>%
+  filter(family_name == tab_name) %>%
+  pull(variable) %>%
+  unique()
+
+dots = FALSE
+note = NULL
+
+data <- closeness_to_frontier_year %>%
+  def_quantiles_year(
+    base_country,
+    country_list,
+    countries,
+    vars,
+    variable_names,
+    threshold
+  )
+
+# data <- family_data_year(
+#   closeness_to_frontier_year,
+#   base_country,
+#   variable_names
+# ) %>%
+#   def_quantiles_year(
+#     base_country,
+#     country_list,
+#     countries,
+#     vars_family,
+#     family_names,
+#     threshold
+#   )
+
+
+Category <- "Custom"
+
+Grp = c("GRP1", "GRP1", "GRP1","GRP2", "GRP2", "GRP2", "GRP2", 
+  "GRP2", "GRP3", "GRP3", "GRP3", "GRP3")
+
+Countries <- c("Denmark", "Russian Federation", "Sweden", "Tajikistan", "Thailand", 
+  "Trinidad and Tobago", "Tunisia", "Turkmenistan", "Uzbekistan",
+  "Venezuela, RB", "Vietnam", "Yemen, Rep.")
+custom_df <- data.frame(Category, Grp, Countries)
+
+
+
+group_median = c("Sub-Saharan Africa", unique(custom_df$Grp))
+
+# group_median = NULL
+
+static_plot(data,
+    base_country,
+    tab_name,
+    rank,
+    group_median,
+    custom_df, ## New addition made by Shel in August 2023 to accomodate custom groups
+    title = TRUE,
+    dots = FALSE,
+    note = NULL,
+    threshold) %>%
+  interactive_plot(
+    base_country,
+    z = NULL,
+    tab_name,
+    buttons = NULL,
+    miss_var = NULL
+  )
