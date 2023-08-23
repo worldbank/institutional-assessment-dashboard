@@ -30,7 +30,7 @@ family_data <- function(data, base_country, variable_names) {
 }
 
 
-family_data_year <- function(data, base_country, variable_names) {
+family_data_dyn <- function(data, base_country, variable_names) {
   
   na_indicators_df <-
     data %>%

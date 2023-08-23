@@ -41,6 +41,7 @@ ui <-
       sidebarMenu(
         menuItem("Home", tabName = "home", icon = icon("home")),
         menuItem("Country benchmarking", tabName = "benchmark", icon = icon("sort-amount-up")),
+        menuItem("Dynamic benchmarking", tabName = "dynamic_benchmark", icon = icon("calendar")),
         menuItem("Cross-country comparison", tabName = "country", icon = icon("chart-bar")),
         menuItem("Bivariate correlation", tabName = "scatter", icon = icon("search-dollar")),
         menuItem("World map", tabName = "world_map", icon = icon("globe-americas")),
@@ -398,6 +399,23 @@ ui <-
           )
         ),
 
+        ## Dynamic benchmark tab  -------------------------------------------------------
+        
+        tabItem(
+          tabName = "dynamic_benchmark",
+          
+          bs4Card(
+            width = 11,
+            solidHeader = FALSE,
+            gradientColor = "primary",
+            collapsible = FALSE,
+          plotlyOutput(
+            "dynamic_benchmark_plot",
+            height =  paste0(plot_height * 1.138462, "px")
+          ) %>% shinycssloaders::withSpinner()
+          )
+        ),
+        
         ## Country comparison ----------------------------------------------------
 
         tabItem(

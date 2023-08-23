@@ -1,18 +1,21 @@
+# source("global.R")
+# source("auxiliary/fun_quantiles.R")
+# source("auxiliary/fun_missing_var.R")
+# source("auxiliary/fun_low_variance.R")
+# source("auxiliary/plots.R")
+# 
+# closeness_to_frontier_dyn <- readRDS("../data/final/closeness_to_frontier_dyn.rds")
+# 
+# closeness_to_frontier_dyn_long <- readRDS("../data/final/closeness_to_frontier_dyn_long.rds")
+# 
 
-source("global.R")
-
-closeness_to_frontier_year <- readRDS("../data/final/closeness_to_frontier_year.rds")
-
-closeness_to_frontier_year_long <- readRDS("../data/final/closeness_to_frontier_year_long.rds")
-
-
-static_plot <-
+static_plot_dyn <-
   function(data,
     base_country,
     tab_name,
     rank,
     group_median = NULL,
-    custom_df = NULL, ## New addition made by Shel in August 2023 to accomodate custom groups
+    custom_df = NULL, ## New addition made by Shel in August 2023 to accommodate custom groups
     title = TRUE,
     dots = FALSE,
     note = NULL,
@@ -34,18 +37,25 @@ static_plot <-
         ordered = TRUE
       )
     
-    
     data <- data %>% 
       rowwise() %>% 
       mutate(var_name2 = paste(var_name, year, sep = " : ")) %>% 
-      arrange(var_name2)
+      arrange(var_name2) 
     
-    closeness_to_frontier_year_long <- closeness_to_frontier_year_long %>% 
+   base_country_vars <-  data %>% 
+     filter(country_name == base_country ) %>% 
+     distinct(var_name2) %>% 
+     pull()
+
+   data <- data %>% 
+             filter(var_name2 %in% base_country_vars)
+    
+    ctf_dyn_long <- closeness_to_frontier_dyn_long %>% 
       rowwise() %>% 
       mutate(var_name2 = paste(var_name, year, sep = " : ")) %>% 
-      arrange(var_name2)
-      
-    
+      arrange(var_name2) %>% 
+      filter(var_name2 %in% base_country_vars)
+
     vars <-
       data %>%
       select(var_name) %>%
@@ -97,7 +107,7 @@ static_plot <-
       x_lab <- "Rank"
     }
     
-    #var_name2
+
     plot <-
       ggplot() +
       geom_segment(
@@ -159,6 +169,8 @@ static_plot <-
         values = colors
       ) 
     
+    
+    
     if (rank) {
       plot <-
         plot +
@@ -195,7 +207,7 @@ static_plot <-
     if (!is.null(group_median) & !rank) {
       
       median_data <-
-        closeness_to_frontier_year_long %>%
+        ctf_dyn_long %>%
         filter(
           var_name %in% vars,
           country_name %in% group_median
@@ -227,9 +239,7 @@ static_plot <-
           for(i in 1: length(selected_custom_grps)){
             
             ## extract its data from the custom_df data. See sample custom_df data below
-            
 
-              
             #     Category Grp           Countries
             # 1    Custom  xd             Denmark
             # 2    Custom  xd  Russian Federation
@@ -250,7 +260,7 @@ static_plot <-
             
             ## calculate medians for each group
             custom_grp_median_data[[i]] <-
-              closeness_to_frontier_year_long %>%
+              ctf_dyn_long %>%
               filter(
                 var_name %in% vars,
                 country_name %in% custom_df_per_group$Countries ## extract countries that fall in this group
@@ -309,15 +319,13 @@ static_plot <-
           median_data %>%
           bind_rows(countries)
       }
-      
 
+      ## Generate var_name2 for the median_data
       median_data <- median_data %>% 
         rowwise() %>% 
         mutate(var_name2 = paste(var_name, year, sep = " : ")) %>% 
         arrange(var_name2)
       
-      # median_data <- median_data %>%
-      #   mutate(value = ifelse(is.na(value), 0, value))
 
       plot <-
         plot +
@@ -376,45 +384,106 @@ static_plot <-
 
     return(plot)
   }
+# 
+# base_country <- "United Kingdom"
+# tab_name <- "Financial market"
+# rank <- FALSE
+# threshold  <- "default"
+# countries <- country_list %>% 
+#   filter(group == "Sub-Saharan Africa") %>% 
+#   distinct(country_name) %>% 
+#   pull()
+# comparison_countries <- countries[!countries %in% base_country]
+# family_names <- family_names
+# custom_df <- NULL
+# 
+# vars <- variable_names %>%
+#   filter(family_name == tab_name) %>%
+#   pull(variable) %>%
+#   unique()
+# 
+# dots = FALSE
+# note = NULL
+# title = TRUE
+# 
+# Category <- "Custom"
+# 
+# Grp = c("Custom GRP1", "Custom GRP1", "Custom GRP1","Custom GRP2", "Custom GRP2", 
+#   "Custom GRP2", "Custom GRP2", "Custom GRP2", "Custom GRP3", "Custom GRP3", "Custom GRP3",
+#   "Custom GRP3")
+# 
+# Countries <- c("Denmark", "Russian Federation", "Sweden", "Tajikistan", "Thailand",
+#   "Trinidad and Tobago", "Tunisia", "Turkmenistan", "Uzbekistan",
+#   "Venezuela, RB", "Vietnam", "Yemen, Rep.")
+# custom_df <- data.frame(Category, Grp, Countries)
+# 
+# group_median = c("Sub-Saharan Africa", unique(custom_df$Grp))
+# 
+# data <- closeness_to_frontier_dyn %>%
+#   def_quantiles_dyn(
+#     base_country,
+#     country_list,
+#     countries,
+#     vars,
+#     variable_names,
+#     threshold
+#   )
+# 
+# missing_variables <-
+#   closeness_to_frontier_dyn %>%
+#   missing_var_dyn(
+#     base_country,
+#     country_list,
+#     countries,
+#     vars,
+#     variable_names
+#   )
+# 
+# low_variance_variables <-
+#   closeness_to_frontier_dyn %>%
+#   low_variance_dyn(
+#     base_country,
+#     country_list,
+#     countries,
+#     vars,
+#     variable_names
+#   ) %>%
+#   data.frame() %>%
+#   rename("variable" = ".") %>%
+#   left_join(variable_names %>% select(variable, var_name), by = "variable") %>%
+#   .$var_name
+# 
+# missing_variables <- c(missing_variables, low_variance_variables)
+# 
+# 
+# fig <- static_plot(data,
+#   base_country,
+#   tab_name,
+#   rank,
+#   group_median,
+#   custom_df, ## New addition made by Shel in August 2023 to accomodate custom groups
+#   title = TRUE,
+#   dots = FALSE,
+#   note = NULL,
+#   threshold) %>%
+#   interactive_plot(
+#     base_country,
+#     z = NULL,
+#     tab_name,
+#     buttons = plotly_remove_buttons,
+#     miss_var = missing_variables
+#   )
 
-base_country <- "Afghanistan"
-tab_name <- "Financial market"
-rank <- FALSE
-threshold  <- "default"
-countries <- country_list %>% 
-  filter(group == "Sub-Saharan Africa") %>% 
-  distinct(country_name) %>% 
-  pull()
+# htmlwidgets::saveWidget(fig, "../../../../Desktop/Screenshots/UK_dynamicbenchmarking.html")
 
-comparison_countries <- countries[!countries %in% base_country]
-
-family_names <- family_names
 
 # vars <- vars_family
-vars <- variable_names %>%
-  filter(family_name == tab_name) %>%
-  pull(variable) %>%
-  unique()
-
-dots = FALSE
-note = NULL
-
-data <- closeness_to_frontier_year %>%
-  def_quantiles_year(
-    base_country,
-    country_list,
-    countries,
-    vars,
-    variable_names,
-    threshold
-  )
-
-# data <- family_data_year(
-#   closeness_to_frontier_year,
+# data <- family_data_dyn(
+#   closeness_to_frontier_dyn,
 #   base_country,
 #   variable_names
 # ) %>%
-#   def_quantiles_year(
+#   def_quantiles_dyn(
 #     base_country,
 #     country_list,
 #     countries,
@@ -424,36 +493,9 @@ data <- closeness_to_frontier_year %>%
 #   )
 
 
-Category <- "Custom"
 
-Grp = c("GRP1", "GRP1", "GRP1","GRP2", "GRP2", "GRP2", "GRP2", 
-  "GRP2", "GRP3", "GRP3", "GRP3", "GRP3")
 
-Countries <- c("Denmark", "Russian Federation", "Sweden", "Tajikistan", "Thailand", 
-  "Trinidad and Tobago", "Tunisia", "Turkmenistan", "Uzbekistan",
-  "Venezuela, RB", "Vietnam", "Yemen, Rep.")
-custom_df <- data.frame(Category, Grp, Countries)
+# group_median = c("Sub-Saharan Africa", unique(custom_df$Grp))
 
 
 
-group_median = c("Sub-Saharan Africa", unique(custom_df$Grp))
-
-# group_median = NULL
-
-static_plot(data,
-    base_country,
-    tab_name,
-    rank,
-    group_median,
-    custom_df, ## New addition made by Shel in August 2023 to accomodate custom groups
-    title = TRUE,
-    dots = FALSE,
-    note = NULL,
-    threshold) %>%
-  interactive_plot(
-    base_country,
-    z = NULL,
-    tab_name,
-    buttons = NULL,
-    miss_var = NULL
-  )

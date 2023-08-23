@@ -90,7 +90,7 @@ if (threshold=="default"){
 }
 
 
-def_quantiles_year <- function(data, base_country, country_list, comparison_countries, vars, variable_names,threshold) {
+def_quantiles_dyn <- function(data, base_country, country_list, comparison_countries, vars, variable_names,threshold) {
   
   # List all relevant countries
   comparison_list <-
@@ -108,9 +108,9 @@ def_quantiles_year <- function(data, base_country, country_list, comparison_coun
   na_indicators <- names(missing_vars[missing_vars == 1])
   
   # List final relevant variables: those selected, minus those missing
-  if(length(vars) == 0){
-  variables <-
-    setdiff(vars, na_indicators)
+  if(length(na_indicators) != 0){
+    variables <-
+      setdiff(vars, na_indicators)
     variables <-
       intersect(variables, names(data))
   }else{

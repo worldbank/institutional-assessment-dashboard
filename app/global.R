@@ -1,26 +1,51 @@
 ## Install and load all the packages that will be used in the app ----------------------------------------------------------------
 
-## The steps below ensure that missing packages are automatically installed and loaded 
+# ## The steps below ensure that missing packages are automatically installed and loaded 
+# 
+# ### i) Create a vector of all the packages used in this project
+# pkgs <- c("tidyverse", "DT", "plotly", "shiny", "shinyjs", "shinyBS",
+#   "shinycssloaders", "shinybusy", "shinyWidgets", "shinyhelper", 
+#   "bs4Dash", "fresh", "sf", "haven", "zoo", "formattable", "here",
+#   "data.table", "hrbrthemes", "bsplus", "htmltools", "officer", "rvg")
+# 
+# ### ii) Extract the missing packages
+# miss_pkgs <- pkgs[!pkgs %in% installed.packages()[,1]] 
+# 
+# ### iii) Install them
+# if(length(miss_pkgs)>0){
+#   install.packages(miss_pkgs)
+# }
+# 
+# ### iv) Load the packages
+# invisible(lapply(pkgs,library,character.only=TRUE))
+# 
+# ### v) Clear memory by removing objects that are no longer needed.
+# rm(miss_pkgs, pkgs)
 
-### i) Create a vector of all the packages used in this project
-pkgs <- c("tidyverse", "DT", "plotly", "shiny", "shinyjs", "shinyBS",
-  "shinycssloaders", "shinybusy", "shinyWidgets", "shinyhelper", 
-  "bs4Dash", "fresh", "sf", "haven", "zoo", "formattable", "here",
-  "data.table", "hrbrthemes", "bsplus", "htmltools", "officer", "rvg")
+library(tidyverse)
+library(DT)
+library(plotly)
+library(shiny)
+library(shinyjs)
+library(shinyBS)
+library(shinycssloaders)
+library(shinybusy)
+library(shinyWidgets)
+library(shinyhelper)
+library(bs4Dash)
+library(fresh)
+library(sf)
+library(haven)
+library(zoo)
+library(formattable)
+library(here)
+library(data.table)
+library(hrbrthemes)
+library(bsplus)
+library(htmltools)
+library(officer)
+library(rvg)
 
-### ii) Extract the missing packages
-miss_pkgs <- pkgs[!pkgs %in% installed.packages()[,1]] 
-
-### iii) Install them
-if(length(miss_pkgs)>0){
-  install.packages(miss_pkgs)
-}
-
-### iv) Load the packages
-invisible(lapply(pkgs,library,character.only=TRUE))
-
-### v) Clear memory by removing objects that are no longer needed.
-rm(miss_pkgs, pkgs)
 
 options(dplyr.summarise.inform = FALSE)
 
@@ -50,7 +75,6 @@ source(here("auxiliary", "fun_low_variance.R"))
 # Create benchmark graphs
 source(here("auxiliary", "plots.R"))
 
-
 # Data -------------------------------------------------------------
 
 raw_data <-
@@ -77,6 +101,14 @@ global_data <-
   ) %>%
   ungroup
 
+global_data_dyn <-
+  read_rds(
+    here(
+      "data",
+      "closeness_to_frontier_dyn.rds"
+    )
+  ) %>%
+  ungroup
 
 ctf_long <-
   read_rds(
@@ -86,6 +118,15 @@ ctf_long <-
     )
   )
 
+
+
+ctf_long_dyn <-
+  read_rds(
+    here(
+      "data",
+      "closeness_to_frontier_dyn_long.rds"
+    )
+  )
 
 country_groups <-
   read_rds(
@@ -223,7 +264,8 @@ all_groups <- group_list %>% unlist %>% unname
 
 # Inputs ################################################################################
 
-plot_height <- 650
+# plot_height <- 650
+plot_height <- 500
 
 customItem <- 
   function(text, 
