@@ -187,20 +187,26 @@ server <- function(input, output, session) {
 
       ## and edit the "Select comparison groups" and "Show group median" fields to include these custom groups
       Custom <- list(unique(custom_grps_df()$Grp))
-      names(Custom) <- "Custom"
+      # names(Custom) <- "Custom"
 
+      if(length(unique(custom_grps_df()$Grp)) == 1){
+        names(Custom) <- unique(custom_grps_df()$Grp)
+      }else{
+        names(Custom) <- "Custom"
+      }
+      
       shinyWidgets::updatePickerInput(
         session = session,
         inputId = "groups",
-        choices = append(group_list, Custom),
-        selected = c(input$groups, unique(custom_grps_df()$Grp))
+        choices = as.list(append(group_list, Custom)),
+        selected = unique(c(input$groups, unique(custom_grps_df()$Grp)))
       )
 
       shinyWidgets::updatePickerInput(
         session = session,
         inputId = "benchmark_median",
         choices = append("Comparison countries", append(group_list, Custom)),
-        selected = c(input$benchmark_median, unique(custom_grps_df()$Grp))[1:3],
+        selected = unique(c(input$benchmark_median, custom_grps_df()$Grp))[1:3],
         options = list(
           `live-search` = TRUE,
           maxOptions = 3
@@ -763,6 +769,19 @@ server <- function(input, output, session) {
 
   ## Benchmark plot ============================================================
 
+  ## custom_df dataset will be used here if the groups in it are part of the benchmark median groups and its countries 
+  ## are selected
+  
+  custom_df <- shiny::eventReactive(input$select, {
+    if (input$create_custom_grps == TRUE) {
+      custom_df <- custom_grps_df()[custom_grps_df()$Grp %in% input$benchmark_median &
+          custom_grps_df()$Countries %in% input$countries, ]
+    } else {
+      custom_df <- NULL
+    }
+    
+  })
+  
   output$plot <-
     renderPlotly({
       if (length(input$countries) >= 10) {
@@ -774,16 +793,7 @@ server <- function(input, output, session) {
         
         ## Important!
         ## Shel added custom_df as an argument in the static_plot function to accommodate the custom groups
-     
-        ## custom dataset will be used here if the groups in it are part of the benchmark median groups and its countries 
-        ## are selected
-        if (input$create_custom_grps == TRUE) {
-          custom_df <- custom_grps_df()[custom_grps_df()$Grp %in% input$benchmark_median &
-              custom_grps_df()$Countries %in% input$countries, ]
-        } else {
-          custom_df <- NULL
-        }
-
+    
         
         isolate(
           if (input$family == "Overview") {
@@ -813,7 +823,7 @@ server <- function(input, output, session) {
                 input$rank,
                 dots = input$benchmark_dots,
                 group_median = input$benchmark_median,
-                custom_df = custom_df,
+                custom_df = custom_df(),
                 threshold = input$threshold
               ) %>%
               interactive_plot(
@@ -851,7 +861,7 @@ server <- function(input, output, session) {
                 input$rank,
                 dots = input$benchmark_dots,
                 group_median = input$benchmark_median,
-                custom_df = custom_df,
+                custom_df = custom_df(),
                 threshold = input$threshold
               ) %>%
               interactive_plot(
@@ -876,16 +886,6 @@ server <- function(input, output, session) {
         
         input$select
 
-        # browser()
-        
-        if (input$create_custom_grps == TRUE) {
-          custom_df <- custom_grps_df()[custom_grps_df()$Grp %in% input$benchmark_median &
-              custom_grps_df()$Countries %in% input$countries, ]
-        } else {
-          custom_df <- NULL
-        }
-        
-        
         isolate(
           if (input$family == "Overview") {
             missing_variables <-
@@ -914,7 +914,7 @@ server <- function(input, output, session) {
                 input$rank,
                 dots = input$benchmark_dots,
                 group_median = input$benchmark_median,
-                custom_df = custom_df,
+                custom_df = custom_df(),
                 threshold = input$threshold
               ) %>%
               interactive_plot(
@@ -952,7 +952,7 @@ server <- function(input, output, session) {
                 input$rank,
                 dots = input$benchmark_dots,
                 group_median = input$benchmark_median,
-                custom_df = custom_df,
+                custom_df = custom_df(),
                 threshold = input$threshold
               ) %>%
               interactive_plot(
@@ -967,7 +967,6 @@ server <- function(input, output, session) {
       }
     })
   
-  ## Dynamic benchmark plot
 
   ## Change variable selection in all tabs --------------------------
 
