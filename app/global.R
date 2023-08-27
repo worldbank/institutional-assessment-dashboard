@@ -48,6 +48,12 @@ source(here("auxiliary", "fun_low_variance.R"))
 # Create benchmark graphs
 source(here("auxiliary", "plots.R"))
 
+# Function that displays publications
+source(here("auxiliary", "fun_publications.R"))
+
+# Modules
+source(here("modules", "mod_publications.R"))
+
 # Data -------------------------------------------------------------
 
 raw_data <-

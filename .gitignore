@@ -51,6 +51,7 @@
 # Markdown
 !/**/*.md
 !*.csv
+!app/data/publicationsList.xlsx
 
 #######################
 # Include all the files with passwords or tokens here. All files named

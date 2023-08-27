@@ -892,7 +892,7 @@
       })
     
     output$benchmark_datatable <-
-      renderDataTable(
+      DT::renderDataTable(
         server = FALSE,
         datatable(
           browse_data(),
@@ -1157,6 +1157,9 @@
         }
 
       )
+    
+    # Publications --------------------------------------------------------
+    publicationsServer("publications")
 
   }
 
