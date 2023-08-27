@@ -372,7 +372,7 @@ ui <-
           ),
 
           bs4Card(
-            title = NULL,
+            title = "Static? Benchmarks",
             collapsible = FALSE,
             width = 12,
 
@@ -385,7 +385,7 @@ ui <-
                   plotlyOutput(
                     "plot",
                     height = paste0(plot_height * 1.138462, "px")
-                  ) #%>% shinycssloaders::withSpinner(color = "#051f3f", type = 8)
+                  ) %>% shinycssloaders::withSpinner(color = "#051f3f", type = 8)
                 )
 
               )
@@ -400,6 +400,7 @@ ui <-
             width = 12,
             solidHeader = FALSE,
             gradientColor = "primary",
+            title = "Dynamic Benchmarks",
             collapsible = FALSE,
             
             conditionalPanel(
