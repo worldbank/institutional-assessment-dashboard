@@ -219,35 +219,19 @@ static_plot <-
       if(any(group_median %in% custom_df$Grp)){
 
         ## create a place holder that will hold the medians for all the groups
-        custom_grp_median_data <- list()
+        # custom_grp_median_data <- list()
         
         ## create a vector of these groups
         selected_custom_grps <- unique(custom_df$Grp)
 
-        ## for each custom group
-        for(i in 1: length(selected_custom_grps)){
-
-          ## extract its data from the custom_df data. See sample custom_df data below
+        custom_grp_median_data_func <- function(selected_custom_grp){
           
-          #     Category Grp           Countries
-          # 1    Custom  xd             Denmark
-          # 2    Custom  xd  Russian Federation
-          # 3    Custom  xd              Sweden
-          # 4    Custom  ts          Tajikistan
-          # 5    Custom  ts            Thailand
-          # 6    Custom  ts Trinidad and Tobago
-          # 7    Custom  ts             Tunisia
-          # 8    Custom  ts        Turkmenistan
-          # 9    Custom POL          Uzbekistan
-          # 10   Custom POL       Venezuela, RB
-          # 11   Custom POL             Vietnam
-          # 12   Custom POL         Yemen, Rep.
           custom_df_per_group <- custom_df %>% 
-                filter(Grp == selected_custom_grps[i])
-
+            filter(Grp == selected_custom_grp)
+          
           
           ## calculate medians for each group
-          custom_grp_median_data[[i]] <-
+          custom_grp_median_data <-
             ctf_long %>%
             filter(
               var_name %in% vars,
@@ -266,13 +250,59 @@ static_plot <-
             summarise(value = median(value, na.rm = TRUE)) %>%
             ungroup
         }
-
-        ## append all the group median datasets to one
-        custom_grp_median_data <- bind_rows(custom_grp_median_data)
+        
+        custom_grp_median_data_df <- purrr::map_df(selected_custom_grps, custom_grp_median_data_func)
+        
+        
+        ## for each custom group
+        # for(i in 1: length(selected_custom_grps)){
+        # 
+        #   ## extract its data from the custom_df data. See sample custom_df data below
+        #   
+        #   #     Category Grp           Countries
+        #   # 1    Custom  xd             Denmark
+        #   # 2    Custom  xd  Russian Federation
+        #   # 3    Custom  xd              Sweden
+        #   # 4    Custom  ts          Tajikistan
+        #   # 5    Custom  ts            Thailand
+        #   # 6    Custom  ts Trinidad and Tobago
+        #   # 7    Custom  ts             Tunisia
+        #   # 8    Custom  ts        Turkmenistan
+        #   # 9    Custom POL          Uzbekistan
+        #   # 10   Custom POL       Venezuela, RB
+        #   # 11   Custom POL             Vietnam
+        #   # 12   Custom POL         Yemen, Rep.
+        #   custom_df_per_group <- custom_df %>% 
+        #         filter(Grp == selected_custom_grps[i])
+        # 
+        #   
+        #   ## calculate medians for each group
+        #   custom_grp_median_data[[i]] <-
+        #     ctf_long %>%
+        #     filter(
+        #       var_name %in% vars,
+        #       country_name %in% custom_df_per_group$Countries ## extract countries that fall in this group
+        #     ) %>%
+        #     mutate(
+        #       country_name = unique(custom_df_per_group$Grp), ## the country name will be the 
+        #       ## name of the group.
+        #       group = NA
+        #     ) %>%
+        #     unique %>%
+        #     group_by(
+        #       country_name,
+        #       var_name
+        #     ) %>%
+        #     summarise(value = median(value, na.rm = TRUE)) %>%
+        #     ungroup
+        # }
+        # 
+        # ## append all the group median datasets to one
+        # custom_grp_median_data <- bind_rows(custom_grp_median_data)
 
         ## and append this to median data generated for pre-determined groups
         median_data <- median_data %>%
-                         bind_rows(custom_grp_median_data)
+                         bind_rows(custom_grp_median_data_df)
       }
  
       } 
@@ -652,36 +682,18 @@ static_plot_dyn <-
         if(any(group_median %in% custom_df$Grp)){
           
           ## create a place holder that will hold the medians for all the groups
-          custom_grp_median_data <- list()
-          
+          # custom_grp_median_data <- list()
+          # 
           ## create a vector of these groups
           selected_custom_grps <- unique(custom_df$Grp)
           
-          ## for each custom group
-          for(i in 1: length(selected_custom_grps)){
-            
-            ## extract its data from the custom_df data. See sample custom_df data below
-            
-            #     Category Grp           Countries
-            # 1    Custom  xd             Denmark
-            # 2    Custom  xd  Russian Federation
-            # 3    Custom  xd              Sweden
-            # 4    Custom  ts          Tajikistan
-            # 5    Custom  ts            Thailand
-            # 6    Custom  ts Trinidad and Tobago
-            # 7    Custom  ts             Tunisia
-            # 8    Custom  ts        Turkmenistan
-            # 9    Custom POL          Uzbekistan
-            # 10   Custom POL       Venezuela, RB
-            # 11   Custom POL             Vietnam
-            # 12   Custom POL         Yemen, Rep.
-            
+          custom_grp_median_data_func <- function(selected_custom_grp){
             custom_df_per_group <- custom_df %>% 
-              filter(Grp == selected_custom_grps[i])
+              filter(Grp == selected_custom_grp)
             
             
             ## calculate medians for each group
-            custom_grp_median_data[[i]] <-
+            custom_grp_median_data <-
               ctf_long_dyn %>%
               filter(
                 var_name %in% vars,
@@ -701,14 +713,66 @@ static_plot_dyn <-
               mutate(value = median(value, na.rm = TRUE)) %>%
               distinct(var_name, year, value, country_name) %>% 
               ungroup
+            
+            return(custom_grp_median_data)
           }
           
+          custom_grp_median_data_df <- purrr::map_df(selected_custom_grps, custom_grp_median_data_func)
+          
+          
+          
+          ## for each custom group
+          # for(i in 1: length(selected_custom_grps)){
+          #   
+          #   ## extract its data from the custom_df data. See sample custom_df data below
+          #   
+          #   #     Category Grp           Countries
+          #   # 1    Custom  xd             Denmark
+          #   # 2    Custom  xd  Russian Federation
+          #   # 3    Custom  xd              Sweden
+          #   # 4    Custom  ts          Tajikistan
+          #   # 5    Custom  ts            Thailand
+          #   # 6    Custom  ts Trinidad and Tobago
+          #   # 7    Custom  ts             Tunisia
+          #   # 8    Custom  ts        Turkmenistan
+          #   # 9    Custom POL          Uzbekistan
+          #   # 10   Custom POL       Venezuela, RB
+          #   # 11   Custom POL             Vietnam
+          #   # 12   Custom POL         Yemen, Rep.
+          #   
+          #   custom_df_per_group <- custom_df %>% 
+          #     filter(Grp == selected_custom_grps[i])
+          #   
+          #   
+          #   ## calculate medians for each group
+          #   custom_grp_median_data[[i]] <-
+          #     ctf_long_dyn %>%
+          #     filter(
+          #       var_name %in% vars,
+          #       country_name %in% custom_df_per_group$Countries ## extract countries that fall in this group
+          #     ) %>%
+          #     mutate(
+          #       country_name = unique(custom_df_per_group$Grp), ## the country name will be the 
+          #       ## name of the group.
+          #       group = NA
+          #     ) %>%
+          #     unique %>%
+          #     group_by(
+          #       country_name,
+          #       year,
+          #       var_name2
+          #     ) %>%
+          #     mutate(value = median(value, na.rm = TRUE)) %>%
+          #     distinct(var_name, year, value, country_name) %>% 
+          #     ungroup
+          # }
+          
           ## append all the group median datasets to one
-          custom_grp_median_data <- bind_rows(custom_grp_median_data)
+          # custom_grp_median_data <- bind_rows(custom_grp_median_data)
           
           ## and append this to median data generated for pre-determined groups
           median_data <- median_data %>%
-            bind_rows(custom_grp_median_data)
+            bind_rows(custom_grp_median_data_df)
         }
         
       } 
