@@ -243,16 +243,7 @@ ui <-
                   value = TRUE
                 )
               )
-              ),
-              shiny::column(3)#,
-              # shiny::column(3,
-              #   shinyWidgets:: materialSwitch(
-              #     inputId = "show_dynamic_plot",
-              #     label = "Show dynamic benchmark plot",
-              #     status = "success",
-              #     value = FALSE
-              #   )
-              #   )
+              )
             ),
 
             shiny::conditionalPanel(
@@ -348,6 +339,15 @@ ui <-
                 
               ),
               
+              shiny::column(3,
+                shinyWidgets::materialSwitch(
+                  inputId = "show_dynamic_plot",
+                  label = "Show dynamic benchmark plot",
+                  status = "success",
+                  value = FALSE
+                )
+              )
+
             )
 
           ),
@@ -401,23 +401,23 @@ ui <-
             solidHeader = FALSE,
             gradientColor = "primary",
             title = "Dynamic Benchmarks",
-            collapsible = TRUE#,
+            collapsible = TRUE,
             
-            # conditionalPanel(
-            #   "input.select !== 0 && input.show_dynamic_plot === true",
-            #   fluidRow(
-            #     
-            #     column(
-            #       width = 12,
-            #       plotlyOutput(
-            #         "dynamic_benchmark_plot",
-            #         height =  paste0(plot_height * 1.4, "px")
-            #       ) %>% shinycssloaders::withSpinner(color = "#051f3f", type = 8)
-            #     )
-            #     
-            #   )
-            #   
-            # )
+            conditionalPanel(
+              "input.select !== 0 && input.show_dynamic_plot === true",
+              fluidRow(
+                
+                column(
+                  width = 12,
+                  plotlyOutput(
+                    "dynamic_benchmark_plot",
+                    height =  paste0(plot_height * 1.4, "px")
+                  ) %>% shinycssloaders::withSpinner(color = "#051f3f", type = 8)
+                )
+                
+              )
+              
+            )
             
   
           ),
