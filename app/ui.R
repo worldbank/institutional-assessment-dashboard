@@ -243,8 +243,16 @@ ui <-
                   value = TRUE
                 )
               )
-              )
-             
+              ),
+              shiny::column(3),
+              shiny::column(3,
+                shinyWidgets:: materialSwitch(
+                  inputId = "show_dynamic_plot",
+                  label = "Show dynamic benchmark plot",
+                  status = "success",
+                  value = FALSE
+                )
+                )
             ),
 
             shiny::conditionalPanel(
@@ -315,7 +323,7 @@ ui <-
                 uiOutput(
                   "select_button"
                 )
-              ),
+              )
             ),
             fluidRow(
               column(
@@ -364,7 +372,7 @@ ui <-
           ),
 
           bs4Card(
-            title = NULL,
+            title = "Static? Benchmarks",
             collapsible = FALSE,
             width = 12,
 
@@ -377,13 +385,41 @@ ui <-
                   plotlyOutput(
                     "plot",
                     height = paste0(plot_height * 1.138462, "px")
-                  ) #%>% shinycssloaders::withSpinner(color = "#051f3f", type = 8)
+                  ) %>% shinycssloaders::withSpinner(color = "#051f3f", type = 8)
                 )
 
               )
 
             )
 
+          ),
+          
+          ## Dynamic benchmark tab  -------------------------------------------------------
+          
+          bs4Card(
+            width = 12,
+            solidHeader = FALSE,
+            gradientColor = "primary",
+            title = "Dynamic Benchmarks",
+            collapsible = FALSE,
+            
+            conditionalPanel(
+              "input.select !== 0 && input.show_dynamic_plot === true",
+              fluidRow(
+                
+                column(
+                  width = 12,
+                  plotlyOutput(
+                    "dynamic_benchmark_plot",
+                    height =  paste0(plot_height * 1.4, "px")
+                  ) %>% shinycssloaders::withSpinner(color = "#051f3f", type = 8)
+                )
+                
+              )
+              
+            )
+            
+  
           ),
 
           bs4Card(
@@ -398,6 +434,8 @@ ui <-
           )
         ),
 
+        
+        
         ## Country comparison ----------------------------------------------------
 
         tabItem(

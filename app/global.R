@@ -22,6 +22,7 @@ library(htmltools)
 library(officer)
 library(rvg)
 
+
 options(dplyr.summarise.inform = FALSE)
 
 ## Auxiliary functions -----------------------------------------------------------------
@@ -50,7 +51,6 @@ source(here("auxiliary", "fun_low_variance.R"))
 # Create benchmark graphs
 source(here("auxiliary", "plots.R"))
 
-
 # Data -------------------------------------------------------------
 
 raw_data <-
@@ -77,6 +77,14 @@ global_data <-
   ) %>%
   ungroup
 
+global_data_dyn <-
+  read_rds(
+    here(
+      "data",
+      "closeness_to_frontier_dyn.rds"
+    )
+  ) %>%
+  ungroup
 
 ctf_long <-
   read_rds(
@@ -86,6 +94,15 @@ ctf_long <-
     )
   )
 
+
+
+ctf_long_dyn <-
+  read_rds(
+    here(
+      "data",
+      "closeness_to_frontier_dyn_long.rds"
+    )
+  )
 
 country_groups <-
   read_rds(
@@ -223,7 +240,8 @@ all_groups <- group_list %>% unlist %>% unname
 
 # Inputs ################################################################################
 
-plot_height <- 650
+# plot_height <- 650
+plot_height <- 500
 
 customItem <- 
   function(text, 

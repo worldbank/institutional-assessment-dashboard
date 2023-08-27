@@ -189,14 +189,11 @@ server <- function(input, output, session) {
       ## and edit the "Select comparison groups" and "Show group median" fields to include these custom groups
       Custom <- list(unique(custom_grps_df()$Grp))
 
-      # names(Custom) <- "Custom"
-      
       if(length(unique(custom_grps_df()$Grp)) == 1){
         names(Custom) <- unique(custom_grps_df()$Grp)
       }else{
         names(Custom) <- "Custom"
       }
-      
       
       shinyWidgets::updatePickerInput(
         session = session,
@@ -514,6 +511,8 @@ server <- function(input, output, session) {
     )
 
 
+  
+  
   ### Indicators with low variance -------------------------------------------
   low_variance_indicators <-
     eventReactive(
@@ -530,6 +529,21 @@ server <- function(input, output, session) {
       }
     )
 
+  low_variance_indicators_dyn <-
+    eventReactive(
+      input$select,
+      {
+        global_data_dyn %>%
+          low_variance_dyn(
+            base_country(),
+            country_list,
+            input$countries,
+            vars(),
+            variable_names
+          )
+      }
+    )
+  
   data <-
     eventReactive(
       input$select,
@@ -546,10 +560,29 @@ server <- function(input, output, session) {
       }
     )
 
-  data_family <-
+  data_dyn <-
     eventReactive(
       input$select,
       {
+        global_data_dyn %>%
+          def_quantiles_dyn(
+            base_country(),
+            country_list,
+            input$countries,
+            vars_all,
+            variable_names,
+            input$threshold
+          )
+      }
+    )
+  
+  data_family <-
+    eventReactive(
+      input$select,
+      
+      {
+
+        
         family_data(
           global_data,
           base_country(),
@@ -565,6 +598,29 @@ server <- function(input, output, session) {
           )
       }
     )
+  
+  data_family_dyn <-
+    eventReactive(
+      input$select,
+      
+      {
+        
+        family_data_dyn(
+          global_data_dyn,
+          base_country(),
+          variable_names
+        ) %>%
+          def_quantiles_dyn(
+            base_country(),
+            country_list,
+            input$countries,
+            vars_family,
+            family_names,
+            input$threshold
+          )
+      }
+    )
+  
 
   # Missing variables from base country
   na_indicators <-
@@ -714,6 +770,10 @@ server <- function(input, output, session) {
 
   ## Benchmark plot ============================================================
 
+  ## custom_df dataset will be used here if the groups in it are part of the benchmark median groups and its countries 
+  ## are selected
+  
+
   custom_df <- shiny::eventReactive(input$select, {
     if (input$create_custom_grps == TRUE) {
       custom_df <- custom_grps_df()[custom_grps_df()$Grp %in% input$benchmark_median &
@@ -723,8 +783,7 @@ server <- function(input, output, session) {
     }
     
   })
-  
-  
+
   output$plot <-
     renderPlotly({
       
@@ -737,10 +796,7 @@ server <- function(input, output, session) {
         
         ## Important!
         ## Shel added custom_df as an argument in the static_plot function to accommodate the custom groups
-     
-        ## custom dataset will be used here if the groups in it are part of the benchmark median groups and its countries 
-        ## are selected
-        
+
 
         isolate(
           
@@ -827,6 +883,95 @@ server <- function(input, output, session) {
 
   ## End of benchmark tab ----------------------
 
+  ## Dynamic benchmark plot  ============================================================
+  
+  output$dynamic_benchmark_plot <-
+    renderPlotly({
+      if (length(input$countries) >= 10) {
+        
+        input$select
+
+        isolate(
+          if (input$family == "Overview") {
+            missing_variables <-
+              global_data_dyn %>%
+              missing_var_dyn(
+                base_country(),
+                country_list,
+                input$countries,
+                vars_all,
+                variable_names
+              )
+            
+            low_variance_variables <-
+              low_variance_indicators_dyn() %>%
+              data.frame() %>%
+              rename("variable" = ".") %>%
+              left_join(variable_names %>% select(variable, var_name), by = "variable") %>%
+              .$var_name
+            
+            missing_variables <- c(missing_variables, low_variance_variables)
+            
+            data_family_dyn() %>%
+              static_plot_dyn(
+                base_country(),
+                input$family,
+                input$rank,
+                dots = input$benchmark_dots,
+                group_median = input$benchmark_median,
+                custom_df = custom_df(),
+                threshold = input$threshold
+              ) %>%
+              interactive_plot(
+                base_country(),
+                note_compare(),
+                input$family,
+                plotly_remove_buttons,
+                missing_variables
+              )
+          } else {
+            missing_variables <-
+              global_data_dyn %>%
+              missing_var_dyn(
+                base_country(),
+                country_list,
+                input$countries,
+                vars(),
+                variable_names
+              )
+            
+            low_variance_variables <-
+              low_variance_indicators_dyn() %>%
+              data.frame() %>%
+              rename("variable" = ".") %>%
+              left_join(variable_names %>% select(variable, var_name), by = "variable") %>%
+              .$var_name
+            
+            missing_variables <- c(missing_variables, low_variance_variables)
+            
+            data_dyn() %>%
+              filter(variable %in% vars()) %>%
+              static_plot_dyn(
+                base_country(),
+                input$family,
+                input$rank,
+                dots = input$benchmark_dots,
+                group_median = input$benchmark_median,
+                custom_df = custom_df(),
+                threshold = input$threshold
+              ) %>%
+              interactive_plot(
+                base_country(),
+                note_compare(),
+                input$family,
+                plotly_remove_buttons,
+                missing_variables
+              )
+          }
+        )
+      }
+    })
+  
 
   ## Change variable selection in all tabs --------------------------
 
@@ -1388,12 +1533,33 @@ server <- function(input, output, session) {
           title = FALSE,
           threshold = input$threshold
         )
+      
+      plot2 <- data_family_dyn() %>%
+        static_plot_dyn(
+          base_country(),
+          input$family,
+          input$rank,
+          dots = input$benchmark_dots,
+          group_median = input$benchmark_median,
+          custom_df = custom_df,
+          threshold = input$threshold
+        )
+      
 
       plot1 <- dml(ggobj = plot1)
-
+      plot2 <- dml(ggobj = plot2)
+      
+      
       ppt <- ppt %>%
         on_slide(index = 4) %>%
         ph_with(value = plot1, location = ph_location(
+          left = 1.5, top = 1.2,
+          width = 10.04, height = 4.67, bg = "transparent"
+        )) %>% 
+        #https://rdrr.io/cran/officer/src/R/pptx_slide_manip.R
+        add_slide(master = "Custom Design") %>%
+        on_slide(index = 5) %>%
+        ph_with(value = plot2, location = ph_location(
           left = 1.5, top = 1.2,
           width = 10.04, height = 4.67, bg = "transparent"
         ))
