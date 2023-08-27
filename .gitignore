@@ -46,10 +46,12 @@
 !*.Rmd
 !*.Rproj
 !code/notebook/*.css
-
+.Rproj.user
 
 # Markdown
 !/**/*.md
+!*.csv
+!app/data/publicationsList.xlsx
 
 #######################
 # Include all the files with passwords or tokens here. All files named
@@ -62,21 +64,3 @@ passwords.*
 password/
 passwords/
 data/raw/CLASS.xlsx
-
-#######################
-# Ignore the data folder (everything is ignored by default so the data folder is part of that) 
-# and the .md files (to confirm)
-*.md
-
-#######################
-# Do not ignore the following two datasets
-!../data/db_variables.csv
-!publicationsList.xlsx
-
-######################
-# Ignore other miscelleneous stuff
-.Rproj.user
-.DS_Store
-
-
-

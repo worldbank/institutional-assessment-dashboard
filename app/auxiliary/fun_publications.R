@@ -19,7 +19,6 @@
 ## Note: Please pick the publicationsList.xlsx file from data/publicationsList.xlsx in 
 ## OneDrive and paste it in app/data/ to always get the latest list of publications
 
-
 pubList <- readxl::read_excel("data/publicationsList.xlsx")
 
 ## Function that displays the publications as cards
