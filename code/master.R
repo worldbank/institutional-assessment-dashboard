@@ -47,6 +47,16 @@ knit("clean-countries.Rmd")
 knit("ctf.Rmd")
 
 # - Inputs:
+#   - `data/final/definitions.rds`
+#   - `data/final/compiled_indicators.rds`
+#   - `data/raw/wb_country_list.rds`
+#
+# - Outputs:
+#   - `data/final/closeness_to_frontier_dyn.rds`
+#   - `data/final/closeness_to_frontier_dyn_long.rds`
+knit("ctf_year_level.Rmd")
+
+# - Inputs:
 #   - `data/final/closeness_to_frontier.rds`
 #   - `data/final/compiled_indicators.rds`
 #   - `data/raw/WB_countries_Admin0_lowres.geojson`, obtained from https://datacatalog.worldbank.org/int/search/dataset/0038272 on September 1, 2022

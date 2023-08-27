@@ -154,7 +154,7 @@ min_max <-
 5. Calculate closeness to frontier at indicator and year level
 
 ```{r}
-ctf_year <-
+ctf_dyn <-
   data_rescaled %>%
   pivot_longer(
     all_of(vars_all),
@@ -165,17 +165,17 @@ ctf_year <-
     by = c("year", "variable")
   ) %>%
   mutate(
-    ctf_year = (min - value) / (min - max),
-    ctf_year = ifelse(
-      ctf_year == 0,
+    ctf_dyn = (min - value) / (min - max),
+    ctf_dyn = ifelse(
+      ctf_dyn == 0,
       0.01,
-      ctf_year
+      ctf_dyn
     )
   ) %>%
   pivot_wider(
     id_cols = c("country_name", "country_code", "year"),
     names_from = "variable",
-    values_from = "ctf_year"
+    values_from = "ctf_dyn"
   ) %>%
   select(-starts_with("gdp")) %>%
   left_join(
@@ -201,12 +201,12 @@ country_list <-
     )
   )
 
-grp_vars <- names(ctf_year)[!names(ctf_year) %in%  names(ctf_year)[1:3]]
+grp_vars <- names(ctf_dyn)[!names(ctf_dyn) %in%  names(ctf_dyn)[1:3]]
 
 group_ctf <-
   country_list %>%
   left_join(
-      ctf_year,
+      ctf_dyn,
     by = c("country_code", "country_name")
   ) %>%
   group_by(
@@ -222,34 +222,33 @@ group_ctf <-
   rename(
     country_name = group,
     country_code = group_code
-  ) %>% 
-  filter(!is.na(year))
+  ) 
 
-ctf_year<-add_column(ctf_year, country_group = 0,.after = 'country_code')
+ctf_dyn<-add_column(ctf_dyn, country_group = 0,.after = 'country_code')
 
 group_ctf<-add_column(group_ctf,country_group=1,.after = 'country_code')
 
-ctf_year <-
-  ctf_year %>%
+ctf_dyn <-
+  ctf_dyn %>%
   bind_rows(group_ctf) %>%
   ungroup %>%
   arrange(country_name)
 
-```
-
-```{r}
 write_rds(
-  ctf_year,
+  ctf_dyn,
   here(
     "..",
     "data",
     "final",
-    "closeness_to_frontier_year.rds"
+    "closeness_to_frontier_dyn.rds"
   )
 )
+```
 
-ctf_year_long <-
-  ctf_year %>%
+```{r}
+
+ctf_dyn_long <-
+  ctf_dyn %>%
   pivot_longer(
     all_of(vars_all),
     names_to = "variable"
@@ -264,24 +263,24 @@ ctf_year_long <-
       select(country_name, group)
   )
 
-ctf_year_long <-
-  ctf_year_long %>%
-  group_by(family_name, family_var, country_name, country_code, group, year) %>%
+ctf_dyn_long <-
+  ctf_dyn_long %>%
+  group_by(family_name, family_var, country_name, country_code, country_group, group, year) %>%
   summarise(value = median(value, na.rm = TRUE)) %>%
   ungroup %>%
   mutate(
     variable = family_var,
     var_name = family_name
   ) %>%
-  bind_rows(ctf_year_long)
+  bind_rows(ctf_dyn_long)
 
 write_rds(
-  ctf_year_long,
+  ctf_dyn_long,
   here(
     "..",
     "data",
     "final",
-    "closeness_to_frontier_year_long.rds"
+    "closeness_to_frontier_dyn_long.rds"
   )
 )
 ```
