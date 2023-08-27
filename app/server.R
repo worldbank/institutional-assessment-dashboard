@@ -916,6 +916,7 @@ server <- function(input, output, session) {
             
             missing_variables <- c(missing_variables, low_variance_variables)
             
+           
             data_family_dyn() %>%
               static_plot_dyn(
                 base_country(),
@@ -925,7 +926,7 @@ server <- function(input, output, session) {
                 group_median = input$benchmark_median,
                 custom_df = custom_df(),
                 threshold = input$threshold
-              ) %>%
+              )%>%
               interactive_plot(
                 base_country(),
                 note_compare(),
@@ -934,6 +935,7 @@ server <- function(input, output, session) {
                 missing_variables
               )
           } else {
+            
             missing_variables <-
               global_data_dyn %>%
               missing_var_dyn(
@@ -953,6 +955,7 @@ server <- function(input, output, session) {
             
             missing_variables <- c(missing_variables, low_variance_variables)
             
+            
             data_dyn() %>%
               filter(variable %in% vars()) %>%
               static_plot_dyn(
@@ -971,10 +974,11 @@ server <- function(input, output, session) {
                 plotly_remove_buttons,
                 missing_variables
               )
+            
           }
         )
       }
-    })%>%
+    }) %>%
   bindCache(input$country,  input$group, input$family, input$benchmark_median,
     input$rank, input$benchmark_dots, input$create_custom_grps,
     input$show_dynamic_plot, input$threshold) %>%
