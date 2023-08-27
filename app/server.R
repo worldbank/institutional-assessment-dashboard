@@ -210,7 +210,7 @@ server <- function(input, output, session) {
         selected = unique(c(input$benchmark_median, custom_grps_df()$Grp))[1:3],
         options = list(
           `live-search` = TRUE,
-          maxOptions = 3
+          "max-options" = 3
         )
       )
     }
@@ -236,7 +236,7 @@ server <- function(input, output, session) {
         selected = input$benchmark_median[!input$benchmark_median %in% unique(custom_grps_df()$Grp)],
         options = list(
           `live-search` = TRUE,
-          maxOptions = 3
+          "max-options" = 3
         )
       )
 
@@ -879,7 +879,11 @@ server <- function(input, output, session) {
           }
         )
       }
-    })
+    }) %>%
+  bindCache(input$country,  input$group, input$family, input$benchmark_median,
+    input$rank, input$benchmark_dots, input$create_custom_grps,
+    input$show_dynamic_plot, input$threshold) %>%
+  bindEvent(input$select)
 
   ## End of benchmark tab ----------------------
 
@@ -970,7 +974,11 @@ server <- function(input, output, session) {
           }
         )
       }
-    })
+    })%>%
+  bindCache(input$country,  input$group, input$family, input$benchmark_median,
+    input$rank, input$benchmark_dots, input$create_custom_grps,
+    input$show_dynamic_plot, input$threshold) %>%
+  bindEvent(input$select)
   
 
   ## Change variable selection in all tabs --------------------------

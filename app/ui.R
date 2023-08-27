@@ -215,7 +215,7 @@ ui <-
                   multiple = TRUE,
                   options = list(
                     `live-search` = TRUE,
-                    maxOptions = 3
+                    "max-options" = 3
                   )
                 )
               )
@@ -372,8 +372,8 @@ ui <-
           ),
 
           bs4Card(
-            title = "Static? Benchmarks",
-            collapsible = FALSE,
+            title = "Static Benchmarks",
+            collapsible = TRUE,
             width = 12,
 
             conditionalPanel(
@@ -401,7 +401,7 @@ ui <-
             solidHeader = FALSE,
             gradientColor = "primary",
             title = "Dynamic Benchmarks",
-            collapsible = FALSE,
+            collapsible = TRUE,
             
             conditionalPanel(
               "input.select !== 0 && input.show_dynamic_plot === true",
@@ -460,7 +460,7 @@ ui <-
                     size = 20,
                     `actions-box` = TRUE,
                     `live-search` = TRUE,
-                    maxOptions = 3
+                    "max-options" = 3
                   ),
                   width = "100%"
                 )
@@ -705,7 +705,7 @@ ui <-
                   selected = NULL,
                   multiple = TRUE,
                   options = list(
-                    maxOptions = 5,
+                    "max-options" = 5,
                     `live-search` = TRUE,
                     size = 21
                   )
