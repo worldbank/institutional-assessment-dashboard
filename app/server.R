@@ -714,7 +714,7 @@ server <- function(input, output, session) {
 
   ## Benchmark plot ============================================================
 
-  custom_df <- shiny::eventReactive(input$benchmark_median, {
+  custom_df <- shiny::eventReactive(input$select, {
     if (input$create_custom_grps == TRUE) {
       custom_df <- custom_grps_df()[custom_grps_df()$Grp %in% input$benchmark_median &
           custom_grps_df()$Countries %in% input$countries, ]
