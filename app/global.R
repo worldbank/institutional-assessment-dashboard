@@ -1,27 +1,3 @@
-## Install and load all the packages that will be used in the app ----------------------------------------------------------------
-
-# ## The steps below ensure that missing packages are automatically installed and loaded 
-# 
-# ### i) Create a vector of all the packages used in this project
-# pkgs <- c("tidyverse", "DT", "plotly", "shiny", "shinyjs", "shinyBS",
-#   "shinycssloaders", "shinybusy", "shinyWidgets", "shinyhelper", 
-#   "bs4Dash", "fresh", "sf", "haven", "zoo", "formattable", "here",
-#   "data.table", "hrbrthemes", "bsplus", "htmltools", "officer", "rvg")
-# 
-# ### ii) Extract the missing packages
-# miss_pkgs <- pkgs[!pkgs %in% installed.packages()[,1]] 
-# 
-# ### iii) Install them
-# if(length(miss_pkgs)>0){
-#   install.packages(miss_pkgs)
-# }
-# 
-# ### iv) Load the packages
-# invisible(lapply(pkgs,library,character.only=TRUE))
-# 
-# ### v) Clear memory by removing objects that are no longer needed.
-# rm(miss_pkgs, pkgs)
-
 library(tidyverse)
 library(DT)
 library(plotly)
