@@ -471,7 +471,6 @@ server <- function(input, output, session) {
     eventReactive(
       input$select,
       {
-        browser()
         ## countries that fall under input$groups
         ## 
         group_list_countries <- country_list %>%
