@@ -322,14 +322,20 @@ server <- function(input, output, session) {
           pull(country_name)
         
         ## countries that are selected from the "Select individual comparison countries" directly
-        other_countries <- input$countries[!input$countries %in% c(custom_grp_countries, preselected_grp_countries)]
+        # other_countries <- input$countries[!input$countries %in% c(custom_grp_countries, preselected_grp_countries)]
+
+        # if (length(preselected_grp_countries) > 0) {
+        #   selected_c <- unique(c(custom_grp_countries, preselected_grp_countries, other_countries))
+        # } else {
+        #   selected_c <- unique(c(custom_grp_countries, other_countries))
+        # }
 
         if (length(preselected_grp_countries) > 0) {
-          selected_c <- unique(c(custom_grp_countries, preselected_grp_countries, other_countries))
+          selected_c <- unique(c(custom_grp_countries, preselected_grp_countries))
         } else {
-          selected_c <- unique(c(custom_grp_countries, other_countries))
+          selected_c <- unique(custom_grp_countries)
         }
-
+        
         updateCheckboxGroupButtons(
           session,
           "countries",
@@ -365,14 +371,20 @@ server <- function(input, output, session) {
           pull(country_name)
 
         ## countries that are selected from the "Select individual comparison countries" card directly
-        other_countries <- input$countries[!input$countries %in% c(custom_grp_countries, preselected_grp_countries)]
+        # other_countries <- input$countries[!input$countries %in% c(custom_grp_countries, preselected_grp_countries)]
         
-        if (length(preselected_grp_countries) > 0) {
-          selected_c <- unique(c(custom_grp_countries, preselected_grp_countries, other_countries))
-        } else {
-          selected_c <- unique(c(custom_grp_countries, other_countries))
-        }
+        # if (length(preselected_grp_countries) > 0) {
+        #   selected_c <- unique(c(custom_grp_countries, preselected_grp_countries, other_countries))
+        # } else {
+        #   selected_c <- unique(c(custom_grp_countries, other_countries))
+        # }
 
+        if (length(preselected_grp_countries) > 0) {
+          selected_c <- unique(c(custom_grp_countries, preselected_grp_countries))
+        } else {
+          selected_c <- unique(custom_grp_countries)
+        }
+        
         updateCheckboxGroupButtons(
           session,
           "countries",
@@ -459,7 +471,7 @@ server <- function(input, output, session) {
     eventReactive(
       input$select,
       {
-        
+        browser()
         ## countries that fall under input$groups
         ## 
         group_list_countries <- country_list %>%
