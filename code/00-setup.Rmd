@@ -1,0 +1,13 @@
+```{r setup, include = FALSE}
+library(tidyverse)
+library(readxl)
+library(here)
+library(labelled)
+library(haven)
+library(data360r)
+library(skimr)
+library(knitr)
+library(assertthat)
+library(tibble)
+library(sf)
+```

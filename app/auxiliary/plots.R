@@ -349,6 +349,10 @@ static_map <-
   function(source, var, title,
            selected, base_country, comparison_countries) {
 
+    spatial_data <-  spatial_data %>%
+      st_cast("MULTIPOLYGON")
+    
+    
     if (source == "raw") {
 
       color <- paste0("value_", var)
@@ -870,17 +874,7 @@ static_scatter <-
       data %>%
       mutate(
         label = paste0(
-          "Country: ", country_name, "<br>",
-          ifelse(
-            x_scatter == "Log GDP per capita, PPP",
-            paste0("GDP per capita, PPP: ", gdp_pc_ppp_const %>% comma(digits = 2), "<br>"),
-            paste0(x_scatter, ": ", get(x) %>% round(3), "<br>")
-          ),
-          ifelse(
-            y_scatter == "Log GDP per capita, PPP",
-            paste0("GDP per capita, PPP: ", gdp_pc_ppp_const %>% comma(digits = 2), "<br>"),
-            paste0(y_scatter, ": ", get(y) %>% round(3), "<br>")
-          )
+          "Country: ", country_name, "<br>"
         ),
         log = log(gdp_pc_ppp_const),
         type = case_when(
@@ -893,6 +887,7 @@ static_scatter <-
         high_group, by = c("country_code")
       )
 
+    
     ggplot(
       data,
       aes_string(
@@ -906,7 +901,7 @@ static_scatter <-
         size = 4,
         shape = 1,
         color = "#60C2F7"
-      ) +
+      )+
       geom_point(
         aes(
           color = type,
@@ -951,6 +946,7 @@ static_scatter <-
           paste0("<b>", x_scatter,"<br>(closeness to frontier)</b>")
         )
       )
+    
   }
 
 interactive_scatter <-
@@ -1013,7 +1009,7 @@ interactive_scatter <-
     }
 
     plot %>%
-      ggplotly(tooltip = "text") %>%
+      ggplotly(tooltip = c("text","x","y")) %>%
       layout(
         margin = list(
           t = 50,

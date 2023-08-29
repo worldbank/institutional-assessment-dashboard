@@ -8,23 +8,6 @@
   
 - Output:
   - `data/final/indicators_map.rds`
-  
-## Packages 
-
-```{r}
-packages <-
-  c(
-    "tidyverse",
-    "rmapshaper",
-    "sf",
-    "here"
-  )
-
-pacman::p_load(
-  packages,
-  character.only = TRUE
-)
-```
 
 ## Input data 
 
@@ -86,6 +69,8 @@ disputed_areas <-
 
 # Clean maps 
 
+In this section, we combine the world map data with disputed areas, in order to address potential boundary conflicts. We also simplify the world map through the `st_simplify` command in order to improve loading performance on our Shiny App.
+
 ```{r}
 disputed_areas <-
   disputed_areas %>%
@@ -103,18 +88,21 @@ world_map <-
   world_map %>%
   bind_rows(
     disputed_areas
-  ) %>%
-  ms_simplify(
-    keep = 0.04,
-    keep_shapes = T
   )
 
-st_crs(world_map) <- "WGS84"
-
-world_map <-
+# simplify map to improve loading performance
+simple_world_map <-
   world_map %>%
-  st_transform("+proj=robin")
-
+  # fix wrapping of dateline to avoid spurious ribbon
+  # source: https://github.com/r-spatial/sf/issues/1046
+  st_transform(4326) %>% 
+  st_wrap_dateline() |> 
+  # project into robinson coordinate system
+  st_transform(crs = '+proj=robin') %>%
+  # simplify polygons to improve rendering
+  st_simplify(
+    dTolerance = 0.05
+  ) 
 ```
 
 
@@ -162,7 +150,7 @@ raw <-
     names_from = name
   )
 
-map <-
+final_world_map <-
   world_map %>%
   left_join(
     raw
@@ -176,7 +164,7 @@ map <-
 # Save datasets
 
 ```{r}
-map %>%
+final_world_map %>%
   write_rds(
     here(
       "..",

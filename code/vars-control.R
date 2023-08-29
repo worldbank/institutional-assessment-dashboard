@@ -1,3 +1,13 @@
+db_variables <-
+  read_rds(
+    here(
+      "..",
+      "data",
+      "final",
+      "db_variables.rds"
+    )
+  )
+
 # Anti-Corruption, Transparency and Accountability institutions ======================
 vars_transp <-
   db_variables %>%

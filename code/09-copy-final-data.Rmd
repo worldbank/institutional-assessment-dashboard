@@ -1,16 +1,6 @@
 # Move final data to app folder
 
 ```{r}
-packages <- 
-  c(
-    "here"
-  )
-
-pacman::p_load(packages,
-               character.only = TRUE)
-```
-
-```{r}
 file.copy(
   list.files(
     here(

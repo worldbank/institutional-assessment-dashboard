@@ -3,20 +3,6 @@
 - Input: `data/raw/20211118_new_additions_notGov360.dta`
 - Output: `data/clean/additional_data.rds`
 
-## Load packages
-
-```{r}
-packages <- 
-  c(
-    "tidyverse",
-    "here",
-    "haven",
-    "labelled"
-  )
-
-pacman::p_load(packages, character.only = TRUE)
-```
-
 ## Import data
 ```{r}
 additions_gtmi <- 

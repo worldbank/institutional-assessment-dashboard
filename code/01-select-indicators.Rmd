@@ -5,23 +5,6 @@
   - `data/final/db_variables.xlsx`
   - `data/final/definitions.rds`
 
-## Load packages
-
-```{r}
-packages <- 
-  c(
-    "tidyverse",
-    "here",
-    "readxl"
-  )
-
-pacman::p_load(
-  packages, 
-  character.only = TRUE
-)
-```
-
-
 ## Load list of selected indicators
 
 This list is filled by hand in Excel.
@@ -86,10 +69,4 @@ write_rds(
     "definitions.rds"
   )
 )
-```
-
-## Define list of variables
-
-```{r}
-source(here("vars-control.R"))
 ```

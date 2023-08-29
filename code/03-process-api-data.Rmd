@@ -3,20 +3,6 @@
 - Input: `data/final/db_variables.rds`
 - Output: `data/clean/original_data.rds`
  
- 
-```{r}
-packages <- 
-  c(
-    "tidyverse",
-    "here",
-    "data360r",
-    "skimr"
-  )
-
-pacman::p_load(packages,
-               character.only = TRUE)
-```
-
 ## List indicators to retrieve
 
 Governance indicators are calculated in a disaggregate manner, so we will import them separately, aggregate them, and combine with the other indicators.
@@ -127,7 +113,7 @@ data_api <-
   )
 ```
 
-# Cleaning API data ----
+## Cleaning API data
 ```{r}
 data_api_clean <- 
   data_api %>%
@@ -218,9 +204,12 @@ data_api_labeled <-
     all_of(vars_api)
   )
 
-# Drop partial data ----
+# Drop partial data
 rm(datalist, data_api_raw, data_api_governance, indicator_ids, i)
+```
 
+## Save data
+```{r}
 write_rds(
   data_api_labeled,
   here(
