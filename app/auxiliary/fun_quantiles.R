@@ -175,18 +175,10 @@ def_quantiles_dyn <- function(data, base_country, country_list, comparison_count
       nrank = rank(-value)
     ) %>%
     ungroup %>%
-    rename(dtf = value)
-  
-  # Remove indicators where there is too little variance
-  low_variance_indicators <-
-    quantiles %>%
-    filter(country_name == base_country & q25==q50) %>%
-    select(variable) %>%
-    unlist
-  
-  quantiles <-
-    quantiles %>%
-    filter(!(variable %in% low_variance_indicators))
-
+    rename(dtf = value) %>% 
+    # Remove indicators where there is too little variance
+    mutate(todrop = ifelse(country_name == base_country & q25==q50, 1, 0)) %>% 
+    filter(todrop != 1) %>% 
+    select(-todrop)
   
 }
