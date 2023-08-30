@@ -448,9 +448,9 @@ interactive_plot <-
     
     for (i in 1:length(int_plot$x$data)){
       if (!is.null(int_plot$x$data[[i]]$name)){
-        int_plot$x$data[[i]]$name =  gsub("\\(","",str_split(int_plot$x$data[[i]]$name,",")[[1]][1])
+        int_plot$x$data[[i]]$name =  gsub("^\\(","",str_split(int_plot$x$data[[i]]$name,",")[[1]][1])
       }
-      
+
     }
 
     
