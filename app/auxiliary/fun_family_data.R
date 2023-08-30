@@ -59,8 +59,6 @@ family_data_dyn <- function(data, base_country, variable_names) {
     ) %>%
     pivot_wider(names_from = family_var)
   
- # names(dtf_family_level)[names(dtf_family_level) == "NA"] = "log_gdp"
- 
  return(dtf_family_level)
  
 }
