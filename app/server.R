@@ -880,7 +880,7 @@ server <- function(input, output, session) {
         )
       }
     }) %>%
-  bindCache(input$country,  input$group, input$family, input$benchmark_median,
+  bindCache(input$country,  input$groups, input$family, input$benchmark_median,
     input$rank, input$benchmark_dots, input$create_custom_grps,
     input$show_dynamic_plot, input$threshold) %>%
   bindEvent(input$select)
@@ -889,12 +889,34 @@ server <- function(input, output, session) {
 
   ## Dynamic benchmark plot  ============================================================
   
+  shiny::observeEvent(
+      list(input$country,
+      input$groups,
+      input$family,
+      input$benchmark_median,
+      input$rank,
+      input$benchmark_dots,
+      input$create_custom_grps,
+      input$threshold), {
+    
+    shinyWidgets::updateMaterialSwitch(
+      session = session,
+      inputId = "show_dynamic_plot",
+      value = FALSE
+    )
+
+  })
+  
+  
+  
   output$dynamic_benchmark_plot <-
     renderPlotly({
       if (length(input$countries) >= 10) {
         
         input$select
-
+        # 
+        # browser()
+        
         isolate(
           if (input$family == "Overview") {
             missing_variables <-
@@ -979,7 +1001,7 @@ server <- function(input, output, session) {
         )
       }
     }) %>%
-  bindCache(input$country,  input$group, input$family, input$benchmark_median,
+  bindCache(input$country,  input$groups, input$family, input$benchmark_median,
     input$rank, input$benchmark_dots, input$create_custom_grps,
     input$show_dynamic_plot, input$threshold) %>%
   bindEvent(input$select)
@@ -1549,7 +1571,7 @@ server <- function(input, output, session) {
       plot2 <- data_family_dyn() %>%
         static_plot_dyn(
           base_country(),
-          input$family,
+          "Country overview",
           input$rank,
           dots = input$benchmark_dots,
           group_median = input$benchmark_median,
