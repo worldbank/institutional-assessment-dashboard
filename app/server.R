@@ -309,7 +309,11 @@ server <- function(input, output, session) {
   # When custom groups are included and the group field is updated, append the countries to the initial list of countries
   # displayed
   observeEvent(
-    input$groups,
+    list(
+      input$groups,
+      input$save_custom_grps
+    ),
+
     {
       if (!is.null(custom_grps_df())) {
         
@@ -322,14 +326,20 @@ server <- function(input, output, session) {
           pull(country_name)
         
         ## countries that are selected from the "Select individual comparison countries" directly
-        other_countries <- input$countries[!input$countries %in% c(custom_grp_countries, preselected_grp_countries)]
+        # other_countries <- input$countries[!input$countries %in% c(custom_grp_countries, preselected_grp_countries)]
+        # 
+        # if (length(preselected_grp_countries) > 0) {
+        #   selected_c <- unique(c(custom_grp_countries, preselected_grp_countries, other_countries))
+        # } else {
+        #   selected_c <- unique(c(custom_grp_countries, other_countries))
+        # }
 
         if (length(preselected_grp_countries) > 0) {
-          selected_c <- unique(c(custom_grp_countries, preselected_grp_countries, other_countries))
+          selected_c <- unique(c(custom_grp_countries, preselected_grp_countries))
         } else {
-          selected_c <- unique(c(custom_grp_countries, other_countries))
+          selected_c <- unique(custom_grp_countries)
         }
-
+        
         updateCheckboxGroupButtons(
           session,
           "countries",
@@ -344,52 +354,58 @@ server <- function(input, output, session) {
           selected = selected_c
         )
       }
+
     }
   )
 
 
   ## Repeat the same above if edits are made in the custom groups where groups aren't updated e.g 
   ## removing or adding countries in the already specified custom groups
-  observeEvent(
-    input$save_custom_grps,
-    {
-
-      if (!is.null(custom_grps_df())) {
-        
-        ## custom group countries
-        custom_grp_countries <- custom_grps_df()$Countries[custom_grps_df()$Grp %in% input$groups]
-        
-        ## countries in the group-list groups
-        preselected_grp_countries <- country_list %>%
-          filter(group %in% input$groups) %>%
-          pull(country_name)
-
-        ## countries that are selected from the "Select individual comparison countries" card directly
-        other_countries <- input$countries[!input$countries %in% c(custom_grp_countries, preselected_grp_countries)]
-        
-        if (length(preselected_grp_countries) > 0) {
-          selected_c <- unique(c(custom_grp_countries, preselected_grp_countries, other_countries))
-        } else {
-          selected_c <- unique(c(custom_grp_countries, other_countries))
-        }
-
-        
-        updateCheckboxGroupButtons(
-          session,
-          "countries",
-          label = NULL,
-          choices = countries,
-          checkIcon = list(
-            yes = icon("ok",
-              lib = "glyphicon",
-              style = "color: #e94152"
-            )
-          ),
-          selected = selected_c
-        )
-      }
-    }
-  )
+  # observeEvent(
+  #   input$save_custom_grps,
+  #   {
+  # 
+  #     if (!is.null(custom_grps_df())) {
+  #       
+  #       ## custom group countries
+  #       custom_grp_countries <- custom_grps_df()$Countries[custom_grps_df()$Grp %in% input$groups]
+  #       
+  #       ## countries in the group-list groups
+  #       preselected_grp_countries <- country_list %>%
+  #         filter(group %in% input$groups) %>%
+  #         pull(country_name)
+  # 
+  #       ## countries that are selected from the "Select individual comparison countries" card directly
+  #       # other_countries <- input$countries[!input$countries %in% c(custom_grp_countries, preselected_grp_countries)]
+  #       # 
+  #       # if (length(preselected_grp_countries) > 0) {
+  #       #   selected_c <- unique(c(custom_grp_countries, preselected_grp_countries, other_countries))
+  #       # } else {
+  #       #   selected_c <- unique(c(custom_grp_countries, other_countries))
+  #       # }
+  # 
+  #       if (length(preselected_grp_countries) > 0) {
+  #         selected_c <- unique(c(custom_grp_countries, preselected_grp_countries))
+  #       } else {
+  #         selected_c <- unique(custom_grp_countries)
+  #       }
+  # 
+  #       updateCheckboxGroupButtons(
+  #         session,
+  #         "countries",
+  #         label = NULL,
+  #         choices = countries,
+  #         checkIcon = list(
+  #           yes = icon("ok",
+  #             lib = "glyphicon",
+  #             style = "color: #e94152"
+  #           )
+  #         ),
+  #         selected = selected_c
+  #       )
+  #     }
+  #   }
+  # )
 
 
   ## Validate options
@@ -460,6 +476,7 @@ server <- function(input, output, session) {
     eventReactive(
       input$select,
       {
+  
         ## countries that fall under input$groups
         ## 
         group_list_countries <- country_list %>%
@@ -510,9 +527,6 @@ server <- function(input, output, session) {
       }
     )
 
-
-  
-  
   ### Indicators with low variance -------------------------------------------
   low_variance_indicators <-
     eventReactive(
@@ -791,8 +805,6 @@ server <- function(input, output, session) {
         
         input$select
 
-
-        # browser()
         
         ## Important!
         ## Shel added custom_df as an argument in the static_plot function to accommodate the custom groups
@@ -882,7 +894,7 @@ server <- function(input, output, session) {
     }) %>%
   bindCache(input$country,  input$groups, input$family, input$benchmark_median,
     input$rank, input$benchmark_dots, input$create_custom_grps,
-    input$show_dynamic_plot, input$threshold) %>%
+    input$show_dynamic_plot, input$threshold, input$countries) %>%
   bindEvent(input$select)
 
   ## End of benchmark tab ----------------------
@@ -897,7 +909,8 @@ server <- function(input, output, session) {
       input$rank,
       input$benchmark_dots,
       input$create_custom_grps,
-      input$threshold), {
+      input$threshold,
+      input$countries  ), {
     
     shinyWidgets::updateMaterialSwitch(
       session = session,
@@ -1001,7 +1014,7 @@ server <- function(input, output, session) {
     }) %>%
   bindCache(input$country,  input$groups, input$family, input$benchmark_median,
     input$rank, input$benchmark_dots, input$create_custom_grps,
-    input$show_dynamic_plot, input$threshold) %>%
+    input$show_dynamic_plot, input$threshold, input$countries) %>%
   bindEvent(input$select)
   
 
