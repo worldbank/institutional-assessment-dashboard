@@ -178,7 +178,7 @@ low_variance_dyn <- function(data, base_country, country_list, comparison_countr
     ungroup %>%
     rename(dtf = value) %>%
     filter(country_name == base_country & q25==q50) %>%
-    select(variable) %>%
+    distinct(variable) %>%
     unlist
   
   return(quantiles)

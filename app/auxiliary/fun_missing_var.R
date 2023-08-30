@@ -78,5 +78,7 @@ missing_var_dyn <- function(data, base_country, country_list, comparison_countri
     left_join(variable_names %>% select(variable,var_name), by = "variable") %>%
     .$var_name
   
+  missing_variables <- unique(missing_variables)
+  
 }
 
