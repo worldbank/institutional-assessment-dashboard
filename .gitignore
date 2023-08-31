@@ -50,7 +50,12 @@
 
 # Markdown
 !/**/*.md
-!*.csv
+
+# required data
+*.csv
+input/
+output/
+data/raw/CLASS.xlsx
 
 #######################
 # Include all the files with passwords or tokens here. All files named
@@ -62,7 +67,6 @@ password.*
 passwords.*
 password/
 passwords/
-data/raw/CLASS.xlsx
 
 #######################
 # renv file

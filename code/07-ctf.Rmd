@@ -1,5 +1,7 @@
 # Calculate distance to frontier
 
+NOTE: We have to add the dynamic benchmarking that Shel has designed for us.
+
 - Inputs:
   - `data/final/definitions.rds`
   - `data/final/compiled_indicators.rds`
