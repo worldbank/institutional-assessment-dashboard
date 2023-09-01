@@ -4,9 +4,8 @@
 file.copy(
   list.files(
     here(
-      "..",
       "data",
-      "final"
+      "output"
     ),
     full.names = TRUE
   ),

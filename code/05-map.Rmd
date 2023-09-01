@@ -15,9 +15,8 @@
 ctf <-
   read_rds(
     here(
-      "..",
       "data",
-      "final",
+      "output",
       "closeness_to_frontier.rds"
     )
   )
@@ -25,9 +24,8 @@ ctf <-
 raw_indicators <-
   read_rds(
     here(
-      "..",
       "data",
-      "final",
+      "output",
       "compiled_indicators.rds"
     )
   )
@@ -35,9 +33,8 @@ raw_indicators <-
 db_variables <-
   read_rds(
     here(
-      "..",
       "data",
-      "final",
+      "output",
       "db_variables.rds"
     )
   )
@@ -49,9 +46,9 @@ db_variables <-
 world_map <-
   read_sf(
     here(
-      "..",
       "data",
-      "raw",
+      "input",
+      "wb",
       "WB_countries_Admin0_lowres.geojson"
     )
   )
@@ -59,9 +56,9 @@ world_map <-
 disputed_areas <-
   read_sf(
     here(
-      "..",
       "data",
-      "raw",
+      "input",
+      "wb",
       "WB_disputed_areas_Admin0_10m_lowres.geojson"
     )
   )
@@ -114,7 +111,7 @@ simple_world_map <-
 ctf <-
   ctf %>%
   pivot_longer(
-    cols = db_variables$variable,
+    cols = all_of(vars_ctf),
     values_to = "ctf"
   ) %>%
   mutate(
@@ -138,16 +135,17 @@ ctf <-
 ```{r}
 raw <-
   raw_indicators %>%
+  select(-index) %>%
   pivot_longer(
-    cols = 4:ncol(.)
+    cols = 3:ncol(.)
   ) %>%
   filter(!is.na(value)) %>%
-  group_by(country_code, name) %>%
+  group_by(country_code) %>%
   filter(year == max(year)) %>%
-  ungroup %>%
   pivot_wider(
     values_from = c(value, year),
-    names_from = name
+    names_from = name,
+    id_cols = country_code
   )
 
 final_world_map <-
@@ -167,9 +165,8 @@ final_world_map <-
 final_world_map %>%
   write_rds(
     here(
-      "..",
       "data",
-      "final",
+      "output",
       "indicators_map.rds"
     )
   )

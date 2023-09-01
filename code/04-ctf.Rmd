@@ -33,7 +33,7 @@ cliar_indicators <-
     year >= 2013
   )
 
-wb_country_list <- read_rds(
+country_list <- read_rds(
   here(
     "data",
     "output",
@@ -41,11 +41,11 @@ wb_country_list <- read_rds(
   )
 )
 
-vars_ctf <- cliar_metadata_id |> 
+vars_ctf <- db_variables |> 
   filter(
     benchmarked_ctf == "Yes"
   ) |> 
-  pull(cliar_id)
+  pull(variable)
 ```
 
 2. Rescale indicators so a higher number denotes stronger institutions
@@ -179,7 +179,7 @@ group_ctf <- tibble::add_column(group_ctf,country_group=1,.after = 'country_code
 ctf_clean <-
   ctf %>%
   left_join(
-    wb_country_list |> distinct(country_code, country_name),
+    country_list |> distinct(country_code, country_name),
     by = c("country_code")
   ) |> 
   bind_rows(group_ctf) %>%
@@ -200,12 +200,14 @@ ctf_long <-
   select(-contains("gdp")) %>%
   left_join(
     db_variables %>%
-      select(variable, var_name, family_name, family_var)
+      select(variable, var_name, family_name, family_var),
+    by = "variable"
   ) %>%
   left_join(
     wb_country_list %>%
       select(country_code, group),
-    by = "country_code"
+    by = "country_code",
+    relationship = "many-to-many"
   )
 
 ctf_long_clean <-

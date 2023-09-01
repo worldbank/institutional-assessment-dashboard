@@ -43,6 +43,7 @@
     ) %>%
     transmute(
       country_code = CountryCode,
+      country_name = CountryName,
       group = GroupName,
       group_code = GroupCode
     )

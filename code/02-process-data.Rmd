@@ -22,13 +22,13 @@ source(
 The data was imported from (a) the EFI360 shared data and (b) manual imports.
 
 ```{r read_in}
-cliar_metadata_id <- read_xlsx(
-  here("data", "input", "cliar", "db_variables_new.xlsx")
-)  |> 
-  clean_names() |> 
-  mutate(
-    cliar_id = make_clean_names(cliar_id)
+db_variables <- read_rds(
+  here(
+    "data",
+    "output",
+    "db_variables.rds"
   )
+)
 
 efi <- read_dta(
   here("data", "input", "efi", "EFI360_CLIAR_1990-2022_0828.dta")
@@ -258,6 +258,11 @@ wdi_clean <- wdi |>
 
 # 9. vdem
 vdem_clean <- vdem |> 
+  # address issues with Palestine/ West Bank duplication in VDEM
+  filter(
+    country_code != "PSG" &
+      country_name != "Palestine/West Bank"
+  ) |> 
   clean_names()
 
 # 10. heritage
@@ -286,7 +291,7 @@ oecd_pmr_clean <- oecd_pmr |>
   )
 ```
 
-# 3. Consolidate data
+## Consolidate data
 ```{r consolidate_data}
 excluded_country_code <- c(
   "AIA", # anguilla
@@ -314,7 +319,6 @@ cliar_indicators <- list(
         .,
         country_code = case_when(
           country_code == "ZAR" ~ "COD", # democratic republic of congo
-          country_code == "PSG" ~ "PSE", # gaza and west bank
           country_code == "ROM" ~ "ROU", # romania
           T ~ country_code
         )
@@ -348,26 +352,26 @@ cliar_indicators <- cliar_indicators %>%
   )
 ```
 
-# 4. Data Quality Control: Indicator Selection
+## Data Quality Control: Indicator Selection
 ```{r indicator_selection}
 # verify that the indicators are selected correctly
-cliar_metadata_id_indicators <- cliar_metadata_id|> 
+db_variables_indicators <- db_variables|> 
   select(
-    cliar_id
+    variable
   )
 
 cliar_indicators_id <- cliar_indicators |> 
   colnames() %>% 
   tibble(
-    cliar_id = .
+    variable = .
   )
 
-cliar_metadata_id_indicators |> 
-  anti_join(cliar_indicators_id, by = "cliar_id") |> 
+db_variables_indicators |> 
+  anti_join(cliar_indicators_id, by = "variable") |> 
   as.data.frame()
   
 cliar_indicators_id |> 
-  anti_join(cliar_metadata_id_indicators, by = "cliar_id") |> 
+  anti_join(db_variables_indicators, by = "variable") |> 
   as.data.frame()
   
 # only retain indicators contained in metadata v2 + id cols
@@ -376,11 +380,11 @@ cliar_indicators_clean <- cliar_indicators |>
     index,
     country_code,
     year,
-    any_of(cliar_metadata_id_indicators |> pull(cliar_id))
+    any_of(db_variables_indicators |> pull(variable))
   )
 ```
 
-# 5. Data Quality Control: verify country_code and country_name consistency
+## Data Quality Control: verify country_code and country_name consistency
 ```{r country_validation}
 # there are 218 country codes listed in the WB's official website
 # https://datahelpdesk.worldbank.org/knowledgebase/articles/906519-world-bank-country-and-lending-groups
@@ -393,7 +397,7 @@ wb_country_list |>
   ) |> 
   select(country_code, country_name)
 
-# b. verify that 
+# b. verify that all the country codes from the official data are included
 cliar_indicators |> 
   distinct(country_code) |> 
   anti_join(
@@ -401,6 +405,16 @@ cliar_indicators |>
       distinct(country_code, country_name),
     by = c("country_code")
   )
+
+# c. verify that cliar has distinct country-year
+nrow_cliar <- cliar_indicators |> 
+  nrow()
+
+nrow_cliar_distinct <- cliar_indicators |> 
+  distinct(country_code, year) |> 
+  nrow()
+
+nrow_cliar == nrow_cliar_distinct
 ```
 
 # 6. Compute coverage diagnostics
@@ -410,8 +424,8 @@ cliar_indicators_diagnostic <- cliar_indicators_clean |>
   select(-index) |> 
   compute_coverage(country_code, year) |> 
   left_join(
-    cliar_metadata_id |> select(cliar_id, var_name, source, family_name),
-    by = c("Indicator" = "cliar_id")
+    db_variables |> select(variable, var_name, source, family_name),
+    by = c("Indicator" = "variable")
   ) |> 
   select(
     `Indicator`,
