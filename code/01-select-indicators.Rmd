@@ -63,7 +63,6 @@ names(description) <-
 write_rds(
   description,
   here(
-    "..",
     "data",
     "final",
     "definitions.rds"

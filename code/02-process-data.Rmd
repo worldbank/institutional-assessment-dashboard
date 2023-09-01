@@ -3,15 +3,17 @@
 - Input: `data/input/**/*.csv`
 - Output: `data/output/cliar_compiled_indicators.rds`
 
-```{r funs}
-source(
-  here("funs.R")
-)
-```
-```{r vars_control, include = FALSE}
+This script generates the consolidated indicators for the CLIAR dashboard. It imports, processes and consolidates a diverse range of datasets, including from EFI360 and others. An exhaustive list of datasets is provided below:
+
+```{r set-up, include = FALSE}
 # define list of variables
 source(
   here("vars-control.R")
+)
+
+# aux. funs
+source(
+  here("funs.R")
 )
 ```
 
@@ -20,8 +22,8 @@ source(
 The data was imported from (a) the EFI360 shared data and (b) manual imports.
 
 ```{r read_in}
-cliar_metadata_id <- read_csv(
-  here("data", "input", "cliar", "cliar_metadata_id.csv")
+cliar_metadata_id <- read_xlsx(
+  here("data", "input", "cliar", "db_variables_new.xlsx")
 )  |> 
   clean_names() |> 
   mutate(
@@ -286,9 +288,6 @@ oecd_pmr_clean <- oecd_pmr |>
 
 # 3. Consolidate data
 ```{r consolidate_data}
-# ==============================================================================
-# 5. consolidate data
-# ==============================================================================
 excluded_country_code <- c(
   "AIA", # anguilla
   "OECD", # OECD
@@ -353,9 +352,6 @@ cliar_indicators <- cliar_indicators %>%
 ```{r indicator_selection}
 # verify that the indicators are selected correctly
 cliar_metadata_id_indicators <- cliar_metadata_id|> 
-  filter(
-    status != "Removed"
-  ) |> 
   select(
     cliar_id
   )
@@ -382,7 +378,6 @@ cliar_indicators_clean <- cliar_indicators |>
     year,
     any_of(cliar_metadata_id_indicators |> pull(cliar_id))
   )
-
 ```
 
 # 5. Data Quality Control: verify country_code and country_name consistency
@@ -415,14 +410,19 @@ cliar_indicators_diagnostic <- cliar_indicators_clean |>
   select(-index) |> 
   compute_coverage(country_code, year) |> 
   left_join(
-    cliar_metadata_id |> select(cliar_id, indicator, source),
+    cliar_metadata_id |> select(cliar_id, var_name, source, family_name),
     by = c("Indicator" = "cliar_id")
   ) |> 
   select(
     `Indicator`,
-    `Indicator Description` = indicator,
+    `Indicator Name` = var_name,
+    `Institutional Family` = family_name,
     everything(),
     `Data Source` = source
+  ) |> 
+  arrange(
+    `Institutional Family`,
+    Indicator
   )
 ```
 
@@ -432,10 +432,18 @@ cliar_indicators_diagnostic <- cliar_indicators_clean |>
 write_rds(
   cliar_indicators_clean,
   here(
-    "..",
     "data",
-    "clean",
+    "output",
     "compiled_indicators.rds"
   )
 )
+
+cliar_indicators_diagnostic |> 
+    write_rds(
+      here(
+        "data",
+        "output",
+        "diagnostics_compiled_indicators.rds"
+      )
+    )
 ```

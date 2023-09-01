@@ -453,6 +453,16 @@
       ],
       "Hash": "bb097fccb22d156624fd07cd2894ddb6"
     },
+    "countrycode": {
+      "Package": "countrycode",
+      "Version": "1.5.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R"
+      ],
+      "Hash": "bbc5ab5258e5ddf38f2cd2c5a7afa860"
+    },
     "cpp11": {
       "Package": "cpp11",
       "Version": "0.4.5",

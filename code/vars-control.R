@@ -8,7 +8,16 @@ db_variables <-
     )
   )
 
-# Anti-Corruption, Transparency and Accountability institutions ======================
+
+# 1. Anticorruption Institutions ------------------------------------------
+vars_corruption <- db_variables |>
+filter(
+  var_level == "indicator",
+  family_var == "vars_corruption"
+) |>
+  pull(variable)
+
+# Transparency and Accountability institutions ======================
 vars_transp <-
   db_variables %>%
   filter(
@@ -44,7 +53,7 @@ vars_lab <-
   ) %>%
   pull(variable)
 
-# Legal institutions ======================
+# Justice institutions ======================
 vars_leg <-
   db_variables %>%
   filter(
