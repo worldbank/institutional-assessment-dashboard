@@ -379,86 +379,6 @@ static_plot <-
 
   }
 
-
-interactive_plot <-
-  function(x, y, z, tab_name, buttons, miss_var) {
-
-    if (length(miss_var) > 0) {
-
-      ## Shel added "\n" to include line breaks in the notes
-      notes <-
-        paste0(
-          "Notes:\n\n",
-          y,
-          " compared to ",
-          str_wrap(paste(z, collapse = ", "), note_chars),
-          ".\n\nThe following indicators are not considered because base country has no information or because of low variance:\n",
-          str_wrap(paste(miss_var, collapse = ", "), note_chars),
-          "."
-        )
-
-    }
-
-    if (length(miss_var) == 0) {
-
-      notes <-
-        paste0(
-          "Notes:\n ",
-          y,
-          " compared to ",
-          str_wrap(paste(z, collapse = ", "), note_chars),
-          "."
-        )
-
-    }
-
-    if (tab_name == "Overview") {
-      notes <-
-        paste(
-          notes,
-          "\nFamily-level closeness to frontier is calculated by taking the average closeness to frontier for all the latest available indicators in each family."
-        )
-    }
-
-    int_plot <- x %>%
-      ggplotly(tooltip = "text") %>%
-      layout(
-        margin = list(l = 50, r = 50, t = 75, b = 250),
-        annotations =
-          list(
-            x = -0.2,
-            y = -0.6,
-            text = shiny::HTML(notes),
-            showarrow = F,
-            xref = 'paper',
-            yref = 'paper',
-            align = 'left',
-            font = list(size = note_size)
-          )
-      ) %>%
-      config(
-        modeBarButtonsToRemove = buttons,
-        toImageButtonOptions= list(filename = paste0(tolower(stringr::str_replace_all(tab_name,"\\s","_"))),
-                                   width = 1100,
-                                   height =  1000)
-      )
-    
-    ## Solution to remove ",1" that appears on the legend
-    ## https://stackoverflow.com/questions/49133395/strange-formatting-of-legend-in-ggplotly-in-r
-    
-    for (i in 1:length(int_plot$x$data)){
-      if (!is.null(int_plot$x$data[[i]]$name)){
-        int_plot$x$data[[i]]$name =  gsub("^\\(","",str_split(int_plot$x$data[[i]]$name,",")[[1]][1])
-      }
-
-    }
-
-    
-    return(int_plot)
-    
-  }
-
-
 # Dynamic benchmark static plot ##############################################################
 
 static_plot_dyn <-
@@ -481,6 +401,7 @@ static_plot_dyn <-
     }
     
     
+    
     data$var_name <-
       factor(
         data$var_name,
@@ -488,6 +409,7 @@ static_plot_dyn <-
           decreasing = TRUE),
         ordered = TRUE
       )
+    
     
     data <- data %>% 
       rowwise() %>% 
@@ -500,13 +422,19 @@ static_plot_dyn <-
       pull()
     
     data <- data %>% 
-      filter(var_name2 %in% base_country_vars)
+      filter(var_name2 %in% base_country_vars) %>% 
+      ## if we only have one year worth of data for a particular indicator, drop it
+      group_by(var_name) %>% 
+      mutate(counter = length(unique(year))) %>% 
+      filter(counter > 1) %>% 
+      select(-counter)
     
     ctf_long_dyn <- ctf_long_dyn %>% 
       rowwise() %>% 
       mutate(var_name2 = paste(var_name, year, sep = " : ")) %>% 
       arrange(var_name2) %>% 
       filter(var_name2 %in% base_country_vars)
+    
     
     vars <-
       data %>%
@@ -529,7 +457,7 @@ static_plot_dyn <-
         }
     
     if (rank == FALSE) {
-      x_lab <- "Closeness to frontier"
+      y_lab <- "Closeness to frontier"
       
       data <-
         data %>%
@@ -537,6 +465,7 @@ static_plot_dyn <-
           var = dtf,
           text = paste(
             " Country:", country_name, "<br>",
+            "Year: ", year, "<br>",
             "Closeness to frontier:", round(dtf, 3)
           )
         )
@@ -550,25 +479,26 @@ static_plot_dyn <-
           var = dtt,
           text = paste(
             " Country:", country_name, "<br>",
-            "Year: ", year, 
+            "Year: ", year,  "<br>",
             "Closeness to frontier:", round(dtf, 3), "<br>",
             "Rank:", nrank
           )
         )
       
-      x_lab <- "Rank"
+      y_lab <- "Rank"
     }
     
     
+    ## Percentile segments
     plot <-
       ggplot() +
       geom_segment(
         data = data,
         aes(
-          y = var_name2,
-          yend = var_name2,
-          x = 0,
-          xend = q25
+          x = year,
+          xend = year,
+          y = 0,
+          yend = q25
         ),
         color = "#e47a81",
         size = 2,
@@ -577,10 +507,10 @@ static_plot_dyn <-
       geom_segment(
         data = data,
         aes(
-          y = var_name2,
-          yend = var_name2,
-          x = q25,
-          xend = q50
+          x = year,
+          xend = year,
+          y = q25,
+          yend = q50
         ),
         color = "#ffd966",
         size = 2,
@@ -589,10 +519,10 @@ static_plot_dyn <-
       geom_segment(
         data = data,
         aes(
-          y = var_name2,
-          yend = var_name2,
-          x = q50,
-          xend = 1
+          x = year,
+          xend = year,
+          y = q50,
+          yend = 1
         ),
         color = "#8ec18e",
         size = 2,
@@ -611,15 +541,15 @@ static_plot_dyn <-
         plot.caption.position =  "plot"
       ) +
       labs(
-        y = NULL,
-        x = x_lab,
+        y = y_lab,
+        x = NULL,
         fill = NULL,
         shape = NULL,
         caption = note
       ) +
       scale_fill_manual(
         values = colors
-      ) 
+      )
     
     
     
@@ -644,8 +574,8 @@ static_plot_dyn <-
         suppressWarnings(geom_point(
           data = data,
           aes(
-            y = var_name2,
-            x = var,
+            x = year,
+            y = var,
             text = text
           ),
           shape = 21,
@@ -657,6 +587,7 @@ static_plot_dyn <-
     }
     
     if (!is.null(group_median) & !rank) {
+      
       
       median_data <-
         ctf_long_dyn %>%
@@ -708,7 +639,7 @@ static_plot_dyn <-
               group_by(
                 country_name,
                 year,
-                var_name2
+                var_name
               ) %>%
               mutate(value = median(value, na.rm = TRUE)) %>%
               distinct(var_name, year, value, country_name) %>% 
@@ -718,57 +649,6 @@ static_plot_dyn <-
           }
           
           custom_grp_median_data_df <- purrr::map_df(selected_custom_grps, custom_grp_median_data_func)
-          
-          
-          
-          ## for each custom group
-          # for(i in 1: length(selected_custom_grps)){
-          #   
-          #   ## extract its data from the custom_df data. See sample custom_df data below
-          #   
-          #   #     Category Grp           Countries
-          #   # 1    Custom  xd             Denmark
-          #   # 2    Custom  xd  Russian Federation
-          #   # 3    Custom  xd              Sweden
-          #   # 4    Custom  ts          Tajikistan
-          #   # 5    Custom  ts            Thailand
-          #   # 6    Custom  ts Trinidad and Tobago
-          #   # 7    Custom  ts             Tunisia
-          #   # 8    Custom  ts        Turkmenistan
-          #   # 9    Custom POL          Uzbekistan
-          #   # 10   Custom POL       Venezuela, RB
-          #   # 11   Custom POL             Vietnam
-          #   # 12   Custom POL         Yemen, Rep.
-          #   
-          #   custom_df_per_group <- custom_df %>% 
-          #     filter(Grp == selected_custom_grps[i])
-          #   
-          #   
-          #   ## calculate medians for each group
-          #   custom_grp_median_data[[i]] <-
-          #     ctf_long_dyn %>%
-          #     filter(
-          #       var_name %in% vars,
-          #       country_name %in% custom_df_per_group$Countries ## extract countries that fall in this group
-          #     ) %>%
-          #     mutate(
-          #       country_name = unique(custom_df_per_group$Grp), ## the country name will be the 
-          #       ## name of the group.
-          #       group = NA
-          #     ) %>%
-          #     unique %>%
-          #     group_by(
-          #       country_name,
-          #       year,
-          #       var_name2
-          #     ) %>%
-          #     mutate(value = median(value, na.rm = TRUE)) %>%
-          #     distinct(var_name, year, value, country_name) %>% 
-          #     ungroup
-          # }
-          
-          ## append all the group median datasets to one
-          # custom_grp_median_data <- bind_rows(custom_grp_median_data)
           
           ## and append this to median data generated for pre-determined groups
           median_data <- median_data %>%
@@ -796,10 +676,10 @@ static_plot_dyn <-
           group_by(
             country_name,
             year,
-            var_name2
+            var_name
           ) %>%
           mutate(value = median(value, na.rm = TRUE)) %>%
-          distinct(country_name, year, var_name, var_name2, value) %>% 
+          distinct(country_name, year, var_name,  value) %>% 
           ungroup
         
         median_data <-
@@ -807,23 +687,18 @@ static_plot_dyn <-
           bind_rows(countries)
       }
       
-      ## Generate var_name2 for the median_data
-      median_data <- median_data %>% 
-        rowwise() %>% 
-        mutate(var_name2 = paste(var_name, year, sep = " : ")) %>% 
-        arrange(var_name2)
-      
       
       plot <-
         plot +
         suppressWarnings(geom_point(
           data = median_data %>% filter(!is.na(value)),
           aes(
-            y = var_name2,
-            x = value,
+            y = value,
+            x = year,
             shape = country_name,
             text = paste(
               " Group:", country_name,"<br>",
+              "Year: ", year,  "<br>",
               "Median closeness to frontier:", round(value, 3)
             )
           ),
@@ -833,43 +708,148 @@ static_plot_dyn <-
           size = 2
         )) +
         scale_shape_manual(
-          values = 22:25 #,
-          #lab = NULL
+          values = 22:25
+        )
+      
+      
+    }
+    
+    ## add base country
+    plot <-
+      plot +
+      suppressWarnings(
+        geom_point(
+          data = data %>% filter(country_name == base_country),
+          aes(
+            y = var,
+            x = year,
+            fill = status ,
+            text = text
+          ),
+          size = 2,
+          shape = 21,
+          color = "gray0"
+        )) +
+      geom_line(
+        data = data %>% filter(country_name == base_country),
+        aes(
+          y = var,
+          x = year,
+          group = 1
+        )
+      )
+    
+    
+    n_col = ifelse(length(unique(data$var_name)) <= 4, 1, 
+      ifelse(between(length(unique(data$var_name)), 5, 10), 2, 3))
+    
+    plot <- plot +
+      facet_wrap(~var_name, ncol = n_col, scales='free')+
+      theme(strip.text = element_text(face = "bold", size = 10))
+    
+    
+    return(plot)
+  }
+
+
+
+interactive_plot <-
+  function(x, y, z, tab_name, buttons, miss_var, plot_type) {
+    
+    if (length(miss_var) > 0) {
+      
+      ## Shel added "\n" to include line breaks in the notes
+      notes <-
+        paste0(
+          "Notes:\n\n",
+          y,
+          " compared to ",
+          str_wrap(paste(z, collapse = ", "), note_chars),
+          ".\n\nThe following indicators are not considered because base country has no information or because of low variance:\n",
+          str_wrap(paste(miss_var, collapse = ", "), note_chars),
+          "."
+        )
+      
+    }
+    
+    if (length(miss_var) == 0) {
+      
+      notes <-
+        paste0(
+          "Notes:\n ",
+          y,
+          " compared to ",
+          str_wrap(paste(z, collapse = ", "), note_chars),
+          "."
+        )
+      
+    }
+    
+    if (tab_name == "Overview") {
+      notes <-
+        paste(
+          notes,
+          "\nFamily-level closeness to frontier is calculated by taking the average closeness to frontier for all the latest available indicators in each family."
         )
     }
     
-    plot <-
-      plot +
-      suppressWarnings(geom_point(
-        data = data %>% filter(country_name == base_country),
-        aes(
-          y = var_name2,
-          x = var,
-          fill = status ,
-          text = text
-        ),
-        size = 2,
-        shape = 21,
-        color = "gray0"
-      ))
+    if(plot_type == "dynamic"){
+      notes = NULL
+    }
     
-    ynames_df <- data.frame(ynames = sort(ggplot_build(plot)$layout$panel_params[[1]]$y$get_labels()))
+    x <- x +
+      theme(
+        legend.position = "top"
+      )
     
-    ynames_df <- ynames_df %>%
-      rowwise() %>%
-      mutate(varname = strsplit(ynames, split = ":")[[1]][1],
-        year = strsplit(ynames, split = ":")[[1]][2]
+    int_plot <- x %>%
+      ggplotly(tooltip = "text") %>%
+      layout(
+        margin = list(l = 50, r = 50, t = 75, b = 250),
+        annotations =
+          list(
+            x = -0.2,
+            y = -0.6,
+            text = shiny::HTML(notes),
+            showarrow = F,
+            xref = 'paper',
+            yref = 'paper',
+            align = 'left',
+            font = list(size = note_size)
+          )
       ) %>%
-      group_by(varname) %>%
-      mutate(sequence = seq_along(year)) %>%
-      mutate(ynames = ifelse(sequence != max(sequence), year, ynames))
+      config(
+        modeBarButtonsToRemove = buttons,
+        toImageButtonOptions= list(filename = paste0(tolower(stringr::str_replace_all(tab_name,"\\s","_"))),
+          width = 1100,
+          height =  1000)
+      )
     
     
+    if(plot_type == "dynamic"){
+      
+      int_plot <- int_plot %>% 
+        layout(
+                    legend = list(
+                     orientation = "h",xanchor = "center", x = 0.5
+                    )
+        )
+    }
     
-    plot <- plot +
-      scale_y_discrete(labels = ynames_df$ynames)
+    ## Solution to remove ",1" that appears on the legend
+    ## https://stackoverflow.com/questions/49133395/strange-formatting-of-legend-in-ggplotly-in-r
     
-    return(plot)
+    for (i in 1:length(int_plot$x$data)){
+      if (!is.null(int_plot$x$data[[i]]$name)){
+        int_plot$x$data[[i]]$name =  gsub("^\\(","",str_split(int_plot$x$data[[i]]$name,",")[[1]][1])
+      }
+      
+    }
+    
+    int_plot <- clean_plotly_legend(int_plot)
+    
+    return(int_plot)
+    
   }
 
 # Maps #########################################################################
