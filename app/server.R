@@ -848,7 +848,8 @@ server <- function(input, output, session) {
                 note_compare(),
                 input$family,
                 plotly_remove_buttons,
-                missing_variables
+                missing_variables,
+                "static"
               )
           } else {
             missing_variables <-
@@ -886,7 +887,8 @@ server <- function(input, output, session) {
                 note_compare(),
                 input$family,
                 plotly_remove_buttons,
-                missing_variables
+                missing_variables,
+                "static"
               )
           }
         )
@@ -965,7 +967,8 @@ server <- function(input, output, session) {
                 note_compare(),
                 input$family,
                 plotly_remove_buttons,
-                missing_variables
+                missing_variables,
+                "dynamic"
               )
           } else {
             
@@ -1005,7 +1008,8 @@ server <- function(input, output, session) {
                 note_compare(),
                 input$family,
                 plotly_remove_buttons,
-                missing_variables
+                missing_variables,
+                "dynamic"
               )
             
           }
