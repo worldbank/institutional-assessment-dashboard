@@ -8,21 +8,12 @@ db_variables <-
     )
   )
 
-
-# 1. Anticorruption Institutions ------------------------------------------
-vars_corruption <- db_variables |>
-filter(
-  var_level == "indicator",
-  family_var == "vars_corruption"
-) |>
-  pull(variable)
-
-# Transparency and Accountability institutions ======================
-vars_transp <-
+# Anti-corruption institutions ======================
+vars_anticorruption <-
   db_variables %>%
   filter(
     var_level == "indicator",
-    family_var == "vars_transp"
+    family_var == "vars_anticorruption"
   ) %>%
   pull(variable)
 
@@ -32,6 +23,24 @@ vars_mkt <-
   filter(
     var_level == "indicator",
     family_var == "vars_mkt"
+  ) %>%
+  pull(variable)
+
+# Climate Change and Environment Institutions ======================
+vars_climate <-
+  db_variables %>%
+  filter(
+    var_level == "indicator",
+    family_var == "vars_climate"
+  ) %>%
+  pull(variable)
+
+# Digital and Data Institutions ======================
+vars_digital <-
+  db_variables %>%
+  filter(
+    var_level == "indicator",
+    family_var == "vars_digital"
   ) %>%
   pull(variable)
 
@@ -71,12 +80,21 @@ vars_pol <-
   ) %>%
   pull(variable)
 
-# Public sector performance institutions ======================
-vars_publ <-
+# Public Human Resource Management Institutions ======================
+vars_hrm <-
   db_variables %>%
   filter(
     var_level == "indicator",
-    family_var == "vars_publ"
+    family_var == "vars_hrm"
+  ) %>%
+  pull(variable)
+
+# Public Public Financial Management Institutions ======================
+vars_pfm <-
+  db_variables %>%
+  filter(
+    var_level == "indicator",
+    family_var == "vars_pfm"
   ) %>%
   pull(variable)
 
@@ -95,6 +113,51 @@ vars_service_del <-
   filter(
     var_level == "indicator",
     family_var == "vars_service_del"
+  ) %>%
+  pull(variable)
+
+# Service Delivery Institutions ======================
+vars_service_delivery <-
+  db_variables %>%
+  filter(
+    var_level == "indicator",
+    family_var == "vars_service_delivery"
+  ) %>%
+  pull(variable)
+
+# Transparency and Accountability institutions ======================
+vars_transp <-
+  db_variables %>%
+  filter(
+    var_level == "indicator",
+    family_var == "vars_transp"
+  ) %>%
+  pull(variable)
+
+# variables with other families ======================
+vars_other <-
+  db_variables %>%
+  filter(
+    var_level == "indicator",
+    family_var == "vars_other"
+  ) %>%
+  pull(variable)
+
+# removed variables ======================
+vars_removed <-
+  db_variables %>%
+  filter(
+    var_level == "indicator",
+    family_var == "vars_removed"
+  ) %>%
+  pull(variable)
+
+# variables with missing families ======================
+vars_missing <-
+  db_variables %>%
+  filter(
+    var_level == "indicator",
+    family_var == "vars_missing"
   ) %>%
   pull(variable)
 
