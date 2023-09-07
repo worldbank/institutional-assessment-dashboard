@@ -1,12 +1,12 @@
 source("global.R")
 
-base_country = "United States"
+base_country = "Mozambique"
 tab_name = "Social"
 rank = FALSE
 group_median = c("Sub-Saharan Africa", "Arab World")
 custom_df = NULL
 title = TRUE
-dots = FALSE
+dots = TRUE
 note = NULL
 threshold = "default"
 vars_all = vars_all
@@ -18,6 +18,8 @@ countries = country_list %>%
                filter(group == "Sub-Saharan Africa" & country_name != base_country) %>% 
                distinct(country_name) %>% 
                pull()
+
+
                
   
 data =  global_data_dyn %>%
@@ -121,7 +123,7 @@ if (rank == FALSE) {
 }
 
 
-
+## Percentile segments
 plot <-
   ggplot() +
   geom_segment(
@@ -183,7 +185,7 @@ plot <-
     values = colors
   )
     
-## adding the line graph
+## adding the base country point and line graph
 plot <-
   plot +
     geom_point(
@@ -209,44 +211,130 @@ plot <-
  
 
 ## add group medians
+if (!is.null(group_median) & !rank) {
+  
+  median_data <-
+    ctf_long_dyn %>%
+    filter(
+      var_name %in% spec_varname,
+      country_name %in% group_median
+    ) %>%
+    select(
+      var_name,
+      year, 
+      value,
+      country_name
+    )
+  
+  ## If custom groups exists, ------------------------------------------------------------------------------------
+  
+  if(!is.null(custom_df)){
+    
+    ## If any of the benchmark medians is a custom group
+    if(any(group_median %in% custom_df$Grp)){
+      
+      ## create a place holder that will hold the medians for all the groups
+      # custom_grp_median_data <- list()
+      # 
+      ## create a vector of these groups
+      selected_custom_grps <- unique(custom_df$Grp)
+      
+      custom_grp_median_data_func <- function(selected_custom_grp){
+        custom_df_per_group <- custom_df %>% 
+          filter(Grp == selected_custom_grp)
+        
+        
+        ## calculate medians for each group
+        custom_grp_median_data <-
+          ctf_long_dyn %>%
+          filter(
+            var_name %in% spec_varname,
+            country_name %in% custom_df_per_group$Countries ## extract countries that fall in this group
+          ) %>%
+          mutate(
+            country_name = unique(custom_df_per_group$Grp), ## the country name will be the 
+            ## name of the group.
+            group = NA
+          ) %>%
+          unique %>%
+          group_by(
+            country_name,
+            year,
+            var_name
+          ) %>%
+          mutate(value = median(value, na.rm = TRUE)) %>%
+          distinct(var_name, year, value, country_name) %>% 
+          ungroup
+        
+        return(custom_grp_median_data)
+      }
+      
+      custom_grp_median_data_df <- purrr::map_df(selected_custom_grps, custom_grp_median_data_func)
+ 
+      ## and append this to median data generated for pre-determined groups
+      median_data <- median_data %>%
+        bind_rows(custom_grp_median_data_df)
+    }
+    
+  } 
+  
+  ## ------------------------------------------------------------------------------------
+  
+  if ("Comparison countries" %in% group_median) {
+    
+    countries <-
+      ctf_long_dyn %>%
+      filter(
+        var_name %in% spec_varname,
+        country_name %in% data$country_name,
+        country_name != base_country
+      ) %>%
+      mutate(
+        country_name = "Comparison countries",
+        group = NA
+      ) %>%
+      unique %>%
+      group_by(
+        country_name,
+        year,
+        var_name2
+      ) %>%
+      mutate(value = median(value, na.rm = TRUE)) %>%
+      distinct(country_name, year, var_name, var_name2, value) %>% 
+      ungroup
+    
+    median_data <-
+      median_data %>%
+      bind_rows(countries)
+  }
+
+  
+  plot <-
+    plot +
+    suppressWarnings(geom_point(
+      data = median_data %>% filter(!is.na(value)),
+      aes(
+        y = value,
+        x = year,
+        shape = country_name,
+        text = paste(
+          " Group:", country_name,"<br>",
+          "Median closeness to frontier:", round(value, 3)
+        )
+      ),
+      alpha = .5,
+      color = "black",
+      fill = "white",
+      size = 3
+    )) +
+    scale_shape_manual(
+      values = 22:25 #,
+      #lab = NULL
+    )
+}
 
 
-median_data <-
-  ctf_long_dyn %>%
-  filter(
-    var_name %in% spec_varname,
-    country_name %in% group_median
-  ) %>%
-  select(
-    var_name,
-    year, 
-    value,
-    country_name
-  )
 
-
-plot <-
-  plot +
-  suppressWarnings(geom_point(
-    data = median_data %>% filter(!is.na(value)),
-    aes(
-      y = value,
-      x = year,
-      shape = country_name,
-      text = paste(
-        " Group:", country_name,"<br>",
-        "Median closeness to frontier:", round(value, 3)
-      )
-    ),
-    alpha = .5,
-    color = "black",
-    fill = "white",
-    size = 3
-  )) +
-  scale_shape_manual(
-    values = 22:25 #,
-    #lab = NULL
-  )
 
 ## add comparison countries
 if (dots) {
@@ -266,6 +354,10 @@ if (dots) {
       alpha = .5
     ))  
 }
+
+n_col = ifelse(length(unique(data$var_name)) >= 5, 1, 2)
+
 plot <- plot +
-         facet_wrap(vars(var_name), ncol = 1)
+         facet_wrap(vars(var_name), ncol = n_col)+
+         theme(strip.text = element_text(face = "bold", size = 10))
 plot 
