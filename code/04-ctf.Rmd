@@ -97,7 +97,7 @@ For the static benchmark, we only calculate averages for indicators starting in 
 ```{r}
 country_average <-
   cliar_indicators_rescaled %>%
-  filter(year >= 2018) |> 
+  filter(year >= 2013) |> 
   group_by(
     country_code
   ) %>%
@@ -115,7 +115,7 @@ country_average <-
 # static
 min_max <-
   cliar_indicators_rescaled %>%
-  filter(year >= 2018) |> 
+  filter(year >= 2013) |> 
   summarise(
     across(
       all_of(vars_ctf),
