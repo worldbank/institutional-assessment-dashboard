@@ -371,9 +371,15 @@ cliar_indicators_id |>
   
 # only retain indicators contained in metadata v2 + id cols
 cliar_indicators_clean <- cliar_indicators |> 
+  # add country names
+  left_join(
+    wb_country_list |> 
+      distinct(country_code, country_name),
+    by = "country_code"
+  ) |> 
   select(
-    index,
     country_code,
+    country_name,
     year,
     any_of(db_variables_indicators |> pull(variable))
   )
@@ -415,8 +421,7 @@ nrow_cliar == nrow_cliar_distinct
 # 6. Compute coverage diagnostics
 ```{r coverage_diagnostics}
 cliar_indicators_diagnostic <- cliar_indicators_clean |> 
-  # exclude index from computing coverage
-  select(-index) |> 
+  select(-country_name) |> 
   compute_coverage(country_code, year) |> 
   left_join(
     db_variables |> select(variable, var_name, source, family_name),
