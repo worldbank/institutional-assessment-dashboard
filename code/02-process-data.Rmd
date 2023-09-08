@@ -258,11 +258,6 @@ wdi_clean <- wdi |>
 
 # 9. vdem
 vdem_clean <- vdem |> 
-  # address issues with Palestine/ West Bank duplication in VDEM
-  filter(
-    country_code != "PSG" &
-      country_name != "Palestine/West Bank"
-  ) |> 
   clean_names()
 
 # 10. heritage
@@ -440,7 +435,7 @@ cliar_indicators_diagnostic <- cliar_indicators_clean |>
   )
 ```
 
-# 7. Save data
+## 7. Save data
 
 ```{r}
 write_rds(
@@ -453,11 +448,11 @@ write_rds(
 )
 
 cliar_indicators_diagnostic |> 
-    write_rds(
+    write_csv(
       here(
         "data",
         "output",
-        "diagnostics_compiled_indicators.rds"
+        "diagnostics_compiled_indicators.csv"
       )
     )
 ```

@@ -16,4 +16,5 @@ library(scales)
 library(naniar)
 library(countrycode)
 library(purrr)
+library(testthat)
 ```

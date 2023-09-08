@@ -16,7 +16,7 @@ db_variables <-
       "data",
       "input",
       "cliar",
-      "db_variables_new.xlsx"
+      "db_variables.xlsx"
     )
   ) |> 
   clean_names() |> 

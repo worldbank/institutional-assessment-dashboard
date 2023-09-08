@@ -1,14 +1,13 @@
 db_variables <-
   read_rds(
     here(
-      "..",
       "data",
-      "final",
+      "output",
       "db_variables.rds"
     )
   )
 
-# Anti-corruption institutions ======================
+# 1. Anti-corruption institutions ======================
 vars_anticorruption <-
   db_variables %>%
   filter(
@@ -17,7 +16,7 @@ vars_anticorruption <-
   ) %>%
   pull(variable)
 
-# Business environment and trade institutions ======================
+# 2. Business environment and trade institutions ======================
 vars_mkt <-
   db_variables %>%
   filter(
@@ -26,7 +25,7 @@ vars_mkt <-
   ) %>%
   pull(variable)
 
-# Climate Change and Environment Institutions ======================
+# 3. Climate Change and Environment Institutions ======================
 vars_climate <-
   db_variables %>%
   filter(
@@ -35,7 +34,7 @@ vars_climate <-
   ) %>%
   pull(variable)
 
-# Digital and Data Institutions ======================
+# 4. Digital and Data Institutions ======================
 vars_digital <-
   db_variables %>%
   filter(
@@ -44,7 +43,7 @@ vars_digital <-
   ) %>%
   pull(variable)
 
-# Financial market institutions ======================
+# 5. Financial market institutions ======================
 vars_fin <-
   db_variables %>%
   filter(
@@ -53,7 +52,7 @@ vars_fin <-
   ) %>%
   pull(variable)
 
-# Labor market institutions ======================
+# 6. Labor market institutions ======================
 vars_lab <-
   db_variables %>%
   filter(
@@ -62,7 +61,7 @@ vars_lab <-
   ) %>%
   pull(variable)
 
-# Justice institutions ======================
+# 7. Justice institutions ======================
 vars_leg <-
   db_variables %>%
   filter(
@@ -71,7 +70,7 @@ vars_leg <-
   ) %>%
   pull(variable)
 
-# Political institutions ======================
+# 8. Political institutions ======================
 vars_pol <-
   db_variables %>%
   filter(
@@ -80,7 +79,7 @@ vars_pol <-
   ) %>%
   pull(variable)
 
-# Public Human Resource Management Institutions ======================
+# 9. Public Human Resource Management Institutions ======================
 vars_hrm <-
   db_variables %>%
   filter(
@@ -89,7 +88,7 @@ vars_hrm <-
   ) %>%
   pull(variable)
 
-# Public Public Financial Management Institutions ======================
+# 10. Public Public Financial Management Institutions ======================
 vars_pfm <-
   db_variables %>%
   filter(
@@ -98,7 +97,7 @@ vars_pfm <-
   ) %>%
   pull(variable)
 
-# Social institutions ======================
+# 11. Social institutions ======================
 vars_social <-
   db_variables %>%
   filter(
@@ -107,7 +106,7 @@ vars_social <-
   ) %>%
   pull(variable)
 
-# SOE Corporate Governance ======================
+# 12. SOE Corporate Governance ======================
 vars_service_del <-
   db_variables %>%
   filter(
@@ -116,7 +115,7 @@ vars_service_del <-
   ) %>%
   pull(variable)
 
-# Service Delivery Institutions ======================
+# 13. Service Delivery Institutions ======================
 vars_service_delivery <-
   db_variables %>%
   filter(
@@ -125,7 +124,7 @@ vars_service_delivery <-
   ) %>%
   pull(variable)
 
-# Transparency and Accountability institutions ======================
+# 14. Transparency and Accountability institutions ======================
 vars_transp <-
   db_variables %>%
   filter(
