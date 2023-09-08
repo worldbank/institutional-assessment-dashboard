@@ -1,12 +1,67 @@
 source("global.R")
 
+
+base_country = "United Kingdom"
+tab_name = "Overview"
+rank = FALSE
+Category = "Custom"
+Grp = c("xd", "xd","xd", "ts", "ts", "ts", "ts", "ts", "POL", "POL", "POL", "POL")
+Countries <- c("Denmark", "Russian Federation", "Sweden", "Tajikistan",
+  "Thailand", "Trinidad and Tobago", "Tunisia", "Turkmenistan", "Uzbekistan", "Venezuela, RB",
+  "Vietnam", "Yemen, Rep.")
+
+custom_df <- data.frame(Category, Grp, Countries)
+
+group_median = c("Sub-Saharan Africa", unique(custom_df$Grp)[1:2])
+
+title = TRUE
+dots = FALSE
+note = NULL
+threshold = "default"
+vars_all = vars_all
+vars = variable_names %>%
+  filter(family_name == tab_name) %>%
+  pull(variable) %>%
+  unique()
+countries = country_list %>% 
+  filter(group == "Sub-Saharan Africa" & country_name != base_country) %>% 
+  distinct(country_name) %>% 
+  pull()
+
+
+
+
+data =  global_data_dyn %>%
+  def_quantiles_dyn(
+    base_country,
+    country_list,
+    countries,
+    vars_all,
+    variable_names,
+    threshold) %>% 
+  filter(variable %in% vars) 
+
+data =  family_data_dyn(
+  global_data_dyn,
+  base_country,
+  variable_names
+) %>%
+  def_quantiles_dyn(
+    base_country,
+    country_list,
+    countries,
+    vars_family,
+    family_names,
+    threshold
+  )
+
 static_plot_dyn <-
   function(data,
     base_country,
     tab_name,
     rank,
     group_median = NULL,
-    custom_df = NULL, ## New addition made by Shel in August 2023 to accommodate custom groups
+    custom_df = NULL, 
     title = TRUE,
     dots = FALSE,
     note = NULL,
@@ -41,7 +96,15 @@ static_plot_dyn <-
       pull()
     
     data <- data %>% 
-      filter(var_name2 %in% base_country_vars)
+      filter(var_name2 %in% base_country_vars) %>% 
+      ## if we only have one year worth of data for a particular indicator, drop it
+      group_by(var_name) %>% 
+      mutate(counter = length(unique(year))) %>% 
+      filter(counter > 1) %>% 
+      select(-counter)
+    
+
+    
     
     ctf_long_dyn <- ctf_long_dyn %>% 
       rowwise() %>% 
@@ -71,7 +134,7 @@ static_plot_dyn <-
         }
     
     if (rank == FALSE) {
-      x_lab <- "Closeness to frontier"
+      y_lab <- "Closeness to frontier"
       
       data <-
         data %>%
@@ -98,8 +161,20 @@ static_plot_dyn <-
           )
         )
       
-      x_lab <- "Rank"
+      y_lab <- "Rank"
     }
+    
+    ## calculate the delta and the new facet labels that will contain it.
+    data <- data %>% 
+      group_by(country_name, var_name) %>% 
+      mutate(earliest_value = var[year == min(as.numeric(year), na.rm = TRUE)],
+        latest_value = var[year == max(as.numeric(year), na.rm = TRUE)],
+        delta = round(((latest_value - earliest_value)/earliest_value), 3)
+        ) %>% 
+      mutate(new_labels = paste0(var_name, " (Delta: ", delta , ")")) %>% 
+      ungroup()
+    
+
     
     
     ## Percentile segments
@@ -351,60 +426,23 @@ static_plot_dyn <-
         )
       )
     
-    
     n_col = ifelse(length(unique(data$var_name)) <= 4, 1, 
       ifelse(between(length(unique(data$var_name)), 5, 10), 2, 3))
     
+    plot_titles_df <- data %>% 
+                  filter(family_name == tab_name & country_name == base_country) %>% 
+                  distinct(var_name, delta, new_labels)
+    
+    plot_titles <- unique(plot_titles_df$new_labels)
+    names(plot_titles) <- unique(plot_titles_df$var_name)
+    
     plot <- plot +
-      facet_wrap(vars(var_name), ncol = n_col)+
+      facet_wrap(~var_name, ncol = n_col, labeller = labeller(var_name = plot_titles)) +
       theme(strip.text = element_text(face = "bold", size = 10))
-
+    
     
     return(plot)
   }
-
-
-
-base_country = "United Kingdom"
-tab_name = "Political"
-rank = FALSE
-Category = "Custom"
-Grp = c("xd", "xd","xd", "ts", "ts", "ts", "ts", "ts", "POL", "POL", "POL", "POL")
-Countries <- c("Denmark", "Russian Federation", "Sweden", "Tajikistan",
-  "Thailand", "Trinidad and Tobago", "Tunisia", "Turkmenistan", "Uzbekistan", "Venezuela, RB",
-  "Vietnam", "Yemen, Rep.")
-
-custom_df <- data.frame(Category, Grp, Countries)
-
-group_median = c("Sub-Saharan Africa", unique(custom_df$Grp)[1:2])
-
-title = TRUE
-dots = FALSE
-note = NULL
-threshold = "default"
-vars_all = vars_all
-vars = variable_names %>%
-  filter(family_name == tab_name) %>%
-  pull(variable) %>%
-  unique()
-countries = country_list %>% 
-  filter(group == "Sub-Saharan Africa" & country_name != base_country) %>% 
-  distinct(country_name) %>% 
-  pull()
-
-
-
-
-data =  global_data_dyn %>%
-  def_quantiles_dyn(
-    base_country,
-    country_list,
-    countries,
-    vars_all,
-    variable_names,
-    threshold) %>% 
-  filter(variable %in% vars) 
-
 
 static_plot_dyn(
     data,

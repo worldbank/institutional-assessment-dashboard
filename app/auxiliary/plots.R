@@ -429,6 +429,7 @@ static_plot_dyn <-
       filter(counter > 1) %>% 
       select(-counter)
     
+    
     ctf_long_dyn <- ctf_long_dyn %>% 
       rowwise() %>% 
       mutate(var_name2 = paste(var_name, year, sep = " : ")) %>% 
@@ -487,6 +488,16 @@ static_plot_dyn <-
       
       y_lab <- "Rank"
     }
+    
+    ## calculate the delta and the new facet labels that will contain it.
+    data <- data %>% 
+      group_by(country_name, var_name) %>% 
+      mutate(earliest_value = var[year == min(as.numeric(year), na.rm = TRUE)],
+        latest_value = var[year == max(as.numeric(year), na.rm = TRUE)],
+        delta = round((latest_value - earliest_value)/earliest_value, 4)
+      ) %>% 
+      mutate(new_labels = paste0(var_name, " (Delta: ", delta , ")")) %>% 
+      ungroup()
     
     
     ## Percentile segments
@@ -740,14 +751,38 @@ static_plot_dyn <-
       )
     
     
-    n_col = ifelse(length(unique(data$var_name)) <= 4, 1, 
-      ifelse(between(length(unique(data$var_name)), 5, 10), 2, 3))
+    ## Facet the plot
+
+    ### number of columns will depend on the number of variables  
+    n_col = ifelse(length(unique(data$var_name)) <= 3, 1, 
+      ifelse(between(length(unique(data$var_name)), 4, 10), 2, 3))
     
+    # sc = ifelse(length(unique(data$var_name)) <= 6, "free_x", "fixed")
+    sc = "free_x"
+    
+    ### instead of having the var name as the titles, we want to append the delta on it.
+    ### Delta was calculated at the beginning before any plot was generated
+    
+      plot_titles_df <- data %>% 
+        filter(var_name %in% vars & country_name == base_country) %>% 
+        distinct(var_name, delta, new_labels)
+
+    
+    plot_titles <- unique(plot_titles_df$new_labels)
+    names(plot_titles) <- unique(plot_titles_df$var_name)
+    
+    
+    ### create the plot
     plot <- plot +
-      facet_wrap(~var_name, ncol = n_col, scales='free')+
+      facet_wrap(~var_name, ncol = n_col, 
+        labeller = labeller(var_name = plot_titles),
+        shrink = FALSE, scales = sc) +
       theme(strip.text = element_text(face = "bold", size = 10))
     
     
+   ## fix facets
+   plot <- fixfacets(figure = plot, facets = names(plot_titles), domain_offset = 0.16) 
+   
     return(plot)
   }
 

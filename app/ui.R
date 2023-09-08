@@ -59,6 +59,20 @@ ui <-
     ),
 
     dashboardBody(
+      
+      ## universal css styles
+      tags$style(HTML("
+      
+      /* Make the dynamic dashboard scrollable */
+                      
+       #shiny-tab-benchmark > div:nth-child(4) > div{
+        max-height: 800px;
+        overflow-y: auto;
+        
+        }
+        "
+      )),
+      
       tabItems(
 
         ## Landing page --------------------------------------------------------

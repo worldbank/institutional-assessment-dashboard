@@ -51,7 +51,7 @@ source(here("auxiliary", "fun_low_variance.R"))
 # Create benchmark graphs
 source(here("auxiliary", "plots.R"))
 source(here("auxiliary", "clean_plotly_legend.R"))
-
+source(here("auxiliary", "fixfacets.R"))
 
 # Data -------------------------------------------------------------
 
