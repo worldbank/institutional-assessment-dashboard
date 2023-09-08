@@ -17,14 +17,4 @@ file.copy(
   recursive = TRUE,
   overwrite = TRUE
 )
-
-file.copy(
-  here("vars-control.R"),
-  here(
-    "..",
-    "app",
-    "auxiliary"
-  ),
-  overwrite = TRUE
-)
 ```
