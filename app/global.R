@@ -141,8 +141,6 @@ spatial_data <-
     )
   )
 
-
-
 clean_country <-
   read.csv(
     here(

@@ -499,7 +499,11 @@ ui <-
                   label = "Select comparison groups",
                   choices = group_list,
                   selected = NULL,
-                  multiple = TRUE
+                  multiple = TRUE,
+                  options = list(
+                    size = 21,
+                    `actions-box` = TRUE
+                  )
                 )
               )
             )
@@ -536,7 +540,7 @@ ui <-
 
               plotlyOutput(
                 "bar_plot",
-                height = paste0(plot_height, "px")
+                height = paste0(plot_height * 1.6, "px")
               )
             )
           )

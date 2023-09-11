@@ -24,7 +24,7 @@ static_plot <-
            tab_name,
            rank,
            group_median = NULL,
-           custom_df = NULL, ## New addition made by Shel in August 2023 to accomodate custom groups
+           custom_df = NULL, ## New addition made by Shel in August 2023 to accomModate custom groups
            title = TRUE,
            dots = FALSE,
            note = NULL,
@@ -1225,7 +1225,7 @@ trends_plot <- function(raw_data,
 static_bar <-
   function(data,
            base_country, comparison_countries, groups,
-           var, variable_names) {
+           var, variable_names, custom_df) {
 
     varname <-
       variable_names %>%
@@ -1259,6 +1259,58 @@ static_bar <-
       data <-
         data %>%
         bind_rows(median)
+    }
+    
+    if(!is.null(custom_df)){
+
+      ## If any of the benchmark medians is a custom group
+      if(any(groups %in% custom_df$Grp)){
+
+        ## create a vector of these groups
+        selected_custom_grps <- unique(custom_df$Grp)[unique(custom_df$Grp) %in% groups]
+
+        custom_grp_median_data_func <- function(selected_custom_grp){
+          custom_df_per_group <- custom_df %>%
+            filter(Grp == selected_custom_grp)
+
+
+          ## calculate medians for each group
+          custom_grp_median_data <-
+            ctf_long_dyn %>%
+            filter(
+              var_name %in% var,
+              country_name %in% custom_df_per_group$Countries ## extract countries that fall in this group
+            ) %>%
+            mutate(
+              country_name = unique(custom_df_per_group$Grp), ## the country name will be the
+              ## name of the group.
+              group = NA
+            ) %>%
+            unique %>%
+            group_by(
+              country_name,
+              var_name
+            ) %>%
+            mutate(value = median(value, na.rm = TRUE)) %>%
+            distinct(var_name, value, country_name) %>%
+            ungroup
+
+          return(custom_grp_median_data)
+        }
+
+        custom_grp_median_data_df <- purrr::map_df(selected_custom_grps, custom_grp_median_data_func)
+
+        custom_grp_median_data_df <- custom_grp_median_data_df %>% 
+          left_join(., variable_names %>% select(var_name, variable), by = "var_name") %>% 
+          relocate(variable, .before = var_name) %>% 
+          select(-var_name) %>% 
+          spread(variable, value) %>% 
+          mutate(country_group = 1)
+        
+        ## and append this to median data generated for pre-determined groups
+        data <- data %>%
+          bind_rows(custom_grp_median_data_df)
+      }
     }
     
     data <-

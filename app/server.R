@@ -13,6 +13,98 @@ server <- function(input, output, session) {
 
   ## Start of benchmark tab control inputs----------------------
 
+  ### Update inputs based on benchmark selection ------------------------------
+  observeEvent(
+    input$select,
+    {
+      if (!is.null(input$groups)) {
+        updatePickerInput(
+          session,
+          "groups_data",
+          choices = c("All", "Comparison groups only", "None")
+        )
+        
+        updatePickerInput(
+          session,
+          "groups_bar",
+          selected = input$groups
+        )
+        
+        updatePickerInput(
+          session,
+          "high_group",
+          selected = input$groups
+        )
+        
+        updatePickerInput(
+          session,
+          "group_trends",
+          selected = input$groups
+        )
+      }
+      
+      updatePickerInput(
+        session,
+        "countries_data",
+        choices = c("All", "Base country only", "Base + comparison countries")
+      )
+      
+      # Create report
+      toggleState(
+        id = "report",
+        condition = input$select,
+        shinyjs::disable("report")
+      )
+      toggleState(
+        id = "pptreport",
+        condition = input$select,
+        shinyjs::disable("pptreport")
+      )
+      
+      # Cross-crountry comparison selection
+      updatePickerInput(
+        session,
+        "country_bar",
+        selected = input$country
+      )
+      
+      # updateCheckboxGroupButtons(
+      #   session,
+      #   "countries_bar",
+      #   selected = input$countries
+      # )
+      
+      # Bivariate correlation selection
+      updatePickerInput(
+        session,
+        "country_scatter",
+        selected = input$country
+      )
+      
+      updateCheckboxGroupButtons(
+        session,
+        "countries_scatter",
+        selected = input$countries
+      )
+      
+      # Time trends
+      updatePickerInput(
+        session,
+        "country_trends",
+        selected = input$country
+      )
+      
+      updateCheckboxGroupButtons(
+        session,
+        "countries_trends",
+        selected = input$countries
+      )
+    },
+    ignoreNULL = TRUE
+  )
+  
+  
+  
   ## Create comparison group inputs where users can insert custom group names and countries that
   ## they'd want to place in those groups
 
@@ -154,7 +246,7 @@ server <- function(input, output, session) {
     }
   })
 
-  ### Once the save button is clicked
+  ### Once the save button is clicked (***)
 
   shiny::observeEvent(input$save_custom_grps, {
 
@@ -213,6 +305,28 @@ server <- function(input, output, session) {
           "max-options" = 3
         )
       )
+      
+      shinyWidgets::updatePickerInput(
+        session = session,
+        inputId = "groups_bar",
+        choices = as.list(append(group_list, Custom)),
+        selected = unique(c(input$groups, unique(custom_grps_df()$Grp)))
+      )
+      
+      updatePickerInput(
+        session,
+        "high_group",
+        choices = as.list(append(group_list, Custom)),
+        selected = unique(c(input$groups, unique(custom_grps_df()$Grp)))
+      )
+      
+      updatePickerInput(
+        session,
+        "group_trends",
+        choices = as.list(append(group_list, Custom)),
+        selected = unique(c(input$groups, unique(custom_grps_df()$Grp)))
+      )
+      
     }
   })
 
@@ -239,6 +353,35 @@ server <- function(input, output, session) {
           "max-options" = 3
         )
       )
+      
+      shinyWidgets::updatePickerInput(
+        session = session,
+        inputId = "groups_bar",
+        choices = group_list,
+        selected = input$groups[!input$groups %in% unique(custom_grps_df()$Grp)]
+      )
+      
+      updatePickerInput(
+        session,
+        "high_group",
+        choices = group_list,
+        selected = input$groups[!input$groups %in% unique(custom_grps_df()$Grp)]
+      )
+      
+      updatePickerInput(
+        session,
+        "group_trends",
+        choices = group_list,
+        selected = input$groups[!input$groups %in% unique(custom_grps_df()$Grp)]
+      )
+      
+      shinyWidgets::updatePickerInput(
+        session = session,
+        inputId = "groups",
+        choices = group_list,
+        selected = input$groups[!input$groups %in% unique(custom_grps_df()$Grp)]
+      )
+      
 
       updateCheckboxGroupButtons(
         session,
@@ -253,6 +396,49 @@ server <- function(input, output, session) {
         ),
         selected = input$countries[!input$countries %in% unique(custom_grps_df()$Countries)]
       )
+      
+      # updateCheckboxGroupButtons(
+      #   session,
+      #   "countries_bar",
+      #   label = NULL,
+      #   choices = countries,
+      #   checkIcon = list(
+      #     yes = icon("ok",
+      #       lib = "glyphicon",
+      #       style = "color: #e94152"
+      #     )
+      #   ),
+      #   selected = input$countries[!input$countries %in% unique(custom_grps_df()$Countries)]
+      # )
+      
+      updateCheckboxGroupButtons(
+        session,
+        "countries_scatter",
+        label = NULL,
+        choices = countries,
+        checkIcon = list(
+          yes = icon("ok",
+            lib = "glyphicon",
+            style = "color: #e94152"
+          )
+        ),
+        selected = input$countries[!input$countries %in% unique(custom_grps_df()$Countries)]
+      )
+      
+      updateCheckboxGroupButtons(
+        session,
+        "countries_trends",
+        label = NULL,
+        choices = countries,
+        checkIcon = list(
+          yes = icon("ok",
+            lib = "glyphicon",
+            style = "color: #e94152"
+          )
+        ),
+        selected = input$countries[!input$countries %in% unique(custom_grps_df()$Countries)]
+      )
+      
     }
   })
 
@@ -305,6 +491,58 @@ server <- function(input, output, session) {
     },
     ignoreNULL = FALSE
   )
+  
+  
+  
+  observeEvent(
+    input$vars_bar,
+    {
+      
+      var <-
+        db_variables %>%
+        filter(var_name == input$vars_bar) %>%
+        pull(variable)
+      
+      valid <-
+        global_data %>%
+        filter(
+          !is.na(get(var))
+        ) %>%
+        select(country_name) %>%
+        unique() %>%
+        unlist() %>%
+        unname()
+      
+      bar_countries <-
+        intersect(valid, countries)
+      
+      updatePickerInput(
+        session,
+        "country_bar",
+        choices = c(
+          "",
+          bar_countries
+        )
+      )
+      
+      updateCheckboxGroupButtons(
+        session,
+        "countries_bar",
+        choices = bar_countries,
+        checkIcon = list(
+          yes = icon(
+            "ok",
+            lib = "glyphicon"
+          )
+        )
+      )
+    },
+    ignoreNULL = TRUE
+  )
+  
+  
+  
+  
 
   # When custom groups are included and the group field is updated, append the countries to the initial list of countries
   # displayed
@@ -325,15 +563,7 @@ server <- function(input, output, session) {
           filter(group %in% input$groups) %>%
           pull(country_name)
         
-        ## countries that are selected from the "Select individual comparison countries" directly
-        # other_countries <- input$countries[!input$countries %in% c(custom_grp_countries, preselected_grp_countries)]
-        # 
-        # if (length(preselected_grp_countries) > 0) {
-        #   selected_c <- unique(c(custom_grp_countries, preselected_grp_countries, other_countries))
-        # } else {
-        #   selected_c <- unique(c(custom_grp_countries, other_countries))
-        # }
-
+        
         if (length(preselected_grp_countries) > 0) {
           selected_c <- unique(c(custom_grp_countries, preselected_grp_countries))
         } else {
@@ -353,59 +583,53 @@ server <- function(input, output, session) {
           ),
           selected = selected_c
         )
+        
+        # updateCheckboxGroupButtons(
+        #   session,
+        #   "countries_bar",
+        #   label = NULL,
+        #   choices = countries,
+        #   checkIcon = list(
+        #     yes = icon("ok",
+        #       lib = "glyphicon",
+        #       style = "color: #e94152"
+        #     )
+        #   ),
+        #   selected = selected_c
+        # )
+        
+        updateCheckboxGroupButtons(
+          session,
+          "countries_scatter",
+          label = NULL,
+          choices = countries,
+          checkIcon = list(
+            yes = icon("ok",
+              lib = "glyphicon",
+              style = "color: #e94152"
+            )
+          ),
+          selected = selected_c
+        )
+        
+        updateCheckboxGroupButtons(
+          session,
+          "countries_trends",
+          label = NULL,
+          choices = countries,
+          checkIcon = list(
+            yes = icon("ok",
+              lib = "glyphicon",
+              style = "color: #e94152"
+            )
+          ),
+          selected = selected_c
+        )
+        
       }
 
     }
   )
-
-
-  ## Repeat the same above if edits are made in the custom groups where groups aren't updated e.g 
-  ## removing or adding countries in the already specified custom groups
-  # observeEvent(
-  #   input$save_custom_grps,
-  #   {
-  # 
-  #     if (!is.null(custom_grps_df())) {
-  #       
-  #       ## custom group countries
-  #       custom_grp_countries <- custom_grps_df()$Countries[custom_grps_df()$Grp %in% input$groups]
-  #       
-  #       ## countries in the group-list groups
-  #       preselected_grp_countries <- country_list %>%
-  #         filter(group %in% input$groups) %>%
-  #         pull(country_name)
-  # 
-  #       ## countries that are selected from the "Select individual comparison countries" card directly
-  #       # other_countries <- input$countries[!input$countries %in% c(custom_grp_countries, preselected_grp_countries)]
-  #       # 
-  #       # if (length(preselected_grp_countries) > 0) {
-  #       #   selected_c <- unique(c(custom_grp_countries, preselected_grp_countries, other_countries))
-  #       # } else {
-  #       #   selected_c <- unique(c(custom_grp_countries, other_countries))
-  #       # }
-  # 
-  #       if (length(preselected_grp_countries) > 0) {
-  #         selected_c <- unique(c(custom_grp_countries, preselected_grp_countries))
-  #       } else {
-  #         selected_c <- unique(custom_grp_countries)
-  #       }
-  # 
-  #       updateCheckboxGroupButtons(
-  #         session,
-  #         "countries",
-  #         label = NULL,
-  #         choices = countries,
-  #         checkIcon = list(
-  #           yes = icon("ok",
-  #             lib = "glyphicon",
-  #             style = "color: #e94152"
-  #           )
-  #         ),
-  #         selected = selected_c
-  #       )
-  #     }
-  #   }
-  # )
 
 
   ## Validate options
@@ -648,96 +872,6 @@ server <- function(input, output, session) {
           names()
       }
     )
-
-  ### Update inputs based on benchmark selection ------------------------------
-  observeEvent(
-    input$select,
-    {
-      if (!is.null(input$groups)) {
-        updatePickerInput(
-          session,
-          "groups_data",
-          choices = c("All", "Comparison groups only", "None")
-        )
-
-        updatePickerInput(
-          session,
-          "groups_bar",
-          selected = input$groups
-        )
-
-        updatePickerInput(
-          session,
-          "high_group",
-          selected = input$groups
-        )
-
-        updatePickerInput(
-          session,
-          "group_trends",
-          selected = input$groups
-        )
-      }
-
-      updatePickerInput(
-        session,
-        "countries_data",
-        choices = c("All", "Base country only", "Base + comparison countries")
-      )
-
-      # Create report
-      toggleState(
-        id = "report",
-        condition = input$select,
-        shinyjs::disable("report")
-      )
-      toggleState(
-        id = "pptreport",
-        condition = input$select,
-        shinyjs::disable("pptreport")
-      )
-
-      # Cross-crountry comparison selection
-      updatePickerInput(
-        session,
-        "country_bar",
-        selected = input$country
-      )
-
-      updateCheckboxGroupButtons(
-        session,
-        "countries_bar",
-        selected = input$countries
-      )
-
-      # Bivariate correlation selection
-      updatePickerInput(
-        session,
-        "country_scatter",
-        selected = input$country
-      )
-
-      updateCheckboxGroupButtons(
-        session,
-        "countries_scatter",
-        selected = input$countries
-      )
-
-      # Time trends
-      updatePickerInput(
-        session,
-        "country_trends",
-        selected = input$country
-      )
-
-      updateCheckboxGroupButtons(
-        session,
-        "countries_trends",
-        selected = input$countries
-      )
-    },
-    ignoreNULL = TRUE
-  )
 
 
   ## Make sure only valid groups are chosen ----------------------------------
@@ -1123,61 +1257,23 @@ server <- function(input, output, session) {
 
   # Bar plot ==================================================================
 
-  observeEvent(
-    input$vars_bar,
-    {
-      var <-
-        db_variables %>%
-        filter(var_name == input$vars_bar) %>%
-        pull(variable)
-
-      valid <-
-        global_data %>%
-        filter(
-          !is.na(get(var))
-        ) %>%
-        select(country_name) %>%
-        unique() %>%
-        unlist() %>%
-        unname()
-
-      bar_countries <-
-        intersect(valid, countries)
-
-      updatePickerInput(
-        session,
-        "country_bar",
-        choices = c(
-          "",
-          bar_countries
-        )
-      )
-
-      updateCheckboxGroupButtons(
-        session,
-        "countries_bar",
-        choices = bar_countries,
-        checkIcon = list(
-          yes = icon(
-            "ok",
-            lib = "glyphicon"
-          )
-        )
-      )
-    },
-    ignoreNULL = TRUE
-  )
-
-
+  custom_df_bar <- reactive({
+    custom_grps_df()[custom_grps_df()$Grp %in% input$groups, ]
+  }) 
+  
   output$bar_plot <-
     renderPlotly({
+
+      
+      
       static_bar(
         global_data,
         input$country_bar,
         input$countries_bar,
         input$groups_bar,
         input$vars_bar,
-        variable_names
+        variable_names,
+        custom_df_bar()
       ) %>%
         interactive_bar(
           input$vars_bar,
