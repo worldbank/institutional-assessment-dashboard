@@ -94,11 +94,11 @@ server <- function(input, output, session) {
         selected = input$country
       )
       
-      updateCheckboxGroupButtons(
-        session,
-        "countries_trends",
-        selected = input$countries
-      )
+      # updateCheckboxGroupButtons(
+      #   session,
+      #   "countries_trends",
+      #   selected = input$countries
+      # )
     },
     ignoreNULL = TRUE
   )
@@ -425,19 +425,19 @@ server <- function(input, output, session) {
         selected = input$countries[!input$countries %in% unique(custom_grps_df()$Countries)]
       )
       
-      updateCheckboxGroupButtons(
-        session,
-        "countries_trends",
-        label = NULL,
-        choices = countries,
-        checkIcon = list(
-          yes = icon("ok",
-            lib = "glyphicon",
-            style = "color: #e94152"
-          )
-        ),
-        selected = input$countries[!input$countries %in% unique(custom_grps_df()$Countries)]
-      )
+      # updateCheckboxGroupButtons(
+      #   session,
+      #   "countries_trends",
+      #   label = NULL,
+      #   choices = countries,
+      #   checkIcon = list(
+      #     yes = icon("ok",
+      #       lib = "glyphicon",
+      #       style = "color: #e94152"
+      #     )
+      #   ),
+      #   selected = input$countries[!input$countries %in% unique(custom_grps_df()$Countries)]
+      # )
       
     }
   })
@@ -612,19 +612,19 @@ server <- function(input, output, session) {
           selected = selected_c
         )
         
-        updateCheckboxGroupButtons(
-          session,
-          "countries_trends",
-          label = NULL,
-          choices = countries,
-          checkIcon = list(
-            yes = icon("ok",
-              lib = "glyphicon",
-              style = "color: #e94152"
-            )
-          ),
-          selected = selected_c
-        )
+        # updateCheckboxGroupButtons(
+        #   session,
+        #   "countries_trends",
+        #   label = NULL,
+        #   choices = countries,
+        #   checkIcon = list(
+        #     yes = icon("ok",
+        #       lib = "glyphicon",
+        #       style = "color: #e94152"
+        #     )
+        #   ),
+        #   selected = selected_c
+        # )
         
       }
 
@@ -1256,10 +1256,23 @@ server <- function(input, output, session) {
 
 
   # Bar plot ==================================================================
-
-  custom_df_bar <- reactive({
-    custom_grps_df()[custom_grps_df()$Grp %in% input$groups, ]
+# 
+#   custom_df_bar <- reactive({
+#     custom_grps_df()[custom_grps_df()$Grp %in% input$groups_bar, ]
+#   }) 
+  
+  custom_df_bar <-  reactive({
+    
+    if(any(!input$group_trends %in% unlist(group_list))){
+      custom_df_bar <- custom_grps_df()[custom_grps_df()$Grp %in% input$groups_bar, ]
+    }else{
+      custom_df_bar <- NULL
+    }
+    
+    return(custom_df_bar)
+    
   }) 
+  
   
   output$bar_plot <-
     renderPlotly({
@@ -1291,7 +1304,7 @@ server <- function(input, output, session) {
       filter(group %in% input$high_group) %>%
       select(group, country_code)
     
-    if(!is.null(custom_df_bar) & any(input$high_group %in% custom_df_bar()$Grp)){
+    if(!is.null(custom_df_bar()) & any(input$high_group %in% custom_df_bar()$Grp)){
       custom_df_data <- custom_df_bar() %>%
         filter(Grp %in% input$high_group) %>% 
         select(Grp, Countries) %>% 
@@ -1405,8 +1418,26 @@ server <- function(input, output, session) {
   )
 
 
+  custom_df_trend <-  reactive({
+    
+    if(any(!input$group_trends %in% unlist(group_list))){
+      custom_df_trend <- custom_grps_df()[custom_grps_df()$Grp %in% input$group_trends, ]
+    }else{
+      custom_df_trend <- NULL
+    }
+    
+    return(custom_df_trend)
+    
+  }) 
+  
   output$time_series <-
     renderPlotly({
+      
+ 
+      
+      shiny::req(input$country_trends)
+      shiny::req(input$vars_trends)
+
       if (input$vars_trends != "") {
         var <-
           db_variables %>%
@@ -1421,7 +1452,8 @@ server <- function(input, output, session) {
           input$countries_trends,
           country_list,
           input$group_trends,
-          db_variables
+          db_variables,
+          custom_df_trend()
         )
       }
     })

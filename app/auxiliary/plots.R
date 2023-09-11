@@ -1070,8 +1070,9 @@ interactive_map <-
 trends_plot <- function(raw_data,
                         indicator, indicator_name,
                         base_country, comparison_countries, country_list, groups,
-                        definitions) {
+                        definitions, custom_df = NULL) {
 
+  
   def <-
     definitions %>%
     filter(var_name == indicator_name)
@@ -1087,8 +1088,8 @@ trends_plot <- function(raw_data,
       !is.na(get(indicator))
     ) %>%
     summarise(
-      min = min(Year),
-      max = max(Year)
+      min = min(Year, na.rm = TRUE),
+      max = max(Year, na.rm = TRUE)
     )
   
   indicator_data <-
@@ -1100,8 +1101,22 @@ trends_plot <- function(raw_data,
 
   data_groups <-
     if (!is.null(groups)) {
-      country_list %>%
-        filter(group %in% groups) %>%
+      
+      avg_df <- country_list %>%
+        filter(group %in% groups) 
+      
+      if(!is.null(custom_df) & any(groups %in% custom_df$Grp)){
+        avg_df <- avg_df %>% 
+          bind_rows(., 
+            custom_df %>% 
+              rename(group = Grp,
+                country_name = Countries)
+            ) %>% 
+          select(-Category)
+               
+      }
+      
+      avg_df <- avg_df %>% 
         inner_join(indicator_data) %>%
         group_by(Year, group) %>%
         summarise(
@@ -1124,8 +1139,10 @@ trends_plot <- function(raw_data,
     mutate(
       alpha = ifelse(country_name == base_country, .8, .5)
     ) %>%
-    rename(Country = country_name)
-
+    rename(Country = country_name) %>% 
+    mutate(Year = as.factor(Year))
+  
+  
   static_plot <-
     ggplot(
       data,

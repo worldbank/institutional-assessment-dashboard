@@ -200,8 +200,9 @@ ui <-
                   selected = NULL,
                   multiple = TRUE,
                   options = list(
-                    size = 21,
-                    `actions-box` = TRUE
+                    # size = 21,
+                    `actions-box` = TRUE,
+                    `live-search` = TRUE
                   )
                 )
               ),
@@ -471,7 +472,7 @@ ui <-
                   choices = variable_list,
                   selected = NULL,
                   options = list(
-                    size = 20,
+                    # size = 20,
                     `actions-box` = TRUE,
                     `live-search` = TRUE,
                     "max-options" = 3
@@ -501,7 +502,8 @@ ui <-
                   selected = NULL,
                   multiple = TRUE,
                   options = list(
-                    size = 21,
+                    # size = 21,
+                    `live-search` = TRUE,
                     `actions-box` = TRUE
                   )
                 )
@@ -568,8 +570,9 @@ ui <-
                   selected = NULL,
                   multiple = FALSE,
                   options = list(
-                    size = 20,
-                    `actions-box` = TRUE
+                    # size = 20,
+                    `actions-box` = TRUE,
+                    `live-search` = TRUE
                   )
                 )
               ),
@@ -586,7 +589,7 @@ ui <-
                   selected = NULL,
                   options = list(
                     `live-search` = TRUE,
-                    size = 20,
+                    # size = 20,
                     title = "Click to select family or indicator"
                   ),
                   width = "100%"
@@ -605,7 +608,7 @@ ui <-
                   selected = "Log GDP per capita, PPP",
                   options = list(
                     `live-search` = TRUE,
-                    size = 20,
+                    # size = 20,
                     title = "Click to select family or indicator"
                   ),
                   width = "100%"
@@ -625,8 +628,8 @@ ui <-
                   multiple = FALSE,
                   options = list(
                     `live-search` = TRUE,
-                    `actions-box` = TRUE,
-                    size = 18
+                    `actions-box` = TRUE#,
+                    # size = 18
                   ),
                 )
               )
@@ -693,7 +696,7 @@ ui <-
                   selected = NULL,
                   options = list(
                     `live-search` = TRUE,
-                    size = 21,
+                    # size = 21,
                     title = "Click to select family or indicator"
                   ),
                   width = "100%"
@@ -709,7 +712,8 @@ ui <-
                   selected = NULL,
                   multiple = FALSE,
                   options = list(
-                    size = 23
+                    # size = 23
+                    `live-search` = TRUE
                   )
                 )
               ),
@@ -724,8 +728,8 @@ ui <-
                   multiple = TRUE,
                   options = list(
                     "max-options" = 5,
-                    `live-search` = TRUE,
-                    size = 21
+                    `live-search` = TRUE#,
+                    # size = 21
                   )
                 )
               )
@@ -761,7 +765,7 @@ ui <-
 
               plotlyOutput(
                 "time_series",
-                height = paste0(plot_height, "px")
+                height = paste0(plot_height * 1.6, "px")
               )
             )
           )
@@ -791,7 +795,7 @@ ui <-
                   selected = NULL,
                   options = list(
                     `live-search` = TRUE,
-                    size = 20,
+                    # size = 20,
                     title = "Click to select family or indicator"
                   ),
                   width = "100%"
