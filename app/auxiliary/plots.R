@@ -1438,7 +1438,7 @@ static_scatter <-
   function(data, 
            base_country, comparison_countries, high_group,
            y_scatter, x_scatter,
-           variable_names, country_list) {
+           variable_names, country_list, custom_df) {
     
     y <-
       ifelse(
@@ -1480,6 +1480,8 @@ static_scatter <-
       left_join(
         high_group, by = c("country_code")
       )
+
+    
 
     
     ggplot(

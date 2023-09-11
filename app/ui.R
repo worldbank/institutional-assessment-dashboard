@@ -664,7 +664,7 @@ ui <-
 
               plotlyOutput(
                 "scatter_plot",
-                height = paste0(plot_height, "px")
+                height = paste0(plot_height * 1.6, "px")
               )
             )
           )

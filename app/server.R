@@ -30,11 +30,11 @@ server <- function(input, output, session) {
           selected = input$groups
         )
         
-        updatePickerInput(
-          session,
-          "high_group",
-          selected = input$groups
-        )
+        # updatePickerInput(
+        #   session,
+        #   "high_group",
+        #   selected = input$groups
+        # )
         
         updatePickerInput(
           session,
@@ -316,8 +316,8 @@ server <- function(input, output, session) {
       updatePickerInput(
         session,
         "high_group",
-        choices = as.list(append(group_list, Custom)),
-        selected = unique(c(input$groups, unique(custom_grps_df()$Grp)))
+        choices = as.list(append(group_list, Custom))#,
+        # selected = unique(c(input$groups, unique(custom_grps_df()$Grp)))
       )
       
       updatePickerInput(
@@ -361,12 +361,12 @@ server <- function(input, output, session) {
         selected = input$groups[!input$groups %in% unique(custom_grps_df()$Grp)]
       )
       
-      updatePickerInput(
-        session,
-        "high_group",
-        choices = group_list,
-        selected = input$groups[!input$groups %in% unique(custom_grps_df()$Grp)]
-      )
+      # updatePickerInput(
+      #   session,
+      #   "high_group",
+      #   choices = group_list,
+      #   selected = input$groups[!input$groups %in% unique(custom_grps_df()$Grp)]
+      # )
       
       updatePickerInput(
         session,
@@ -1285,9 +1285,26 @@ server <- function(input, output, session) {
   # Scatter plot ============================================================
 
   high_group <- reactive({
-    country_list %>%
+    
+    
+   high_group_df <-  country_list %>%
       filter(group %in% input$high_group) %>%
       select(group, country_code)
+    
+    if(!is.null(custom_df_bar) & any(input$high_group %in% custom_df_bar()$Grp)){
+      custom_df_data <- custom_df_bar() %>%
+        filter(Grp %in% input$high_group) %>% 
+        select(Grp, Countries) %>% 
+        rename(group = Grp, 
+               country_name = Countries) %>% 
+        left_join(., country_list %>% select(country_code, country_name), by = "country_name" )
+     
+      high_group_df <- bind_rows(high_group_df, custom_df_data)   
+        
+    }
+    
+   return(high_group_df)
+
   })
 
   output$scatter_plot <-
