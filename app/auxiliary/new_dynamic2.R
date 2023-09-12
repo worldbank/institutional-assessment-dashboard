@@ -2,7 +2,7 @@ source("global.R")
 
 
 base_country = "United Kingdom"
-tab_name = "Overview"
+tab_name = "Justice"
 rank = FALSE
 Category = "Custom"
 Grp = c("xd", "xd","xd", "ts", "ts", "ts", "ts", "ts", "POL", "POL", "POL", "POL")

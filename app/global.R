@@ -39,6 +39,16 @@ db_variables <-
 db_variables<-db_variables %>% 
   mutate(across(where(is.character), str_squish))
 
+## add a temporary rank id within family in db_variables
+set.seed(1957)
+generate_random_sequence <- function(length) {
+  return(sample(1:length, length, replace = FALSE))
+}
+
+db_variables<-db_variables %>% 
+  group_by(family_var) %>% 
+  mutate(rank_id = generate_random_sequence(n()))%>%
+  ungroup 
 
 source(here("auxiliary", "vars-control.R"))
 
@@ -77,7 +87,7 @@ global_data <-
       "closeness_to_frontier.rds"
     )
   ) %>%
-  ungroup
+  ungroup 
 
 global_data_dyn <-
   read_rds(

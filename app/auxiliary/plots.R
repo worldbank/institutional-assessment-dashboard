@@ -28,7 +28,8 @@ static_plot <-
            title = TRUE,
            dots = FALSE,
            note = NULL,
-           threshold) {
+           threshold,
+           preset_order = FALSE) {
     
     if (threshold=="default"){
       cutoff<-c(25,50)
@@ -36,15 +37,44 @@ static_plot <-
     {
       cutoff<-c(33,66)
     }
+    
+    
+    if(preset_order == TRUE){
+      
+      data <- data %>% 
+        left_join(., db_variables %>% select(variable, rank_id),
+          by = "variable")
+      
+      unique_indicators = data %>% 
+        distinct(var_name, rank_id) %>% 
+        arrange(desc(rank_id)) %>% 
+        pull(var_name)
+      
+      data$var_name <-
+        factor(
+          data$var_name,
+          levels = unique_indicators,
+          ordered = TRUE
+        )
+      
+      print(data %>% 
+          distinct(var_name, rank_id) %>% 
+          pull(var_name)
+        )
+      
+    }else{
+      data$var_name <-
+        factor(
+          data$var_name,
+          levels = sort(unique(data$var_name),
+                        decreasing = TRUE),
+          ordered = TRUE
+        )
+    }
 
-    data$var_name <-
-      factor(
-        data$var_name,
-        levels = sort(unique(data$var_name),
-                      decreasing = TRUE),
-        ordered = TRUE
-      )
 
+
+    
     vars <-
       data %>%
       select(var_name) %>%
@@ -391,7 +421,8 @@ static_plot_dyn <-
     title = TRUE,
     dots = FALSE,
     note = NULL,
-    threshold) {
+    threshold,
+    preset_order = FALSE) {
     
     if (threshold=="default"){
       cutoff<-c(25,50)
@@ -402,13 +433,41 @@ static_plot_dyn <-
     
     
     
-    data$var_name <-
-      factor(
-        data$var_name,
-        levels = sort(unique(data$var_name),
-          decreasing = TRUE),
-        ordered = TRUE
+    if(preset_order == TRUE){
+      
+      data <- data %>% 
+        left_join(., db_variables %>% select(variable, rank_id),
+          by = "variable") %>% 
+        group_by(family_var) %>% 
+        arrange(desc(rank_id)) %>% 
+        ungroup()
+      
+      unique_indicators = data %>% 
+        distinct(var_name, rank_id) %>% 
+        arrange(desc(rank_id)) %>% 
+        pull(var_name)
+      
+      data$var_name <-
+        factor(
+          data$var_name,
+          levels = unique_indicators,
+          ordered = TRUE
+        )
+      
+      print(data %>% 
+          distinct(var_name, rank_id) %>% 
+          pull(var_name)
       )
+      
+    }else{
+      data$var_name <-
+        factor(
+          data$var_name,
+          levels = sort(unique(data$var_name),
+            decreasing = TRUE),
+          ordered = TRUE
+        )
+    }
     
     
     data <- data %>% 
@@ -427,7 +486,7 @@ static_plot_dyn <-
       group_by(var_name) %>% 
       mutate(counter = length(unique(year))) %>% 
       filter(counter > 1) %>% 
-      select(-counter)
+      select(-counter) 
     
     
     ctf_long_dyn <- ctf_long_dyn %>% 

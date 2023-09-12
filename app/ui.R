@@ -309,7 +309,14 @@ ui <-
                   icon = icon("check"),
                   status = "success"
                 ),
-               
+                
+                prettyCheckbox(
+                  inputId = "preset_order",
+                  label = "Use preset ranking order",
+                  value = FALSE,
+                  icon = icon("check"),
+                  status = "success"
+                )
               ),
               
               column(

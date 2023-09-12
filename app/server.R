@@ -786,6 +786,7 @@ server <- function(input, output, session) {
     eventReactive(
       input$select,
       {
+        
         global_data %>%
           def_quantiles(
             base_country(),
@@ -794,7 +795,8 @@ server <- function(input, output, session) {
             vars_all,
             variable_names,
             input$threshold
-          )
+          ) 
+        
       }
     )
 
@@ -975,7 +977,8 @@ server <- function(input, output, session) {
                 dots = input$benchmark_dots,
                 group_median = input$benchmark_median,
                 custom_df = custom_df(),
-                threshold = input$threshold
+                threshold = input$threshold,
+                preset_order = input$preset_order
               ) %>%
               interactive_plot(
                 base_country(),
@@ -1014,7 +1017,8 @@ server <- function(input, output, session) {
                 dots = input$benchmark_dots,
                 group_median = input$benchmark_median,
                 custom_df = custom_df(),
-                threshold = input$threshold
+                threshold = input$threshold,
+                preset_order = input$preset_order
               ) %>%
               interactive_plot(
                 base_country(),
@@ -1029,7 +1033,7 @@ server <- function(input, output, session) {
       }
     }) %>%
   bindCache(input$country,  input$groups, input$family, input$benchmark_median,
-    input$rank, input$benchmark_dots, input$create_custom_grps,
+    input$rank, input$benchmark_dots, input$preset_order, input$create_custom_grps,
     input$show_dynamic_plot, input$threshold, input$countries) %>%
   bindEvent(input$select)
 
@@ -1094,7 +1098,8 @@ server <- function(input, output, session) {
                 dots = input$benchmark_dots,
                 group_median = input$benchmark_median,
                 custom_df = custom_df(),
-                threshold = input$threshold
+                threshold = input$threshold,
+                preset_order = input$preset_order
               )%>%
               interactive_plot(
                 base_country(),
@@ -1135,7 +1140,8 @@ server <- function(input, output, session) {
                 dots = input$benchmark_dots,
                 group_median = input$benchmark_median,
                 custom_df = custom_df(),
-                threshold = input$threshold
+                threshold = input$threshold,
+                preset_order = input$preset_order
               ) %>%
               interactive_plot(
                 base_country(),
@@ -1151,7 +1157,7 @@ server <- function(input, output, session) {
       }
     }) %>%
   bindCache(input$country,  input$groups, input$family, input$benchmark_median,
-    input$rank, input$benchmark_dots, input$create_custom_grps,
+    input$rank, input$benchmark_dots, input$preset_order, input$create_custom_grps,
     input$show_dynamic_plot, input$threshold, input$countries) %>%
   bindEvent(input$select)
   
