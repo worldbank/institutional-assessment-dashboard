@@ -2,7 +2,7 @@
 
 - Inputs:
   - `data/output/compiled_indicators.rds`
-  - `data/input/wb/CLASS.xlsx`, obtained from https://datahelpdesk.worldbank.org/knowledgebase/articles/906519-world-bank-country-and-lending-groups on September 1, 2022
+  - `data/input/wb/CLASS.xlsx`, obtained from https://datahelpdesk.worldbank.org/knowledgebase/articles/906519-world-bank-country-and-lending-groups on September 1, 2023
   - `data/input/wb/group_list.csv`, input by the research team to list relevant groups
       
 - Outputs:
@@ -30,7 +30,7 @@
         "group_list.csv"
       )
     )
-
+  
   country_list <-
     read_xlsx(
       here(
@@ -46,6 +46,22 @@
       country_name = CountryName,
       group = GroupName,
       group_code = GroupCode
+    )
+  
+  income_country_list <- read_xlsx(
+     here(
+        "data",
+        "input", 
+        "wb",
+        "CLASS.xlsx"
+      ),
+      sheet = "List of economies",
+      n_max = 218 # there are 218 countries
+    ) |> 
+    transmute(
+      country_code = Code,
+      country_name = `Economy`,
+      group = `Income group`
     )
 ```
 
@@ -64,21 +80,93 @@ country_list <-
 ## Subset groups
 
 ```{r}
-country_list <-
+# remove income groups from the group list
+group_list_subset <- group_list |> 
+  filter(group_category != "Income")
+
+# obtain income group and group codes
+distinct_group <- country_list |> 
+  distinct(group, group_code)
+
+income_country_list_clean <- income_country_list |> 
+  left_join(
+    distinct_group,
+    by = "group"
+  )
+
+income_group <- income_country_list_clean |>
+  distinct(
+    group,
+    group_code
+  ) |> 
+  filter(!is.na(group)) |> 
+  transmute(
+    group_name = group,
+    group_category = "Income"
+  )
+
+# subset relevant groups
+country_list_clean <-
   country_list %>%
-  filter(
-    group %in% group_list$group_name
+  # join to subset relevant groups
+  inner_join(
+    group_list_subset |> 
+        select(group_name),
+    by = c("group" = "group_name")
   ) %>%
-  unique
+  # add income group
+  # note: venezuela does not have an income group as of 2022
+  bind_rows(
+    income_country_list_clean
+  ) |> 
+  unique()
+
+# produce final table with all relevant groups (including income)
+group_list_clean <- group_list_subset |> 
+  bind_rows(
+    income_group
+  )
+```
+
+## Data Quality Controls
+
+```{r}
+test_that(
+  "All countries are covered", {
+  expect_setequal(
+    country_list_clean |> distinct(country_code) |> pull(),
+    country_list |> distinct(country_code) |> pull()
+  )
+  }
+)
+
+test_that(
+  "All countries belong to a region", {
+  regions <- group_list_clean |> filter(group_category == "Region")
+  expect_setequal(
+     country_list_clean |> inner_join(regions, by = c("group" = "group_name")) |> distinct(country_code) |> pull(),
+    country_list_clean |> distinct(country_code) |> pull()
+  )
+  }
+)
+
+test_that(
+  "All countries belong to an income level",{
+    income_groups <- group_list_clean |> filter(group_category == "Income")
+    expect_setequal(
+     country_list_clean |> inner_join(income_groups, by = c("group" = "group_name")) |> distinct(country_code) |> pull(),
+     # note we exclude venezuela again, because it does not belong to an income level
+    country_list_clean |> filter(country_code != "VEN") |> distinct(country_code) |> pull()
+  )
+  }
+)
 ```
 
 ## Save datasets
 
-Dataset with list of countries in our sample
-
 ```{r}
 write_rds(
-  country_list,
+  country_list_clean,
   here(
     "data",
     "output",

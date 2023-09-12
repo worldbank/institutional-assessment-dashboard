@@ -92,7 +92,7 @@ cliar_indicators_rescaled <- cliar_indicators |>
 
 3. Calculate country-level average for each indicator
 
-For the static benchmark, we only calculate averages for indicators starting in the year 2018.
+For the static benchmark, we only calculate averages for indicators starting in the year 2013.
 
 ```{r}
 country_average <-
@@ -327,6 +327,8 @@ ctf_dynamic_clean <-
 
 ## Convert to long-form
 
+Note: This step in our pipeline raises a warning that we have a many-to-many relationship. This is expected, since we have multiple country-codes on both datasets (indicators and groups).
+
 ```{r}
 # static
 ctf_long <-
@@ -345,7 +347,7 @@ ctf_long <-
     country_list %>%
       select(country_code, group),
     by = "country_code",
-
+    relationship = "many-to-many"
   )
 
 ctf_long_clean <-
@@ -375,7 +377,7 @@ ctf_dynamic_long <-
     country_list %>%
       select(country_code, group),
     by = "country_code",
-
+    relationship = "many-to-many"
   )
 
 ctf_dynamic_long_clean <-

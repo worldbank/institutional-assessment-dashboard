@@ -345,6 +345,8 @@ cliar_indicators <- cliar_indicators %>%
   mutate(
     index = row_number()
   )
+
+# verify that all indicators are numeric
 ```
 
 ## Data Quality Control: Indicator Selection
