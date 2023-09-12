@@ -79,11 +79,13 @@ global_data <-
   ) %>%
   ungroup
 
+
+
 global_data_dyn <-
   read_rds(
     here(
       "data",
-      "closeness_to_frontier_dyn.rds"
+      "closeness_to_frontier_dynamic.rds"
     )
   ) %>%
   ungroup
@@ -103,7 +105,7 @@ ctf_long_dyn <-
   read_rds(
     here(
       "data",
-      "closeness_to_frontier_dyn_long.rds"
+      "closeness_to_frontier_dynamic_long.rds"
     )
   )
 
@@ -207,6 +209,9 @@ variable_names <-
     var_name,
     family_var,
     family_name
+  )%>%
+  filter(
+    family_var!="vars_other"
   )
 
 countries <-
@@ -229,6 +234,8 @@ extract_variables <-
 
 variable_list <-
   lapply(family_names$var_name, extract_variables)
+
+
 
 names(variable_list) <- family_names$var_name
 
