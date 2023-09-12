@@ -1497,18 +1497,17 @@ server <- function(input, output, session) {
         unlist()
 
       if (input$data_source != "Closeness to frontier") {
-        vars_table <- c("Country", "Year", vars)
+        vars_table <- c("country_name", "country_code", "Year", vars)
       } else {
-        vars_table <- c("Country", "country_code", "country_group", vars)
+        vars_table <- c("country_name", "country_code", "country_group", vars)
       }
 
       vars_table <- unname(vars_table)
 
       data <-
         data %>%
-        rename(Country = country_name) %>%
         filter(
-          Country %in% c(selected_countries, groups)
+          country_name %in% c(selected_countries, groups)
         ) %>%
         ungroup() %>%
         mutate(
@@ -1517,7 +1516,7 @@ server <- function(input, output, session) {
             round, 3
           )
         ) %>%
-        select(all_of(vars_table))
+        select(any_of(vars_table))
 
       data <-
         data %>%
