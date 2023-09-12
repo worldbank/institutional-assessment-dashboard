@@ -130,17 +130,17 @@ ctf <-
   )
 ```
 
+
 ## Raw data
 
 ```{r}
 raw <-
   raw_indicators %>%
-  select(-index) %>%
   pivot_longer(
-    cols = 3:ncol(.)
+    cols = 4:ncol(.)
   ) %>%
   filter(!is.na(value)) %>%
-  group_by(country_code) %>%
+  group_by(country_code,name) %>%
   filter(year == max(year)) %>%
   pivot_wider(
     values_from = c(value, year),
