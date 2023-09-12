@@ -1,6 +1,6 @@
 
 note_size <- 11
-note_chars <- 200
+note_chars <- 140
 color_groups <- colorRampPalette(c("#001f3f", "#60C2F7"))
 color_countries <- colorRampPalette(c("grey20", "grey50"))
 
@@ -55,11 +55,6 @@ static_plot <-
           data$var_name,
           levels = unique_indicators,
           ordered = TRUE
-        )
-      
-      print(data %>% 
-          distinct(var_name, rank_id) %>% 
-          pull(var_name)
         )
       
     }else{
@@ -454,10 +449,6 @@ static_plot_dyn <-
           ordered = TRUE
         )
       
-      print(data %>% 
-          distinct(var_name, rank_id) %>% 
-          pull(var_name)
-      )
       
     }else{
       data$var_name <-
@@ -848,7 +839,7 @@ static_plot_dyn <-
 
 
 interactive_plot <-
-  function(x, y, z, tab_name, buttons, miss_var, plot_type) {
+  function(x, y, z, tab_name, buttons, miss_var, plot_type, custom_df) {
     
     if (length(miss_var) > 0) {
       
@@ -871,10 +862,13 @@ interactive_plot <-
       notes <-
         paste0(
           "Notes:\n ",
+          
+          str_wrap(
           y,
           " compared to ",
           str_wrap(paste(z, collapse = ", "), note_chars),
-          "."
+          ".",
+          note_chars)
         )
       
     }
@@ -882,14 +876,36 @@ interactive_plot <-
     if (tab_name == "Overview") {
       notes <-
         paste(
-          notes,
+          notes, note_chars,
           "\nFamily-level closeness to frontier is calculated by taking the average closeness to frontier for all the latest available indicators in each family."
         )
     }
     
+    
     if(plot_type == "dynamic"){
       notes = NULL
     }
+    
+    if(!is.null(custom_df)){
+      
+      custom_grp_notes <- custom_df %>% 
+        group_by(Grp) %>% 
+        arrange(desc(Grp)) %>% 
+        mutate(note = paste0(Grp, " (", paste0(Countries, collapse = " , ") , ")")) %>% 
+        distinct(note) %>% 
+        pull() %>% 
+        paste0(., collapse = " ; ") 
+   
+      
+      notes <-
+        paste(
+          notes, 
+          "\n\nThe countries that fall under each custom group are listed below:\n",
+          str_wrap(custom_grp_notes, note_chars)
+
+        )
+    }
+
     
     x <- x +
       theme(

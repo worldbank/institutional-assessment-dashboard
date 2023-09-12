@@ -986,7 +986,8 @@ server <- function(input, output, session) {
                 input$family,
                 plotly_remove_buttons,
                 missing_variables,
-                "static"
+                "static",
+                custom_df = custom_df()
               )
           } else {
             missing_variables <-
@@ -1026,7 +1027,8 @@ server <- function(input, output, session) {
                 input$family,
                 plotly_remove_buttons,
                 missing_variables,
-                "static"
+                "static",
+                custom_df = custom_df()
               )
           }
         )
@@ -1107,7 +1109,8 @@ server <- function(input, output, session) {
                 input$family,
                 plotly_remove_buttons,
                 missing_variables,
-                "dynamic"
+                "dynamic",
+                custom_df = custom_df()
               )
           } else {
             
@@ -1149,7 +1152,8 @@ server <- function(input, output, session) {
                 input$family,
                 plotly_remove_buttons,
                 missing_variables,
-                "dynamic"
+                "dynamic",
+                custom_df = custom_df()
               )
             
           }
