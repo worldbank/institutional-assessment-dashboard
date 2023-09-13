@@ -129,5 +129,6 @@ family_names <-
     variable = family_var,
     var_name = family_name
   ) %>%
+  
   unique
 

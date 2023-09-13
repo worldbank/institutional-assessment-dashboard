@@ -35,6 +35,14 @@ db_variables <-
     )
   )
 
+## temporarily clean the family names
+
+db_variables <- db_variables %>% 
+                 mutate(family_name = ifelse(family_name == "Justice institutions", "Justice Institutions",
+                   ifelse(family_name == "Political institutions" , "Political Institutions" ,
+                     family_name
+                   )))
+
 
 db_variables<-db_variables %>% 
   mutate(across(where(is.character), str_squish))

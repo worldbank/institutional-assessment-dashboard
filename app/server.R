@@ -822,7 +822,6 @@ server <- function(input, output, session) {
       
       {
 
-        
         family_data(
           global_data,
           base_country(),

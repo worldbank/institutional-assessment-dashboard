@@ -14,11 +14,17 @@ def_quantiles <- function(data, base_country, country_list, comparison_countries
     names
 
 # List final relevant variables: those selected, minus those missing
+# 
+if(length(na_indicators) > 0){
   variables <-
     setdiff(vars, na_indicators)
-
+  
   variables <-
     intersect(variables, names(data))
+}else{
+  variables <- vars
+}
+
 
 # This is the relevant data to be used
   quantiles <-
@@ -29,7 +35,7 @@ def_quantiles <- function(data, base_country, country_list, comparison_countries
     ) %>%
     select(
       country_name,
-      all_of(variables)
+      any_of(variables)
     )
 
 # Merge with variable dictionary
@@ -38,7 +44,7 @@ def_quantiles <- function(data, base_country, country_list, comparison_countries
 
     # Make long per indicator
     pivot_longer(
-      cols = all_of(variables),
+      cols = any_of(variables),
       names_to = "variable"
     ) %>%
 
