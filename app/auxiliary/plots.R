@@ -471,7 +471,8 @@ static_plot_dyn <-
       group_by(var_name) %>% 
       mutate(counter = length(unique(year))) %>% 
       filter(counter > 1) %>% 
-      select(-counter) 
+      select(-counter) %>% 
+      ungroup()
     
     
     ctf_long_dyn <- ctf_long_dyn %>% 
@@ -534,14 +535,29 @@ static_plot_dyn <-
     }
     
     ## calculate the delta and the new facet labels that will contain it.
-    data <- data %>% 
-      group_by(country_name, var_name) %>% 
-      mutate(earliest_value = var[year == min(as.numeric(year), na.rm = TRUE)],
-        latest_value = var[year == max(as.numeric(year), na.rm = TRUE)],
-        delta = round((latest_value - earliest_value)/earliest_value, 4)
-      ) %>% 
-      mutate(new_labels = paste0(var_name, " (Delta: ", delta , ")")) %>% 
-      ungroup()
+    
+    if (rank == TRUE) {
+      
+      data <- data %>% 
+        group_by(country_name, var_name) %>% 
+        mutate(earliest_value = nrank[year == min(as.numeric(year), na.rm = TRUE)],
+          latest_value = nrank[year == max(as.numeric(year), na.rm = TRUE)],
+          delta = (latest_value - earliest_value)/earliest_value
+        )%>% 
+        mutate(new_labels = paste0(var_name, 
+          " \n(Change in Percentile Rank: ", "from ",earliest_value ," to ",latest_value , ")")) %>% 
+        ungroup()
+    }else{
+      data <- data %>% 
+        group_by(country_name, var_name) %>% 
+        mutate(earliest_value = var[year == min(as.numeric(year), na.rm = TRUE)],
+          latest_value = var[year == max(as.numeric(year), na.rm = TRUE)],
+          delta = round((latest_value - earliest_value)/earliest_value, 4)
+        ) %>% 
+        mutate(new_labels = paste0(var_name, " \n(Change in CTF: ", delta , ")")) %>% 
+        ungroup()
+    }
+
     
     ## The year var should be character or factor
     data <- data %>% 
@@ -614,7 +630,7 @@ static_plot_dyn <-
     if (rank) {
       plot <-
         plot +
-        scale_x_continuous(
+        scale_y_continuous(
           breaks = c(0, 0.5, 1),
           labels = c("Worst ranked", "Middle of ranking","Top ranked")
         )
@@ -884,10 +900,11 @@ plot_notes_function <-
           "Notes:<br> ",
           
           str_wrap(
+            paste0(
             y,
             " compared to ",
             str_wrap(paste(z, collapse = ", "), note_chars),
-            ".",
+            "."),
             note_chars),
           custom_grp_notes
         )
