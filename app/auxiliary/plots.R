@@ -837,54 +837,9 @@ static_plot_dyn <-
   }
 
 
-
-interactive_plot <-
-  function(x, y, z, tab_name, buttons, miss_var, plot_type, custom_df) {
+plot_notes_function <-
+  function(y, z, tab_name, miss_var, plot_type, custom_df) {
     
-    if (length(miss_var) > 0) {
-      
-      ## Shel added "\n" to include line breaks in the notes
-      notes <-
-        paste0(
-          "Notes:\n\n",
-          y,
-          " compared to ",
-          str_wrap(paste(z, collapse = ", "), note_chars),
-          ".\n\nThe following indicators are not considered because base country has no information or because of low variance:\n",
-          str_wrap(paste(miss_var, collapse = ", "), note_chars),
-          "."
-        )
-      
-    }
-    
-    if (length(miss_var) == 0) {
-      
-      notes <-
-        paste0(
-          "Notes:\n ",
-          
-          str_wrap(
-          y,
-          " compared to ",
-          str_wrap(paste(z, collapse = ", "), note_chars),
-          ".",
-          note_chars)
-        )
-      
-    }
-    
-    if (tab_name == "Overview") {
-      notes <-
-        paste(
-          notes, note_chars,
-          "\nFamily-level closeness to frontier is calculated by taking the average closeness to frontier for all the latest available indicators in each family."
-        )
-    }
-    
-    
-    if(plot_type == "dynamic"){
-      notes = NULL
-    }
     
     if(!is.null(custom_df)){
       
@@ -895,18 +850,79 @@ interactive_plot <-
         distinct(note) %>% 
         pull() %>% 
         paste0(., collapse = " ; ") 
-   
+      
+      
+      custom_grp_notes <-
+        paste(
+          "<br><br>The countries that fall under each custom group are listed below:<br>",
+          str_wrap(custom_grp_notes, note_chars)
+          
+        )
+    }else{
+      custom_grp_notes <- ""
+    }
+    
+    
+    if (length(miss_var) > 0) {
+      
+      ## Shel added "<br>" to include line breaks in the notes
+      notes <-
+        paste0(
+          "Notes:<br><br>",
+          y,
+          " compared to ",
+          str_wrap(paste(z, collapse = ", "), note_chars),".",
+          custom_grp_notes,
+          "<br><br>The following indicators are not considered because base country has no information or because of low variance: ",
+          str_wrap(paste(miss_var, collapse = ", "), note_chars),
+          "."
+        )
+      
+    }
+    
+    if (length(miss_var) == 0) {
       
       notes <-
-        paste(
-          notes, 
-          "\n\nThe countries that fall under each custom group are listed below:\n",
-          str_wrap(custom_grp_notes, note_chars)
-
+        paste0(
+          "Notes:<br> ",
+          
+          str_wrap(
+            y,
+            " compared to ",
+            str_wrap(paste(z, collapse = ", "), note_chars),
+            ".",
+            note_chars),
+          custom_grp_notes
         )
+      
+    }
+    
+    
+
+    
+    
+    if (tab_name == "Overview") {
+      notes <-
+        paste(
+          notes, note_chars,
+          "<br><br>Family-level closeness to frontier is calculated by taking the average closeness to frontier for all the latest available indicators in each family."
+        )
+    }
+    
+    
+    if(plot_type == "dynamic"){
+      notes = NULL
     }
 
     
+   return(shiny::HTML(notes)) 
+    
+  }
+
+
+interactive_plot <-
+  function(x, tab_name, buttons,  plot_type) {
+
     x <- x +
       theme(
         legend.position = "top"
@@ -915,18 +931,18 @@ interactive_plot <-
     int_plot <- x %>%
       ggplotly(tooltip = "text") %>%
       layout(
-        margin = list(l = 50, r = 50, t = 75, b = 250),
-        annotations =
-          list(
-            x = -0.2,
-            y = -0.6,
-            text = shiny::HTML(notes),
-            showarrow = F,
-            xref = 'paper',
-            yref = 'paper',
-            align = 'left',
-            font = list(size = note_size)
-          )
+        margin = list(l = 50, r = 50, t = 75, b = 150)#,
+        # annotations =
+        #   list(
+        #     x = -0.2,
+        #     y = -0.6,
+        #     text = shiny::HTML(notes),
+        #     showarrow = F,
+        #     xref = 'paper',
+        #     yref = 'paper',
+        #     align = 'left',
+        #     font = list(size = note_size)
+        #   )
       ) %>%
       config(
         modeBarButtonsToRemove = buttons,

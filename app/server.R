@@ -980,13 +980,9 @@ server <- function(input, output, session) {
                 preset_order = input$preset_order
               ) %>%
               interactive_plot(
-                base_country(),
-                note_compare(),
                 input$family,
                 plotly_remove_buttons,
-                missing_variables,
-                "static",
-                custom_df = custom_df()
+                "static"
               )
           } else {
             missing_variables <-
@@ -1021,13 +1017,9 @@ server <- function(input, output, session) {
                 preset_order = input$preset_order
               ) %>%
               interactive_plot(
-                base_country(),
-                note_compare(),
                 input$family,
                 plotly_remove_buttons,
-                missing_variables,
-                "static",
-                custom_df = custom_df()
+                "static"
               )
           }
         )
@@ -1038,6 +1030,87 @@ server <- function(input, output, session) {
     input$show_dynamic_plot, input$threshold, input$countries) %>%
   bindEvent(input$select)
 
+  output$plot_notes <- renderUI({
+
+    if (length(input$countries) >= 10) {
+      
+      input$select
+      
+      
+      ## Important!
+      ## Shel added custom_df as an argument in the static_plot function to accommodate the custom groups
+      
+      
+      isolate(
+        
+        
+        if (input$family == "Overview") {
+          missing_variables <-
+            global_data %>%
+            missing_var(
+              base_country(),
+              country_list,
+              input$countries,
+              vars_all,
+              variable_names
+            )
+          
+          low_variance_variables <-
+            low_variance_indicators() %>%
+            data.frame() %>%
+            rename("variable" = ".") %>%
+            left_join(variable_names %>% select(variable, var_name), by = "variable") %>%
+            .$var_name
+          
+          missing_variables <- c(missing_variables, low_variance_variables)
+          
+          plot_notes_function(
+            base_country(),
+            note_compare(),
+            input$family,
+            missing_variables,
+            "static",
+            custom_df = custom_df()
+            
+          )
+          
+        } else {
+          missing_variables <-
+            global_data %>%
+            missing_var(
+              base_country(),
+              country_list,
+              input$countries,
+              vars(),
+              variable_names
+            )
+          
+          low_variance_variables <-
+            low_variance_indicators() %>%
+            data.frame() %>%
+            rename("variable" = ".") %>%
+            left_join(variable_names %>% select(variable, var_name), by = "variable") %>%
+            .$var_name
+          
+          missing_variables <- c(missing_variables, low_variance_variables)
+          
+          plot_notes_function(
+            base_country(),
+            note_compare(),
+            input$family,
+            missing_variables,
+            "static",
+            custom_df = custom_df()
+            
+          )
+        }
+      )
+    }
+    
+
+    
+  })
+  
   ## End of benchmark tab ----------------------
 
   ## Dynamic benchmark plot  ============================================================
@@ -1103,13 +1176,9 @@ server <- function(input, output, session) {
                 preset_order = input$preset_order
               )%>%
               interactive_plot(
-                base_country(),
-                note_compare(),
                 input$family,
                 plotly_remove_buttons,
-                missing_variables,
-                "dynamic",
-                custom_df = custom_df()
+                "dynamic"
               )
           } else {
             
@@ -1146,13 +1215,9 @@ server <- function(input, output, session) {
                 preset_order = input$preset_order
               ) %>%
               interactive_plot(
-                base_country(),
-                note_compare(),
                 input$family,
                 plotly_remove_buttons,
-                missing_variables,
-                "dynamic",
-                custom_df = custom_df()
+                "dynamic"
               )
             
           }

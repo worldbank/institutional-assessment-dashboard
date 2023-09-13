@@ -69,6 +69,11 @@ ui <-
         max-height: 800px;
         overflow-y: auto;
         
+       }
+        
+        
+        .shiny-html-output.shiny-bound-output{
+            text-align: justify;
         }
         "
       )),
@@ -410,8 +415,30 @@ ui <-
                   ) %>% shinycssloaders::withSpinner(color = "#051f3f", type = 8)
                 )
 
-              )
+              ),
+              fluidRow(
+                shinyWidgets:: materialSwitch(
+                  inputId = "show_plot_notes",
+                  label = "Show notes",
+                  status = "success",
+                  value = FALSE
+                )
+              ),
+              
+              conditionalPanel(
+                "input.show_plot_notes !== false",
+                
+              fluidRow(
+                
+                column(
+                  width = 12,
+                  htmlOutput(
+                    "plot_notes"
+                  )
+                )
 
+            )
+              )
             )
 
           ),
