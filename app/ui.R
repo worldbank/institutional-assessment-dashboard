@@ -317,7 +317,7 @@ ui <-
                 
                 prettyCheckbox(
                   inputId = "preset_order",
-                  label = "Use preset ranking order",
+                  label = "Rank indicators from best to worst",
                   value = FALSE,
                   icon = icon("check"),
                   status = "success"

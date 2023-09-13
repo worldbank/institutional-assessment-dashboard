@@ -41,6 +41,17 @@ static_plot <-
     
     if(preset_order == TRUE){
       
+      ## temporary
+      data$var_name <-
+        factor(
+          data$var_name,
+          levels = sort(unique(data$var_name),
+            decreasing = TRUE),
+          ordered = TRUE
+        )
+      
+    }else{
+
       data <- data %>% 
         left_join(., db_variables %>% select(variable, rank_id),
           by = "variable")
@@ -57,14 +68,6 @@ static_plot <-
           ordered = TRUE
         )
       
-    }else{
-      data$var_name <-
-        factor(
-          data$var_name,
-          levels = sort(unique(data$var_name),
-                        decreasing = TRUE),
-          ordered = TRUE
-        )
     }
 
 
@@ -430,27 +433,18 @@ static_plot_dyn <-
     
     if(preset_order == TRUE){
       
-      data <- data %>% 
-        left_join(., db_variables %>% select(variable, rank_id),
-          by = "variable") %>% 
-        group_by(family_var) %>% 
-        arrange(desc(rank_id)) %>% 
-        ungroup()
-      
-      unique_indicators = data %>% 
-        distinct(var_name, rank_id) %>% 
-        arrange(desc(rank_id)) %>% 
-        pull(var_name)
-      
+      ## temporary placeholder
       data$var_name <-
         factor(
           data$var_name,
-          levels = unique_indicators,
+          levels = sort(unique(data$var_name),
+            decreasing = TRUE),
           ordered = TRUE
         )
       
-      
     }else{
+
+      ## temporary placeholder
       data$var_name <-
         factor(
           data$var_name,
@@ -549,6 +543,9 @@ static_plot_dyn <-
       mutate(new_labels = paste0(var_name, " (Delta: ", delta , ")")) %>% 
       ungroup()
     
+    ## The year var should be character or factor
+    data <- data %>% 
+      mutate(year = as.character(year))
     
     ## Percentile segments
     plot <-
@@ -804,8 +801,8 @@ static_plot_dyn <-
     ## Facet the plot
 
     ### number of columns will depend on the number of variables  
-    n_col = ifelse(length(unique(data$var_name)) <= 3, 1, 
-      ifelse(between(length(unique(data$var_name)), 4, 10), 2, 3))
+    n_col = ifelse(length(unique(data$var_name)) <= 3, 1, 2)
+      
     
     # sc = ifelse(length(unique(data$var_name)) <= 6, "free_x", "fixed")
     sc = "free_x"
@@ -854,7 +851,7 @@ plot_notes_function <-
       
       custom_grp_notes <-
         paste(
-          "<br><br>The countries that fall under each custom group are listed below:<br>",
+          "<br>",
           str_wrap(custom_grp_notes, note_chars)
           
         )

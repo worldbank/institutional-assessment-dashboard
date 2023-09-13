@@ -1124,6 +1124,7 @@ server <- function(input, output, session) {
       input$benchmark_dots,
       input$create_custom_grps,
       input$threshold,
+      input$preset_order,
       input$countries  ), {
     
     shinyWidgets::updateMaterialSwitch(
@@ -1141,7 +1142,7 @@ server <- function(input, output, session) {
       if (length(input$countries) >= 10) {
         
         input$select
-        
+
         isolate(
           if (input$family == "Overview") {
             missing_variables <-
