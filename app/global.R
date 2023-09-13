@@ -55,8 +55,8 @@ generate_random_sequence <- function(length) {
 
 db_variables<-db_variables %>% 
   group_by(family_var) %>% 
-  mutate(rank_id = generate_random_sequence(n()))%>%
-  ungroup 
+  mutate(rank_id = generate_random_sequence(n())) %>% 
+  ungroup()
 
 source(here("auxiliary", "vars-control.R"))
 
