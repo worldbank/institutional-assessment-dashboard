@@ -544,9 +544,22 @@ static_plot_dyn <-
           latest_value = nrank[year == max(as.numeric(year), na.rm = TRUE)],
           delta = (latest_value - earliest_value)/earliest_value
         )%>% 
-        mutate(new_labels = paste0(var_name, 
-          " \n(Change in Percentile Rank: ", "from ",earliest_value ," to ",latest_value , ")")) %>% 
+        mutate(new_labels = 
+            ifelse(earliest_value != latest_value, 
+              paste0(var_name, 
+                " \n\n(Change in Percentile Rank: ", "from ",earliest_value ," to ",latest_value , ")"
+                ), 
+              paste0(var_name, 
+                " \n\n(No significant change in Percentile Rank)"
+              )
+              )
+            
+            ) %>% 
         ungroup()
+      
+      
+      
+      
     }else{
       data <- data %>% 
         group_by(country_name, var_name) %>% 
@@ -821,7 +834,7 @@ static_plot_dyn <-
       
     
     # sc = ifelse(length(unique(data$var_name)) <= 6, "free_x", "fixed")
-    sc = "free_x"
+    sc = "free"
     
     ### instead of having the var name as the titles, we want to append the delta on it.
     ### Delta was calculated at the beginning before any plot was generated
@@ -945,7 +958,7 @@ interactive_plot <-
     int_plot <- x %>%
       ggplotly(tooltip = "text") %>%
       layout(
-        margin = list(l = 50, r = 50, t = 75, b = 150)#,
+        margin = list(l = 50, r = 50, t = 150, b = 150)#,
         # annotations =
         #   list(
         #     x = -0.2,

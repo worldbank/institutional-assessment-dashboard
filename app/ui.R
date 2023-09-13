@@ -66,7 +66,7 @@ ui <-
       /* Make the dynamic dashboard scrollable */
                       
        #shiny-tab-benchmark > div:nth-child(4) > div{
-        max-height: 800px;
+        max-height: 600px;
         overflow-y: auto;
         
        }
