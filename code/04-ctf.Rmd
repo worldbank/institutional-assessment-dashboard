@@ -1,0 +1,460 @@
+# Calculate distance to frontier
+
+NOTE: We have to add the dynamic benchmarking that Shel has designed for us.
+
+- Inputs:
+  - `data/output/compiled_indicators.rds`
+  - `data/outut/country_list.rds`
+  - `data/output/db_variables.rds`
+      
+- Outputs:
+ - `data/output/closeness_to_frontier.rds`
+ - `data/output/closeness_to_frontier_long.rds`
+ - `data/output/closeness_to_frontier_dynamic.rds`
+ - `data/output/closeness_to_frontier_dynamic_long.rds`
+
+## Calculate global closeness to frontier
+
+Closeness to frontier (CTF) is global, meaning that we identify the worst and best performance in the full sample (all countries). For each indicator $i$, we compare the last available value of indicator $i$ with the worst and best
+performance for indicator $i$ among all countries and in the last $y$ years (2013 - most recent data).^[In [the doing business report](https://www.doingbusiness.org/content/dam/doingBusiness/media/Annual-Reports/English/DB17-Chapters/DB17-DTF-and-DBRankings.pdf) they consider the last 5 years, but here for some indicators we have shorter time series].
+
+
+1. Keep only data from after 2013
+
+Ideally, this will use data for the last 7 years in any given year
+
+```{r}
+cliar_indicators <-
+  read_rds(
+    here(
+      "data",
+      "output",
+      "compiled_indicators.rds"
+    )
+  ) %>%
+  # we need to verify what we are doing with the cut-off points
+  filter(
+    year >= 2013
+  )
+
+country_list <- read_rds(
+  here(
+    "data",
+    "output",
+    "wb_country_list.rds"
+  )
+)
+
+db_variables <- read_rds(
+  here(
+    "data",
+    "output",
+    "db_variables.rds"
+  )
+)
+
+vars_ctf <- db_variables |> 
+  filter(
+    benchmarked_ctf == "Yes"
+  ) |> 
+  pull(variable)
+```
+
+2. Rescale indicators so a higher number denotes stronger institutions
+
+```{r}
+cliar_indicators_rescaled <- cliar_indicators |> 
+  mutate(
+    # V-DEM: corruption
+    # PRM indicators: Countries are graded between 0 (less control/involvement) and 6 (more control/involvement). 
+    # Methodological note for PRM indicates that 1998 and 2013 indicators are comparable, 
+    # but not with 2018 due to change in methodology, so we only retain post-2018 data.
+    across(
+      c(
+        starts_with("oecd_pmr")
+      ),
+      ~ ifelse(year < 2018, NA, 6 - .x)
+    ),
+    # Enterprise Survey: Percent Of Firms Identifying X As A Major Constraint
+    across(
+      c(starts_with("wb_enterprisesurveys")),
+      ~ 100 - .
+    ),
+    # Freedom house: Countries are graded between 1 (most free) and 7 (least free)
+    across(
+      c(starts_with("fh_fiw")),
+      ~ (8 - .x)
+    )
+  )
+
+```
+
+
+3. Calculate country-level average for each indicator
+
+For the static benchmark, we only calculate averages for indicators starting in the year 2018.
+
+```{r}
+country_average <-
+  cliar_indicators_rescaled %>%
+  filter(year >= 2013) |> 
+  group_by(
+    country_code
+  ) %>%
+  summarise(
+    across(
+      all_of(c(vars_ctf, "wdi_nygdppcapppkd")),
+      ~ mean(., na.rm = TRUE)
+    )
+  )
+```
+
+4. Identify worst and best performance for each indicator
+
+```{r}
+# static
+min_max <-
+  cliar_indicators_rescaled %>%
+  filter(year >= 2013) |> 
+  summarise(
+    across(
+      all_of(vars_ctf),
+      list(
+        min = ~ min(., na.rm = TRUE),
+        max = ~ max(., na.rm = TRUE)
+      ),
+      .names="{.col}-{.fn}"
+    )
+  ) %>%
+  pivot_longer(
+    everything(),
+    names_to = c("variable", ".value"),
+    names_pattern = "(.*)-(.*)"
+  )
+
+# dynamic: note that there are quite a few cases of Infinite warnings (due to missingness)
+min_max_dynamic <- cliar_indicators_rescaled %>%
+  group_by(year) %>% 
+  summarise(
+    across(
+      all_of(vars_ctf),
+      list(
+        min = ~ min(., na.rm = TRUE),
+        max = ~ max(., na.rm = TRUE)
+      ),
+      .names="{.col}-{.fn}"
+    )
+  ) %>%
+  pivot_longer(
+    -year, 
+    names_to = c("variable", ".value"),
+    names_pattern = "(.*)-(.*)"
+  ) %>% 
+  filter(!is.infinite(min) & !is.infinite(max))
+```
+
+5. Calculate closeness to frontier at indicator level
+
+```{r}
+ctf <-
+  country_average %>%
+  pivot_longer(
+    all_of(vars_ctf),
+    names_to = "variable"
+  ) %>%
+  left_join(
+    min_max,
+    by = "variable"
+  ) %>%
+  mutate(
+    ctf = (min - value) / (min - max),
+    ctf = ifelse(
+      ctf == 0,
+      0.01,
+      ctf
+    )
+  ) %>%
+  pivot_wider(
+    id_cols = c("country_code"),
+    names_from = "variable",
+    values_from = "ctf"
+  ) %>%
+  select(-starts_with("gdp")) %>%
+  left_join(
+    country_average %>%
+      select(country_code)
+  )
+
+ctf_dynamic <-
+  cliar_indicators_rescaled %>%
+  pivot_longer(
+    all_of(vars_ctf),
+    names_to = "variable"
+  ) %>%
+  left_join(
+    min_max_dynamic,
+    by = c("year", "variable")
+  ) %>%
+  mutate(
+    ctf_dyn = (min - value) / (min - max),
+    ctf_dyn = ifelse(
+      ctf_dyn == 0,
+      0.01,
+      ctf_dyn
+    )
+  ) %>%
+  pivot_wider(
+    id_cols = c("country_code", "year"),
+    names_from = "variable",
+    values_from = "ctf_dyn"
+  ) %>%
+  left_join(
+    cliar_indicators_rescaled %>%
+      select(country_code, year)
+  )
+```
+
+## Calculate median per group
+
+```{r}
+group_ctf <-
+  country_list %>%
+  left_join(
+    ctf,
+    by = "country_code"
+  ) %>%
+  group_by(
+    group_code, group
+  ) %>%
+  summarise(
+    across(
+      c(all_of(vars_ctf)),
+      ~ median(., na.rm = TRUE)
+    )     
+  ) %>%
+  filter(!is.na(group)) %>%
+  rename(
+    country_name = group,
+    country_code = group_code
+  )
+
+group_ctf_dynamic <- country_list %>%
+  left_join(
+    ctf_dynamic,
+    by = "country_code",
+   
+  ) %>%
+  group_by(
+    group_code, group, year
+  ) %>%
+  summarise(
+    across(
+      c(all_of(vars_ctf)),
+      ~ median(., na.rm = TRUE)
+    )     
+  ) %>%
+  filter(!is.na(group)) %>%
+  rename(
+    country_name = group,
+    country_code = group_code
+  ) 
+
+# static
+ctf <- tibble::add_column(ctf,country_group = 0,.after = 'country_code')
+group_ctf <- tibble::add_column(group_ctf,country_group=1,.after = 'country_code')
+
+# dynamic
+ctf_dynamic <- add_column(ctf_dynamic, country_group = 0,.after = 'country_code')
+group_ctf_dynamic <- add_column(group_ctf_dynamic, country_group=1,.after = 'country_code')
+```
+
+## Clean CTF data and incorporate logged GDP per capita
+
+```{r}
+# static
+ctf_clean <-
+  ctf %>%
+  # add country codes and names
+  left_join(
+    country_list |> distinct(country_code, country_name),
+    by = c("country_code")
+  ) |> 
+  # add gdp per capita (PPP) data
+  # use average value (as in legacy ctf)
+  left_join(
+    country_average |> select(country_code, wdi_nygdppcapppkd),
+    by = c("country_code")
+  ) |> 
+  # rename and transform gdp per capita to log
+  mutate(
+    log_gdp = log(wdi_nygdppcapppkd)
+  ) |> 
+  bind_rows(group_ctf) %>%
+  ungroup %>%
+  arrange(country_name) |> 
+  select(
+    country_code,
+    country_name,
+    everything()
+  )
+
+# dynamic
+ctf_dynamic_clean <-
+  ctf_dynamic %>%
+  # add country codes and names
+  left_join(
+    country_list |> distinct(country_code, country_name),
+    by = c("country_code")
+  ) |> 
+  # add gdp per capita (PPP) data
+  left_join(
+    cliar_indicators |> select(country_code, year, wdi_nygdppcapppkd),
+    by = c("country_code", "year")
+  ) |> 
+  # rename and transform gdp per capita to log
+  mutate(
+    log_gdp = log(wdi_nygdppcapppkd)
+  ) |> 
+  bind_rows(group_ctf) %>%
+  ungroup %>%
+  arrange(country_name) |> 
+  select(
+    country_code,
+    country_name,
+    everything()
+  )
+```
+
+## Convert to long-form
+
+```{r}
+# static
+ctf_long <-
+  ctf_clean %>%
+  pivot_longer(
+    all_of(vars_ctf),
+    names_to = "variable"
+  ) %>%
+  select(-contains("gdp")) %>%
+  left_join(
+    db_variables %>%
+      select(variable, var_name, family_name, family_var),
+    by = "variable"
+  ) %>%
+  left_join(
+    country_list %>%
+      select(country_code, group),
+    by = "country_code",
+
+  )
+
+ctf_long_clean <-
+  ctf_long %>%
+  group_by(family_name, family_var, country_name, country_code, group) %>%
+  summarise(value = median(value, na.rm = TRUE)) %>%
+  ungroup %>%
+  mutate(
+    variable = family_var,
+    var_name = family_name
+  ) %>%
+  bind_rows(ctf_long)
+
+# dynamic
+ctf_dynamic_long <-
+  ctf_dynamic_clean %>%
+  pivot_longer(
+    all_of(vars_ctf),
+    names_to = "variable"
+  ) %>%
+  select(-contains("gdp")) %>%
+  left_join(
+    db_variables %>%
+      select(variable, var_name, family_name, family_var)
+  ) %>%
+  left_join(
+    country_list %>%
+      select(country_code, group),
+    by = "country_code",
+
+  )
+
+ctf_dynamic_long_clean <-
+  ctf_dynamic_long %>%
+  group_by(family_name, family_var, country_name, country_code, country_group, group, year) %>%
+  summarise(value = median(value, na.rm = TRUE)) %>%
+  ungroup %>%
+  mutate(
+    variable = family_var,
+    var_name = family_name
+  ) %>%
+  bind_rows(ctf_dynamic_long)
+```
+
+## Data Quality Control
+```{r}
+test_that(
+  "All countries are covered", {
+  expect_setequal(
+    ctf_clean |> filter(country_group == 0) |> distinct(country_code) |> pull(),
+    country_list |> distinct(country_code) |> pull()
+  )
+  expect_setequal(
+    ctf_dynamic_clean |> filter(country_group == 0) |> distinct(country_code) |> pull(),
+    country_list |> distinct(country_code) |> pull()
+  )
+  }
+)
+
+test_that(
+  "All indicators are covered",{
+    expect_setequal(
+    ctf_clean |> colnames() |> str_subset("year|country|gdp", negate = TRUE),
+    vars_ctf
+    )
+    expect_setequal(
+      ctf_dynamic_clean |> colnames() |> str_subset("year|country|gdp", negate = TRUE),
+      vars_ctf
+    )
+  }
+)
+```
+
+## Write-out data.
+
+```{r}
+write_rds(
+  ctf_clean,
+  here(
+    "data",
+    "output",
+    "closeness_to_frontier.rds"
+  )
+)
+
+write_rds(
+  ctf_long_clean,
+  here( 
+    "data",
+    "output",
+    "closeness_to_frontier_long.rds"
+  )
+)
+
+write_rds(
+  ctf_dynamic_clean,
+  here(
+    "data",
+    "output",
+    "closeness_to_frontier_dynamic.rds"
+  )
+)
+
+write_rds(
+  ctf_dynamic_long_clean,
+  here( 
+    "data",
+    "output",
+    "closeness_to_frontier_dynamic_long.rds"
+  )
+)
+```
