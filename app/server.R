@@ -909,6 +909,7 @@ server <- function(input, output, session) {
     eventReactive(
       input$select,
       {
+        
         family_data(
           global_data,
           base_country(),
@@ -939,7 +940,6 @@ server <- function(input, output, session) {
       if (length(input$countries) >= 10) {
         
         input$select
-
         
         ## Important!
         ## Shel added custom_df as an argument in the static_plot function to accommodate the custom groups
@@ -1035,7 +1035,7 @@ server <- function(input, output, session) {
     if (length(input$countries) >= 10) {
       
       input$select
-      
+    
       
       ## Important!
       ## Shel added custom_df as an argument in the static_plot function to accommodate the custom groups

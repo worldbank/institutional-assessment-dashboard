@@ -20,6 +20,7 @@ family_data <- function(data, base_country, variable_names) {
                  names_to = "variable") %>%
     left_join(variable_names,
               by = "variable") %>%
+    filter(!variable %in% grep("_avg", variable, value = T)) %>% 
     group_by(country_name, family_var) %>%
     summarise(value = mean(value, na.rm = TRUE)) %>%
     mutate(
@@ -52,6 +53,7 @@ family_data_dyn <- function(data, base_country, variable_names) {
       names_to = "variable") %>%
     left_join(variable_names,
       by = c("variable")) %>%
+    filter(!variable %in% grep("_avg", variable, value = T)) %>% 
     group_by(country_name, family_var, year) %>%
     summarise(value = mean(value, na.rm = TRUE)) %>%
     mutate(

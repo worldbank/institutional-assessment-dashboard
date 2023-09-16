@@ -37,7 +37,7 @@ static_plot <-
     {
       cutoff<-c(33,66)
     }
-    
+
     
     if(preset_order == TRUE){
       
@@ -49,7 +49,7 @@ static_plot <-
             decreasing = TRUE),
           ordered = TRUE
         )
-      
+      data$var_name = data$var_name
     }else{
 
       data <- data %>% 
@@ -67,7 +67,6 @@ static_plot <-
           levels = unique_indicators,
           ordered = TRUE
         )
-      
     }
 
 

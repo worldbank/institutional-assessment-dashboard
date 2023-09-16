@@ -35,6 +35,7 @@ db_variables <-
     )
   )
 
+
 ## temporarily clean the family names
 
 db_variables <- db_variables %>% 
@@ -56,7 +57,26 @@ generate_random_sequence <- function(length) {
 db_variables<-db_variables %>% 
   group_by(family_var) %>% 
   mutate(rank_id = generate_random_sequence(n())) %>% 
-  ungroup()
+  ungroup() %>% 
+  mutate(rank_id = rank_id + 1)
+
+
+
+## add family level vars
+family_level_vars <- db_variables %>% 
+  distinct(family_var, family_name) %>% 
+  rowwise() %>% 
+  mutate(variable = paste0(family_var, "_avg"),
+    var_name = paste0(family_name, " Average"),
+    var_level = "indicator" )
+
+db_variables <- db_variables %>% 
+  bind_rows(family_level_vars) %>% 
+  arrange(family_var) %>% 
+  mutate(rank_id = ifelse(variable %in% grep("_med", variable, value = T), 
+    1, rank_id)) %>% 
+  arrange(family_var, rank_id)
+
 
 source(here("auxiliary", "vars-control.R"))
 

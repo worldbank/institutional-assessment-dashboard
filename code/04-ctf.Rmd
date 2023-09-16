@@ -53,21 +53,21 @@ db_variables <- read_rds(
   )
 )
 
-vars_ctf <- db_variables |> 
+vars_ctf <- db_variables |>
   filter(
     benchmarked_ctf == "Yes"
-  ) |> 
+  ) |>
   pull(variable)
 ```
 
 2. Rescale indicators so a higher number denotes stronger institutions
 
 ```{r}
-cliar_indicators_rescaled <- cliar_indicators |> 
+cliar_indicators_rescaled <- cliar_indicators |>
   mutate(
     # V-DEM: corruption
-    # PRM indicators: Countries are graded between 0 (less control/involvement) and 6 (more control/involvement). 
-    # Methodological note for PRM indicates that 1998 and 2013 indicators are comparable, 
+    # PRM indicators: Countries are graded between 0 (less control/involvement) and 6 (more control/involvement).
+    # Methodological note for PRM indicates that 1998 and 2013 indicators are comparable,
     # but not with 2018 due to change in methodology, so we only retain post-2018 data.
     across(
       c(
@@ -86,7 +86,6 @@ cliar_indicators_rescaled <- cliar_indicators |>
       ~ (8 - .x)
     )
   )
-
 ```
 
 
@@ -97,7 +96,7 @@ For the static benchmark, we only calculate averages for indicators starting in 
 ```{r}
 country_average <-
   cliar_indicators_rescaled %>%
-  filter(year >= 2013) |> 
+  filter(year >= 2013) |>
   group_by(
     country_code
   ) %>%
@@ -115,7 +114,7 @@ country_average <-
 # static
 min_max <-
   cliar_indicators_rescaled %>%
-  filter(year >= 2013) |> 
+  filter(year >= 2013) |>
   summarise(
     across(
       all_of(vars_ctf),
@@ -123,7 +122,7 @@ min_max <-
         min = ~ min(., na.rm = TRUE),
         max = ~ max(., na.rm = TRUE)
       ),
-      .names="{.col}-{.fn}"
+      .names = "{.col}-{.fn}"
     )
   ) %>%
   pivot_longer(
@@ -134,7 +133,7 @@ min_max <-
 
 # dynamic: note that there are quite a few cases of Infinite warnings (due to missingness)
 min_max_dynamic <- cliar_indicators_rescaled %>%
-  group_by(year) %>% 
+  group_by(year) %>%
   summarise(
     across(
       all_of(vars_ctf),
@@ -142,14 +141,14 @@ min_max_dynamic <- cliar_indicators_rescaled %>%
         min = ~ min(., na.rm = TRUE),
         max = ~ max(., na.rm = TRUE)
       ),
-      .names="{.col}-{.fn}"
+      .names = "{.col}-{.fn}"
     )
   ) %>%
   pivot_longer(
-    -year, 
+    -year,
     names_to = c("variable", ".value"),
     names_pattern = "(.*)-(.*)"
-  ) %>% 
+  ) %>%
   filter(!is.infinite(min) & !is.infinite(max))
 ```
 
@@ -230,7 +229,7 @@ group_ctf <-
     across(
       c(all_of(vars_ctf)),
       ~ median(., na.rm = TRUE)
-    )     
+    )
   ) %>%
   filter(!is.na(group)) %>%
   rename(
@@ -238,11 +237,15 @@ group_ctf <-
     country_code = group_code
   )
 
+# static
+ctf <- tibble::add_column(ctf, country_group = 0, .after = "country_code")
+group_ctf <- tibble::add_column(group_ctf, country_group = 1, .after = "country_code")
+
+
 group_ctf_dynamic <- country_list %>%
   left_join(
     ctf_dynamic,
     by = "country_code",
-   
   ) %>%
   group_by(
     group_code, group, year
@@ -251,21 +254,18 @@ group_ctf_dynamic <- country_list %>%
     across(
       c(all_of(vars_ctf)),
       ~ median(., na.rm = TRUE)
-    )     
+    )
   ) %>%
   filter(!is.na(group)) %>%
   rename(
     country_name = group,
     country_code = group_code
-  ) 
+  )
 
-# static
-ctf <- tibble::add_column(ctf,country_group = 0,.after = 'country_code')
-group_ctf <- tibble::add_column(group_ctf,country_group=1,.after = 'country_code')
 
 # dynamic
-ctf_dynamic <- add_column(ctf_dynamic, country_group = 0,.after = 'country_code')
-group_ctf_dynamic <- add_column(group_ctf_dynamic, country_group=1,.after = 'country_code')
+ctf_dynamic <- add_column(ctf_dynamic, country_group = 0, .after = "country_code")
+group_ctf_dynamic <- add_column(group_ctf_dynamic, country_group = 1, .after = "country_code")
 ```
 
 ## Clean CTF data and incorporate logged GDP per capita
@@ -278,20 +278,20 @@ ctf_clean <-
   left_join(
     country_list |> distinct(country_code, country_name),
     by = c("country_code")
-  ) |> 
+  ) |>
   # add gdp per capita (PPP) data
   # use average value (as in legacy ctf)
   left_join(
     country_average |> select(country_code, wdi_nygdppcapppkd),
     by = c("country_code")
-  ) |> 
+  ) |>
   # rename and transform gdp per capita to log
   mutate(
     log_gdp = log(wdi_nygdppcapppkd)
-  ) |> 
+  ) |>
   bind_rows(group_ctf) %>%
-  ungroup %>%
-  arrange(country_name) |> 
+  ungroup() %>%
+  arrange(country_name) |>
   select(
     country_code,
     country_name,
@@ -305,25 +305,26 @@ ctf_dynamic_clean <-
   left_join(
     country_list |> distinct(country_code, country_name),
     by = c("country_code")
-  ) |> 
+  ) |>
   # add gdp per capita (PPP) data
   left_join(
     cliar_indicators |> select(country_code, year, wdi_nygdppcapppkd),
     by = c("country_code", "year")
-  ) |> 
+  ) |>
   # rename and transform gdp per capita to log
   mutate(
     log_gdp = log(wdi_nygdppcapppkd)
-  ) |> 
+  ) |>
   bind_rows(group_ctf) %>%
-  ungroup %>%
-  arrange(country_name) |> 
+  ungroup() %>%
+  arrange(country_name) |>
   select(
     country_code,
     country_name,
     everything()
   )
 ```
+
 
 ## Convert to long-form
 
@@ -345,14 +346,13 @@ ctf_long <-
     country_list %>%
       select(country_code, group),
     by = "country_code",
-
   )
 
 ctf_long_clean <-
   ctf_long %>%
-  group_by(family_name, family_var, country_name, country_code, group) %>%
+  group_by(family_name, family_var, country_name, country_code, group, country_group) %>%
   summarise(value = median(value, na.rm = TRUE)) %>%
-  ungroup %>%
+  ungroup() %>%
   mutate(
     variable = family_var,
     var_name = family_name
@@ -375,14 +375,13 @@ ctf_dynamic_long <-
     country_list %>%
       select(country_code, group),
     by = "country_code",
-
   )
 
 ctf_dynamic_long_clean <-
   ctf_dynamic_long %>%
   group_by(family_name, family_var, country_name, country_code, country_group, group, year) %>%
   summarise(value = median(value, na.rm = TRUE)) %>%
-  ungroup %>%
+  ungroup() %>%
   mutate(
     variable = family_var,
     var_name = family_name
@@ -390,29 +389,123 @@ ctf_dynamic_long_clean <-
   bind_rows(ctf_dynamic_long)
 ```
 
+## Calculate family level data
+
+### Static
+
+```{r}
+ctf_long_clean_family_level <- ctf_long_clean %>%
+  distinct(family_name, family_var, country_name, country_code,
+    group, variable, var_name, country_group,
+    .keep_all = TRUE
+  ) %>%
+  group_by(
+    family_name, family_var, country_name, country_code,
+    country_group
+  ) %>%
+  summarise(value = mean(value[family_name != var_name], na.rm = TRUE)) %>%
+  rowwise() %>%
+  mutate(
+    variable = paste0(family_var, "_avg"),
+    var_name = (paste0(family_name, " Median"))
+  ) %>%
+  left_join(ctf_long_clean %>%
+    distinct(
+      family_name, family_var, country_name,
+      country_code, group, country_group
+    )) %>%
+  ungroup()
+
+## Attach this to ctf_long_clean
+ctf_long_clean <- ctf_long_clean %>%
+  bind_rows(ctf_long_clean_family_level) %>%
+  arrange(
+    family_name, family_var, country_name, country_code,
+    group, variable, var_name
+  )
+
+## Convert it to wide format and attach it to ctf_clean
+ctf_clean <- ctf_long_clean_family_level %>%
+  select(-group) %>%
+  distinct() %>%
+  select(-family_name, -family_var, -var_name) %>%
+  mutate(value = ifelse(is.nan(value), NA, value)) %>%
+  pivot_wider(names_from = "variable", values_from = "value") %>%
+  full_join(ctf_clean, ., by = c("country_code", "country_name", "country_group"))
+```
+
+### Dynamic
+
+```{r}
+ctf_dynamic_long_clean_family_level <- ctf_dynamic_long_clean %>%
+  distinct(family_name, family_var, country_name, country_code,
+    group, variable, var_name,  year, country_group,
+    .keep_all = TRUE
+  ) %>%
+  group_by(
+    family_name, family_var, country_name, country_code,
+    country_group, year
+  ) %>%
+  summarise(value = mean(value[family_name != var_name], na.rm = TRUE)) %>%
+  rowwise() %>%
+  mutate(
+    variable = paste0(family_var, "_avg"),
+    var_name = (paste0(family_name, " Median"))
+  ) %>%
+  left_join(ctf_dynamic_long_clean %>%
+    distinct(
+      family_name, family_var, country_name,
+      country_code, group, year, country_group
+    )) %>%
+  ungroup()
+
+## Attach this to ctf_dynamic_long_clean
+ctf_dynamic_long_clean <- ctf_dynamic_long_clean %>%
+  bind_rows(ctf_dynamic_long_clean_family_level) %>%
+  arrange(
+    family_name, family_var, country_name, country_code,
+    group,year, variable, var_name
+  )
+
+## Convert it to wide format and attach it to ctf_dynamic_clean
+ctf_dynamic_clean <- ctf_dynamic_long_clean_family_level %>%
+  select(-group) %>%
+  distinct() %>%
+  select(-family_name, -family_var, -var_name) %>%
+  mutate(value = ifelse(is.nan(value), NA, value)) %>%
+  pivot_wider(names_from = "variable", values_from = "value") %>%
+  full_join(ctf_dynamic_clean, ., by = c("country_code", "country_name", "country_group", "year"))
+
+
+```
+
+
 ## Data Quality Control
 ```{r}
 test_that(
-  "All countries are covered", {
-  expect_setequal(
-    ctf_clean |> filter(country_group == 0) |> distinct(country_code) |> pull(),
-    country_list |> distinct(country_code) |> pull()
-  )
-  expect_setequal(
-    ctf_dynamic_clean |> filter(country_group == 0) |> distinct(country_code) |> pull(),
-    country_list |> distinct(country_code) |> pull()
-  )
+  "All countries are covered",
+  {
+    expect_setequal(
+      ctf_clean |> filter(country_group == 0) |> distinct(country_code) |> pull(),
+      country_list |> distinct(country_code) |> pull()
+    )
+    expect_setequal(
+      ctf_dynamic_clean |> filter(country_group == 0) |> distinct(country_code) |> pull(),
+      country_list |> distinct(country_code) |> pull()
+    )
   }
 )
 
 test_that(
-  "All indicators are covered",{
+  "All indicators are covered",
+  {
+    ## Shel added _avg to the pattern to take care of the new family level indicators (that all have an _avg suffix)
     expect_setequal(
-    ctf_clean |> colnames() |> str_subset("year|country|gdp", negate = TRUE),
-    vars_ctf
+      ctf_clean |> colnames() |> str_subset("year|country|gdp|_avg$", negate = TRUE),
+      vars_ctf
     )
     expect_setequal(
-      ctf_dynamic_clean |> colnames() |> str_subset("year|country|gdp", negate = TRUE),
+      ctf_dynamic_clean |> colnames() |> str_subset("year|country|gdp|_avg$", negate = TRUE),
       vars_ctf
     )
   }
@@ -433,7 +526,7 @@ write_rds(
 
 write_rds(
   ctf_long_clean,
-  here( 
+  here(
     "data",
     "output",
     "closeness_to_frontier_long.rds"
@@ -451,7 +544,7 @@ write_rds(
 
 write_rds(
   ctf_dynamic_long_clean,
-  here( 
+  here(
     "data",
     "output",
     "closeness_to_frontier_dynamic_long.rds"
