@@ -44,22 +44,22 @@ vars_leg <-
   pull(variable)
 
 # Political institutions ======================
-vars_pol <-
-  db_variables %>%
-  filter(
-    var_level == "indicator",
-    family_var == "vars_pol"
-  ) %>%
-  pull(variable)
+# vars_pol <-
+#   db_variables %>%
+#   filter(
+#     var_level == "indicator",
+#     family_var == "vars_pol"
+#   ) %>%
+#   pull(variable)
 
 # Public sector performance institutions ======================
-vars_publ <-
-  db_variables %>%
-  filter(
-    var_level == "indicator",
-    family_var == "vars_publ"
-  ) %>%
-  pull(variable)
+# vars_publ <-
+#   db_variables %>%
+#   filter(
+#     var_level == "indicator",
+#     family_var == "vars_publ"
+#   ) %>%
+#   pull(variable)
 
 # Social institutions ======================
 vars_social <-
@@ -112,14 +112,14 @@ vars_api <-
   ) %>%
   pull(variable)
 
-# Variables from Additions source  ======================
-vars_additions <-
-  db_variables %>%
-  filter(
-    var_level == "indicator",
-    data_source == "additions"
-  ) %>%
-  pull(variable)
+# # Variables from Additions source  ======================
+# vars_additions <-
+#   db_variables %>%
+#   filter(
+#     var_level == "indicator",
+#     data_source == "additions"
+#   ) %>%
+#   pull(variable)
 
 
 family_names <-
@@ -129,5 +129,6 @@ family_names <-
     variable = family_var,
     var_name = family_name
   ) %>%
+  
   unique
 

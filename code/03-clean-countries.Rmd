@@ -1,0 +1,97 @@
+# Clean list of contries
+
+- Inputs:
+  - `data/output/compiled_indicators.rds`
+  - `data/input/wb/CLASS.xlsx`, obtained from https://datahelpdesk.worldbank.org/knowledgebase/articles/906519-world-bank-country-and-lending-groups on September 1, 2022
+  - `data/input/wb/group_list.csv`, input by the research team to list relevant groups
+      
+- Outputs:
+  - `data/final/wb_country_list.rds`
+  - `data/final/wb_country_groups.rds`
+
+## Inputs
+
+```{r}
+  indicators <-
+    read_rds(
+      here(
+        "data",
+        "output",
+        "compiled_indicators.rds"
+      )
+    )
+
+  group_list <-
+    read_csv(
+      here(
+        "data",
+        "input",
+        "wb",
+        "group_list.csv"
+      )
+    )
+
+  country_list <-
+    read_xlsx(
+      here(
+        "data",
+        "input", 
+        "wb",
+        "CLASS.xlsx"
+      ),
+      sheet = "Groups"
+    ) %>%
+    transmute(
+      country_code = CountryCode,
+      country_name = CountryName,
+      group = GroupName,
+      group_code = GroupCode
+    )
+```
+
+## Subset country list
+
+The only relevant countries are those we have some data for
+
+```{r}
+country_list <-
+  indicators %>%
+  select(country_code) %>%
+  unique %>%
+  left_join(country_list)
+```
+
+## Subset groups
+
+```{r}
+country_list <-
+  country_list %>%
+  filter(
+    group %in% group_list$group_name
+  ) %>%
+  unique
+```
+
+## Save datasets
+
+Dataset with list of countries in our sample
+
+```{r}
+write_rds(
+  country_list,
+  here(
+    "data",
+    "output",
+    "wb_country_list.rds"
+  )
+)
+
+write_rds(
+  group_list,
+  here(
+    "data",
+    "output",
+    "wb_country_groups.rds"
+  )
+)
+```

@@ -1,0 +1,285 @@
+Indicator,Indicator Description,Country Coverage,Year Coverage,Flag Continuity,Flag Country Coverage,Flag Year Coverage,Year Range,Percentage of Complete Records,Percentage of Complete Records in Last Five Years,Mean,Median,Standard Deviation,Minimum,Maximum,Data Source
+bs_bti_q12_1,Environmental policy,137,9,1,1,1,1990-2022,16%,36%,4.7,5,1.86,1,10,Bertelsmann Transformation Index
+bs_bti_q15_1,Efficient use of assets,137,9,1,1,1,1990-2022,16%,36%,4.69,5,1.85,1,10,Bertelsmann Transformation Index
+bs_bti_q1_2,State identity,137,9,1,1,1,1990-2022,16%,36%,7.84,8,1.71,2,10,Bertelsmann Transformation Index
+bs_bti_q2_1,Free and fair elections,137,9,1,1,1,1990-2022,16%,36%,5.9,6,2.87,1,10,Bertelsmann Transformation Index
+bs_bti_q2_3,Association and assembly rights,137,9,1,1,1,1990-2022,16%,36%,6.18,6,2.71,1,10,Bertelsmann Transformation Index
+bs_bti_q3_1,Separation of powers,137,9,1,1,1,1990-2022,16%,36%,5.15,5,2.64,1,10,Bertelsmann Transformation Index
+bs_bti_q3_2,Independent judiciary,137,9,1,1,1,1990-2022,16%,36%,5.04,5,2.31,1,10,Bertelsmann Transformation Index
+bs_bti_q7_2,Competition Policy,137,9,1,1,1,1990-2022,16%,36%,5.36,5,2.32,1,10,Bertelsmann Transformation Index
+bs_bti_q8_1,Monetary stability,137,9,1,1,1,1990-2022,16%,36%,7.07,8,2.17,1,10,Bertelsmann Transformation Index
+bs_bti_q8_2,Fiscal stability,137,9,1,1,1,1990-2022,16%,36%,6.49,7,2.04,1,10,Bertelsmann Transformation Index
+bs_bti_si,BTI Democracy Status,137,9,1,1,1,1990-2022,16%,36%,5.66,5.75,2.09,1.27,9.95,Bertelsmann Transformation Index
+bs_sgi_195,Independent Supervisory Bodies,41,8,1,0,1,1990-2022,4%,15%,7.32,8,1.99,2.5,10,Sustainable Governance Indicators
+bs_sgi_196,Audit Office,41,8,1,0,1,1990-2022,4%,15%,7.83,8,1.97,2,10,Sustainable Governance Indicators
+fh_fiw_cl_rating,Civil Liberties,197,33,1,1,1,1990-2022,85%,88%,4.57,5,1.88,1,7,Freedom House
+fh_fiw_pr_rating,Political Rights,197,33,1,1,1,1990-2022,85%,88%,4.53,5,2.2,1,7,Freedom House
+fraser_efw_capital_controls,Capital controls,165,23,1,1,1,1990-2022,45%,44%,3.7,3.08,3.01,0,10,International Monetary Fund
+fraser_efw_credit_market_regulations,Credit market regulations,164,23,1,1,1,1990-2022,45%,44%,8.03,8.33,1.68,0,10,Fraser Institute
+fraser_efw_freedom_of_foreigners_to_visit,Freedom of foreigners to visit,165,16,1,1,1,1990-2022,33%,44%,5.15,6.31,3.61,0,10,"Fraser Institute, Lawson and Lemke (2012)"
+fraser_efw_freedom_to_own_foreign_currency_bank_accounts,"Freedom, foreign bank accounts",165,23,1,1,1,1990-2022,45%,45%,6.5,10,4.18,0,10,Fraser Institute
+fraser_efw_judicial_independence,Judicial independence,165,23,1,1,1,1990-2022,50%,44%,5.53,5.4,1.57,1.52,8.85,Fraser Institute
+fraser_efw_legal_enforcement_of_contracts,Legal enforcement of contracts,164,23,1,1,1,1990-2022,49%,44%,4.61,4.63,1.66,0,8.36,Fraser Institute
+heritage_business_freedom,Business freedom,186,11,1,1,1,1990-2022,27%,82%,63.37,64,16.29,0,100,Heritage Index of Economic Freedom
+heritage_financial_freedom,Financial freedom,184,11,1,1,1,1990-2022,27%,80%,48.66,50,19.19,0,90,Heritage Index of Economic Freedom
+heritage_investment_freedom,Investment freedom,184,11,1,1,1,1990-2022,27%,81%,56.06,60,22.81,0,95,Heritage Index of Economic Freedom
+idea_gsod_jud_ind_est,Judicial independence,173,33,1,1,1,1990-2022,76%,78%,0.52,0.5,0.21,0,1,Global State of Democracy
+idea_gsod_v_21_05,Fair trial,173,33,1,1,1,1990-2022,76%,78%,0.44,0.33,0.32,0,1,Global State of Democracy
+idea_gsod_v_22_08,Freedom of speech and press,71,12,1,0,1,1990-2022,10%,30%,0.5,0.51,0.23,0,1,Global State of Democracy
+idea_gsod_v_22_16,Workers' rights Index,173,33,1,1,1,1990-2022,76%,78%,0.67,0.74,0.24,0,1,Global State of Democracy
+oecd_epl_regular,"Employment protection, regular",43,7,1,0,1,1990-2022,4%,8%,2.24,2.34062814712524,0.49,0.849206387996673,3.10365295410156,OECD
+oecd_epl_temporary,"Employment protection, temp.",38,7,1,0,1,1990-2022,4%,7%,1.79,1.76872527599334,0.73,0.270787060260773,3.72209811210632,OECD
+oecd_pmr_ccr,Use of command and control regulation,47,4,0,0,1,1990-2022,2%,0%,3.89,3.98,0.93,1.4500000000000002,6.49,OECD Product Market Regulation Database
+oecd_pmr_crp,Complexity of regulatory procedures,47,4,0,0,1,1990-2022,2%,0%,3.57,3.55,0.99,0.7000000000000002,5.62,OECD Product Market Regulation Database
+oecd_pmr_dcb,Direct control over business enterprises,47,4,0,0,1,1990-2022,2%,0%,4.38,4.6,1.11,0.5199999999999996,7.21,OECD Product Market Regulation Database
+oecd_pmr_gin,Government involvement in network sectors,47,4,0,0,1,1990-2022,2%,0%,2.69,2.67,1.22,0.33000000000000007,5.42,OECD Product Market Regulation Database
+oecd_pmr_gov,Governance of state-owned enterprises,47,2,0,0,1,1990-2022,1%,0%,2.18,2.25,1.37,0,5.25,OECD Product Market Regulation Database
+oecd_pmr_obr,Other barriers to trade and investment,47,4,0,0,1,1990-2022,2%,0%,4.94,5.08,0.74,1.3499999999999996,6,OECD Product Market Regulation Database
+oecd_pmr_pct,Price controls,47,4,0,0,1,1990-2022,2%,0%,3.9,4.05,1.13,0.7800000000000002,5.75,OECD Product Market Regulation Database
+oecd_pmr_rpi,Regulatory protection of incumbents,47,4,0,0,1,1990-2022,2%,0%,4.33,4.4399999999999995,0.6,1.9299999999999997,5.36,OECD Product Market Regulation Database
+oecd_pmr_scp,Scope of state-owned enterprises,47,4,0,0,1,1990-2022,2%,0%,2.72,2.8,1.12,0,4.98,OECD Product Market Regulation Database
+oecd_pmr_xbr,Explicit barriers to trade and investment,47,4,0,0,1,1990-2022,2%,0%,5.42,5.75,0.7,2.47,5.99,OECD Product Market Regulation Database
+rise_ee_1,National energy efficiency planning,140,12,1,1,1,1990-2022,23%,51%,43.98,41.11111068725586,34.96,0,100,RISE
+rise_ee_2,Energy efficiency entities,140,12,1,1,1,1990-2022,23%,51%,51.07,58.33333206176758,36.64,0,100,RISE
+rise_ee_3,Incentives and mandates: Industrial and Commercial End users,140,12,1,1,1,1990-2022,23%,51%,34.49,25,33.65,0,100,RISE
+rise_ee_4,Incentives and mandates: Public sector,140,12,1,1,1,1990-2022,23%,51%,31.14,25,33.06,0,100,RISE
+rise_ee_4_3,Public procurement of energy efficiency products,140,12,1,1,1,1990-2022,23%,51%,37.59,0,43.08,0,100,RISE
+rise_ee_5,Incentives and mandates: Energy Utility Programs,140,12,1,1,1,1990-2022,23%,51%,29.15,22.5,22.14,0,95.83333587646484,RISE
+rise_ee_6,Financing mechanisms for energy efficiency,140,12,1,1,1,1990-2022,23%,51%,16.7,10,17.6,0,75,RISE
+rise_ee_7,Minimum energy efficiency performance standards,140,12,1,1,1,1990-2022,23%,51%,33.71,26.38888931274414,34.1,0,100,RISE
+rise_ee_8,Energy labeling systems,140,12,1,1,1,1990-2022,23%,51%,32.42,25,34.57,0,100,RISE
+rise_ee_9,Building Energy Codes,140,12,1,1,1,1990-2022,23%,51%,24.64,12,27.55,0,89.5999984741211,RISE
+rise_re_1,Legal framework for renewable energy,140,12,1,1,1,1990-2022,23%,51%,48.6,60,30.67,0,100,RISE
+rise_re_2,Planning for renewable energy expansion,140,12,1,1,1,1990-2022,23%,51%,42.67,41.66666793823242,30.73,0,100,RISE
+rise_re_3,Incentives and regulatory support for renewable energy,140,12,1,1,1,1990-2022,23%,51%,31.51,25,27.36,0,95,RISE
+rise_re_4,Attributes of financial and regulatory incentives,140,12,1,1,1,1990-2022,23%,51%,30.55,20,29.26,0,100,RISE
+rise_re_7,Carbon Pricing and Monitoring,140,12,1,1,1,1990-2022,23%,51%,32.03,0,41.99,0,100,RISE
+romelli_cbi_central_bank_independence,Central bank independence,154,28,1,1,1,1990-2022,56%,0%,0.59,0.5605,0.25,0.0405,0.987,Romelli (2022)
+rwb_pfi_index,Press Freedom Index,178,20,1,1,1,1990-2022,46%,80%,48.18,53.230000000000004,27.7,-10,142,Press Freedom Index
+spi_census_and_survey_index,Censuses and Surveys,190,16,1,1,1,1990-2022,41%,34%,0.53,0.534,0.26,0,1,SPI
+spi_std_and_methods,Standards and Methods,190,4,1,1,1,1990-2022,10%,34%,0.49,0.4,0.29,0,1,SPI
+vdem_core_v2caassemb,Freedom of peaceful assembly,179,33,1,1,1,1990-2022,79%,81%,0.78,0.9964999999999999,1.58,-3.341,3.39,"V-Dem, Variety of Democracy database"
+vdem_core_v2clacfree,Freedom of academic and cultural expression,179,33,1,1,1,1990-2022,79%,81%,0.92,1.163,1.54,-3.238,3.73,"V-Dem, Variety of Democracy database"
+vdem_core_v2clacjstm,Access to justice for men,179,33,1,1,1,1990-2022,79%,81%,0.85,0.82,1.36,-2.912,3.849,"V-Dem, Variety of Democracy database"
+vdem_core_v2clacjstw,Access to justice for women,179,33,1,1,1,1990-2022,79%,81%,0.82,0.837,1.33,-2.822,3.932,"V-Dem, Variety of Democracy database"
+vdem_core_v2cldiscm,Freedom of discussion for men,179,33,1,1,1,1990-2022,79%,81%,0.94,1.16,1.5,-3.323,3.609,"V-Dem, Variety of Democracy database"
+vdem_core_v2cldiscw,Freedom of discussion for women,179,33,1,1,1,1990-2022,79%,81%,0.87,1.101,1.42,-3.454,3.655,"V-Dem, Variety of Democracy database"
+vdem_core_v2clrspct,Rigorous and impartial public administration,179,33,1,1,1,1990-2022,79%,81%,0.41,0.234,1.48,-3.617,4.046,"V-Dem, Variety of Democracy database"
+vdem_core_v2cseeorgs,CSO entry and exit,179,33,1,1,1,1990-2022,79%,81%,0.99,1.331,1.44,-3.28,3.698,"V-Dem, Variety of Democracy database"
+vdem_core_v2csreprss,CSO repression,179,33,1,1,1,1990-2022,79%,81%,0.91,1.127,1.5,-3.759,3.324,"V-Dem, Variety of Democracy database"
+vdem_core_v2dlengage,Engaged society,179,33,1,1,1,1990-2022,79%,81%,0.82,0.976,1.24,-3.065,3.564,"V-Dem, Variety of Democracy database"
+vdem_core_v2exbribe,Excutive bribery and corrupt exchnages,179,33,1,1,1,1990-2022,79%,81%,-0.05,-0.336,1.53,-2.943,3.863,"V-Dem, Variety of Democracy database"
+vdem_core_v2juaccnt,Judicial accountability,179,33,1,1,1,1990-2022,79%,81%,0.58,0.578,1.18,-2.764,3.804,"V-Dem, Variety of Democracy database"
+vdem_core_v2juhcind,High court independence,179,33,1,1,1,1990-2022,79%,81%,0.33,0.531,1.42,-3.421,3.474,"V-Dem, Variety of Democracy database"
+vdem_core_v2juncind,Lower court independence,179,33,1,1,1,1990-2022,79%,81%,0.47,0.623,1.36,-3.369,3.234,"V-Dem, Variety of Democracy database"
+vdem_core_v2lgqugen,Lower chamber gender quota,174,33,1,1,1,1990-2022,77%,78%,0.69,0,1.32,0,4,"V-Dem, Variety of Democracy database"
+vdem_core_v2peapsecon,Access to public services distributed by socio-economic position,179,33,1,1,1,1990-2022,79%,81%,0.5,0.42,1.41,-2.93,3.64,"V-Dem, Variety of Democracy database"
+vdem_core_v2peapsgen,Access to public services distributed by gender,179,33,1,1,1,1990-2022,79%,81%,0.73,0.603,1.33,-3.417,3.164,"V-Dem, Variety of Democracy database"
+vdem_core_v2peapspol,Access to public services distributed by political group,179,33,1,1,1,1990-2022,79%,81%,0.99,1.132,1.27,-2.84,3.17,"V-Dem, Variety of Democracy database"
+vdem_core_v2peasjgen,Access to state jobs by gender,179,33,1,1,1,1990-2022,79%,81%,1.23,1.148,1.15,-2.831,3.494,"V-Dem, Variety of Democracy database"
+vdem_core_v2peasjpol,Access to state jobs by political group,179,33,1,1,1,1990-2022,79%,81%,0.64,0.594,1.44,-2.711,3.619,"V-Dem, Variety of Democracy database"
+vdem_core_v2peasjsoecon,Access to state jobs by socio-economic position,179,33,1,1,1,1990-2022,79%,81%,0.83,0.8775,1.24,-2.447,3.405,"V-Dem, Variety of Democracy database"
+vdem_core_v2pepwrgen,Power distributed by gender,179,33,1,1,1,1990-2022,79%,81%,0.86,0.932,1.08,-2.801,3.69,"V-Dem, Variety of Democracy database"
+vdem_core_v2pepwrses,Power distributed by socio-economic position,179,33,1,1,1,1990-2022,79%,81%,0.46,0.634,1.01,-2.84,3.042,"V-Dem, Variety of Democracy database"
+vdem_core_v2pepwrsoc,Power distributed by social group,179,33,1,1,1,1990-2022,79%,81%,0.77,0.91,1.14,-2.706,3.321,"V-Dem, Variety of Democracy database"
+vdem_core_v2stcritrecadm,Criteria for appointment decisions in the state administration,179,33,1,1,1,1990-2022,78%,81%,0.43,0.386,1.1,-2.899,3.474,"V-Dem, Variety of Democracy database"
+vdem_core_v2x_civlib,Civil liberties index,179,33,1,1,1,1990-2022,79%,81%,0.67,0.745,0.26,0.015,0.977,"V-Dem, Variety of Democracy database"
+vdem_core_v2x_corr,Political Corruption,179,33,1,1,1,1990-2022,79%,81%,0.51,0.552,0.3,0.002,0.971,"V-Dem, Variety of Democracy database"
+vdem_core_v2x_cspart,Civil society participation,179,33,1,1,1,1990-2022,79%,81%,0.64,0.706,0.25,0.023,0.989,"V-Dem, Variety of Democracy database"
+vdem_core_v2x_gender,Women political empowerment index,179,33,1,1,1,1990-2022,78%,81%,0.69,0.734,0.2,0.035,0.965,"V-Dem, Variety of Democracy database"
+vdem_core_v2xcl_acjst,Access to justice,179,33,1,1,1,1990-2022,79%,81%,0.64,0.687,0.27,0.019,0.997,"V-Dem, Variety of Democracy database"
+vdem_core_v2xcl_prpty,Property rights,179,33,1,1,1,1990-2022,79%,81%,0.7,0.7563999997258186,0.23,0.004,0.97,"V-Dem, Variety of Democracy database"
+vdem_core_v2xlg_legcon,Legislative constraints on the executive index,179,33,1,1,1,1990-2022,78%,80%,0.58,0.667,0.3,0.024,0.989,"V-Dem, Variety of Democracy database"
+wb_aspire_adequacy_benefits,Adequacy of Social Protection benefits,121,22,1,0,1,1990-2022,6%,4%,27.86,24.965627670288086,40.95,0.45520132780075073,811.54791259765625,ASPIRE
+wb_aspire_coverage,Social Protection Coverage,125,22,1,0,1,1990-2022,6%,4%,49.35,53.04612731933594,25.47,0.5144736170768738,99.899078369140625,ASPIRE
+wb_edstats_se_prm_tcaq_zs,"Proportion of teachers with the minimum required qualifications in primary education, both sexes (%)",151,24,1,1,1,1990-2022,23%,28%,85.64,92.58,17.23,14.68,100,World Bank EdStats (Education Statistics)
+wb_enterprisesurveys_ic_frm_corr_corr11,Firms identifying corruption as a major constraint,146,15,1,0,1,1990-2022,4%,5%,66.39,68.45,20.46,2.5999999999999943,100,Enterprise Surveys
+wb_enterprisesurveys_ic_frm_corr_crime9,Firms identifying the courts system as a major constraint,146,15,1,0,1,1990-2022,4%,5%,84.6,88.1,12.08,48.5,100,Enterprise Surveys
+wb_enterprisesurveys_ic_frm_infra_in12,Percent of firms identifying electricity as a major constraint,145,15,1,0,1,1990-2022,4%,5%,65.45,68.9,19.83,11.599999999999994,99.8,Enterprise Surveys
+wb_enterprisesurveys_ic_frm_obs_obst1,Firms identifying access to finance as a major constraint,146,15,1,0,1,1990-2022,4%,5%,84.64,87.05000000000001,10.57,46,100,Enterprise Surveys
+wb_enterprisesurveys_ic_frm_reg_bus5,Firms identifying business licensing and permits as a major constraint,146,15,1,0,1,1990-2022,4%,5%,86.05,88.65,9.91,51.1,100,Enterprise Surveys
+wb_enterprisesurveys_ic_frm_reg_reg5,Firms identifying tax administration as a major constraint,145,15,1,0,1,1990-2022,4%,5%,78.56,80.3,13.9,28.5,99.6,Enterprise Surveys
+wb_enterprisesurveys_ic_frm_trd_tr9,Firms identifying customs and trade regulations as a major constraint,146,15,1,0,1,1990-2022,4%,5%,83.86,86.55,11.14,41.6,99.6,Enterprise Surveys
+wb_enterprisesurveys_ic_frm_wrkf_wk9,Firms identifying labor regulations as a major constraint,145,15,1,0,1,1990-2022,4%,5%,89.44,91.8,9.4,36.8,99.8,Enterprise Surveys
+wb_girg_6,Regulatory governance,186,1,1,1,0,1990-2022,3%,17%,2.48,2.25,1.58,0,5,"World Bank, Global Indicators of Regulatory Governance database"
+wb_gtmi_cgsi,Core Government Systems Index (CGSI),198,2,1,1,1,1990-2022,5%,36%,0.53,0.52,0.24,0,0.99,GTMI
+wb_gtmi_gtei,GovTech Enablers Index (GTEI),198,2,1,1,1,1990-2022,5%,36%,0.53,0.55,0.28,0.04,1,GTMI
+wb_gtmi_i_13,Is there a Debt Management System (DMS) in place? (foreign and domestic debt),198,1,1,1,0,1990-2022,3%,18%,5.56,6,1.52,0,6,GTMI
+wb_gtmi_i_14,Is there a Public Investment Management System (PIMS) in place?,198,1,1,1,0,1990-2022,3%,18%,3.32,0,4.25,0,9,GTMI
+wb_gtmi_i_5,Is there an operational FMIS in place to support core PFM functions?,198,1,1,1,0,1990-2022,3%,18%,5.79,6,0.98,0,6,GTMI
+wb_gtmi_i_6,Is there a TSA supported by FMIS to automate payments and bank reconciliation?,198,1,1,1,0,1990-2022,3%,18%,4.43,6,2.15,0,6,GTMI
+wb_gtmi_i_7,Is there a Tax Management Information System in place?,198,1,1,1,0,1990-2022,3%,18%,5.52,6,1.58,0,6,GTMI
+wb_gtmi_i_8,Is there a Customs Management Information System in place?,198,1,1,1,0,1990-2022,3%,18%,5.64,6,1.4,0,6,GTMI
+wb_gtmi_pfm_mis,PFM Management Information Systems,217,33,1,1,1,1990-2022,97%,97%,0.02,0,0.13,0,1,CLIAR (based on GTMI)
+wb_gtmi_psdi,Public Service Delivery Index (PSDI),198,2,1,1,1,1990-2022,5%,36%,0.63,0.68,0.27,0,1,GTMI
+wb_lpi_lp_lpi_cust_xq,Efficiency of the clearance process,167,6,1,1,1,1990-2022,13%,14%,2.65,2.49,0.6,1.11,4.21,WB International LPI
+wb_pefa_pi_2016_05,Budget Documentation,61,7,1,0,1,1990-2022,1%,4%,2.8,3,0.88,1,4,Public Expenditure Financial Accontability
+wb_pefa_pi_2016_09,Public access to information,61,7,1,0,1,1990-2022,1%,4%,1.94,1,1.21,1,4,Public Expenditure Financial Accontability
+wb_pefa_pi_2016_10,Fiscal risk reporting,61,7,1,0,1,1990-2022,1%,4%,1.81,1.5,0.73,1,4,Public Expenditure Financial Accontability
+wb_pefa_pi_2016_10_1,Monitoring of Public Corporations,61,7,1,0,1,1990-2022,1%,4%,1.82,2,0.78,1,4,Public Expenditure Financial Accontability
+wb_pefa_pi_2016_11,Public investment management,60,7,1,0,1,1990-2022,1%,4%,1.82,1.5,0.66,1,4,Public Expenditure Financial Accontability
+wb_pefa_pi_2016_12,Public asset management,61,7,1,0,1,1990-2022,1%,4%,1.86,1.5,0.6,1,3,Public Expenditure Financial Accontability
+wb_pefa_pi_2016_13,Debt management,61,7,1,0,1,1990-2022,1%,4%,2.92,3,0.88,1,4,Public Expenditure Financial Accontability
+wb_pefa_pi_2016_14,Macroeconomic and fiscal forecasting,61,7,1,0,1,1990-2022,1%,4%,2.48,2.5,0.87,1,4,Public Expenditure Financial Accontability
+wb_pefa_pi_2016_15,Fiscal strategy,61,7,1,0,1,1990-2022,1%,4%,2.25,2,0.85,1,4,Public Expenditure Financial Accontability
+wb_pefa_pi_2016_16,Medium term perspective in expenditure budgeting,61,7,1,0,1,1990-2022,1%,4%,1.89,1.5,0.82,1,4,Public Expenditure Financial Accontability
+wb_pefa_pi_2016_17,Budget preparation process,61,7,1,0,1,1990-2022,1%,4%,2.95,3,0.75,1,4,Public Expenditure Financial Accontability
+wb_pefa_pi_2016_18,Legislative scrutiny of budgets,61,7,1,0,1,1990-2022,1%,4%,2.68,2.5,0.79,1.5,4,Public Expenditure Financial Accontability
+wb_pefa_pi_2016_19,Revenue administration,61,7,1,0,1,1990-2022,1%,4%,2.31,2.5,0.73,1,3.5,Public Expenditure Financial Accontability
+wb_pefa_pi_2016_20,Accounting for revenues,61,7,1,0,1,1990-2022,1%,4%,2.8,2.5,0.91,1.5,4,Public Expenditure Financial Accontability
+wb_pefa_pi_2016_21,Predictability of in-year resource allocation,61,7,1,0,1,1990-2022,1%,4%,2.92,3,0.72,1.5,4,Public Expenditure Financial Accontability
+wb_pefa_pi_2016_22,Expenditure arrears,61,7,1,0,1,1990-2022,1%,4%,1.7,1.5,0.91,1,4,Public Expenditure Financial Accontability
+wb_pefa_pi_2016_23,Payroll controls,61,7,1,0,1,1990-2022,1%,4%,2.23,2.5,0.8,1,4,Public Expenditure Financial Accontability
+wb_pefa_pi_2016_24,Procurement,61,7,1,0,1,1990-2022,1%,4%,2.47,2.5,0.93,1,4,Public Expenditure Financial Accontability
+wb_pefa_pi_2016_25,Internal controls on nonsalary expenditure,61,7,1,0,1,1990-2022,1%,4%,3.01,3,0.74,1.5,4,Public Expenditure Financial Accontability
+wb_pefa_pi_2016_26,Internal audit effectiveness,61,7,1,0,1,1990-2022,1%,4%,2.05,1.75,0.74,1,4,Public Expenditure Financial Accontability
+wb_pefa_pi_2016_27,Financial data integrity,61,7,1,0,1,1990-2022,1%,4%,2.54,2.5,0.97,1,4,Public Expenditure Financial Accontability
+wb_pefa_pi_2016_28,In-year budget reports,61,7,1,0,1,1990-2022,1%,4%,2.12,1.5,0.89,1,4,Public Expenditure Financial Accontability
+wb_pefa_pi_2016_29,Annual financial reports,61,7,1,0,1,1990-2022,1%,4%,2.06,2,0.64,1,4,Public Expenditure Financial Accontability
+wb_pefa_pi_2016_30,External audit,61,7,1,0,1,1990-2022,1%,4%,2.03,1.5,0.77,1,4,Public Expenditure Financial Accontability
+wb_wbl_sg_law_indx,Women Business and the Law Index,189,32,1,1,1,1990-2022,82%,68%,65.08,66.25,18.7,17.5,100,"Women, Business and the Law"
+wb_wwbi_bi_emp_frml_pb_zs,"Public sector employment, as a share of formal employment",100,21,1,0,1,1990-2022,11%,4%,0.33,0.3,0.13,0.04,0.85,WWBI
+wb_wwbi_bi_pwk_pubs_tt_zs,Individuals with tertiary education as a share of public paid employees,121,21,1,0,1,1990-2022,12%,3%,0.51,0.51,0.16,0,0.84,WWBI
+wb_wwbi_bi_wag_totl_pb_zs,Wage bill as a percentage of public Expenditure,184,21,1,1,1,1990-2022,49%,48%,26.96,25.96,8.71,2.14,100,WWBI
+wdi_bmkltdinvwdgdzs,"Foreign direct investment, net outflows (% of GDP)",195,33,1,1,1,1990-2022,72%,73%,2.76,0.1956235095858574,30.12,-138.51864624023438,1509.0020751953125,WDI
+wdi_bncabxokagdzs,Current account balance (% of GDP),198,33,1,1,1,1990-2022,73%,74%,-2.75,-2.9169933795928955,13.9,-240.49461364746094,311.76092529296875,WDI
+wdi_bxkltdinvwdgdzs,"Foreign direct investment, net inflows (% of GDP)",199,33,1,1,1,1990-2022,82%,79%,7.27,2.3832494020462036,53.06,-1303.1087646484375,1709.8272705078125,WDI
+wdi_bxtrfpwkrdtgdzs,"Personal remittances, received (% of GDP)",198,33,1,1,1,1990-2022,75%,83%,4.24,1.4689061641693115,7.92,0,167.43307495117188,WDI
+wdi_dtdoddectgnzs,External debt stocks (% of GNI),121,32,1,1,1,1990-2022,49%,42%,62.93,46.518192291259766,67.77,0.23860405385494232,1111.2698974609375,WDI
+wdi_dtdoddstcirzs,Short-term debt (% of total reserves),111,32,1,1,1,1990-2022,44%,36%,856.37,30.7513370513916,14279.71,0,527646.8125,WDI
+wdi_dtdoddstcxpzs,"Short-term debt (% of exports of goods, services and primary income)",119,32,1,1,1,1990-2022,43%,39%,24.95,13.860250473022461,66.38,0,1441.06201171875,WDI
+wdi_dtdoddstczs,Short-term debt (% of total external debt),121,32,1,1,1,1990-2022,51%,44%,11.83,8.635000228881836,12.15,0,88.98280334472656,WDI
+wdi_dtodaodatgnzs,Net ODA received (% of GNI),161,32,1,1,1,1990-2022,59%,48%,6.99,3.3334879875183105,10.04,-2.1720471382141113,137.5876922607422,WDI
+wdi_dttdsdectexzs,"Total debt service (% of exports of goods, services and primary income)",121,32,1,1,1,1990-2022,45%,40%,15.07,11.173638343811035,14.35,0.0034948079846799374,156.858154296875,WDI
+wdi_dttdsdectgnzs,Total debt service (% of GNI),121,32,1,1,1,1990-2022,49%,43%,4.73,3.084606409072876,5.89,6.065089837647974e-4,102.22221374511719,WDI
+wdi_dttdsdppggnzs,Public and publicly guaranteed debt service (% of GNI),122,32,1,1,1,1990-2022,49%,43%,2.75,1.842688798904419,3.36,0,52.614105224609375,WDI
+wdi_dttdsmlatpgzs,Multilateral debt service (% of public and publicly guaranteed debt service),122,32,1,1,1,1990-2022,49%,43%,44.94,44.290042877197266,26.67,0,100,WDI
+wdi_enatmco2eppgdkd,CO2 emissions (kg per 2017 PPP $ of GDP),182,31,1,1,1,1990-2022,74%,49%,0.25,0.19297295063734055,0.22,0,2.0848498344421387,WDI
+wdi_firestotldtzs,Total reserves (% of total external debt),111,32,1,1,1,1990-2022,44%,36%,63.35,28.61943817138672,201.66,0.0094386981800198555,3840.10107421875,WDI
+wdi_gcdodtotlgdzs,"Central government debt, total (% of GDP)",120,32,1,0,1,1990-2022,25%,22%,62.5,49.57897186279297,64.47,-1.170725703239441,745.9959716796875,WDI
+wdi_gcnldtotlgdzs,Net lending (+) / net borrowing (-) (% of GDP),155,32,1,1,1,1990-2022,44%,43%,-1.75,-1.941307544708252,10.4,-203.71910095214844,238.576904296875,WDI
+wdi_gcrevsoclzs,Social contributions (% of revenue),156,32,1,1,1,1990-2022,46%,43%,13.47,6.714128494262695,14.88,0,60.03723907470703,WDI
+wdi_gcrevxgrtgdzs,"Revenue, excluding grants (% of GDP)",156,32,1,1,1,1990-2022,46%,44%,28.52,24.77444839477539,28.93,1.1009800073225051e-4,391.5297546386719,WDI
+wdi_gctaxtotlgdzs,Tax revenue (% of GDP),157,32,1,1,1,1990-2022,46%,44%,18.23,16.572139739990234,14.73,7.870000263210386e-5,177.28150939941406,WDI
+wdi_gcxpntotlgdzs,Expense (% of GDP),155,32,1,1,1,1990-2022,45%,44%,29.36,25.53574562072754,29.45,1.843880017986521e-4,378.4924011230469,WDI
+wdi_iqcpabregxq,CPIA business regulatory environment rating (1=low to 6=high),87,18,1,0,1,1990-2022,18%,33%,3.14,3,0.66,1,5.5,WDI
+wdi_iqcpadebtxq,CPIA debt policy rating (1=low to 6=high),87,18,1,0,1,1990-2022,18%,33%,3.33,3.5,0.89,1,6,WDI
+wdi_iqcpaeconxq,CPIA economic management cluster average (1=low to 6=high),87,18,1,0,1,1990-2022,18%,33%,3.38,3.5,0.68,1,5.5,WDI
+wdi_iqcpaenvrxq,CPIA policy and institutions for environmental sustainability rating (1=low to 6=high),87,18,1,0,1,1990-2022,18%,33%,3.13,3,0.58,1,4.5,WDI
+wdi_iqcpafinqxq,CPIA quality of budgetary and financial management rating (1=low to 6=high),87,18,1,0,1,1990-2022,18%,33%,3.17,3,0.6,1,4.5,WDI
+wdi_iqcpafinsxq,CPIA financial sector rating (1=low to 6=high),87,18,1,0,1,1990-2022,18%,33%,2.96,3,0.59,1,4.5,WDI
+wdi_iqcpafispxq,CPIA fiscal policy rating (1=low to 6=high),87,18,1,0,1,1990-2022,18%,33%,3.24,3.5,0.7,1,5,WDI
+wdi_iqcpagndrxq,CPIA gender equality rating (1=low to 6=high),87,18,1,0,1,1990-2022,18%,33%,3.34,3.5,0.66,1,5,WDI
+wdi_iqcpahresxq,CPIA building human resources rating (1=low to 6=high),87,18,1,0,1,1990-2022,18%,33%,3.53,3.5,0.61,1,4.5,WDI
+wdi_iqcpamacrxq,CPIA macroeconomic management rating (1=low to 6=high),87,18,1,0,1,1990-2022,18%,33%,3.56,3.5,0.7,1,5.5,WDI
+wdi_iqcpapadmxq,CPIA quality of public administration rating (1=low to 6=high),87,18,1,0,1,1990-2022,18%,33%,2.93,3,0.54,1,4,WDI
+wdi_iqcpapresxq,CPIA equity of public resource use rating (1=low to 6=high),87,18,1,0,1,1990-2022,18%,33%,3.39,3.5,0.62,1,4.5,WDI
+wdi_iqcpapropxq,CPIA property rights and rule-based governance rating (1=low to 6=high),87,18,1,0,1,1990-2022,18%,33%,2.89,3,0.65,1,4.5,WDI
+wdi_iqcpaprotxq,CPIA social protection rating (1=low to 6=high),85,18,1,0,1,1990-2022,18%,33%,3.04,3,0.58,1,4.5,WDI
+wdi_iqcpapubsxq,CPIA public sector management and institutions cluster average (1=low to 6=high),87,18,1,0,1,1990-2022,18%,33%,3.05,3.0999999046325684,0.5,1.399999976158142,4.199999809265137,WDI
+wdi_iqcparevnxq,CPIA efficiency of revenue mobilization rating (1=low to 6=high),87,18,1,0,1,1990-2022,18%,33%,3.41,3.5,0.52,2,4.5,WDI
+wdi_iqcpasocixq,CPIA policies for social inclusion/equity cluster average (1=low to 6=high),86,18,1,0,1,1990-2022,18%,33%,3.29,3.4000000953674316,0.5,1.5,4.300000190734863,WDI
+wdi_iqcpastrcxq,CPIA structural policies cluster average (1=low to 6=high),87,18,1,0,1,1990-2022,18%,33%,3.29,3.3333332538604736,0.53,1.1666666269302368,5,WDI
+wdi_iqcpatradxq,CPIA trade rating (1=low to 6=high),87,18,1,0,1,1990-2022,18%,33%,3.79,4,0.64,1.5,6,WDI
+wdi_iqcpatranxq,"CPIA transparency, accountability, and corruption in the public sector rating (1=low to 6=high)",87,18,1,0,1,1990-2022,18%,33%,2.87,3,0.69,1,4.5,WDI
+wdi_msmiltotltfzs,Armed forces personnel (% of total labor force),172,30,1,1,1,1990-2022,66%,30%,1.72,1.0467646718025208,2.13,0,33.515281677246094,WDI
+wdi_msmilxpndgdzs,Military expenditure (% of GDP),163,32,1,1,1,1990-2022,62%,54%,2.28,1.6434788703918457,2.87,3.6571398959495127e-4,117.34982299804688,WDI
+wdi_necongovtzs,General government final consumption expenditure (% of GDP),188,33,1,1,1,1990-2022,74%,73%,16.87,15.99816608428955,8.8,0.9112346172332764,147.71888732910156,WDI
+wdi_necontotlzs,Final consumption expenditure (% of GDP),189,33,1,1,1,1990-2022,74%,74%,81.09,79.82365417480469,18.11,12.173205375671387,236.85955810546875,WDI
+wdi_nedabtotlzs,Gross national expenditure (% of GDP),187,33,1,1,1,1990-2022,73%,72%,104.63,102.86589813232422,17.48,40.11084747314453,264.7659912109375,WDI
+wdi_neexpgnfszs,Exports of goods and services (% of GDP),196,33,1,1,1,1990-2022,77%,77%,40.47,33.042991638183594,30.86,0.005376758985221386,433.83599853515625,WDI
+wdi_negdiftotzs,Gross fixed capital formation (% of GDP),182,33,1,1,1,1990-2022,72%,71%,22.46,21.77934169769287,7.91,-2.4243578910827637,93.5474624633789,WDI
+wdi_negditotlzs,Gross capital formation (% of GDP),187,33,1,1,1,1990-2022,74%,72%,23.65,22.721370697021484,8.62,-12.88008975982666,79.40107727050781,WDI
+wdi_neimpgnfszs,Imports of goods and services (% of GDP),196,33,1,1,1,1990-2022,77%,77%,46.5,39.76569366455078,28.62,0.015622473321855068,429.3591003417969,WDI
+wdi_netrdgnfszs,Trade (% of GDP),196,33,1,1,1,1990-2022,77%,77%,86.98,75.78236389160156,56.59,0.020999232307076454,863.19512939453125,WDI
+wdi_nvindmanfzs,"Manufacturing, value added (% of GDP)",203,33,1,1,1,1990-2022,76%,78%,12.47,11.831340789794922,7.3,0,49.879425048828125,WDI
+wdi_nvsrvtotlzs,"Services, value added (% of GDP)",204,33,1,1,1,1990-2022,79%,84%,53.79,53.73440170288086,13.19,6.448067665100098,96.20487976074219,WDI
+wdi_nygdpdeflkdzg,"Inflation, GDP deflator (annual %)",213,33,1,1,1,1990-2022,88%,92%,31.41,4.222149848937988,436.2,-31.565914154052734,26765.857421875,WDI
+wdi_nygdpdeflkdzgad,"Inflation, GDP deflator: linked series (annual %)",212,33,1,1,1,1990-2022,88%,91%,31.36,4.214650392532349,439.58,-31.565914154052734,26765.857421875,WDI
+wdi_nygdpdeflzs,GDP deflator (base year varies by country),213,33,1,1,1,1990-2022,89%,92%,152.73,86.37896347045898,2042.01,2.680000110721892e-10,147418.640625,WDI
+wdi_nygdpdeflzsad,GDP deflator: linked series (base year varies by country),212,33,1,1,1,1990-2022,89%,91%,153.17,86.58194732666016,2044.05,2.680000110721892e-10,147418.640625,WDI
+wdi_nygdpminrrtzs,Mineral rents (% of GDP),214,32,1,1,1,1990-2022,87%,74%,0.68,9.51804977376014e-4,2.25,0,35.25183868408203,WDI
+wdi_nygdpmktpkd,GDP (constant 2015 US$),211,33,1,1,1,1990-2022,88%,91%,298389598135.5,19112076507,1335689485817.44,21562110.05,21000000000000,WDI
+wdi_nygdpmktpkdzg,GDP growth (annual %),213,33,1,1,1,1990-2022,88%,92%,3.28,3.525298595428467,6.46,-64.04710388183594,149.97296142578125,WDI
+wdi_nygdpmktpppkd,"GDP, PPP (constant 2017 international $)",194,33,1,1,1,1990-2022,83%,87%,466736908638.99,46731877545.5,1666356011583.3,24821643.44,25700000000000,WDI
+wdi_nygdpngasrtzs,Natural gas rents (% of GDP),201,32,1,1,1,1990-2022,82%,70%,0.56,0,2.5,0,55.00876998901367,WDI
+wdi_nygdppcapkd,GDP per capita (constant 2015 US$),210,33,1,1,1,1990-2022,88%,91%,13967.99,4734.0263671875,20948.83,189.28221130371094,204190.96875,WDI
+wdi_nygdppcapkdzg,GDP per capita growth (annual %),213,33,1,1,1,1990-2022,88%,91%,1.85,2.0429104566574097,6.31,-64.42584228515625,140.48004150390625,WDI
+wdi_nygdppcapppkd,"GDP per capita, PPP (constant 2017 international $)",194,33,1,1,1,1990-2022,83%,87%,18255.06,10395.0283203125,20539.58,436.37640380859375,157602.484375,WDI
+wdi_nygdppetrrtzs,Oil rents (% of GDP),200,32,1,1,1,1990-2022,82%,70%,3.5,0.009740743786096573,9.17,0,82.77689361572266,WDI
+wdi_nygdptotlrtzs,Total natural resources rents (% of GDP),214,32,1,1,1,1990-2022,87%,74%,6.58,1.6673476696014404,10.75,0,88.59234619140625,WDI
+wdi_nygdstotlzs,Gross domestic savings (% of GDP),189,33,1,1,1,1990-2022,74%,74%,18.91,20.176347732543945,18.11,-136.85955810546875,87.82679748535156,WDI
+wdi_nygnpmktpkd,GNI (constant 2015 US$),200,33,1,1,1,1990-2022,57%,64%,405324109941.99,35500034117,1590799647135.91,56981785.64,21000000000000,WDI
+wdi_nygnpmktpkdzg,GNI growth (annual %),164,33,1,1,1,1990-2022,57%,63%,3.31,3.5240895748138428,5.62,-61.33892822265625,49.68388366699219,WDI
+wdi_nygnpmktpppkd,"GNI, PPP (constant 2017 international $)",194,33,1,1,1,1990-2022,57%,64%,585271558256.43,76632100103,1907259642718.33,63578076.57,24700000000000,WDI
+wdi_nygnppcapkd,GNI per capita (constant 2015 US$),200,33,1,1,1,1990-2022,57%,64%,12901.99,4307.9296875,17879.14,189.5186309814453,138201.21875,WDI
+wdi_nygnppcapkdzg,GNI per capita growth (annual %),167,33,1,1,1,1990-2022,57%,64%,1.96,2.2171844244003296,5.61,-61.95199966430664,61.31461715698242,WDI
+wdi_nygnppcapppkd,"GNI per capita, PPP (constant 2017 international $)",194,33,1,1,1,1990-2022,57%,64%,18059.56,10347.828125,18901.7,415.68255615234375,123094.2421875,WDI
+wdi_nygnsictrzs,Gross savings (% of GDP),178,33,1,1,1,1990-2022,63%,63%,22.07,20.981236457824707,15.59,-236.241943359375,372.9881591796875,WDI
+wdi_per_allspadq_pop_tot,Adequacy of social protection and labor programs (% of total welfare of beneficiary households),121,22,1,0,1,1990-2022,6%,4%,27.82,24.856481552124023,40.98,0.45520132780075073,811.54791259765625,WDI
+wdi_per_allspcov_pop_tot,Coverage of social protection and labor programs (% of population),125,22,1,0,1,1990-2022,6%,4%,49.31,52.92469024658203,25.44,0.5144736170768738,99.899078369140625,WDI
+wdi_per_sa_allsaadq_pop_tot,Adequacy of social safety net programs (% of total welfare of beneficiary households),109,21,1,0,1,1990-2022,5%,4%,10.54,8.277215003967285,8.78,0.044717200100421906,81.99114990234375,WDI
+wdi_per_sa_allsacov_q1_tot,Coverage of social safety net programs in poorest quintile (% of population),114,21,1,0,1,1990-2022,6%,4%,52.13,52.13212203979492,29.08,0,99.85868072509766,WDI
+wdi_per_si_allsiadq_pop_tot,Adequacy of social insurance programs (% of total welfare of beneficiary households),115,21,1,0,1,1990-2022,5%,4%,35.88,32.64277648925781,42.15,0.2426142394542694,811.54791259765625,WDI
+wdi_per_si_allsicov_pop_tot,Coverage of social insurance programs (% of population),118,21,1,0,1,1990-2022,6%,4%,20.53,11.533941745758057,18.13,0.3709714114665985,59.52041244506836,WDI
+wdi_per_si_allsicov_q1_tot,Coverage of social insurance programs in poorest quintile (% of population),118,21,1,0,1,1990-2022,6%,4%,15.34,4.108699798583984,18.69,0,60.579681396484375,WDI
+wdi_secomdurs,"Compulsory education, duration (years)",198,32,1,1,1,1990-2022,60%,71%,9.48,9,2.33,0,17,WDI
+wdi_sepretcaqzs,Trained teachers in preprimary education (% of total teachers),138,25,1,1,1,1990-2022,16%,22%,75.3,83.80482482910156,25.87,0,100,WDI
+wdi_seprmenrltczs,"Pupil-teacher ratio, primary",203,30,1,1,1,1990-2022,51%,9%,26.1,22.50376033782959,13.66,5.2258100509643555,100.23648834228516,WDI
+wdi_seprmtcaqzs,Trained teachers in primary education (% of total teachers),151,25,1,1,1,1990-2022,23%,28%,85.64,92.57585144042969,17.23,14.681509971618652,100,WDI
+wdi_seprmtenr,"Adjusted net enrollment rate, primary (% of primary school age children)",194,30,1,1,1,1990-2022,41%,7%,88.85,94.79257583618164,14.66,19.188339233398438,100,WDI
+wdi_sesecenrltczs,"Pupil-teacher ratio, secondary",197,30,1,1,1,1990-2022,37%,7%,17.33,15.420519828796387,8,4.979320049285889,80.05232238769531,WDI
+wdi_sesectcaqlozs,Trained teachers in lower secondary education (% of total teachers),120,25,1,0,1,1990-2022,12%,17%,80.71,89.72830963134766,22.6,0,100,WDI
+wdi_sesectcaqupzs,Trained teachers in upper secondary education (% of total teachers),120,25,1,0,1,1990-2022,11%,15%,80.97,91.26344299316406,23.33,1.3282732963562012,100,WDI
+wdi_sesectcaqzs,Trained teachers in secondary education (% of total teachers),144,25,1,1,1,1990-2022,16%,23%,80.73,88.87150955200195,21.57,0.39241334795951843,100,WDI
+wdi_seterenrltczs,"Pupil-teacher ratio, tertiary",191,30,1,1,1,1990-2022,33%,5%,16.24,14.733479976654053,8.31,1.1616899967193604,147.55999755859375,WDI
+wdi_sexpdcprmzs,"Current education expenditure, primary (% of total expenditure in primary public institutions)",165,25,1,1,1,1990-2022,21%,17%,91.95,93.62796783447266,7.73,36.25577163696289,100,WDI
+wdi_sexpdcseczs,"Current education expenditure, secondary (% of total expenditure in secondary public institutions)",169,25,1,1,1,1990-2022,21%,17%,91.56,93.295562744140625,8.32,13.097029685974121,100,WDI
+wdi_sexpdcterzs,"Current education expenditure, tertiary (% of total expenditure in tertiary public institutions)",164,25,1,1,1,1990-2022,20%,17%,88.61,91.43121337890625,11.67,17.1229190826416,100,WDI
+wdi_sexpdctotzs,"Current education expenditure, total (% of total expenditure in public institutions)",171,25,1,1,1,1990-2022,21%,16%,90.57,92.2732162475586,7.95,32.80998992919922,100,WDI
+wdi_sexpdprimpczs,"Government expenditure per student, primary (% of GDP per capita)",172,23,1,1,1,1990-2022,22%,2%,15.67,14.865579605102539,7.12,0.23507000505924225,65.10102081298828,WDI
+wdi_sexpdsecopczs,"Government expenditure per student, secondary (% of GDP per capita)",167,23,1,1,1,1990-2022,20%,2%,20.84,19.96343421936035,10.27,0,125.03304290771484,WDI
+wdi_sexpdtertpczs,"Government expenditure per student, tertiary (% of GDP per capita)",168,24,1,1,1,1990-2022,20%,1%,66.76,30.280290603637695,154.6,0,2489.75341796875,WDI
+wdi_sexpdtotlgbzs,"Government expenditure on education, total (% of government expenditure)",201,33,1,1,1,1990-2022,50%,62%,14.66,14.0267653465271,5.08,0.8333600163459778,47.27873992919922,WDI
+wdi_sexpdtotlgdzs,"Government expenditure on education, total (% of GDP)",203,32,1,1,1,1990-2022,51%,50%,4.47,4.241565227508545,2.17,0,44.333980560302734,WDI
+wdi_shmedbedszs,"Hospital beds (per 1,000 people)",197,30,1,1,1,1990-2022,40%,4%,4.21,3.4000000953674316,3.14,0.10000000149011612,21.678600311279297,WDI
+wdi_shmedphyszs,"Physicians (per 1,000 people)",205,31,1,1,1,1990-2022,45%,25%,1.92,1.8603999614715576,1.47,0.007000000216066837,8.419899940490723,WDI
+wdi_shstabrtczs,Births attended by skilled health staff (% of total),203,32,1,1,1,1990-2022,39%,20%,89.32,98.69999694824219,19.84,5,100,WDI
+wdi_shxpdchexgdzs,Current health expenditure (% of GDP),190,22,1,1,1,1990-2022,53%,52%,6.21,5.676197052001953,2.79,1.2635756731033325,24.230680465698242,WDI
+wdi_shxpdghedgdzs,Domestic general government health expenditure (% of GDP),190,22,1,1,1,1990-2022,53%,51%,3.27,2.6661758422851563,2.33,0.062210939824581146,22.254262924194336,WDI
+wdi_shxpdoopcchzs,Out-of-pocket expenditure (% of current health expenditure),190,22,1,1,1,1990-2022,53%,51%,33.75,31.56134605407715,19.68,0.08034961670637131,86.0691909790039,WDI
+wdi_shxpdoopcppcd,"Out-of-pocket expenditure per capita, PPP (current international $)",190,22,1,1,1,1990-2022,53%,52%,261.98,175.73110961914063,269.34,0.18270522356033325,2291.11474609375,WDI
+wdi_sipovdday,Poverty headcount ratio at $2.15 a day (2017 PPP) (% of population),167,33,1,1,1,1990-2022,25%,20%,9.24,1.2000000476837158,16.89,0,91.5,WDI
+wdi_sipovgaps,Poverty gap at $2.15 a day (2017 PPP) (%),167,33,1,1,1,1990-2022,25%,20%,3.52,0.5,7.49,0,58.5,WDI
+wdi_sipovlmic,Poverty headcount ratio at $3.65 a day (2017 PPP) (% of population),167,33,1,1,1,1990-2022,25%,20%,18.22,5.300000190734863,25.13,0,97.5999984741211,WDI
+wdi_sipovlmicgp,Poverty gap at $3.65 a day (2017 PPP) (%),167,33,1,1,1,1990-2022,25%,20%,7.76,1.600000023841858,12.87,0,73.5999984741211,WDI
+wdi_sipovnahc,Poverty headcount ratio at national poverty lines (% of population),157,33,1,1,1,1990-2022,15%,19%,25.24,21.200000762939453,14.76,0,96,WDI
+wdi_sipovumic,Poverty headcount ratio at $6.85 a day (2017 PPP) (% of population),167,33,1,1,1,1990-2022,25%,20%,33.11,22.449999809265137,32.96,0,100,WDI
+wdi_sipovumicgp,Poverty gap at $6.85 a day (2017 PPP) (%),167,33,1,1,1,1990-2022,25%,20%,16.33,7.049999952316284,20.17,0,100,WDI
+wdi_sluemtotlnezs,"Unemployment, total (% of total labor force) (national estimate)",208,33,1,1,1,1990-2022,50%,44%,8.43,6.900000095367432,6.29,0.03999999910593033,57,WDI
+wdi_sluemtotlzs,"Unemployment, total (% of total labor force) (modeled ILO estimate)",187,32,1,1,1,1990-2022,81%,84%,8.21,6.581500053405762,6.09,0.0949999988079071,38.79999923706055,WDI
+wdi_spregbrthruzs,"Completeness of birth registration, rural (%)",120,22,1,0,1,1990-2022,5%,5%,68.86,75.80000305175781,28.99,1.5,100,WDI
+wdi_spregbrthurzs,"Completeness of birth registration, urban (%)",120,22,1,0,1,1990-2022,5%,5%,78.92,88.0999984741211,23.15,5.300000190734863,100,WDI
+wdi_spregbrthzs,Completeness of birth registration (%),180,23,1,1,1,1990-2022,8%,10%,81.7,95.5999984741211,24.97,2.700000047683716,100,WDI
+wjp_rol_1,Constraints on Gov. Powers,140,9,1,1,1,1990-2022,14%,58%,0.56,0.54,0.16,0.17,0.95,"World Justice Project, Rule of Law"
+wjp_rol_2,Absence of Corruption,140,9,1,1,1,1990-2022,14%,58%,0.52,0.47,0.19,0.16,0.96,"World Justice Project, Rule of Law"
+wjp_rol_2_2,Judicial branch corruption,140,9,1,1,1,1990-2022,14%,58%,0.6,0.56,0.24,0.07,0.99,"World Justice Project, Rule of Law"
+wjp_rol_3_1,Publicized laws and government data,140,9,1,1,1,1990-2022,14%,58%,0.47,0.45,0.2,0.09,0.95,"World Justice Project, Rule of Law"
+wjp_rol_3_2,Right to information,140,9,1,1,1,1990-2022,14%,58%,0.53,0.51,0.16,0,1,"World Justice Project, Rule of Law"
+wjp_rol_3_4,Complaint mechanisms,140,9,1,1,1,1990-2022,14%,58%,0.56,0.55,0.16,0.06,0.98,"World Justice Project, Rule of Law"
+wjp_rol_4,Fundamental rights,140,9,1,1,1,1990-2022,14%,58%,0.58,0.57,0.16,0.2,0.93,"World Justice Project, Rule of Law"
+wjp_rol_4_3,Due process of law and rights of the accused,140,9,1,1,1,1990-2022,14%,58%,0.51,0.47,0.18,0.14,0.93,"World Justice Project, Rule of Law"
+wjp_rol_4_4,Freedom of opinion and expression,140,9,1,1,1,1990-2022,14%,58%,0.58,0.6,0.18,0.06,0.97,"World Justice Project, Rule of Law"
+wjp_rol_4_5,Freedom of belief and religion,140,9,1,1,1,1990-2022,14%,58%,0.66,0.69,0.16,0.03,0.93,"World Justice Project, Rule of Law"
+wjp_rol_4_6,Freedom from arbitrary interference with privacy,140,9,1,1,1,1990-2022,14%,58%,0.5,0.48,0.24,0.02,1,"World Justice Project, Rule of Law"
+wjp_rol_4_7,Freedom of assembly and association,140,9,1,1,1,1990-2022,14%,58%,0.64,0.66,0.18,0.06,0.98,"World Justice Project, Rule of Law"
+wjp_rol_4_8,Fundamental labor rights are effectively guaranteed,140,9,1,1,1,1990-2022,14%,58%,0.59,0.58,0.14,0.2,0.95,"World Justice Project, Rule of Law"
+wjp_rol_6,Regulatory enforcement,140,9,1,1,1,1990-2022,14%,58%,0.54,0.5,0.15,0.19,0.9,"World Justice Project, Rule of Law"
+wjp_rol_6_6,Expropriation without lawful process and adequate compensation,140,9,1,1,1,1990-2022,14%,58%,0.58,0.57,0.16,0.14,0.94,"World Justice Project, Rule of Law"
+wjp_rol_7_1,People can access and afford civil justice,140,9,1,1,1,1990-2022,14%,58%,0.55,0.54,0.11,0.22,0.85,"World Justice Project, Rule of Law"
+wjp_rol_7_5,Civil justice is not subject to unreasonable delays,140,9,1,1,1,1990-2022,14%,58%,0.46,0.44,0.17,0.06,0.95,"World Justice Project, Rule of Law"
+wjp_rol_7_6,Civil justice is effectively enforced,140,9,1,1,1,1990-2022,14%,58%,0.52,0.5,0.17,0.05,0.97,"World Justice Project, Rule of Law"
+wjp_rol_7_7,Alternative dispute resolution mechanisms,140,9,1,1,1,1990-2022,14%,58%,0.66,0.66,0.12,0.22,0.97,"World Justice Project, Rule of Law"
+wjp_rol_8_1,Criminal investigation system is effective,140,9,1,1,1,1990-2022,14%,58%,0.45,0.43,0.15,0.11,0.93,"World Justice Project, Rule of Law"
+wjp_rol_8_2,Criminal adjudication system is timely and effective,140,9,1,1,1,1990-2022,14%,58%,0.49,0.48,0.15,0.11,0.9,"World Justice Project, Rule of Law"
+wjp_rol_8_4,Criminal system is impartial,140,9,1,1,1,1990-2022,14%,58%,0.48,0.48,0.16,0.05,0.94,"World Justice Project, Rule of Law"

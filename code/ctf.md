@@ -18,7 +18,8 @@ packages <-
     "tidyverse",
     "here",
     "skimr",
-    "labelled"
+    "labelled",
+    "tibble"
   )
 
 pacman::p_load(packages,
@@ -72,16 +73,16 @@ data_rescaled <-
     # PRM indicators: Countries are graded between 0 (less control/involvement) and 6 (more control/involvement). Methodological note for PRM indicates that 1998 and 2013 indicators are comparable, but not with 2018 due to change in methodology, so we remove 2018 data
     across(
       c(
-        soe_governance,
-        price_controls,
-        command_control,
         complexity_procedures,
         barriers_startups,
         protection_incumbents,
         barriers_trade_expl,
         barriers_trade_oth,
+        governanceofstateownedenterprise,
+        useofcommandcontrolregulation,
         directcontroloverbusinessenterpr,
         governmentinvolvementinnetworkse,
+        pricecontrols,
         scopeofstateownedenterprises
       ),
       ~ ifelse(year == 2018, NA, 6 - .x)
@@ -130,8 +131,8 @@ country_average <-
 ```
 
 ```
-## `summarise()` has grouped output by 'country_code'. You can override using the `.groups`
-## argument.
+## `summarise()` has grouped output by 'country_code'. You can override using the
+## `.groups` argument.
 ```
 
 4. Identify worst and best performance for each indicator
@@ -139,7 +140,7 @@ country_average <-
 
 ```r
 min_max <-
-  data %>%
+  data_rescaled %>%
   summarise(
     across(
       all_of(vars_all),
@@ -155,14 +156,6 @@ min_max <-
     names_to = c("variable", ".value"),
     names_pattern = "(.*)-(.*)"
   )
-```
-
-```
-## Warning in min(wef_renewable, na.rm = TRUE): no non-missing arguments to min; returning Inf
-```
-
-```
-## Warning in max(wef_renewable, na.rm = TRUE): no non-missing arguments to max; returning -Inf
 ```
 
 5. Calculate closeness to frontier at indicator level
@@ -203,7 +196,7 @@ ctf <-
 ```
 
 ```
-## Joining, by = c("country_name", "country_code")
+## Joining with `by = join_by(country_name, country_code)`
 ```
 
 ## Calculate median per group
@@ -242,18 +235,23 @@ group_ctf <-
 ```
 
 ```
-## Joining, by = c("country_code", "country_name")
-## `summarise()` has grouped output by 'group_code'. You can override using the `.groups`
-## argument.
+## Joining with `by = join_by(country_code, country_name)`
+## `summarise()` has grouped output by 'group_code'. You can override using the
+## `.groups` argument.
 ```
 
 ```r
+ctf<-add_column(ctf,country_group = 0,.after = 'country_code')
+group_ctf<-add_column(group_ctf,country_group=1,.after = 'country_code')
 ctf <-
   ctf %>%
   bind_rows(group_ctf) %>%
   ungroup %>%
   arrange(country_name)
+```
 
+
+```r
 write_rds(
   ctf,
   here(
@@ -263,6 +261,8 @@ write_rds(
     "closeness_to_frontier.rds"
   )
 )
+
+
 
 ctf_long <-
   ctf %>%
@@ -282,8 +282,16 @@ ctf_long <-
 ```
 
 ```
-## Joining, by = "variable"
-## Joining, by = "country_name"
+## Joining with `by = join_by(variable)`
+## Joining with `by = join_by(country_name)`
+```
+
+```
+## Warning in left_join(., country_list %>% select(country_name, group)): Detected an unexpected many-to-many relationship between `x` and `y`.
+## ℹ Row 1 of `x` matches multiple rows in `y`.
+## ℹ Row 1 of `y` matches multiple rows in `x`.
+## ℹ If a many-to-many relationship is expected, set `relationship = "many-to-many"`
+##   to silence this warning.
 ```
 
 ```r

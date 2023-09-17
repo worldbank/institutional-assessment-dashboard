@@ -1,0 +1,75 @@
+# Process selected indicators
+
+- Input: `data/db_variables.xlsx`
+- Outputs: 
+  - `data/final/db_variables.xlsx`
+  - `data/final/definitions.rds`
+
+## Load list of selected indicators
+
+This list is filled by hand in Excel.
+
+```{r}
+db_variables <-
+  read_excel(
+    here(
+      "data",
+      "input",
+      "cliar",
+      "db_variables.xlsx"
+    )
+  ) |> 
+  clean_names() |> 
+  mutate(
+    variable = make_clean_names(variable)
+  )
+```
+
+## Save list of selected indicators in R format
+
+```{r}
+write_rds(
+  db_variables,
+  here(
+    "data",
+    "output",
+    "db_variables.rds"
+  )
+)
+```
+
+## Save variable definitions by family
+
+```{r}
+description <- 
+  function(x) {
+    assign(
+      x,
+      db_variables %>%
+        filter(family_name == x) %>%
+        select(
+          Indicator = var_name,
+          Description = description,
+          Source = source
+        )
+    )
+  }
+
+description <-
+  lapply(
+    unique(db_variables$family_name),
+    description
+  )
+
+names(description) <- 
+  unique(db_variables$family_name)
+
+write_rds(
+  description,
+  here(
+    "data",
+    "output",
+    "definitions.rds"
+  )
+)
+```
