@@ -22,6 +22,9 @@ library(htmltools)
 library(officer)
 library(rvg)
 
+
+options(dplyr.summarise.inform = FALSE)
+
 ## Auxiliary functions -----------------------------------------------------------------
 
 db_variables <-
@@ -33,8 +36,46 @@ db_variables <-
   )
 
 
+## temporarily clean the family names
+
+db_variables <- db_variables %>% 
+                 mutate(family_name = ifelse(family_name == "Justice institutions", "Justice Institutions",
+                   ifelse(family_name == "Political institutions" , "Political Institutions" ,
+                     family_name
+                   )))
+
+
 db_variables<-db_variables %>% 
-      mutate(across(where(is.character), str_squish))
+  mutate(across(where(is.character), str_squish))
+
+## add a temporary rank id within family in db_variables
+set.seed(1957)
+generate_random_sequence <- function(length) {
+  return(sample(1:length, length, replace = FALSE))
+}
+
+db_variables<-db_variables %>% 
+  group_by(family_var) %>% 
+  mutate(rank_id = generate_random_sequence(n())) %>% 
+  ungroup() %>% 
+  mutate(rank_id = rank_id + 1)
+
+
+
+## add family level vars
+family_level_vars <- db_variables %>% 
+  distinct(family_var, family_name) %>% 
+  rowwise() %>% 
+  mutate(variable = paste0(family_var, "_avg"),
+    var_name = paste0(family_name, " Average"),
+    var_level = "indicator" )
+
+db_variables <- db_variables %>% 
+  bind_rows(family_level_vars) %>% 
+  arrange(family_var) %>% 
+  mutate(rank_id = ifelse(variable %in% grep("_med", variable, value = T), 
+    1, rank_id)) %>% 
+  arrange(family_var, rank_id)
 
 
 source(here("auxiliary", "vars-control.R"))
@@ -44,9 +85,12 @@ source(here("auxiliary", "fun_quantiles.R"))
 source(here("auxiliary", "fun_family_data.R"))
 source(here("auxiliary", "fun_missing_var.R"))
 source(here("auxiliary", "fun_low_variance.R"))
+source(here("auxiliary", "fun_loadInputs.R"))
 
 # Create benchmark graphs
 source(here("auxiliary", "plots.R"))
+source(here("auxiliary", "clean_plotly_legend.R"))
+source(here("auxiliary", "fixfacets.R"))
 
 # Data -------------------------------------------------------------
 
@@ -58,7 +102,7 @@ raw_data <-
     )
   ) %>%
   filter(year >= 1990,
-         rowSums(!is.na(.)) > 3) %>%
+    rowSums(!is.na(.)) > 3) %>%
   rename(Year = year) %>%
   mutate(Year = as.double(Year))
 
@@ -72,6 +116,17 @@ global_data <-
       "closeness_to_frontier.rds"
     )
   ) %>%
+  ungroup 
+
+
+
+global_data_dyn <-
+  read_rds(
+    here(
+      "data",
+      "closeness_to_frontier_dynamic.rds"
+    )
+  ) %>%
   ungroup
 
 
@@ -83,6 +138,15 @@ ctf_long <-
     )
   )
 
+
+
+ctf_long_dyn <-
+  read_rds(
+    here(
+      "data",
+      "closeness_to_frontier_dynamic_long.rds"
+    )
+  )
 
 country_groups <-
   read_rds(
@@ -116,8 +180,6 @@ spatial_data <-
     )
   )
 
-
-
 clean_country <-
   read.csv(
     here(
@@ -130,17 +192,21 @@ for(i in 1:nrow(clean_country)){
   if (clean_country[i,'Clean_Names']!=""){
     country_list$country_name[country_list$country_name==clean_country[i,'Country']]=clean_country[i,'Clean_Names']
     ctf_long$country_name[ctf_long$country_name==clean_country[i,'Country']]=clean_country[i,'Clean_Names']
-    raw_data$country_name[raw_data$country_name==clean_country[i,'Country']]=clean_country[i,'Clean_Names']
+    ctf_long_dyn$country_name[ctf_long_dyn$country_name==clean_country[i,'Country']]=clean_country[i,'Clean_Names']
+    # raw_data$country_name[raw_data$country_name==clean_country[i,'Country']]=clean_country[i,'Clean_Names']
     global_data$country_name[global_data$country_name==clean_country[i,'Country']]=clean_country[i,'Clean_Names']
+    global_data_dyn$country_name[global_data_dyn$country_name==clean_country[i,'Country']]=clean_country[i,'Clean_Names']
     spatial_data$country_name[spatial_data$country_name==clean_country[i,'Country']]=clean_country[i,'Clean_Names']
- }
+  }
 } 
 
 
 country_list = country_list[order(country_list$country_name, decreasing = FALSE), ]
 ctf_long = ctf_long[order(ctf_long$country_name, decreasing = FALSE), ]
+ctf_long_dyn = ctf_long_dyn[order(ctf_long_dyn$country_name, decreasing = FALSE), ]
 raw_data = raw_data[order(raw_data$country_name, decreasing = FALSE), ]
 global_data = global_data[order(global_data$country_name, decreasing = FALSE), ]
+global_data_dyn = global_data_dyn[order(global_data_dyn$country_name, decreasing = FALSE), ]
 spatial_data = spatial_data[order(spatial_data$country_name, decreasing = FALSE), ]
 
 
@@ -180,6 +246,9 @@ variable_names <-
     var_name,
     family_var,
     family_name
+  )%>%
+  filter(
+    family_var!="vars_other"
   )
 
 countries <-
@@ -203,6 +272,8 @@ extract_variables <-
 variable_list <-
   lapply(family_names$var_name, extract_variables)
 
+
+
 names(variable_list) <- family_names$var_name
 
 
@@ -218,21 +289,16 @@ all_groups <- group_list %>% unlist %>% unname
 
 # Inputs ################################################################################
 
-plot_height <- 650
+# plot_height <- 650
+plot_height <- 500
 
 customItem <- 
   function(text, 
-           icon = shiny::icon("warning"),
-           href = NULL, ...) {
+    icon = shiny::icon("warning"),
+    href = NULL, ...) {
     
     if (is.null(href)) 
-    
-      href <- "#"
-      icon <- tagAppendAttributes(
-        icon, 
-        class = "nav-icon"
-      )
-      
+     
       tags$li(
         a(href = href, icon, text, class = "nav-link", target = "_blank"),
         class = "nav-item"
@@ -270,4 +336,3 @@ names(xvar_choice_list) <- family_names$var_name
 
 return(xvar_choice_list)
 }
-

@@ -59,6 +59,45 @@ ui <-
     ),
 
     dashboardBody(
+      
+      ## universal css styles
+      tags$style(HTML("
+      
+      /* Make the dynamic dashboard scrollable */
+                      
+       #shiny-tab-benchmark > div:nth-child(4) > div{
+        max-height: 600px;
+        overflow-y: auto;
+        
+       }
+        
+        
+        .shiny-html-output.shiny-bound-output{
+            text-align: justify;
+        }
+        
+      /* Changed the background of the load and save input buttons a shade of red */
+      .load_save_btns .bttn-primary{background-color: #e94152;}
+      
+      /* Changed the background of the selected country or countries to a shade of blue */
+      .dropdown-item.active, .dropdown-item:active,
+      .dropdown-item.opt.selected
+      {background-color: #007bff6b;}
+       
+       .far.fa-square-check{
+            background-color: #e94152e8;
+            color: white;
+       } 
+       
+       #save_inputs{
+          background-color: #e94152;
+          color: white;
+          border-radius: 20px;
+       }
+
+        "
+      )),
+      
       tabItems(
 
         ## Landing page --------------------------------------------------------
@@ -160,6 +199,19 @@ ui <-
             solidHeader = TRUE,
             width = 12,
 
+            shiny::fluidRow(
+              ## Load inputs button
+              column(
+                width = 3,
+                buttons_func(id = "load_inputs",
+                  lab = "Load Inputs"
+                ),
+                
+              )
+            ),
+            
+            shiny::fluidRow(style = "height:30px;"),
+            
             fluidRow(
 
               column(
@@ -171,8 +223,8 @@ ui <-
                   selected = NULL,
                   multiple = FALSE,
                   options = list(
-                    size = 20,
-                    `actions-box` = TRUE
+                    `actions-box` = TRUE,
+                    `live-search` = TRUE 
                   )
                 )
               ),
@@ -186,8 +238,9 @@ ui <-
                   selected = NULL,
                   multiple = TRUE,
                   options = list(
-                    size = 21,
-                    `actions-box` = TRUE
+                    # size = 21,
+                    `actions-box` = TRUE,
+                    `live-search` = TRUE
                   )
                 )
               ),
@@ -215,14 +268,69 @@ ui <-
                   multiple = TRUE,
                   options = list(
                     `live-search` = TRUE,
-                    maxOptions = 3
+                    "max-options" = 3
                   )
                 )
               )
             ),
-
+            
+            fluidRow(style = "height: 15px;"),
+            
             fluidRow(
+              shiny::column(3,
+                shinyWidgets::prettyCheckbox(
+                  inputId = "create_custom_grps",
+                  label = "Create custom groups",
+                  value = FALSE,
+                  icon = icon("check"),
+                  status = "success"
+                )
+                ),
+              shiny::conditionalPanel(
+               "input.create_custom_grps == true" ,
+              shiny::column(12,
+                shinyWidgets:: materialSwitch(
+                  inputId = "show_custom_grps",
+                  label = "Show custom groups",
+                  status = "success",
+                  value = TRUE
+                )
+              )
+              )
+            ),
 
+            shiny::conditionalPanel(
+              "input.create_custom_grps == true",
+              fluidRow(
+                    shiny::column(
+                      width = 3,
+                      shiny::numericInput(
+                        inputId = "custom_grps_count",
+                        label = "Number of groups",
+                        value = 1,
+                        min = 1,
+                        max = 3
+                      )
+                    ),
+                    shiny::column(
+                      width = 6,
+                      
+                     shiny::conditionalPanel(
+                      "input.custom_grps_count >= 1",
+                      shiny::uiOutput("custom_grps")
+                      )
+              ),
+              column(
+                width = 3,
+                align = "center",
+                shiny::actionButton("save_custom_grps", "Save")
+                
+              )
+              
+              )
+              ),
+            fluidRow(style = "height: 15px;"),
+            fluidRow(
               column(
                 width = 3,
                 prettyCheckbox(
@@ -239,7 +347,14 @@ ui <-
                   icon = icon("check"),
                   status = "success"
                 ),
-               
+                
+                prettyCheckbox(
+                  inputId = "preset_order",
+                  label = "Rank indicators from best to worst",
+                  value = FALSE,
+                  icon = icon("check"),
+                  status = "success"
+                )
               ),
               
               column(
@@ -259,7 +374,7 @@ ui <-
                 uiOutput(
                   "select_button"
                 )
-              ),
+              )
             ),
             fluidRow(
               column(
@@ -284,6 +399,21 @@ ui <-
                 
               ),
               
+              shiny::column(3,
+                shinyWidgets::materialSwitch(
+                  inputId = "show_dynamic_plot",
+                  label = "Show dynamic benchmark plot",
+                  status = "success",
+                  value = FALSE
+                )
+              ),
+              ## Save inputs button
+              column(
+                align = "right",
+                width = 3,
+                downloadButton("save_inputs", "Save inputs")
+              )
+
             )
 
           ),
@@ -308,8 +438,8 @@ ui <-
           ),
 
           bs4Card(
-            title = NULL,
-            collapsible = FALSE,
+            title = "Static Benchmarks",
+            collapsible = TRUE,
             width = 12,
 
             conditionalPanel(
@@ -320,14 +450,64 @@ ui <-
                   width = 12,
                   plotlyOutput(
                     "plot",
-                    height = paste0(plot_height * .8, "px")
+                    height = paste0(plot_height * 1.5, "px")
+                  ) %>% shinycssloaders::withSpinner(color = "#051f3f", type = 8)
+                )
+
+              ),
+              fluidRow(
+                shinyWidgets:: materialSwitch(
+                  inputId = "show_plot_notes",
+                  label = "Show notes",
+                  status = "success",
+                  value = FALSE
+                )
+              ),
+              
+              conditionalPanel(
+                "input.show_plot_notes !== false",
+                
+              fluidRow(
+                
+                column(
+                  width = 12,
+                  htmlOutput(
+                    "plot_notes"
                   )
                 )
 
+            )
               )
-
             )
 
+          ),
+          
+          ## Dynamic benchmark tab  -------------------------------------------------------
+          
+          bs4Card(
+            width = 12,
+            solidHeader = FALSE,
+            gradientColor = "primary",
+            title = "Dynamic Benchmarks",
+            collapsible = TRUE,
+            
+            conditionalPanel(
+              "input.select !== 0 && input.show_dynamic_plot === true",
+              fluidRow(
+                
+                column(
+                  width = 12,
+                  plotlyOutput(
+                    "dynamic_benchmark_plot",
+                    height =  paste0(plot_height * 3.5, "px")
+                  ) %>% shinycssloaders::withSpinner(color = "#051f3f", type = 8)
+                )
+                
+              )
+              
+            )
+            
+  
           ),
 
           bs4Card(
@@ -342,6 +522,8 @@ ui <-
           )
         ),
 
+        
+        
         ## Country comparison ----------------------------------------------------
 
         tabItem(
@@ -363,10 +545,10 @@ ui <-
                   choices = variable_list,
                   selected = NULL,
                   options = list(
-                    size = 20,
+                    # size = 20,
                     `actions-box` = TRUE,
                     `live-search` = TRUE,
-                    maxOptions = 3
+                    "max-options" = 3
                   ),
                   width = "100%"
                 )
@@ -380,6 +562,7 @@ ui <-
                   choices = c("", countries),
                   selected = NULL,
                   multiple = FALSE
+                  
                 )
               ),
 
@@ -390,7 +573,12 @@ ui <-
                   label = "Select comparison groups",
                   choices = group_list,
                   selected = NULL,
-                  multiple = TRUE
+                  multiple = TRUE,
+                  options = list(
+                    # size = 21,
+                    `live-search` = TRUE,
+                    `actions-box` = TRUE
+                  )
                 )
               )
             )
@@ -427,7 +615,7 @@ ui <-
 
               plotlyOutput(
                 "bar_plot",
-                height = paste0(plot_height, "px")
+                height = paste0(plot_height * 1.6, "px")
               )
             )
           )
@@ -455,8 +643,9 @@ ui <-
                   selected = NULL,
                   multiple = FALSE,
                   options = list(
-                    size = 20,
-                    `actions-box` = TRUE
+                    # size = 20,
+                    `actions-box` = TRUE,
+                    `live-search` = TRUE
                   )
                 )
               ),
@@ -470,7 +659,7 @@ ui <-
                   selected = NULL,
                   options = list(
                     `live-search` = TRUE,
-                    size = 20,
+                    # size = 20,
                     title = "Click to select family or indicator"
                   ),
                   width = "100%"
@@ -486,7 +675,7 @@ ui <-
                   selected = NULL,
                   options = list(
                     `live-search` = TRUE,
-                    size = 20,
+                    # size = 20,
                     title = "Click to select family or indicator"
                   ),
                   width = "100%"
@@ -506,8 +695,8 @@ ui <-
                   multiple = FALSE,
                   options = list(
                     `live-search` = TRUE,
-                    `actions-box` = TRUE,
-                    size = 18
+                    `actions-box` = TRUE#,
+                    # size = 18
                   ),
                 )
               )
@@ -556,7 +745,7 @@ ui <-
 
               plotlyOutput(
                 "scatter_plot",
-                height = paste0(plot_height, "px")
+                height = paste0(plot_height * 1.6, "px")
               )
             )
           )
@@ -585,7 +774,7 @@ ui <-
                   selected = NULL,
                   options = list(
                     `live-search` = TRUE,
-                    size = 21,
+                    # size = 21,
                     title = "Click to select family or indicator"
                   ),
                   width = "100%"
@@ -601,7 +790,8 @@ ui <-
                   selected = NULL,
                   multiple = FALSE,
                   options = list(
-                    size = 23
+                    # size = 23
+                    `live-search` = TRUE
                   )
                 )
               ),
@@ -615,9 +805,9 @@ ui <-
                   selected = NULL,
                   multiple = TRUE,
                   options = list(
-                    maxOptions = 5,
-                    `live-search` = TRUE,
-                    size = 21
+                    "max-options" = 5,
+                    `live-search` = TRUE#,
+                    # size = 21
                   )
                 )
               )
@@ -653,7 +843,7 @@ ui <-
 
               plotlyOutput(
                 "time_series",
-                height = paste0(plot_height, "px")
+                height = paste0(plot_height * 1.6, "px")
               )
             )
           )
@@ -683,7 +873,7 @@ ui <-
                   selected = NULL,
                   options = list(
                     `live-search` = TRUE,
-                    size = 20,
+                    # size = 20,
                     title = "Click to select family or indicator"
                   ),
                   width = "100%"
@@ -788,9 +978,10 @@ ui <-
               radioGroupButtons(
                 "data_source",
                 label = "Select a data source",
-                choices = c("Closeness to frontier",
+                choices = c("Closeness to frontier (Static)",
+                            "Closeness to frontier (Dynamic)",
                             "Original indicators"),
-                selected = "Closeness to frontier",
+                selected = "Closeness to frontier (Static)",
                 direction = "vertical",
                 justified = TRUE,
                 checkIcon = list(
