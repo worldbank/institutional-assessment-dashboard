@@ -512,6 +512,58 @@ test_that(
 )
 ```
 
+
+## Update db_variables to contain the family averages
+
+```{r}
+## temporarily clean the family names
+
+db_variables <- db_variables %>% 
+                 mutate(family_name = ifelse(family_name == "Justice institutions", "Justice Institutions",
+                   ifelse(family_name == "Political institutions" , "Political Institutions" ,
+                     family_name
+                   )))
+
+
+db_variables<-db_variables %>% 
+  mutate(across(where(is.character), str_squish))
+
+## add a temporary rank id within family in db_variables
+set.seed(1957)
+generate_random_sequence <- function(length) {
+  return(sample(1:length, length, replace = FALSE))
+}
+
+db_variables<-db_variables %>% 
+  group_by(family_var) %>% 
+  mutate(rank_id = generate_random_sequence(n())) %>% 
+  ungroup() %>% 
+  mutate(rank_id = rank_id + 1)
+
+
+
+## add family level vars
+family_level_vars <- db_variables %>% 
+  distinct(family_var, family_name) %>% 
+  rowwise() %>% 
+  mutate(variable = paste0(family_var, "_avg"),
+    var_name = paste0(family_name, " Average"),
+    var_level = "indicator" ) %>% 
+  mutate(benchmarked_ctf = "Yes")
+
+db_variables <- db_variables %>% 
+  bind_rows(family_level_vars) %>% 
+  arrange(family_var) %>% 
+  mutate(rank_id = ifelse(variable %in% grep("_avg", variable, value = T), 
+    1, rank_id)) %>% 
+  arrange(family_var, rank_id)
+
+
+
+```
+
+
+
 ## Write-out data.
 
 ```{r}
@@ -550,4 +602,14 @@ write_rds(
     "closeness_to_frontier_dynamic_long.rds"
   )
 )
+
+write_rds(
+  db_variables,
+  here(
+    "data",
+    "output",
+    "db_variables.rds"
+  )
+)
 ```
+

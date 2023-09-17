@@ -1014,6 +1014,7 @@ static_map <-
 
       color <- paste0("value_", var)
 
+      
       data <-
         spatial_data %>%
         mutate(
@@ -1603,7 +1604,7 @@ static_scatter <-
         # label = paste0(
         #   "Country: ", country_name, "<br>"
         # ),
-        log = log(gdp_pc_ppp_const),
+        log = log(wdi_nygdppcapppkd),
         type = case_when(
           country_name == base_country ~ "Base country",
           country_name %in% comparison_countries ~ "Comparison countries",
@@ -1612,7 +1613,7 @@ static_scatter <-
 
       ) %>%
       left_join(
-        high_group, by = c("country_code")
+        high_group, by = c("country_name")
       )
 
    

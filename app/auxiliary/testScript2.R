@@ -162,4 +162,60 @@ data =  global_data %>%
     input$threshold
   )
 
+data = global_data
+base_country  = "Angola"
+comparison_countries  = high_group()
 
+Category = "Custom"
+Grp = c("GRP1", "GRP1","GRP1", "GRP2", "GRP2", "GRP2", "GRP2", "GRP2", "GRP3", "GRP3", "GRP3", "GRP3")
+Countries <- c("Denmark", "Russian Federation", "Sweden", "Tajikistan",
+  "Thailand", "Trinidad and Tobago", "Tunisia", "Turkmenistan", "Uzbekistan", "Venezuela, RB",
+  "Vietnam", "Yemen, Rep.")
+
+custom_df <- data.frame(Category, Grp, Countries)
+
+base_country <- "Angola"
+comparison_countries = custom_df %>%
+  filter(Grp == "GRP1" & Countries != base_country) %>%
+  distinct(Countries) %>%
+  pull()
+
+
+  custom_df_data <- custom_df %>%
+    filter(Grp %in% "GRP1") %>% 
+    select(Grp, Countries) %>% 
+    rename(group = Grp, 
+      country_name = Countries) %>% 
+    left_join(., country_list %>% distinct(country_code, country_name), by = c("country_name" ))
+  
+  high_group <- custom_df_data
+
+
+high_group_df <-  country_list %>%
+  filter(group %in% input$high_group) %>%
+  select(group, country_code)
+
+y_scatter  = "Log GDP per capita, PPP"
+x_scatter = 'Firms identifying corruption as a major constraint'
+variable_names  = variable_names
+country_list = country_list
+linear_fit = TRUE
+
+static_scatter(
+  global_data,
+  input$country_scatter,
+  input$countries_scatter,
+  high_group(),
+  input$y_scatter,
+  input$x_scatter,
+  variable_names,
+  country_list,
+  input$linear_fit
+) %>%
+  interactive_scatter(
+    input$y_scatter,
+    input$x_scatter,
+    db_variables,
+    high_group(),
+    plotly_remove_buttons
+  )

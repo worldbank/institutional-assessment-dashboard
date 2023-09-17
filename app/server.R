@@ -155,6 +155,7 @@ shinyjs::hide("save_inputs")
     
     ## show save inputs button
     shinyjs::show("save_inputs")
+    shinyjs::disable("save_inputs")
     
   }
   
@@ -1614,7 +1615,7 @@ shinyjs::hide("save_inputs")
     
    high_group_df <-  country_list %>%
       filter(group %in% input$high_group) %>%
-      select(group, country_code)
+      select(group, country_name)
     
     if(!is.null(custom_df_bar()) & any(input$high_group %in% custom_df_bar()$Grp)){
       custom_df_data <- custom_df_bar() %>%
@@ -1622,7 +1623,7 @@ shinyjs::hide("save_inputs")
         select(Grp, Countries) %>% 
         rename(group = Grp, 
                country_name = Countries) %>% 
-        left_join(., country_list %>% select(country_code, country_name), by = "country_name" )
+        left_join(., country_list %>% select(country_name), by = c("country_name"))
      
       high_group_df <- bind_rows(high_group_df, custom_df_data)   
         
@@ -1633,7 +1634,12 @@ shinyjs::hide("save_inputs")
   })
 
   output$scatter_plot <-
+    
     renderPlotly({
+      
+      shiny::req(input$y_scatter)
+      shiny::req(input$x_scatter)
+      
       static_scatter(
         global_data,
         input$country_scatter,
@@ -1642,7 +1648,8 @@ shinyjs::hide("save_inputs")
         input$y_scatter,
         input$x_scatter,
         variable_names,
-        country_list
+        country_list,
+        input$linear_fit
       ) %>%
         interactive_scatter(
           input$y_scatter,
@@ -1652,7 +1659,7 @@ shinyjs::hide("save_inputs")
           plotly_remove_buttons
         )
     })
-
+  
   # Map =======================================================================
 
   output$map <-
@@ -1785,32 +1792,7 @@ shinyjs::hide("save_inputs")
      })
 
      
-    output$scatter_plot <-
-    
-      renderPlotly({
-        
-        shiny::req(input$y_scatter)
-        shiny::req(input$x_scatter)
-        
-        static_scatter(
-          global_data,
-          input$country_scatter,
-          input$countries_scatter,
-          high_group(),
-          input$y_scatter,
-          input$x_scatter,
-          variable_names,
-          country_list,
-          input$linear_fit
-        ) %>%
-          interactive_scatter(
-            input$y_scatter,
-            input$x_scatter,
-            db_variables,
-            high_group(),
-            plotly_remove_buttons
-          )
-      })
+
 
 
   browse_data <-
@@ -2201,8 +2183,11 @@ shinyjs::hide("save_inputs")
       }
     )
   
+  # Publications --------------------------------------------------------
+  publicationsServer("publications")
   
-  ## Save the input data to be loaded the next time
+  
+  ## Save inputs to be loaded the next time --------------------------------------------------------
   cliar_inputs <- eventReactive(input$select , {
     
     cliar_inputs <- data.frame(
@@ -2217,11 +2202,8 @@ shinyjs::hide("save_inputs")
       comparison_countries = paste(c(input$countries), collapse = ";"), #comparison countries
       create_custom_groups = input$create_custom_grps
     )
-      )
-    
-    # Publications --------------------------------------------------------
-    publicationsServer("publications")
-    
+
+
     if(input$create_custom_grps == TRUE){
       cliar_inputs$no_custom_grps = input$custom_grps_count
       
@@ -2241,6 +2223,7 @@ shinyjs::hide("save_inputs")
   # When 'apply selection' button is clicked, show the save button
   shiny::observeEvent(input$select, {
     shinyjs::show("save_inputs")
+    shinyjs::enable("save_inputs")
   })
 
   output$save_inputs <- downloadHandler(

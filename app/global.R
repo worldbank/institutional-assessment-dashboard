@@ -36,47 +36,6 @@ db_variables <-
   )
 
 
-## temporarily clean the family names
-
-db_variables <- db_variables %>% 
-                 mutate(family_name = ifelse(family_name == "Justice institutions", "Justice Institutions",
-                   ifelse(family_name == "Political institutions" , "Political Institutions" ,
-                     family_name
-                   )))
-
-
-db_variables<-db_variables %>% 
-  mutate(across(where(is.character), str_squish))
-
-## add a temporary rank id within family in db_variables
-set.seed(1957)
-generate_random_sequence <- function(length) {
-  return(sample(1:length, length, replace = FALSE))
-}
-
-db_variables<-db_variables %>% 
-  group_by(family_var) %>% 
-  mutate(rank_id = generate_random_sequence(n())) %>% 
-  ungroup() %>% 
-  mutate(rank_id = rank_id + 1)
-
-
-
-## add family level vars
-family_level_vars <- db_variables %>% 
-  distinct(family_var, family_name) %>% 
-  rowwise() %>% 
-  mutate(variable = paste0(family_var, "_avg"),
-    var_name = paste0(family_name, " Average"),
-    var_level = "indicator" )
-
-db_variables <- db_variables %>% 
-  bind_rows(family_level_vars) %>% 
-  arrange(family_var) %>% 
-  mutate(rank_id = ifelse(variable %in% grep("_med", variable, value = T), 
-    1, rank_id)) %>% 
-  arrange(family_var, rank_id)
-
 
 source(here("auxiliary", "vars-control.R"))
 
@@ -185,6 +144,7 @@ spatial_data <-
       "indicators_map.rds"
     )
   )
+
 
 clean_country <-
   read.csv(
@@ -339,6 +299,8 @@ extract_xvar_choices <-
 
 xvar_choice_list <- purrr::map2(family_names$var_name, yvar, extract_xvar_choices)
 names(xvar_choice_list) <- family_names$var_name
+
+xvar_choice_list <- c("Log GDP per capita, PPP",xvar_choice_list)
 
 return(xvar_choice_list)
 }
