@@ -1770,7 +1770,48 @@ shinyjs::hide("save_inputs")
       }
     })
 
-  # Data table ================================================================
+
+     shiny::observeEvent(input$y_scatter, {
+       
+       shiny::req(input$y_scatter)
+       
+       updatePickerInput(
+         session, 
+         inputId =  "x_scatter",
+         choices = x_scatter_choices(input$y_scatter)
+         
+         
+       )
+     })
+
+     
+    output$scatter_plot <-
+    
+      renderPlotly({
+        
+        shiny::req(input$y_scatter)
+        shiny::req(input$x_scatter)
+        
+        static_scatter(
+          global_data,
+          input$country_scatter,
+          input$countries_scatter,
+          high_group(),
+          input$y_scatter,
+          input$x_scatter,
+          variable_names,
+          country_list,
+          input$linear_fit
+        ) %>%
+          interactive_scatter(
+            input$y_scatter,
+            input$x_scatter,
+            db_variables,
+            high_group(),
+            plotly_remove_buttons
+          )
+      })
+
 
   browse_data <-
     reactive({

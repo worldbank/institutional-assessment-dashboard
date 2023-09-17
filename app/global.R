@@ -172,8 +172,6 @@ country_list <-
     )
   )
 
-
-
 spatial_data <-
   read_rds(
     here(
@@ -300,15 +298,41 @@ customItem <-
     href = NULL, ...) {
     
     if (is.null(href)) 
-      
-      href <- "#"
-    icon <- tagAppendAttributes(
-      icon, 
-      class = "nav-icon"
-    )
-    
-    tags$li(
-      a(href = href, icon, text, class = "nav-link", target = "_blank"),
-      class = "nav-item"
-    )
+     
+      tags$li(
+        a(href = href, icon, text, class = "nav-link", target = "_blank"),
+        class = "nav-item"
+      )
   }
+
+
+# Bivariate correlation ----------------------------------------------------------
+
+## y axis variable choices  
+
+y_scatter_choices <- append(
+  "Log GDP per capita, PPP",
+  variable_list
+)
+
+
+## x axis variable choices will be everything apart from the y axis variable selected
+x_scatter_choices <- function(yvar){
+  
+extract_xvar_choices <-
+  function(x, yvar) {
+    db_variables %>%
+      dplyr::filter(
+        var_name != yvar
+      ) %>% 
+      dplyr::filter(
+        family_name == x 
+      ) %>%
+      pull(var_name)
+  }
+
+xvar_choice_list <- purrr::map2(family_names$var_name, yvar, extract_xvar_choices)
+names(xvar_choice_list) <- family_names$var_name
+
+return(xvar_choice_list)
+}
