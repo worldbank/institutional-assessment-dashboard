@@ -1176,7 +1176,7 @@ shinyjs::hide("save_inputs")
         
         input$select
         
-       
+       # browser()
         
         ## Important!
         ## Shel added custom_df as an argument in the static_plot function to accommodate the custom groups

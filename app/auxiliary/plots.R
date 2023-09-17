@@ -1602,7 +1602,7 @@ static_scatter <-
         label = paste0(
           "Country: ", country_name, "<br>"
         ),
-        log = log(gdp_pc_ppp_const),
+        log = log(wdi_nygdppcapppkd),
         type = case_when(
           country_name == base_country ~ "Base country",
           country_name %in% comparison_countries ~ "Comparison countries",
@@ -1695,12 +1695,12 @@ interactive_scatter <-
 
     if (x_scatter == "Log GDP per capita, PPP") {
       x <- definitions %>%
-        filter(variable == "gdp_pc_ppp_const")
+        filter(variable == "wdi_nygdppcapppkd")
     }
 
     if (y_scatter == "Log GDP per capita, PPP") {
       y <- definitions %>%
-        filter(variable == "gdp_pc_ppp_const")
+        filter(variable == "wdi_nygdppcapppkd")
     }
     
     def_note <-

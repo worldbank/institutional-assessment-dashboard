@@ -89,6 +89,12 @@ ui <-
             color: white;
        } 
        
+       #save_inputs{
+          background-color: #e94152;
+          color: white;
+          border-radius: 20px;
+       }
+
         "
       )),
       
