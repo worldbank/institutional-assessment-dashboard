@@ -2217,7 +2217,10 @@ shinyjs::hide("save_inputs")
       comparison_countries = paste(c(input$countries), collapse = ";"), #comparison countries
       create_custom_groups = input$create_custom_grps
     )
-
+      )
+    
+    # Publications --------------------------------------------------------
+    publicationsServer("publications")
     
     if(input$create_custom_grps == TRUE){
       cliar_inputs$no_custom_grps = input$custom_grps_count

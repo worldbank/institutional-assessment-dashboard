@@ -92,6 +92,12 @@ source(here("auxiliary", "plots.R"))
 source(here("auxiliary", "clean_plotly_legend.R"))
 source(here("auxiliary", "fixfacets.R"))
 
+# Function that displays publications
+source(here("auxiliary", "fun_publications.R"))
+
+# Modules
+source(here("modules", "mod_publications.R"))
+
 # Data -------------------------------------------------------------
 
 raw_data <-

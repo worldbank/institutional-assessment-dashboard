@@ -47,6 +47,7 @@ ui <-
         menuItem("Time trends", tabName = "trends", icon = icon("chart-line")),
         menuItem("Data", tabName = "data", icon = icon("table")),
         menuItem("Methodology", tabName = "methodology", icon = icon("book")),
+        menuItem("Publications", tabName = "pubs", icon = icon("list")),
         menuItem("Terms of use", tabName = "terms", icon = icon("handshake")),
         menuItem("FAQ", tabName = "faq", icon = icon("question")),
         customItem("Feedback", 
@@ -1141,7 +1142,13 @@ ui <-
           )
 
         ),
-        
+
+## Publications  ================================================================
+tabItem(
+  tabName = "pubs",
+  publicationsUI("publications")
+),
+                
 ## Terms of use ================================================================
 
         tabItem(
