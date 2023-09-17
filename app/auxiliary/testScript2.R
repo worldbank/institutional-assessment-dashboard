@@ -137,12 +137,14 @@ data =  global_data_dyn %>%
     vars_all,
     variable_names,
     input$threshold
-  )
+  )%>%
+  filter(variable %in% vars()) 
 
+cutoff<-c(25,50)
 base_country = base_country()
 tab_name = input$family
 rank = input$rank
-group_median = NULL
+group_median = input$benchmark_median
 custom_df = NULL ## New addition made by Shel in August 2023 to accommodate custom groups
 title = TRUE
 dots = FALSE

@@ -941,6 +941,8 @@ server <- function(input, output, session) {
         
         input$select
         
+       
+        
         ## Important!
         ## Shel added custom_df as an argument in the static_plot function to accommodate the custom groups
 
@@ -1142,8 +1144,6 @@ server <- function(input, output, session) {
       if (length(input$countries) >= 10) {
         
         input$select
-
-        # browser()
         
         isolate(
           if (input$family == "Overview") {

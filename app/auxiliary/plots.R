@@ -775,10 +775,10 @@ static_plot_dyn <-
       plot <-
         plot +
         suppressWarnings(geom_point(
-          data = median_data %>% filter(!is.na(value)),
+          data = median_data %>% ungroup() %>% filter(!is.na(value)),
           aes(
             y = value,
-            x = year,
+            x = as.character(year),
             shape = country_name,
             text = paste(
               " Group:", country_name,"<br>",

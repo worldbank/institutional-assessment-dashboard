@@ -315,7 +315,7 @@ ctf_dynamic_clean <-
   mutate(
     log_gdp = log(wdi_nygdppcapppkd)
   ) |>
-  bind_rows(group_ctf) %>%
+  bind_rows(group_ctf_dynamic) %>%
   ungroup() %>%
   arrange(country_name) |>
   select(
@@ -407,7 +407,7 @@ ctf_long_clean_family_level <- ctf_long_clean %>%
   rowwise() %>%
   mutate(
     variable = paste0(family_var, "_avg"),
-    var_name = (paste0(family_name, " Median"))
+    var_name = (paste0(family_name, " Average"))
   ) %>%
   left_join(ctf_long_clean %>%
     distinct(
@@ -450,7 +450,7 @@ ctf_dynamic_long_clean_family_level <- ctf_dynamic_long_clean %>%
   rowwise() %>%
   mutate(
     variable = paste0(family_var, "_avg"),
-    var_name = (paste0(family_name, " Median"))
+    var_name = (paste0(family_name, " Average"))
   ) %>%
   left_join(ctf_dynamic_long_clean %>%
     distinct(
