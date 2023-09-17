@@ -1540,10 +1540,15 @@ server <- function(input, output, session) {
   browse_data <-
     reactive({
       data <-
-        if (input$data_source == "Closeness to frontier") {
+        if (input$data_source == "Closeness to frontier (Static)") {
           global_data
         } else {
-          raw_data
+          if(input$data_source == "Closeness to frontier (Dynamic)"){
+            global_data_dyn
+          }else{
+            raw_data
+          }
+          
         }
 
       groups <-
@@ -1573,11 +1578,16 @@ server <- function(input, output, session) {
         select(variable) %>%
         unlist()
 
-      if (input$data_source != "Closeness to frontier") {
-        vars_table <- c("country_name", "country_code", "Year", vars)
-      } else {
-        vars_table <- c("country_name", "country_code", "country_group", vars)
+      if (input$data_source == "Closeness to frontier (Static)") {
+        vars_table <- c("country_name", "country_code", "country_group",  vars)
+      }else{
+        if(input$data_source == "Closeness to frontier (Dynamic)"){
+          vars_table <- c("country_name", "country_code", "country_group", "year", vars)
+        } else {
+          vars_table <- c("country_name", "country_code", "country_group", "Year", vars)
+        }
       }
+      
 
       vars_table <- unname(vars_table)
 

@@ -934,9 +934,10 @@ ui <-
               radioGroupButtons(
                 "data_source",
                 label = "Select a data source",
-                choices = c("Closeness to frontier",
+                choices = c("Closeness to frontier (Static)",
+                            "Closeness to frontier (Dynamic)",
                             "Original indicators"),
-                selected = "Closeness to frontier",
+                selected = "Closeness to frontier (Static)",
                 direction = "vertical",
                 justified = TRUE,
                 checkIcon = list(
