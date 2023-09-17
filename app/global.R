@@ -85,6 +85,7 @@ source(here("auxiliary", "fun_quantiles.R"))
 source(here("auxiliary", "fun_family_data.R"))
 source(here("auxiliary", "fun_missing_var.R"))
 source(here("auxiliary", "fun_low_variance.R"))
+source(here("auxiliary", "fun_loadInputs.R"))
 
 # Create benchmark graphs
 source(here("auxiliary", "plots.R"))

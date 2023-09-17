@@ -75,6 +75,20 @@ ui <-
         .shiny-html-output.shiny-bound-output{
             text-align: justify;
         }
+        
+      /* Changed the background of the load and save input buttons a shade of red */
+      .load_save_btns .bttn-primary{background-color: #e94152;}
+      
+      /* Changed the background of the selected country or countries to a shade of blue */
+      .dropdown-item.active, .dropdown-item:active,
+      .dropdown-item.opt.selected
+      {background-color: #007bff6b;}
+       
+       .far.fa-square-check{
+            background-color: #e94152e8;
+            color: white;
+       } 
+       
         "
       )),
       
@@ -179,6 +193,19 @@ ui <-
             solidHeader = TRUE,
             width = 12,
 
+            shiny::fluidRow(
+              ## Load inputs button
+              column(
+                width = 3,
+                buttons_func(id = "load_inputs",
+                  lab = "Load Inputs"
+                ),
+                
+              )
+            ),
+            
+            shiny::fluidRow(style = "height:30px;"),
+            
             fluidRow(
 
               column(
@@ -373,6 +400,12 @@ ui <-
                   status = "success",
                   value = FALSE
                 )
+              ),
+              ## Save inputs button
+              column(
+                align = "right",
+                width = 3,
+                downloadButton("save_inputs", "Save inputs")
               )
 
             )

@@ -3,6 +3,10 @@
 server <- function(input, output, session) {
   # Handle inputs ======================================================================
 
+  ## Hide save inputs button at onset
+shinyjs::hide("save_inputs")
+  
+  
   ## Base country ------------------------------------------------------------
   base_country <-
     eventReactive(
@@ -10,6 +14,151 @@ server <- function(input, output, session) {
       input$country,
       ignoreNULL = FALSE
     )
+  
+  ## When load inputs button is clicked
+  
+  shiny::observeEvent(input$load_inputs, {
+    
+    ## Display a modal that prompts the user to upload a file
+    
+    shiny::showModal(
+      modalDialog(
+      title = htmltools::tags$span(htmltools::tags$strong("Please upload an input file")),
+      tagList(
+        
+        shiny::fluidRow(
+          shiny::fileInput(
+            inputId = "input_file",
+            label = "",
+            accept = ".rds"
+          )
+        ),
+        shiny::fluidRow(
+          buttons_func("submit", "Submit")
+        ),
+        shiny::fluidRow(style = "height:15px;")
+      ),
+      easyClose = FALSE
+    ))
+
+  })
+  
+ 
+  ## Once the submit button is clicked, check to see if the file contains core fields
+  
+  saved_inputs_df <-  shiny::eventReactive(input$submit, {
+    
+    ## Read in the data
+    file <- input$input_file
+    ext <- tools::file_ext(file$datapath)
+    
+    req(file)
+    
+    saved_inputs_df <- readRDS(file$datapath)
+    
+    core_fields <- c("country", "groups", "family","benchmark_median","benchmark_dots","rank",
+      "threshold", "worst_to_best_order", "comparison_countries", "create_custom_groups"
+    )
+    
+    if(all(!core_fields %in% names(saved_inputs_df))){
+      saved_inputs_df <- NULL
+    }
+    
+    return(saved_inputs_df)
+    
+  })
+  
+  shiny::observeEvent(input$submit, {
+    
+   # browser()
+    
+  core_fields <- c("country", "groups", "family","benchmark_median","benchmark_dots","rank",
+    "threshold", "worst_to_best_order", "comparison_countries", "create_custom_groups"
+    )
+    
+  ## if the file does not contain the core names, throw an erro
+  if(all(!core_fields %in% names(saved_inputs_df()))){
+    toast_messages_func("error", "Invalid file")
+  }
+   
+  
+  ## else load the inputs
+  if(all(core_fields %in% names(saved_inputs_df()))){
+    
+    
+    ## show a waiter object as the inputs are being populated
+    waiter::waiter_show(html = shiny::tagList(
+      waiter::spin_ring(),
+      shiny::h4("Fetching data ...")
+    ))
+
+    ## update inputs 
+    ### country
+    shinyWidgets::updatePickerInput(
+      session = session,
+      inputId = "country", 
+      selected = saved_inputs_df()$country
+    )
+    
+    ### comparison groups
+    shinyWidgets::updatePickerInput(
+      session = session,
+      inputId = "groups", 
+      selected = unlist(strsplit(saved_inputs_df()$groups, ";"))
+    )
+    
+    ### institutional family
+    shinyWidgets::updatePickerInput(
+      session = session,
+      inputId = "family",
+      selected = saved_inputs_df()$family
+    )
+    
+    ### group median
+    shinyWidgets::updatePickerInput(
+      session = session,
+      inputId = "benchmark_median", 
+      selected = unlist(strsplit(saved_inputs_df()$benchmark_median, ";"))
+    )
+
+    ### show comparison countries
+    shinyWidgets::updatePrettyCheckbox(
+      session = session,
+      inputId = "benchmark_dots",
+      value = saved_inputs_df()$benchmark_dots
+    )
+    
+    ### show rank instead of value
+    shinyWidgets::updatePrettyCheckbox(
+      session = session,
+      inputId = "rank",
+      value = saved_inputs_df()$rank
+    ) 
+    
+    ### benchmarking thresholds
+    shinyWidgets::updatePickerInput(session = session,
+      inputId = "threshold", 
+      selected = saved_inputs_df()$threshold
+    )
+    
+    ### ranking indicators from worse to best
+    shinyWidgets::updatePrettyCheckbox(
+      session = session,
+      inputId = "preset_order", 
+      value = saved_inputs_df()$worst_to_best_order
+    )
+
+    removeModal()
+    
+    ## exit waiter once that process is finished 
+    waiter::waiter_hide()
+    
+    ## show save inputs button
+    shinyjs::show("save_inputs")
+    
+  }
+  
+  })
 
   ## Start of benchmark tab control inputs----------------------
 
@@ -109,9 +258,8 @@ server <- function(input, output, session) {
   ## they'd want to place in those groups
 
   ## Reactive object that will hold all these information
-  custom_group_fields_reactive <- shiny::reactive({
-    # shiny::req(input$custom_grps_count)
-
+  custom_group_fields_reactive <- reactive({
+    
     ## number of fields to create
     n_fields <- input$custom_grps_count
 
@@ -123,11 +271,32 @@ server <- function(input, output, session) {
     lapply(1:n_fields, function(i) {
       custom_names <- ""
       custom_countries <- NULL
+      
+      
       c_groups <- input$groups[!input$groups %in% unlist(group_list)]
 
       if (n_fields >= 1) {
-        custom_names <- isolate(input[[paste("custom_grps_names", i, sep = "_")]])
-        custom_countries <- isolate(input[[paste("custom_grps_countries", i, sep = "_")]])
+        
+        if(nrow(saved_inputs_df()) > 0 & 
+            !is.null(saved_inputs_df()$no_custom_grps) &
+            saved_inputs_df()$create_custom_groups == TRUE ){
+          
+         if(saved_inputs_df()$no_custom_grps == input$custom_grps_count){ 
+           custom_names <- saved_inputs_df()[paste("custom_grps_names", i, sep = "_")]
+           custom_countries <- unlist(strsplit(as.character(saved_inputs_df()[
+             paste("custom_grps_countries", i, sep = "_")]), split = ";")
+           ) 
+          
+         }else{
+           custom_names <- isolate(input[[paste("custom_grps_names", i, sep = "_")]])
+           custom_countries <- isolate(input[[paste("custom_grps_countries", i, sep = "_")]])
+        }
+
+        }else{
+          custom_names <- isolate(input[[paste("custom_grps_names", i, sep = "_")]])
+          custom_countries <- isolate(input[[paste("custom_grps_countries", i, sep = "_")]])
+        }
+
 
         value_textInput <- custom_names
         selected_pickerinput <- custom_countries
@@ -160,10 +329,61 @@ server <- function(input, output, session) {
         )
       }
     })
+    
   })
 
+  shiny::observeEvent(input$submit, {
+
+
+    # browser()
+
+  if(nrow(saved_inputs_df()) > 0 & saved_inputs_df()$create_custom_groups == TRUE ){
+
+
+    ### create custom groups
+    shinyWidgets::updatePrettyCheckbox(
+      session = session,
+      inputId = "create_custom_grps",
+      value = saved_inputs_df()$create_custom_groups
+    )
+
+    ## update count
+    shiny::updateNumericInput(
+      session = session,
+      inputId = "custom_grps_count",
+      value = saved_inputs_df()$no_custom_grps
+    )
+
+
+    lapply(1:input$custom_grps_count, function(i) {
+      
+      if(saved_inputs_df()$no_custom_grps <= input$custom_grps_count){
+        shiny::updateTextInput(
+          session = session,
+          inputId = paste("custom_grps_names", i, sep = "_"),
+          label = paste("Insert the name of group ", i),
+          value = saved_inputs_df()[paste("custom_grps_names", i, sep = "_")]
+        )
+        
+        shinyWidgets::updatePickerInput(
+          session = session,
+          inputId = paste("custom_grps_countries", i, sep = "_"),
+          label = paste("Select countries that fall into group ", i),
+          choices = c("", saved_inputs_df()$comparison_sountries[!saved_inputs_df()$comparison_sountries %in% input$country]),
+          selected = unlist(strsplit(as.character(saved_inputs_df()[paste("custom_grps_countries", i, sep = "_")]), split = ";"))
+        )
+      }
+
+
+
+    })
+  }
+  })
+
+  
   ## Display the ui
   output$custom_grps <- renderUI({
+    
     custom_group_fields_reactive()
   })
 
@@ -879,7 +1099,20 @@ server <- function(input, output, session) {
 
   observeEvent(
     input$country,
+    
     {
+      
+      ## updating family at this point overwrites the update made once the user loads the input file,
+      ## so ...
+      
+      if(nrow(saved_inputs_df())>0 & ## if an input file exists and
+          input$load_inputs == 1 ## the user has clicked the load input file button
+      ){
+        sel_family = saved_inputs_df()$family ## the family selected by default is the one saved in the input file
+      }else{
+        sel_family = NULL ## the first one in the "family list" by default
+      }
+      
       valid_vars <-
         ctf_long %>%
         filter(
@@ -887,19 +1120,21 @@ server <- function(input, output, session) {
           !is.na(value)
         ) %>%
         select(family_name) %>%
-        unique() %>%
-        unlist() %>%
-        unname()
-
+        unique %>%
+        unlist %>%
+        unname
+      
       updatePickerInput(
         session,
         "family",
         choices = c(
           "Overview",
           intersect(names(variable_list), valid_vars)
-        )
+        ),
+        selected = sel_family ## the selected family depends on the condition above
       )
     },
+    
     ignoreNULL = FALSE
   )
 
@@ -1855,16 +2090,22 @@ server <- function(input, output, session) {
 
   output$definition <-
     renderTable({
+      
+      shiny::req(input$family) ## very crucial. As the app reads the family from the input file, 
+      # we don't want it to display "Warning: Error in if: argument is of length zero". This happens during transitions.
+      # This line ensures that the table is only displayed when family is not NULL. It's null when we
+      # transition from the default "Overview" to the family saved in the setup file.
+      
       variables <-
         db_variables %>%
         filter(var_level == "indicator")
-
+      
       if (input$family != "Overview") {
         variables <-
           variables %>%
           filter(family_name == input$family)
       }
-
+      
       variables %>%
         select(
           Indicator = var_name,
@@ -1872,6 +2113,7 @@ server <- function(input, output, session) {
           Description = description,
           Source = source
         )
+      
     })
 
   output$definition_bar <-
@@ -1917,4 +2159,53 @@ server <- function(input, output, session) {
         file.copy("www/CLIAR-Methodological-Note_20220403.pdf", file)
       }
     )
+  
+  
+  ## Save the input data to be loaded the next time
+  cliar_inputs <- eventReactive(input$select , {
+    
+    cliar_inputs <- data.frame(
+      country = input$country , #base country
+      groups = paste(c(input$groups), collapse = ";"), #comparison groups
+      family  = input$family, #institutional family
+      benchmark_median = paste(c(input$benchmark_median), collapse = ";"), #group median
+      benchmark_dots = input$benchmark_dots, #show comparison countries
+      rank = input$rank, #show rank instead of value
+      threshold = input$threshold, #threshold,
+      worst_to_best_order = input$preset_order,
+      comparison_countries = paste(c(input$countries), collapse = ";"), #comparison countries
+      create_custom_groups = input$create_custom_grps
+    )
+
+    
+    if(input$create_custom_grps == TRUE){
+      cliar_inputs$no_custom_grps = input$custom_grps_count
+      
+      
+      for(i in 1: input$custom_grps_count){
+        cliar_inputs[, paste("custom_grps_names", i, sep = "_")] = input[[paste("custom_grps_names", i, sep = "_")]]
+        cliar_inputs[, paste("custom_grps_countries", i, sep = "_")] = 
+          paste(input[[paste("custom_grps_countries", i, sep = "_")]], collapse = ";")
+
+      }
+    }
+    
+    return(cliar_inputs)
+    
+  })
+  
+  # When 'apply selection' button is clicked, show the save button
+  shiny::observeEvent(input$select, {
+    shinyjs::show("save_inputs")
+  })
+
+  output$save_inputs <- downloadHandler(
+    filename = function() { 
+      paste("cliar_inputs.rds")
+    },
+    content = function(file) {
+      saveRDS(cliar_inputs(), file)
+    }) 
+  
+
 }
