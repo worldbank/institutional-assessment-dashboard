@@ -534,42 +534,40 @@ static_plot_dyn <-
     }
     
     ## calculate the delta and the new facet labels that will contain it.
-    
-    if (rank == TRUE) {
-      
-      data <- data %>% 
-        group_by(country_name, var_name) %>% 
-        mutate(earliest_value = nrank[year == min(as.numeric(year), na.rm = TRUE)],
-          latest_value = nrank[year == max(as.numeric(year), na.rm = TRUE)],
-          delta = (latest_value - earliest_value)/earliest_value
-        )%>% 
-        mutate(new_labels = 
-            ifelse(earliest_value != latest_value, 
-              paste0(var_name, 
-                " \n\n(Change in Percentile Rank: ", "from ",earliest_value ," to ",latest_value , ")"
-                ), 
-              paste0(var_name, 
-                " \n\n(No significant change in Percentile Rank)"
-              )
-              )
-            
-            ) %>% 
-        ungroup()
-      
-      
-      
-      
-    }else{
-      data <- data %>% 
-        group_by(country_name, var_name) %>% 
-        mutate(earliest_value = var[year == min(as.numeric(year), na.rm = TRUE)],
-          latest_value = var[year == max(as.numeric(year), na.rm = TRUE)],
-          delta = round((latest_value - earliest_value)/earliest_value, 4)
-        ) %>% 
-        mutate(new_labels = paste0(var_name, " \n(Change in CTF: ", delta , ")")) %>% 
-        ungroup()
-    }
 
+      
+      data <- data %>% 
+        group_by(family_name, var_name) %>% 
+        mutate(n_countries_min = length(country_name[year == min(as.numeric(year), na.rm = TRUE)]),
+          n_countries_max = length(country_name[year == max(as.numeric(year), na.rm = TRUE)])
+          ) %>% 
+        ungroup() %>% 
+        group_by(country_name, var_name) %>% 
+        mutate(earliest_value_ctf = var[year == min(as.numeric(year), na.rm = TRUE)],
+          latest_value_ctf = var[year == max(as.numeric(year), na.rm = TRUE)]
+        )%>% 
+        mutate(earliest_value_rank = nrank[year == min(as.numeric(year), na.rm = TRUE)],
+          latest_value_rank = nrank[year == max(as.numeric(year), na.rm = TRUE)]
+        ) %>% 
+        ungroup() %>% 
+        rowwise() %>% 
+        mutate(delta = round((latest_value_ctf - earliest_value_ctf)/earliest_value_ctf, 3)) %>% 
+        mutate(new_labels = 
+          ifelse(earliest_value_rank != latest_value_rank, 
+            paste0(var_name, 
+              "\n\n(Change in CTF: ", delta , ")",
+              "\n(Change in Percentile Rank: ", "from ",earliest_value_rank , " out of ", 
+              n_countries_min, " to ",latest_value_rank ," out of ", n_countries_max, ")"
+            ), 
+            paste0(var_name, 
+              "\n\n(Change in CTF: ", delta , ")",
+              "\n(No significant change in Percentile Rank)"
+            )
+          )
+      ) %>% 
+      ungroup()
+    
+    
     
     ## The year var should be character or factor
     data <- data %>% 
@@ -856,7 +854,7 @@ static_plot_dyn <-
     
     
    ## fix facets
-   plot <- fixfacets(figure = plot, facets = names(plot_titles), domain_offset = 0.16) 
+   # plot <- fixfacets(figure = plot, facets = names(plot_titles), domain_offset = 0.16) 
    
     return(plot)
   }

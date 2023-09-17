@@ -1143,6 +1143,8 @@ server <- function(input, output, session) {
         
         input$select
 
+        # browser()
+        
         isolate(
           if (input$family == "Overview") {
             missing_variables <-
