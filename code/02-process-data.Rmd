@@ -457,7 +457,7 @@ cliar_indicators_diagnostic |>
       here(
         "data",
         "output",
-        "diagnostics_compiled_indicators.csv"
+        "diagnostics_compiled_indicators.rds"
       )
     )
 ```

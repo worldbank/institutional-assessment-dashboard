@@ -64,5 +64,5 @@ passwords.*
 password/
 passwords/
 data/raw/CLASS.xlsx
-code/data/*
+**/output/
 
