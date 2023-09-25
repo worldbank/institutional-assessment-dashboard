@@ -1964,7 +1964,7 @@ shinyjs::hide("save_inputs")
             setnames(
               .,
               as.character(variable_names$var_name),
-              as.character(variable_names$variable),
+              substr(as.character(variable_names$variable),1,32),
               skip_absent = TRUE
             ),
           file
