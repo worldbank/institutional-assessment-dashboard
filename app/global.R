@@ -230,7 +230,8 @@ extract_variables <-
   function(x) {
     db_variables %>%
       filter(
-        family_name == x
+        family_name == x,
+        !grepl('Average', var_name)
       ) %>%
       pull(var_name)
   }
