@@ -107,7 +107,7 @@ efi_clean <- efi |>
   clean_names() |> 
   # fix enterprise surveys variable name
   rename_with(
-    \(x) str_replace(x, "wb_survey", "wb_enterprisesurveys_ic_frm"),
+    \(x) str_replace(x, "wb_survey", "wb_es_ic_frm"),
     .cols = starts_with("wb_survey")
   ) |> 
   # create PFM MIS indicator by summing over the following and rescaling:

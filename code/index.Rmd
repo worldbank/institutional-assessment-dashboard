@@ -1,6 +1,6 @@
 --- 
 title: "Data processing"
-author: "Eric Braian Arias, Galileu Kim, Abigail Paterson, Kannan Venkataramanan\n Former Members: Luiza Andrade, Serena Cocciolo, Gabriel Vaz de Melo"
+author: "Eric Braian Arias, Galileu Kim, Shelmith Kariuki, Abigail Paterson, Kannan Venkataramanan\n Former Members: Luiza Andrade, Serena Cocciolo, Gabriel Vaz de Melo"
 site: "bookdown::bookdown_site"
 output: 
   bookdown::gitbook
@@ -32,11 +32,13 @@ This section describes the different stages of data processing in CLIAR. We desc
 
 1.	Data Extraction: this section describes the different data sources extracted by the CLIAR data pipeline and how they are accessed. Currently, the data is being imported from two sources:
     a.	EFI 360 API: GovData360 is an initiative of the World Bank’s Governance Global Practice (GGP). It contains more than 4,700 governance-related indicators on state capacity, efficiency, openness, inclusiveness, accountability, integrity, and trust in government. The site gathers information from 35 data sources, including other World Bank sources. Gov360 is a powerful R Package that facilitates the retrieval and analysis of data related to various indicators. 
-    b. Original Data: The team extracts indicators from an original table of indicators manually produced by the legacy team (merged_for_residuals.rds). This dataset should be updated, and ensure that the indicators are extracted from the original sources instead of a legacy file.
-    c. Central Bank Independence Data: The database contains information on the CBIE index in (Romelli, 2022), as well as the most used indices of central bank independence for 154 countries between 1972 and 2017. Using the dta file provided, we extract the variable LVAU and use that for representing the central bank independence. 
+    b. Manual extraction: the team has manually collected from a variety of sources. These include: (1) ASPIRE, (2) Fraser, (3) Heritage, (4) OECD Employment Protection Laws, (5) OECD Product Market Regulations, (6) RISE, (7) Romelli (2022), (8) SPI), (9) V-DEM, (10) WDI.
 
-2.	Data Quality Controls: this section describes the different protocols used to assess the quality of the data once it is ingested. In particular, we highlight (1) the quantitative review of data imports, as well as (2) inclusion criteria for CLIAR.
-    a.	Note: Currently, the data quality controls are not being applied to the Data Extraction. That is because in the legacy system, no quality controls were applied. This will be modified in the next iteration of CLIAR. Our assessment is that the quality controls should be applied at the Data Extraction step. 
+2.	Data Quality Controls: this section describes the different protocols used to assess the quality of the data once it is ingested. In particular, we highlight (1) the quantitative review of data imports, as well as (2) inclusion criteria for CLIAR:
+    a.	Continuity: The indicator must be updated at least once in the past five years.
+    b.	Country Coverage: The indicator must cover 100 countries at least once over the past 5 years. Exceptions: An exception to the rule is if the indicator covers at least 50 countries in the past 5 years and includes at least one country for all regions. (Additional exceptions are allowed and considered on a case-by-case basis.)
+    c.	Year Coverage: We include only variables that have at least 2 years of data (not per country but overall). Additionally, for each year to count, coverage must be of at least 10 countries.
+
 
 3.	Data Transformation: this section describes how data is transformed once it has been both ingested and vetted for inclusion within CLIAR. This includes transformation of indicators such as normalization, as well as the application of the Closeness-to-Frontier methodology.
     a.	For the governence data pertaining to Oil and Gas, we combine them and take the average of the indicators

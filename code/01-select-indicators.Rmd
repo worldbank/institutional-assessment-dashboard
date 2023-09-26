@@ -20,6 +20,7 @@ db_variables <-
     )
   ) |> 
   clean_names() |> 
+  # filter to exclude removed variable files
   mutate(
     variable = make_clean_names(variable)
   )
