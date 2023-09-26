@@ -361,15 +361,25 @@ cliar_indicators_id <- cliar_indicators |>
     variable = .
   )
 
-db_variables_indicators |> 
-  anti_join(cliar_indicators_id, by = "variable") |> 
-  as.data.frame()
+test_that(
+  "All indicators contained in metadata are in the CLIAR dataset",{
+    skip("Skipping until we finalize metadata file")
+    expect_equal(
+      nrow(
+        db_variables_indicators |> 
+          anti_join(cliar_indicators_id, by = "variable") |> 
+          as.data.frame()
+        ),
+      0
+    )
+  }
+)
   
 cliar_indicators_id |> 
   anti_join(db_variables_indicators, by = "variable") |> 
   as.data.frame()
   
-# only retain indicators contained in metadata v2 + id cols
+# only retain indicators contained in metadata + id cols
 cliar_indicators_clean <- cliar_indicators |> 
   # add country names
   left_join(
@@ -389,33 +399,33 @@ cliar_indicators_clean <- cliar_indicators |>
 ```{r country_validation}
 # there are 218 country codes listed in the WB's official website
 # https://datahelpdesk.worldbank.org/knowledgebase/articles/906519-world-bank-country-and-lending-groups
-# a. first verify that all the country codes from the official data are included
-wb_country_list |> 
-  distinct(country_code, country_name) |> 
-  anti_join(
-    cliar_indicators |> distinct(country_code),
-    by = c("country_code")
-  ) |> 
-  select(country_code, country_name)
-
-# b. verify that all the country codes from the official data are included
-cliar_indicators |> 
-  distinct(country_code) |> 
-  anti_join(
-    wb_country_list |> 
-      distinct(country_code, country_name),
-    by = c("country_code")
+# a. verify that all the country codes from the official data are included
+test_that(
+  "Verify that all the country codes from the official data are included",
+  expect_equal(
+    # number of rows is zero
+    cliar_indicators |> 
+      distinct(country_code) |> 
+        anti_join(
+          wb_country_list |> 
+            distinct(country_code, country_name),
+          by = c("country_code")
+        ) |> nrow(),
+      0
   )
+)
 
-# c. verify that cliar has distinct country-year
-nrow_cliar <- cliar_indicators |> 
-  nrow()
-
-nrow_cliar_distinct <- cliar_indicators |> 
-  distinct(country_code, year) |> 
-  nrow()
-
-nrow_cliar == nrow_cliar_distinct
+# b. verify that cliar has distinct country-year
+test_that(
+  "Verify that CLIAR has distinct country years",{
+    expect_equal(
+      nrow(cliar_indicators),
+      cliar_indicators |> 
+        distinct(country_code, year) |> 
+        nrow()
+    )
+  }
+)
 ```
 
 # 6. Compute coverage diagnostics

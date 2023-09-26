@@ -32,7 +32,9 @@ cliar_indicators <-
       "compiled_indicators.rds"
     )
   ) %>%
-  # we need to verify what we are doing with the cut-off points
+  # we subset our data to the post-2013 period.
+  # note: for the static exercise, we further subset to time period after 2018.
+  # for the dynamic exercise, we maintain our cutpoint at 2013.
   filter(
     year >= 2013
   )
@@ -96,7 +98,7 @@ For the static benchmark, we only calculate averages for indicators starting in 
 ```{r}
 country_average <-
   cliar_indicators_rescaled %>%
-  filter(year >= 2013) |>
+  filter(year >= 2018) |>
   group_by(
     country_code
   ) %>%
@@ -114,7 +116,7 @@ country_average <-
 # static
 min_max <-
   cliar_indicators_rescaled %>%
-  filter(year >= 2013) |>
+  filter(year >= 2018) |>
   summarise(
     across(
       all_of(vars_ctf),
