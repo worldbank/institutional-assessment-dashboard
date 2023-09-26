@@ -1080,7 +1080,6 @@ shinyjs::hide("save_inputs")
           )
       }
     )
-  
 
   # Missing variables from base country
   na_indicators <-
@@ -1401,9 +1400,9 @@ shinyjs::hide("save_inputs")
               .$var_name
             
             missing_variables <- c(missing_variables, low_variance_variables)
-            
-           
-            data_family_dyn() %>%
+
+            data_dyn() %>%
+              filter(str_detect(variable, "_avg"))%>%
               static_plot_dyn(
                 base_country(),
                 input$family,
@@ -1439,7 +1438,6 @@ shinyjs::hide("save_inputs")
               .$var_name
             
             missing_variables <- c(missing_variables, low_variance_variables)
-            
             
             data_dyn() %>%
               filter(variable %in% vars()) %>%
