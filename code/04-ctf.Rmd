@@ -57,7 +57,11 @@ db_variables <- read_rds(
 
 vars_ctf <- db_variables |>
   filter(
-    benchmarked_ctf == "Yes"
+    benchmarked_ctf == "Yes" &
+    # for now exclude indicators that have not been added
+    !(
+      variable %in% c("wb_gtmi_dcei", "wb_wwbi_bi_pwk_pubs_fe_zs", "wb_wwbi_bi_pwk_pubs_sn_fe_zs", "wb_wwbi_bi_wag_cprs_pb_zs", "wjp_rol_6_2")
+    )  
   ) |>
   pull(variable)
 ```
@@ -564,9 +568,7 @@ db_variables <- db_variables %>%
 
 ```
 
-
-
-## Write-out data.
+## Write-out data
 
 ```{r}
 write_rds(

@@ -168,6 +168,13 @@ vars_family <-
   pull(family_var) %>%
   unique
 
+# benchmarked variables ---------------------------------------------------
+vars_ctf <- db_variables |>
+  filter(
+    benchmarked_ctf == "Yes"
+  ) |>
+  pull(variable)
+
 # family variable averages
 # vars_family_average <- 
 
