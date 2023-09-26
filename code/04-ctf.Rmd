@@ -57,11 +57,7 @@ db_variables <- read_rds(
 
 vars_ctf <- db_variables |>
   filter(
-    benchmarked_ctf == "Yes" &
-    # for now exclude indicators that have not been added
-    !(
-      variable %in% c("wb_gtmi_dcei", "wb_wwbi_bi_pwk_pubs_fe_zs", "wb_wwbi_bi_pwk_pubs_sn_fe_zs", "wb_wwbi_bi_wag_cprs_pb_zs", "wjp_rol_6_2")
-    )  
+    benchmarked_ctf == "Yes"
   ) |>
   pull(variable)
 ```
@@ -563,9 +559,6 @@ db_variables <- db_variables %>%
   mutate(rank_id = ifelse(variable %in% grep("_avg", variable, value = T), 
     1, rank_id)) %>% 
   arrange(family_var, rank_id)
-
-
-
 ```
 
 ## Write-out data
