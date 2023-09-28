@@ -168,16 +168,29 @@ vars_family <-
   pull(family_var) %>%
   unique
 
+# benchmarked variables ---------------------------------------------------
+vars_ctf <- db_variables |>
+  filter(
+    benchmarked_ctf == "Yes"
+  ) |>
+  pull(variable)
+
+# family variable averages
+# vars_family_average <- 
+
 # extract family names
 family_names <-
   db_variables %>%
   # exclude extraneous families
   filter(
     family_var != "vars_other" &
-      family_var != "vars_missing"
+      family_var != "vars_missing" &
+      family_var != "vars_removed"
   ) %>%
   transmute(
     variable = family_var,
     var_name = family_name
   ) %>%
   unique
+
+# we need each vars_* object to have both the family_var and family_name
