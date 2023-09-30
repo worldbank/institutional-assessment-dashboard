@@ -50,10 +50,10 @@ ui <-
         menuItem("Publications", tabName = "pubs", icon = icon("list")),
         menuItem("Terms of use", tabName = "terms", icon = icon("handshake")),
         menuItem("FAQ", tabName = "faq", icon = icon("question")),
-        customItem("Feedback", 
+        menuItem("Feedback", 
                    icon = icon("comments", lib = "font-awesome"),
                    href = "mailto:cliar@worldbank.org"),
-        customItem("Source code", 
+        menuItem("Source code", 
                    icon = icon("github", lib = "font-awesome"),
                    href = "https://github.com/worldbank/institutional-assessment-dashboard/")
       )
