@@ -2232,5 +2232,34 @@ shinyjs::hide("save_inputs")
       saveRDS(cliar_inputs(), file)
     }) 
   
+  
+  
+  ## Save inputs to be loaded the next time --------------------------------------------------------
+  download_data_1 <- eventReactive(input$select , {
+    
+      if (input$family == "Overview") {
+        data<-data_family()
+          
+      } else {
+        data<-data() %>%
+          filter(variable %in% vars())
+      }
+    
+    return(data)
+    
+  })
+  
+  
+  
+  output$download_data_1 <- downloadHandler(
+    filename = function() { 
+      paste("download_data_1.csv")
+    },
+    content = function(file) {
+      write.csv(download_data_1(), file)
+    }) 
+  
+  
+  
 
 }

@@ -95,6 +95,12 @@ ui <-
           color: white;
           border-radius: 20px;
        }
+       
+       #download_data_1{
+          background-color: #3326da;
+          color: white;
+          border-radius: 20px;
+       }
 
         "
       )),
@@ -462,7 +468,14 @@ ui <-
                   label = "Show notes",
                   status = "success",
                   value = FALSE
+                ),column(
+                  width = 7),
+                column(
+                  align = "right",
+                  width = 3,
+                  downloadButton("download_data_1", "Download Data")
                 )
+                
               ),
               
               conditionalPanel(
@@ -504,7 +517,8 @@ ui <-
                   ) %>% shinycssloaders::withSpinner(color = "#051f3f", type = 8)
                 )
                 
-              )
+              ),
+              
               
             )
             
