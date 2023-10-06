@@ -1030,6 +1030,24 @@ static_map <-
             get(paste0("ctf_", var)) %>% round(3)
           )
         )
+      
+      
+      plot <-
+        data %>%
+        ggplot() +
+        geom_sf(
+          aes(
+            fill = as.numeric(get(color)),
+            text = paste0(
+              "<b>", country_name, "</b><br>",
+              text
+            )
+          ),
+          color = "black",
+          size = 0.1
+        ) +
+        labs(title = paste0("<b>", title, "</b>")) +
+        theme_void()
 
     } else if (source == "ctf") {
       color <- paste0("bin_", var)
@@ -1043,24 +1061,27 @@ static_map <-
             get(paste0("ctf_", var)) %>% round(3)
           )
         )
+      
+      
+      plot <-
+        data %>%
+        ggplot() +
+        geom_sf(
+          aes(
+            fill = get(color),
+            text = paste0(
+              "<b>", country_name, "</b><br>",
+              text
+            )
+          ),
+          color = "black",
+          size = 0.1
+        ) +
+        labs(title = paste0("<b>", title, "</b>")) +
+        theme_void()
     }
 
-    plot <-
-      data %>%
-      ggplot() +
-      geom_sf(
-        aes(
-          fill = get(color),
-          text = paste0(
-            "<b>", country_name, "</b><br>",
-            text
-          )
-        ),
-        color = "black",
-        size = 0.1
-      ) +
-      labs(title = paste0("<b>", title, "</b>")) +
-      theme_void()
+
 
     if (selected == "TRUE" & !is.null(base_country) & !is.null(comparison_countries)) {
 
