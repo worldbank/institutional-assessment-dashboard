@@ -156,6 +156,8 @@ shinyjs::hide("save_inputs")
     ## show save inputs button
     shinyjs::show("save_inputs")
     shinyjs::disable("save_inputs")
+    shinyjs::show("save_inputs")
+    shinyjs::disable("download_data_1")
     
   }
   
@@ -209,6 +211,11 @@ shinyjs::hide("save_inputs")
         id = "pptreport",
         condition = input$select,
         shinyjs::disable("pptreport")
+      )
+      toggleState(
+        id = "download_data_1",
+        condition = input$select,
+        shinyjs::disable("download_data_1")
       )
       
       # Cross-crountry comparison selection
@@ -874,6 +881,7 @@ shinyjs::hide("save_inputs")
           width = "100%",
           shinyjs::disable("report"),
           shinyjs::disable("pptreport"),
+          shinyjs::disable("download_data_1"),
         )
       }
     })
@@ -890,6 +898,11 @@ shinyjs::hide("save_inputs")
         id = "select",
         condition = length(input$countries) >= 10,
         shinyjs::disable("pptpptreport"),
+      )
+      toggleState(
+        id = "select",
+        condition = length(input$countries) >= 10,
+        shinyjs::disable("download_data_1"),
       )
     },
     ignoreNULL = FALSE
@@ -2222,6 +2235,9 @@ shinyjs::hide("save_inputs")
   shiny::observeEvent(input$select, {
     shinyjs::show("save_inputs")
     shinyjs::enable("save_inputs")
+    shinyjs::show("download_data_1")
+    shinyjs::enable("download_data_1")
+    
   })
 
   output$save_inputs <- downloadHandler(

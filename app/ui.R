@@ -99,7 +99,6 @@ ui <-
        #download_data_1{
           background-color: #3326da;
           color: white;
-          border-radius: 20px;
        }
 
         "
@@ -385,18 +384,18 @@ ui <-
             ),
             fluidRow(
               column(
-                width = 3,
-                                 downloadButton(
-                                   "report",
-                                   "Download editable report",
-                                   style = "width:100%; background-color: #204d74; color: white"
-                                 )
+                width = 2,
+                   downloadButton(
+                     "report",
+                     "Download editable report",
+                     style = "width:100%; background-color: #204d74; color: white"
+                   )
                 
 
               ),
               
               column(
-                width = 3,
+                width = 2,
                 downloadButton(
                   "pptreport",
                   "Download PPT report",
@@ -404,6 +403,15 @@ ui <-
                 )
                 
                 
+              ),
+              column(
+                
+                width = 2,
+                downloadButton(
+                  "download_data_1",
+                  "Download Data",
+                  style = "width:100%; background-color: #204d74; color: white"
+                )
               ),
               
               shiny::column(3,
@@ -414,6 +422,8 @@ ui <-
                   value = FALSE
                 )
               ),
+              
+
               ## Save inputs button
               column(
                 align = "right",
@@ -470,11 +480,7 @@ ui <-
                   value = FALSE
                 ),column(
                   width = 7),
-                column(
-                  align = "right",
-                  width = 3,
-                  downloadButton("download_data_1", "Download Data")
-                )
+
                 
               ),
               
