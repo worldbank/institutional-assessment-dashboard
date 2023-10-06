@@ -63,7 +63,7 @@ raw_data <-
   read_rds(
     here(
       "data",
-      "compiled_indicators.rds"
+      "compiled_indicators_updated.rds"
     )
   ) %>%
   filter(year >= 1990,
@@ -230,8 +230,7 @@ extract_variables <-
   function(x) {
     db_variables %>%
       filter(
-        family_name == x,
-        !grepl('Average', var_name)
+        family_name == x
       ) %>%
       pull(var_name)
   }

@@ -20,7 +20,7 @@ ctf <-
       "closeness_to_frontier.rds"
     )
   )
-
+avg_columns = names(ctf)[grep("_avg", names(ctf))]
 raw_indicators <-
   read_rds(
     here(
@@ -111,7 +111,7 @@ simple_world_map <-
 ctf <-
   ctf %>%
   pivot_longer(
-    cols = all_of(vars_ctf),
+    cols = all_of(c(vars_ctf,avg_columns)),
     values_to = "ctf"
   ) %>%
   mutate(
