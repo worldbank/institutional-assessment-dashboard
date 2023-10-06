@@ -31,6 +31,8 @@ static_plot <-
            threshold,
            preset_order = FALSE) {
     
+    data$var_name <- ifelse(grepl("Average", data$var_name, ignore.case = TRUE), toupper(data$var_name), data$var_name)
+    
     if (threshold=="default"){
       cutoff<-c(25,50)
     }else if (threshold=="terciles")
@@ -120,7 +122,7 @@ static_plot <-
       
       x_lab <- "Rank"
     }
-    
+
     plot <-
       ggplot() +
         geom_segment(
