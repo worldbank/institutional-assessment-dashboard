@@ -16,7 +16,7 @@ source(
   here("funs.R")
 )
 
-ref_year <- 2023 - 5
+ref_year <- 2023
 ```
 
 ## 1. Import data
@@ -24,14 +24,6 @@ ref_year <- 2023 - 5
 The data was imported from (a) the EFI360 shared data and (b) manual imports.
 
 ```{r read_in}
-db_variables <- read_rds(
-  here(
-    "data",
-    "output",
-    "db_variables.rds"
-  )
-)
-
 efi <- read_dta(
   here("data", "input", "efi", "EFI360_CLIAR_1990-2022_0828.dta")
 )
@@ -390,12 +382,53 @@ cliar_indicators <- cliar_indicators %>%
   mutate(
     index = row_number()
   )
+
+# compute family averages
+cliar_indicators_long <-
+  cliar_indicators %>%
+  pivot_longer(
+    any_of(vars_all),
+    names_to = "variable"
+  ) %>%
+  select(-contains("gdp")) %>%
+  left_join(
+    db_variables %>%
+      select(variable, var_name, family_name, family_var),
+    by = "variable"
+  )
+
+# only calculate family averages for relevant institutional clusters
+cliar_family_level_long <- cliar_indicators_long |>
+  filter(
+    family_var %in% vars_family
+  ) |>
+  group_by(
+    country_code, year, family_var
+  ) |>
+  summarise(
+    value = mean(value, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+cliar_family_level <- cliar_family_level_long |>
+  pivot_wider(
+    id_cols = c(country_code, year),
+    names_from = family_var,
+    names_glue = "{family_var}_avg",
+    values_from = value
+  )
+
+cliar_indicators <- cliar_indicators |>
+  left_join(
+    cliar_family_level,
+    by = c("country_code", "year")
+  )
 ```
 
 ## Data Quality Control: Indicator Selection
 ```{r indicator_selection}
 # verify that the indicators are selected correctly
-db_variables_indicators <- db_variables|> 
+db_variables_indicators <- db_variables |> 
   select(
     variable
   )
@@ -491,7 +524,7 @@ test_that(
 ```{r coverage_diagnostics}
 cliar_indicators_diagnostic <- cliar_indicators_clean |>
   select(-country_name) |> 
-  compute_coverage(country_code, year, ref_year) |> 
+  compute_coverage(country_code, year, ref_year - 5) |> 
   left_join(
     db_variables |> select(variable, var_name, source, family_name),
     by = c("Indicator" = "variable")

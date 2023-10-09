@@ -9,7 +9,7 @@ flag_continued <- function(indicator, year_id, ref_year){
   # this function returns a flag for discontinued series
   # 1. compute the number of times the indicator is measured
   # since a reference year - 5 = last five years
-  times_updated <- length(indicator[{{year_id}} >= ref_year & !is.na(indicator)])
+  times_updated <- length(indicator[{{year_id}} >= ref_year - 5 & !is.na(indicator)])
 
   flag_continued <- if_else(times_updated > 0, 1, 0)
 
@@ -20,9 +20,9 @@ flag_country <- function(indicator, country_id, year_id, ref_year, country_regio
   # this function returns a flag for the country coverage
   # 1. compute the number of distinct country ids for indicators
   # if they are not missing and more recent than a reference year
-  country_coverage <- n_distinct({{country_id}}[{{year_id}} >= ref_year & !is.na(indicator)])
+  country_coverage <- n_distinct({{country_id}}[{{year_id}} >= ref_year - 5 & !is.na(indicator)])
   country_code_unique <- unique(
-    {{country_id}}[{{year_id}} >= ref_year & !is.na(indicator)]
+    {{country_id}}[{{year_id}} >= ref_year - 5 & !is.na(indicator)]
   )
 
   regions_covered <- country_region_list |>
@@ -36,8 +36,6 @@ flag_country <- function(indicator, country_id, year_id, ref_year, country_regio
     country_coverage >= 100 | (country_coverage >= 50 & regions_covered == 7),
     1, 0
   )
-
-  # still need to add the exception to the rule
 
   return(flag_country)
 }
