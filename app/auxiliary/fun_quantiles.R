@@ -54,9 +54,9 @@ if(length(na_indicators) > 0){
       by = "variable"
     )
 
-if (threshold=="default"){
+if (threshold=="Default"){
     cutoff<-c(25,50)
-}else if (threshold=="terciles")
+}else if (threshold=="Terciles")
 {
   cutoff<-c(33,66)
 }
@@ -155,9 +155,9 @@ def_quantiles_dyn <- function(data, base_country, country_list, comparison_count
       by = "variable"
     )
   
-  if (threshold=="default"){
+  if (threshold=="Default"){
     cutoff<-c(25,50)
-  }else if (threshold=="terciles")
+  }else if (threshold=="Terciles")
   {
     cutoff<-c(33,66)
   }
