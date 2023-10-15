@@ -33,9 +33,9 @@ static_plot <-
     
     data$var_name <- ifelse(grepl("Average", data$var_name, ignore.case = TRUE), toupper(data$var_name), data$var_name)
     
-    if (threshold=="default"){
+    if (threshold=="Default"){
       cutoff<-c(25,50)
-    }else if (threshold=="terciles")
+    }else if (threshold=="Terciles")
     {
       cutoff<-c(33,66)
     }
@@ -423,9 +423,9 @@ static_plot_dyn <-
     threshold,
     preset_order = FALSE) {
     
-    if (threshold=="default"){
+    if (threshold=="Default"){
       cutoff<-c(25,50)
-    }else if (threshold=="terciles")
+    }else if (threshold=="Terciles")
     {
       cutoff<-c(33,66)
     }

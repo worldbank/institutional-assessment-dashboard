@@ -22,7 +22,7 @@ ui <-
     dashboardHeader(
 
       title = dashboardBrand(
-        title = "Global Benchmarking Institutions Dashboard"
+        title = "CLIAR Benchmarking Dashboard"
       ),
       status = "white",
       border = TRUE,
@@ -50,9 +50,9 @@ ui <-
         menuItem("Publications", tabName = "pubs", icon = icon("list")),
         menuItem("Terms of use", tabName = "terms", icon = icon("handshake")),
         menuItem("FAQ", tabName = "faq", icon = icon("question")),
-        menuItem("Feedback", 
+        menuItem("Contact Us", 
                    icon = icon("comments", lib = "font-awesome"),
-                   href = "mailto:cliar@worldbank.org"),
+                   href = "mailto:CLIAR@worldbank.org"),
         menuItem("Source code", 
                    icon = icon("github", lib = "font-awesome"),
                    href = "https://github.com/worldbank/institutional-assessment-dashboard/")
@@ -120,14 +120,13 @@ ui <-
                 img(src = "cliar.png", width = "80%")
               ),
 
-            br(),
-            p("The World Bank recognizes institutional strengthening as key ingredient for progress of its members countries along income categories. While there are numerous diagnostic and assessment tools for specific functional areas such as public financial management and tax administration, there is no analytical tool for country-level institutional assessment."),
-            p("The Global Benchmarking Institutions Dashboard (G-BID) contributes to fill this gap by providing a standard methodology to summarize information from a large set of country-level institutional indicators."),
-            p("The dashboard provides a user-friendly interface with multiple visualizations of a country’s institutional profile based on a set of international indicators, highlighting a given country’s institutional strengths and weaknesses relative to a set of country comparators. The findings of the G-BID can provide a structured and up-to-date empirical guidance for further in-depth analysis in the specific areas of interest, given the nature of the World Bank engagement in a country and/or complementarity with other ongoing country-level diagnostics (SCDs, CEMs, CPFs and the like)."),
-            p("The G-BID is part of a larger analytical effort to assess and review the quality of country’s institutions. For full details about the broader analytical effort, see the Approach paper: Marco Larizza, Serena Sara Daniela Cocciolo, Eric Braian Arias, Peter Siegenthaler and Jim Brumby (forthcoming),  ",
-              tags$em("Country Level Institutional Assessment and Review (CLIAR)"),
-              "Users of this resource should cite this approach paper. Further, any publications using data drawn from the G-BID should include a citation of the dashboard as well as the original source(s) of the data used. Citation information for each component dataset is included in the methodology page."),
-
+            br(),            
+            p("Welcome to the Country Level Institutional Assessment and Review (CLIAR) Benchmarking Dashboard!"), 
+            p("The World Bank recognizes institutional strengthening as key ingredient for progress of its members countries along income categories. While there are numerous diagnostic and assessment tools for specific functional areas such as public financial management and tax administration, there is no analytical tool for country-level institutional assessment."), 
+            p("The Country Level Institutional Assessment and Review (CLIAR) contributes to fill this gap via two distinct but complementary products: the (i) CLIAR Benchmarking and its Dashboard and the (ii) CLIAR Country Deep-Dive."),
+            p("The CLIAR Benchmarking Dashboard value added is to provide a standard quantitative methodology to summarize information from a large set of country-level institutional indicatorsIt does so by providing a user-friendly interface with multiple visualizations of a country’s institutional profile based on a set of international indicators, highlighting a given country’s institutional strengths and weaknesses relative to a set of country comparators. The findings can provide a structured, standardized, andup-to-date empirical guidance for further in-depth analysis in the specific areas of interest, given the nature of the World Bank engagement in a country and complementarity with other ongoing country-level diagnostics (e.g., SCDs, CEMs, and CPFs)."),
+            p("For full details about the methodology behind the CLIAR Benchmarking, see the Methodological paper. Users of this resource should cite this paper. Publications using the CLIAR data should include a citation of the CLIAR Dashboard as well as the original source(s) of the data used. Citation information for each component dataset is included in the methodology page."),
+            
             h3("How to use this dashboard"),
             p("This dashboard aims to enable its users to interact with the country-level benchmarking through the following tabs:"),
             tags$ul(
@@ -368,7 +367,7 @@ ui <-
                 pickerInput(
                   inputId = "threshold", 
                   label = "Benchmarking Thresholds",
-                  choices = c("default","terciles")
+                  choices = c("Default","Terciles")
                 ),
               ),
               
@@ -1057,19 +1056,39 @@ ui <-
             status = "navy",
             title = "Institutional families",
 
-            p("The dashboard uses established well-institutional indicators, clustered into nine main institutional families:",
-              tags$ul(
-                tags$li("Anticorruption, transparency and accountability institutions"),
-                tags$li("Business environment and trade institutions"),
-                tags$li("Financial institutions"),
-                tags$li("SOE Corporate Governance"),
-                tags$li("Labor market institutions"),
-                tags$li("Justice institutions"),
-                tags$li("Political institutions"),
-                tags$li("Public sector institutions"),
-                tags$li("Social institutions")
-              )
-            ),
+            p("The CLIAR Benchmarkinguses established well-institutional indicators, clustered into 14 main institutional families:", 
+              
+              tags$ul( 
+                
+                tags$li("Political institutions"), 
+                
+                tags$li("Social institutions"), 
+                
+                tags$li("Anticorruption institutions"), 
+                
+                tags$li("Transparency and Accountability institutions"), 
+                
+                tags$li("Justice institutions"), 
+                
+                tags$li("Public Financial Management institutions"), 
+                
+                tags$li("Public Human Resource Management institutions"), 
+                
+                tags$li("Digital and Data institutions"), 
+                
+                tags$li("Business environment institutions"), 
+                
+                tags$li("SOE Corporate Governance"), 
+                
+                tags$li("Labor and Social Protection institutions"), 
+                
+                tags$li("Service Delivery institutions"), 
+                
+                tags$li("Climate Change and Environment institutions") 
+                
+              ) 
+              
+            ), 
             p("There is no agreed theoretical framework that could guide the categorization process. The proposed families are based on an effort to capture key functions that different institutions perform. In so doing, the categorization process faces a trade-off between aggregation and narrowness, where the categories ought to be broad enough to capture enough indicators and policy spaces, but narrow enough to guide a deep qualitative analysis as well as a fruitful and engaged conversation with the country."),
             p('All country-level indicators can be downloaded in the “Data” tab.')
           ),
@@ -1080,7 +1099,7 @@ ui <-
             collapsed = TRUE,
             title = "Closeness to frontier",
 
-            p('The dashboard uses the “Closeness to Frontier” methodology, which is adapted from the Doing Business’s',
+            p('The dashboard uses the “Closeness to Frontier"(CTF) methodology, which is adapted from the original Doing Business’s',
               a("Distance to Frontier methodology",
                 href = "https://www.doingbusiness.org/content/dam/doingBusiness/media/Annual-Reports/English/DB17-Chapters/DB17-DTF-and-DBRankings.pdf"),
               '. The CTF methodology allows to assess country’s performance across institutional indicators by comparing it with the “global frontier”, where the global frontier is the world’s best performer. For each indicator, a country’s performance is rescaled on a 0-1 scale using the linear transformation (worst–y)/(worst–frontier), where 1 represents the best performer and 0 the worst performer. The higher the score, the closer a country is to the best performer and the lower the score, the closer a country is to the worst performer, and more distant to the frontier. The best and worst performers are identified using available data from the global sample (i.e., considering all countries for which data is available) since 2013. Thus, a country may set the frontier for an indicator even though it is no longer at the frontier in the most recent year for which the indicator is available.'),
@@ -1114,26 +1133,27 @@ ui <-
                 "World Bank Country and Lending Groups.",
                 href = "https://datahelpdesk.worldbank.org/knowledgebase/articles/906519-world-bank-country-and-lending-groups"
               ),
-              "It classifies all 189 World Bank member countries, and all other economies with populations of more than 30,000.",
-              "Economies are divided among income groups according to 2019 gross national income (GNI) per capita,",
+              "which classifies all 218 World Bank member countries and economies.", 
+              "Income classifications for FY24 is based on 2022 gross national income (GNI) per capita,", 
               "calculated using the World Bank Atlas method."
             ),
             p(
               "The groups are:",
               tags$ul(
-                tags$li(HTML("<b>Low income:</b> $1,035 or less")),
-                tags$li(HTML("<b>Lower middle income:</b> $1,036 - 4,045")),
-                tags$li(HTML("<b>Upper middle income:</b> $4,046 - 12,535")),
-                tags$li(HTML("<b>High income:</b> $12,536 or more"))
+                tags$li(HTML("<b>Low income:</b> $1,135 or less")), 
+                
+                tags$li(HTML("<b>Lower middle income:</b> $1,136 - 4,465")), 
+                
+                tags$li(HTML("<b>Upper middle income:</b> $4,466 - 13,845")), 
+                
+                tags$li(HTML("<b>High income:</b> more than $13,845")) 
               )
             ),
             p(
               HTML("The term <i>country</i>, used interchangeably with <i>economy,</i>"),
               "does not imply political independence but refers to any territory for which authorities report separate social or economic statistics.",
-              "Income classifications set on 1 July 2020 remain in effect until 1 July 2021.",
-              "Argentina, which was temporarily unclassified in July 2016 pending release of revised national accounts statistics,",
-              "was classified as upper middle income for FY17 as of 29 September 2016 based on alternative conversion factors."
-            ),
+              "Income classifications set on 1 July 2023 remain in effect until 1 July 2024.",
+              ),
             p(
               "OECD members are: ", paste0(paste(country_list %>% filter(group_code=="OED") %>% .$country_name, collapse = ", "),".")
             )
@@ -1201,7 +1221,7 @@ tabItem(
             width = 11,
             status = "navy",
             collapsed = TRUE,
-            title = "Does the G-BID collect new data on governance and institutions?",
+            title = "Does the CLIAR Benchmarking collect new data on governance and institutions?",
             p(
               "NO.
               The dashboard extracts data from original sources and collects international indicators that are publicly available and have been widely tested and used as reliable proxies to measure country-level governance and institutions."
@@ -1215,11 +1235,10 @@ tabItem(
             collapsed = TRUE,
             title = "Can I add my own indicators to the dashboard and run the analysis including these indicators? ",
             p(
-              "NO.
-              You cannot add indicators to the dashboard.
+              "You cannot add indicators to the dashboard.
               However, you can download the full database and augment it with additional indicators to customize the analysis.
-              You can also get in touch with the G-BID/CLAIR (cliar@worldbank.org) indicating which data you would like to be added in the database, and for which cluster.
-              Each request will be reviewed by a team of technical experts and if the indicator meets the selection criteria indicated in the methodological note (quality and coverage) it will be added to the G-BID."
+              You can also get in touch with the CLAIR team (CLIAR@worldbank.org) indicating which data you would like to be added in the database, and for which cluster.
+              Each request will be reviewed by a team of technical experts and if the indicator meets the selection criteria indicated in the methodological note (quality and coverage) it will be added."
             )
           ),
 
@@ -1245,13 +1264,11 @@ tabItem(
               a given country of interest vis a vis a chosen set of comparator countries.
               Using the distribution of the CTF scores in the set of comparator countries,
               we identify the score range for the bottom 25% of comparators,
-              the score range for the 25%-50% group and the score range for the top 50% of comparators.
+              the score range for the 25%-50% group and the score range for the top 50% of comparators (or alternatively, using 33% and 66% as thresholds)..
               Given the CTF score of the country of interest,
               we identify whether the country of interest for the analysis belong to the bottom,
               middle or top group.
-              These percentile groups are used because they are simple, intuitive and standards.
-              The sensitivity analysis shows that most of the results are not sensitive to this choice,
-              and for example would be robust if the grouping 0-33%, 33%-66%, 66%+ would be used."
+              These percentile groups are used because they are simple, intuitive and standards."
             )
           ),
 
@@ -1264,7 +1281,7 @@ tabItem(
               "Using the distribution of the CTF scores in the set of comparator countries,
               we identify the score range for the bottom 25% of comparators,
               the score range for the 25%-50% group and the score range for the top 50% of comparators.
-              The red bar represents the score range for the bottom 25% of comparators.
+              The red bar represents the score range for the bottom 25% of comparators.(The same explanation applies if 33% and 66% thresholds are used.)
               While the CTF scores always range between 0 and 1,
               the length of the red bar varies across indicators depending on the distribution of the CTF scores in the comparator group.
               As an illustration, for a given set of comparator countries,
@@ -1280,7 +1297,7 @@ tabItem(
             title = "How do you deal with missing data for certain indicators and for certain countries?",
             p(
               "We deal with missing data in various ways.
-              First, the benchmarking analysis uses the average of indicators over recent years.
+              First, the (static) benchmarking analysis uses the average of indicators over recent years.
               Conceptually, governance and institutional indicators are expected to show limited yearly variations.
               This helps in reducing data gaps.
               Second, we only include in the institutional benchmarking the indicators that
@@ -1305,7 +1322,7 @@ tabItem(
               "The percentile analysis identifies whether the performance of the
               country of interest in a given indicator or institutional cluster
               belongs to the bottom 25%, the 25%-50% group or the top 50% of
-              the comparator countries.
+              the comparator countries.(or, alternatively, the groups based on 33% and 66% thresholds).
               This percentile analysis can be meaningfully performed only if
               there is sufficient number of comparator countries.
               Given the definition of the traffic coloring,
@@ -1331,7 +1348,7 @@ tabItem(
             collapsed = TRUE,
             title = "Can I download the raw data for my own research/analytical purposes?",
             p(
-              'YES. The full compiled database, once updated, is available in the "Data" tab for download.
+              'Yes, the full compiled database is available in the "Data" tab for download.
               Both the "Closeness to Frontier" scores and the full database with yearly indicators are available for download,
               and therefore users can easily verify the latest year available for each indicator.'
             )
@@ -1341,18 +1358,16 @@ tabItem(
             width = 11,
             status = "navy",
             collapsed = TRUE,
-            title = "How often is the G-BID updated? How do I know that the G-BID uses the latest available data?",
+            title = "How often is the CLIAR Benchmarking updated? How do I know that the G-BID uses the latest available data?",
             p(
-              'It is currently planned that the G-BID will be updated once or twice a year,
-              depending on demands and usage.
+              'It is currently planned that the CLIAR Benchmarking Database will be updated once per year.
               The G-BID is programmed so that the data extraction from the data sources (primarily gov360)
               is automated through APIs,
               therefore with minimal maintenance costs for the indicators already
               included in the dashboard and with stable APIs. The full compiled database,
               once updated, is available in the "Data" tab for download.
               Both the "Closeness to Frontier"" scores and the full database with
-              yearly indicators are available for download,
-              and therefore users can easily verify the latest year available for each indicator.'
+              yearly indicators are available for download'
             )
           ),
 
@@ -1360,20 +1375,27 @@ tabItem(
             width = 11,
             status = "navy",
             collapsed = TRUE,
-            title = "How were the indicators included in G-BID selected?",
+            title = "How were the indicators included in the CLIAR Benchmarking selected?",
             p(
-              'The indicators included in the G-BID were selected following two criteria:
-              geographical coverage and quality.
-              This list was defined based on initial internal reviews,
-              and will be further refined based on inputs recently received by
-              sector experts and from the experiences of country teams in applying this tool.
-              For example, the team is currently considering expanding the existing
-              database in order to include indicators from additional data sources,
-              such as Tax DIAMOND and Regional Barometers.
-              The list of indicators used in the G-BID will be periodically
-              reviewed in order to include new governance and institutions indicators
-              that may be become available in the future.
-              The G-BID is a "live tool".'
+              'The indicators included in the CLIAR Benchmarking were selected following a criteria of 
+
+              (geographical and time) coverage and quality. 
+
+              This list was defined based on initial internal reviews, 
+
+              and will be further refined based on inputs recently received by 
+
+              sector experts and from the experiences of country teams in applying this tool. 
+
+               
+
+              The list of indicators used will be periodically 
+
+              reviewed in order to include new governance and institutions indicators 
+
+              that may be become available in the future. 
+
+              As such, the CLIAR database is a "live tool".' 
             )
           ),
 
@@ -1381,11 +1403,9 @@ tabItem(
             width = 11,
             status = "navy",
             collapsed = TRUE,
-            title = "Is the G-BID available to external users (i.e non-bank staff) ?",
+            title = "Is the CLIAR Benchmarking available to external users (i.e non-bank staff) ?",
             p(
-              "As of now, the G-BID is not available for external users.
-              The team will consider making the dashboard publicly available it has been tested and validated through a
-              few pilots, and depending on demands and usage."
+              "As of now, the CLIAR Benchmarking is not available for external users. The team is working on making it publicly available"
             )
           )
 
