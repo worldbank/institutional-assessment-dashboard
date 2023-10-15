@@ -1,6 +1,6 @@
 
 note_size <- 11
-note_chars <- 140
+note_chars <- 200
 color_groups <- colorRampPalette(c("#001f3f", "#60C2F7"))
 color_countries <- colorRampPalette(c("grey20", "grey50"))
 
@@ -1156,7 +1156,7 @@ interactive_map <-
         yaxis = list(visible = FALSE),
         annotations =
           list(x = 0,
-               y = -0.2,
+               y = -0.8,
                text = HTML(
                  paste(
                    str_wrap(
@@ -1338,9 +1338,9 @@ trends_plot <- function(raw_data,
         title = list(text = '<b>Country:</b>'),
         y = 0.5
       ),
-      margin = list(l = 50, r = 50, t = 75, b = 135),
+      margin = list(l = 50, r = 150, t = 175, b = 200),
       annotations =
-        list(x = 0, y = -0.2,
+        list(x = 0, y = -0.5,
              text = HTML(
                paste(
                  str_wrap(
