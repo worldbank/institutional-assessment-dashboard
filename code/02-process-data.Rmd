@@ -468,6 +468,7 @@ cliar_indicators <- cliar_indicators |>
 ```
 
 ## Data Quality Control: Indicator Selection
+
 ```{r indicator_selection}
 # verify that the indicators are selected correctly
 db_variables_indicators <- db_variables |> 
