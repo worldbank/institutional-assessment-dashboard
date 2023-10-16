@@ -424,7 +424,11 @@ cliar_indicators <- cliar_indicators %>%
   mutate(
     index = row_number()
   )
+```
 
+## Compute family averages
+
+```{r}
 # compute family averages
 cliar_indicators_long <-
   cliar_indicators %>%

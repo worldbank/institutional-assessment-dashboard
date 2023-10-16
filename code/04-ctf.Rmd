@@ -183,7 +183,7 @@ ctf <-
 ctf_dynamic <-
   cliar_indicators_rescaled %>%
   pivot_longer(
-    all_of(vars_static_ctf),
+    all_of(vars_dynamic_ctf),
     names_to = "variable"
   ) %>%
   left_join(
@@ -359,7 +359,7 @@ ctf_long_clean <-
 ctf_dynamic_long <-
   ctf_dynamic_clean %>%
   pivot_longer(
-    all_of(vars_static_ctf),
+    all_of(vars_dynamic_ctf),
     names_to = "variable"
   ) %>%
   select(-contains("gdp")) %>%
@@ -471,10 +471,7 @@ ctf_dynamic_clean <- ctf_dynamic_long_clean_family_level %>%
   mutate(value = ifelse(is.nan(value), NA, value)) %>%
   pivot_wider(names_from = "variable", values_from = "value") %>%
   full_join(ctf_dynamic_clean, ., by = c("country_code", "country_name", "country_group", "year"))
-
-
 ```
-
 
 ## Data Quality Control
 ```{r}
@@ -502,24 +499,21 @@ test_that(
     )
     expect_setequal(
       ctf_dynamic_clean |> colnames() |> str_subset("year|country|gdp|_avg$", negate = TRUE),
-      vars_static_ctf
+      vars_dynamic_ctf
     )
   }
 )
 ```
 
-
 ## Update db_variables to contain the family averages
 
 ```{r}
 ## temporarily clean the family names
-
 db_variables <- db_variables %>% 
                  mutate(family_name = ifelse(family_name == "Justice institutions", "Justice Institutions",
                    ifelse(family_name == "Political institutions" , "Political Institutions" ,
                      family_name
                    )))
-
 
 db_variables<-db_variables %>% 
   mutate(across(where(is.character), str_squish))
@@ -530,13 +524,11 @@ generate_random_sequence <- function(length) {
   return(sample(1:length, length, replace = FALSE))
 }
 
-db_variables<-db_variables %>% 
+db_variables <- db_variables %>% 
   group_by(family_var) %>% 
   mutate(rank_id = generate_random_sequence(n())) %>% 
   ungroup() %>% 
   mutate(rank_id = rank_id + 1)
-
-
 
 ## add family level vars
 family_level_vars <- db_variables %>% 
