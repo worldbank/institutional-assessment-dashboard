@@ -226,7 +226,7 @@ ui <-
                   label = "Select a base country",
                   choices = c("", countries),
                   selected = NULL,
-                  multiple = FALSE,
+                  multiple = TRUE,
                   options = list(
                     `actions-box` = TRUE,
                     `live-search` = TRUE 

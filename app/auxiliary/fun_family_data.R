@@ -3,9 +3,12 @@ family_data <- function(data, base_country, variable_names) {
   na_indicators <-
     data %>%
     ungroup() %>%
-    filter(country_name == base_country) %>%
+    filter(country_name %in% base_country) %>%
+    select(-(1:3)) %>%
+    summarise(across(everything(), ~ if_else(any(is.na(.)), NA, sum(., na.rm = TRUE)))) %>%
     select(where(is.na)) %>%
-    names
+    distinct() %>%
+    names 
 
   data <-
     data %>%
