@@ -33,10 +33,18 @@ romelli <- read_dta(
 ) |>
   clean_names()
 
+debt_transparency <- read_dta(
+  here("data", "input", "debt_transparency", "debt_transparency_2021-2022.dta")
+)
+
 fraser <- read_csv(
   here("data", "input", "fraser", "fraser.csv")
 ) |>
   clean_names()
+
+gfdb <- read_dta(
+  here("data", "input", "gfdb", "GFDB_19902021.dta")
+)
 
 oecd_epl_regular <- read_csv(
   here("data", "input", "oecd", "epl_regular.csv")
@@ -64,7 +72,7 @@ rise <- read_dta(
 )
 
 wdi <- read_dta(
-  here("data", "input", "wdi", "WDI_19902022.dta")
+  here("data", "input", "wdi", "WDI_19902022_CLIAR.dta")
 )
 
 vdem <- read_dta(
@@ -99,6 +107,10 @@ wb_country_list <- read_xlsx(
     group = GroupName,
     group_code = GroupCode
   )
+
+wbl <- read_dta(
+  here("data", "input", "wbl", "WBL_19902022_CLIAR.dta")
+)
 
 # note that North America is not included in this list
 wb_regions <- c(
@@ -309,7 +321,7 @@ open_budget_clean <- open_budget |>
   select(
     country_code = ISO,
     year,
-    ibp_obis_obi = obi
+    ibp_obs_obi = obi
   ) |> 
   # fix cambodia ISO3
   mutate(
@@ -318,6 +330,33 @@ open_budget_clean <- open_budget |>
       "KHM",
       country_code
     )
+  )
+
+# 13. Debt Transparency
+debt_transparency_clean <- debt_transparency |> 
+  clean_names() |> 
+  rename_with(
+    # replace prefixses with efi conventions
+    ~ paste0("wb_", .),
+    .cols = starts_with("debt")
+  )
+
+# 14. GFDB Bank Concentration
+gfdb_clean <- gfdb |> 
+  clean_names() |> 
+  rename_with(
+    # replace prefixses with efi conventions
+    ~ paste0("wb_", .),
+    .cols = starts_with("gfdb")
+  )
+
+# 15. Women, Business and the Law
+wbl_clean <- wbl |> 
+  clean_names() |> 
+  rename_with(
+    # replace prefixses with efi conventions
+    ~ paste0("wb_", .),
+    .cols = starts_with("wbl")
   )
 ```
 
@@ -343,7 +382,10 @@ cliar_indicators <- list(
   vdem_clean,
   heritage_clean,
   oecd_pmr_clean,
-  open_budget_clean
+  open_budget_clean,
+  debt_transparency_clean,
+  gfdb_clean,
+  wbl_clean
 ) |> 
   map(
     # fix country codes for full join
@@ -433,7 +475,22 @@ db_variables_indicators <- db_variables |>
     variable
   )
 
-cliar_indicators_id <- cliar_indicators |> 
+# only retain indicators contained in metadata + id cols
+cliar_indicators_clean <- cliar_indicators |> 
+  # add country names
+  left_join(
+    wb_country_list |> 
+      distinct(country_code, country_name),
+    by = "country_code"
+  ) |> 
+  select(
+    country_code,
+    country_name,
+    year,
+    any_of(db_variables_indicators |> pull(variable))
+  )
+
+cliar_indicators_id <- cliar_indicators_clean |> 
   colnames() %>% 
   tibble(
     variable = .
@@ -452,25 +509,6 @@ test_that(
     )
   }
 )
-  
-cliar_indicators_id |> 
-  anti_join(db_variables_indicators, by = "variable") |> 
-  as.data.frame()
-  
-# only retain indicators contained in metadata + id cols
-cliar_indicators_clean <- cliar_indicators |> 
-  # add country names
-  left_join(
-    wb_country_list |> 
-      distinct(country_code, country_name),
-    by = "country_code"
-  ) |> 
-  select(
-    country_code,
-    country_name,
-    year,
-    any_of(db_variables_indicators |> pull(variable))
-  )
 ```
 
 ## Data Quality Control: verify country_code, country_name consistency and completeness of country-year combinations
