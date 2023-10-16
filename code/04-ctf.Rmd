@@ -54,12 +54,6 @@ db_variables <- read_rds(
     "db_variables.rds"
   )
 )
-
-vars_ctf <- db_variables |>
-  filter(
-    benchmarked_ctf == "Yes"
-  ) |>
-  pull(variable)
 ```
 
 2. Rescale indicators so a higher number denotes stronger institutions
@@ -104,7 +98,7 @@ country_average <-
   ) %>%
   summarise(
     across(
-      all_of(c(vars_ctf, "wdi_nygdppcapppkd")),
+      all_of(c(vars_static_ctf, "wdi_nygdppcapppkd")),
       ~ mean(., na.rm = TRUE)
     )
   )
@@ -119,7 +113,7 @@ min_max <-
   filter(year >= 2018) |>
   summarise(
     across(
-      all_of(vars_ctf),
+      all_of(vars_static_ctf),
       list(
         min = ~ min(., na.rm = TRUE),
         max = ~ max(., na.rm = TRUE)
@@ -138,7 +132,7 @@ min_max_dynamic <- cliar_indicators_rescaled %>%
   group_by(year) %>%
   summarise(
     across(
-      all_of(vars_ctf),
+      all_of(vars_static_ctf),
       list(
         min = ~ min(., na.rm = TRUE),
         max = ~ max(., na.rm = TRUE)
@@ -160,7 +154,7 @@ min_max_dynamic <- cliar_indicators_rescaled %>%
 ctf <-
   country_average %>%
   pivot_longer(
-    all_of(vars_ctf),
+    all_of(vars_static_ctf),
     names_to = "variable"
   ) %>%
   left_join(
@@ -189,7 +183,7 @@ ctf <-
 ctf_dynamic <-
   cliar_indicators_rescaled %>%
   pivot_longer(
-    all_of(vars_ctf),
+    all_of(vars_static_ctf),
     names_to = "variable"
   ) %>%
   left_join(
@@ -229,7 +223,7 @@ group_ctf <-
   ) %>%
   summarise(
     across(
-      c(all_of(vars_ctf)),
+      c(all_of(vars_static_ctf)),
       ~ median(., na.rm = TRUE)
     )
   ) %>%
@@ -254,7 +248,7 @@ group_ctf_dynamic <- country_list %>%
   ) %>%
   summarise(
     across(
-      c(all_of(vars_ctf)),
+      c(all_of(vars_static_ctf)),
       ~ median(., na.rm = TRUE)
     )
   ) %>%
@@ -335,7 +329,7 @@ ctf_dynamic_clean <-
 ctf_long <-
   ctf_clean %>%
   pivot_longer(
-    all_of(vars_ctf),
+    all_of(vars_static_ctf),
     names_to = "variable"
   ) %>%
   select(-contains("gdp")) %>%
@@ -365,7 +359,7 @@ ctf_long_clean <-
 ctf_dynamic_long <-
   ctf_dynamic_clean %>%
   pivot_longer(
-    all_of(vars_ctf),
+    all_of(vars_static_ctf),
     names_to = "variable"
   ) %>%
   select(-contains("gdp")) %>%
@@ -504,11 +498,11 @@ test_that(
     ## Shel added _avg to the pattern to take care of the new family level indicators (that all have an _avg suffix)
     expect_setequal(
       ctf_clean |> colnames() |> str_subset("year|country|gdp|_avg$", negate = TRUE),
-      vars_ctf
+      vars_static_ctf
     )
     expect_setequal(
       ctf_dynamic_clean |> colnames() |> str_subset("year|country|gdp|_avg$", negate = TRUE),
-      vars_ctf
+      vars_static_ctf
     )
   }
 )

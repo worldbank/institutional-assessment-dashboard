@@ -176,6 +176,20 @@ vars_family <-
   pull(family_var) %>%
   unique
 
+
+# vars_benchmarked --------------------------------------------------------
+vars_static_ctf <- db_variables |>
+  filter(
+    benchmarked_ctf == "Yes"
+  ) |>
+  pull(variable)
+
+vars_dynamic_ctf <- db_variables |>
+  filter(
+    benchmark_dynamic_indicator == "Yes"
+  ) |>
+  pull(variable)
+
 # extract family names
 family_names <-
   db_variables %>%
