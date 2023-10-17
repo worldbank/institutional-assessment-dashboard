@@ -1,3 +1,11 @@
+db_variables <- read_rds(
+  here(
+    "data",
+    "output",
+    "db_variables.rds"
+  )
+)
+
 # 1. Anti-corruption institutions ======================
 vars_anticorruption <-
   db_variables %>%
@@ -168,15 +176,36 @@ vars_family <-
   pull(family_var) %>%
   unique
 
-# benchmarked variables ---------------------------------------------------
-vars_ctf <- db_variables |>
+# vars_benchmarked --------------------------------------------------------
+vars_static_ctf <- db_variables |>
   filter(
     benchmarked_ctf == "Yes"
   ) |>
   pull(variable)
 
-# family variable averages
-# vars_family_average <- 
+vars_dynamic_ctf <- db_variables |>
+  filter(
+    benchmark_dynamic_indicator == "Yes"
+  ) |>
+  pull(variable)
+
+vars_dynamic_partial_ctf <- db_variables |>
+  filter(
+    benchmark_dynamic_family_aggregate == "Partial"
+  ) |>
+  pull(variable)
+
+vars_static_family_ctf <- db_variables |>
+  filter(
+    benchmark_static_family_aggregate_download == "Yes"
+  ) |>
+  pull(variable)
+
+vars_dynamic_family_ctf <- db_variables |>
+  filter(
+    benchmark_dynamic_family_aggregate == "Yes"
+  ) |>
+  pull(variable)
 
 # extract family names
 family_names <-
@@ -184,8 +213,7 @@ family_names <-
   # exclude extraneous families
   filter(
     family_var != "vars_other" &
-      family_var != "vars_missing" &
-      family_var != "vars_removed"
+      family_var != "vars_missing"
   ) %>%
   transmute(
     variable = family_var,
@@ -193,4 +221,3 @@ family_names <-
   ) %>%
   unique
 
-# we need each vars_* object to have both the family_var and family_name
