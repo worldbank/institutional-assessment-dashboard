@@ -63,7 +63,7 @@ raw_data <-
   read_rds(
     here(
       "data",
-      "compiled_indicators_updated.rds"
+      "compiled_indicators.rds"
     )
   ) %>%
   filter(year >= 1990,
