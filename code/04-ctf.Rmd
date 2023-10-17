@@ -129,10 +129,12 @@ min_max <-
 
 # dynamic: note that there are quite a few cases of Infinite warnings (due to missingness)
 min_max_dynamic <- cliar_indicators_rescaled %>%
-  group_by(year) %>%
+  filter(
+    between(year, 2013, 2022)
+  ) |> 
   summarise(
     across(
-      all_of(vars_static_ctf),
+      all_of(vars_dynamic_ctf),
       list(
         min = ~ min(., na.rm = TRUE),
         max = ~ max(., na.rm = TRUE)
@@ -141,7 +143,7 @@ min_max_dynamic <- cliar_indicators_rescaled %>%
     )
   ) %>%
   pivot_longer(
-    -year,
+    everything(),
     names_to = c("variable", ".value"),
     names_pattern = "(.*)-(.*)"
   ) %>%
@@ -188,7 +190,7 @@ ctf_dynamic <-
   ) %>%
   left_join(
     min_max_dynamic,
-    by = c("year", "variable")
+    by = c("variable")
   ) %>%
   mutate(
     ctf_dyn = (min - value) / (min - max),
@@ -390,30 +392,35 @@ ctf_dynamic_long_clean <-
 
 ```{r}
 # static
-ctf_clean <- ctf |> 
+ctf_static_family <- ctf |> 
   compute_family_average(
     vars = vars_static_family_ctf,
     db_variables = db_variables
   )
 
 # dynamic
-ctf_dynamic <- ctf_dynamic |> 
-  compute_family_average(
-    vars = vars_dynamic_family_ctf,
-    type = "dynamic",
-    db_variables = db_variables
-  )
-
-# separate pipeline for partial (every two-years indicator)
-ctf_dynamic_partial <- ctf_dynamic |> 
+ctf_dynamic_family <- ctf_dynamic |> 
   # only retain even years because data is updated every two-years
   filter(
     year %% 2 == 0
   ) |> 
   compute_family_average(
-    vars = vars_dynamic_partial_ctf,
+    vars = c(vars_dynamic_family_ctf, vars_dynamic_partial_ctf),
     type = "dynamic",
     db_variables = db_variables
+  )
+
+# join family averages to ctfs
+ctf_clean <- ctf |> 
+  left_join(
+    ctf_static_family,
+    by = "country_code"
+  )
+
+ctf_dynamic_clean <- ctf_dynamic |> 
+  left_join(
+    ctf_dynamic_family,
+    by = c("country_code", "year")
   )
 ```
 

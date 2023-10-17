@@ -179,11 +179,5 @@ compute_family_average <- function(cliar_data, vars, type = "static", db_variabl
       values_from = value
     )
 
-  cliar_data_family_avg <- cliar_data |>
-    left_join(
-      cliar_family_level,
-      by = id_cols
-    )
-
-  return(cliar_data_family_avg)
+  return(cliar_family_level)
 }
