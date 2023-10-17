@@ -334,11 +334,13 @@ efi_clean <- efi |>
     )
   ) |> 
   select(
-    -index,
-    -country_name,
     country_code = iso3,
     year,
     everything()
+  ) |> 
+  select(
+    -index,
+    -country_name
   )
 
 # 2. fraser - market regulations
@@ -457,11 +459,13 @@ rise_clean <- rise |>
 
 # 8. wdi data
 wdi_clean <- wdi |> 
-  clean_names()
+  clean_names() |> 
+  select(-countryname)
 
 # 9. vdem
 vdem_clean <- vdem |> 
-  clean_names()
+  clean_names() |> 
+  select(-country_name)
 
 # 10. heritage
 heritage_clean <- heritage |> 
@@ -733,7 +737,6 @@ test_that(
   }
 )
 ```
-
 
 ## Compute coverage diagnostics
 ```{r coverage_diagnostics}

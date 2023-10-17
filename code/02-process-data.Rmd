@@ -530,6 +530,10 @@ cliar_indicators_clean <- cliar_indicators |>
   left_join(
     cliar_family_level,
     by = c("country_code", "year")
+  ) |> 
+  left_join(
+    wb_country_list |> distinct(country_code, country_name),
+    by = c("country_code")
   )
 ```
 
@@ -542,12 +546,12 @@ test_that(
   "Verify that all the country codes from the official data are included",
   expect_equal(
     # number of rows is zero
-    cliar_indicators |> 
-      distinct(country_code) |> 
+    cliar_indicators_clean |> 
+      distinct(country_code, country_name) |> 
         anti_join(
           wb_country_list |> 
             distinct(country_code, country_name),
-          by = c("country_code")
+          by = c("country_code", "country_name")
         ) |> nrow(),
       0
   )
@@ -557,8 +561,8 @@ test_that(
 test_that(
   "Verify that CLIAR has distinct country years",{
     expect_equal(
-      nrow(cliar_indicators),
-      cliar_indicators |> 
+      nrow(cliar_indicators_clean),
+      cliar_indicators_clean |> 
         distinct(country_code, year) |> 
         nrow()
     )
@@ -570,7 +574,7 @@ test_that(
   "Verify that country codes have coverage for all years",{
     expect_equal(
       # calculate number of years covered by country
-      cliar_indicators |> 
+      cliar_indicators_clean |> 
         count(country_code) |> 
         pull(n) |> 
         unique(),
@@ -581,6 +585,7 @@ test_that(
 ```
 
 ## Compute coverage diagnostics
+
 ```{r coverage_diagnostics}
 cliar_indicators_diagnostic <- cliar_indicators_clean |>
   select(-country_name) |> 
@@ -602,7 +607,7 @@ cliar_indicators_diagnostic <- cliar_indicators_clean |>
   )
 ```
 
-## 7. Save data
+## Save data
 
 ```{r}
 write_rds(
