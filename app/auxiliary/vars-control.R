@@ -1,7 +1,6 @@
 db_variables <- read_rds(
   here(
     "data",
-    "output",
     "db_variables.rds"
   )
 )
