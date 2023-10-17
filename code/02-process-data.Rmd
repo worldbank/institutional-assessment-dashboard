@@ -25,7 +25,7 @@ The data was imported from (a) the EFI360 shared data and (b) manual imports.
 
 ```{r read_in}
 efi <- read_dta(
-  here("data", "input", "efi", "EFI360_CLIAR_1990-2022_0828.dta")
+  here("data", "input", "efi", "EFI360_CLIAR_1990-2022.dta")
 )
 
 romelli <- read_dta(
@@ -503,7 +503,6 @@ cliar_indicators_id <- cliar_indicators_clean |>
 
 test_that(
   "All indicators contained in metadata are in the CLIAR dataset",{
-    skip("Skipping until we finalize metadata file")
     expect_equal(
       nrow(
         db_variables_indicators |> 
