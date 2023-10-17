@@ -492,7 +492,7 @@ cliar_indicators_clean <- cliar_indicators |>
     country_code,
     country_name,
     year,
-    any_of(db_variables_indicators |> pull(variable))
+    all_of(db_variables_indicators |> pull(variable))
   )
 
 cliar_indicators_id <- cliar_indicators_clean |> 
