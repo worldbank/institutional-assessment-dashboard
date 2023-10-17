@@ -454,7 +454,7 @@ db_variables_indicators <- db_variables |>
   )
 
 # only retain indicators contained in metadata + id cols
-cliar_indicators_clean <- cliar_indicators |> 
+cliar_indicators <- cliar_indicators |> 
   # add country names
   left_join(
     wb_country_list |> 
@@ -530,10 +530,6 @@ cliar_indicators_clean <- cliar_indicators |>
   left_join(
     cliar_family_level,
     by = c("country_code", "year")
-  ) |> 
-  left_join(
-    wb_country_list |> distinct(country_code, country_name),
-    by = c("country_code")
   )
 ```
 
