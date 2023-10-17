@@ -176,7 +176,6 @@ vars_family <-
   pull(family_var) %>%
   unique
 
-
 # vars_benchmarked --------------------------------------------------------
 vars_static_ctf <- db_variables |>
   filter(
@@ -187,6 +186,12 @@ vars_static_ctf <- db_variables |>
 vars_dynamic_ctf <- db_variables |>
   filter(
     benchmark_dynamic_indicator == "Yes"
+  ) |>
+  pull(variable)
+
+vars_dynamic_partial_ctf <- db_variables |>
+  filter(
+    benchmark_dynamic_family_aggregate == "Partial"
   ) |>
   pull(variable)
 

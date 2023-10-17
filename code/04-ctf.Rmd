@@ -266,7 +266,7 @@ group_ctf_dynamic <- add_column(group_ctf_dynamic, country_group = 1, .after = "
 
 ```{r}
 # static
-ctf_clean <-
+ctf <-
   ctf %>%
   # add country codes and names
   left_join(
@@ -293,7 +293,7 @@ ctf_clean <-
   )
 
 # dynamic
-ctf_dynamic_clean <-
+ctf_dynamic <-
   ctf_dynamic %>%
   # add country codes and names
   left_join(
@@ -324,7 +324,7 @@ ctf_dynamic_clean <-
 ```{r}
 # static
 ctf_long <-
-  ctf_clean %>%
+  ctf %>%
   pivot_longer(
     all_of(vars_static_ctf),
     names_to = "variable"
@@ -355,7 +355,7 @@ ctf_long_clean <-
 
 # dynamic
 ctf_dynamic_long <-
-  ctf_dynamic_clean %>%
+  ctf_dynamic %>%
   pivot_longer(
     all_of(vars_dynamic_ctf),
     names_to = "variable"
@@ -390,16 +390,28 @@ ctf_dynamic_long_clean <-
 
 ```{r}
 # static
-ctf_clean <- ctf_clean |> 
+ctf_clean <- ctf |> 
   compute_family_average(
     vars = vars_static_family_ctf,
     db_variables = db_variables
   )
 
 # dynamic
-ctf_dynamic_clean <- ctf_dynamic_clean |> 
+ctf_dynamic <- ctf_dynamic |> 
   compute_family_average(
     vars = vars_dynamic_family_ctf,
+    type = "dynamic",
+    db_variables = db_variables
+  )
+
+# separate pipeline for partial (every two-years indicator)
+ctf_dynamic_partial <- ctf_dynamic |> 
+  # only retain even years because data is updated every two-years
+  filter(
+    year %% 2 == 0
+  ) |> 
+  compute_family_average(
+    vars = vars_dynamic_partial_ctf,
     type = "dynamic",
     db_variables = db_variables
   )

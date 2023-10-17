@@ -161,6 +161,20 @@ efi_clean <- efi |>
   mutate(
     wb_gtmi_pfm_mis = scale_values(wb_gtmi_pfm_mis)
   ) |> 
+  # edit WJP indicators to: (1) use 2018 data for 2017 in WJP and drop data if year < 2015
+  arrange(
+    iso3, year
+  ) |> 
+  mutate(
+    across(
+      starts_with("wjp_rol"),
+      ~ case_when(
+        year == 2017 ~ lead(.), # use 2018 data for 2017
+        year < 2015 ~ NA, # drop data if year < 2015
+        T ~ .
+      )
+    )
+  ) |> 
   select(
     -index,
     -country_name,
