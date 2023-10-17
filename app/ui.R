@@ -412,6 +412,16 @@ ui <-
                   style = "width:100%; background-color: #204d74; color: white"
                 )
               ),
+              
+              # shiny::column(3,
+              #               shinyWidgets::materialSwitch(
+              #                 inputId = "show_dynamic_plot",
+              #                 label = "Show dynamic benchmark plot",
+              #                 status = "success",
+              #                 value = FALSE
+              #               )
+              # ),
+              
 
               ## Save inputs button
               column(
@@ -488,8 +498,39 @@ ui <-
             )
               )
             )
-
           ),
+          
+          ## Dynamic benchmark tab  -------------------------------------------------------
+          
+          bs4Card(
+            width = 12,
+            solidHeader = FALSE,
+            gradientColor = "primary",
+            title = "Dynamic Benchmarks",
+            collapsible = TRUE,
+            
+            
+            conditionalPanel(
+              "input.select !== 0",
+              fluidRow(
+                
+                column(
+                  width = 12,
+                  plotlyOutput(
+                    "dynamic_benchmark_plot",
+                    height =  paste0(plot_height * 3.5, "px")
+                  ) %>% shinycssloaders::withSpinner(color = "#051f3f", type = 8)
+                )
+                
+              ),
+              
+              
+            )
+            
+            
+            
+          ),
+          
 
           bs4Card(
             title = "Indicator definitions",

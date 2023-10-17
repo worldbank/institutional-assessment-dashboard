@@ -1364,34 +1364,35 @@ shinyjs::hide("save_inputs")
   ## End of benchmark tab ----------------------
 
   ## Dynamic benchmark plot  ============================================================
-  
-  shiny::observeEvent(
-      list(input$country,
-      input$groups,
-      input$family,
-      input$benchmark_median,
-      input$rank,
-      input$benchmark_dots,
-      input$create_custom_grps,
-      input$threshold,
-      input$preset_order,
-      input$countries  ), {
-    
-    shinyWidgets::updateMaterialSwitch(
-      session = session,
-      inputId = "show_dynamic_plot",
-      value = FALSE
-    )
-
-  })
-  
+  # 
+  # shiny::observeEvent(
+  #     list(input$country,
+  #     input$groups,
+  #     input$family,
+  #     input$benchmark_median,
+  #     input$rank,
+  #     input$benchmark_dots,
+  #     input$create_custom_grps,
+  #     input$threshold,
+  #     input$preset_order,
+  #     input$countries  ), {
+  #     
+  #   if (length(input$country)==1){
+  #   
+  #   shinyWidgets::updateMaterialSwitch(
+  #     session = session,
+  #     inputId = "show_dynamic_plot",
+  #     value = TRUE
+  #   )}
+  # 
+  # })
+  # 
   
   
   output$dynamic_benchmark_plot <-
     renderPlotly({
-      if (length(input$countries) >= 10) {
-        
-        input$select
+      validate(need(length(input$country) == 1,'Dynamic Benchmarking is available only when One base Country is selected'))
+      if (length(input$countries) >= 10 && length(input$country) == 1) {
         
         isolate(
           if (input$family == "Overview") {
