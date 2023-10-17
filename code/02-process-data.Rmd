@@ -176,11 +176,13 @@ efi_clean <- efi |>
     )
   ) |> 
   select(
-    -index,
-    -country_name,
     country_code = iso3,
     year,
     everything()
+  ) |> 
+  select(
+    -index,
+    -country_name
   )
 
 # 2. fraser - market regulations
@@ -299,11 +301,13 @@ rise_clean <- rise |>
 
 # 8. wdi data
 wdi_clean <- wdi |> 
-  clean_names()
+  clean_names() |> 
+  select(-countryname)
 
 # 9. vdem
 vdem_clean <- vdem |> 
-  clean_names()
+  clean_names() |> 
+  select(-country_name)
 
 # 10. heritage
 heritage_clean <- heritage |> 
@@ -440,51 +444,6 @@ cliar_indicators <- cliar_indicators %>%
   )
 ```
 
-## Compute family averages
-
-```{r}
-# compute family averages
-cliar_indicators_long <-
-  cliar_indicators %>%
-  pivot_longer(
-    any_of(vars_all),
-    names_to = "variable"
-  ) %>%
-  select(-contains("gdp")) %>%
-  left_join(
-    db_variables %>%
-      select(variable, var_name, family_name, family_var),
-    by = "variable"
-  )
-
-# only calculate family averages for relevant institutional clusters
-cliar_family_level_long <- cliar_indicators_long |>
-  filter(
-    family_var %in% vars_family
-  ) |>
-  group_by(
-    country_code, year, family_var
-  ) |>
-  summarise(
-    value = mean(value, na.rm = TRUE),
-    .groups = "drop"
-  )
-
-cliar_family_level <- cliar_family_level_long |>
-  pivot_wider(
-    id_cols = c(country_code, year),
-    names_from = family_var,
-    names_glue = "{family_var}_avg",
-    values_from = value
-  )
-
-cliar_indicators <- cliar_indicators |>
-  left_join(
-    cliar_family_level,
-    by = c("country_code", "year")
-  )
-```
-
 ## Data Quality Control: Indicator Selection
 
 ```{r indicator_selection}
@@ -527,6 +486,51 @@ test_that(
     )
   }
 )
+```
+
+## Compute family averages
+
+```{r}
+# compute family averages
+cliar_indicators_long <-
+  cliar_indicators %>%
+  pivot_longer(
+    any_of(vars_all),
+    names_to = "variable"
+  ) %>%
+  select(-contains("gdp")) %>%
+  left_join(
+    db_variables %>%
+      select(variable, var_name, family_name, family_var),
+    by = "variable"
+  )
+
+# only calculate family averages for relevant institutional clusters
+cliar_family_level_long <- cliar_indicators_long |>
+  filter(
+    family_var %in% vars_family
+  ) |>
+  group_by(
+    country_code, year, family_var
+  ) |>
+  summarise(
+    value = mean(value, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+cliar_family_level <- cliar_family_level_long |>
+  pivot_wider(
+    id_cols = c(country_code, year),
+    names_from = family_var,
+    names_glue = "{family_var}_avg",
+    values_from = value
+  )
+
+cliar_indicators_clean <- cliar_indicators |>
+  left_join(
+    cliar_family_level,
+    by = c("country_code", "year")
+  )
 ```
 
 ## Data Quality Control: verify country_code, country_name consistency and completeness of country-year combinations
@@ -576,7 +580,7 @@ test_that(
 )
 ```
 
-# 6. Compute coverage diagnostics
+## Compute coverage diagnostics
 ```{r coverage_diagnostics}
 cliar_indicators_diagnostic <- cliar_indicators_clean |>
   select(-country_name) |> 
