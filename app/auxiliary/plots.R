@@ -355,8 +355,13 @@ static_plot <-
         show.legend = TRUE
       ))+ 
       scale_shape_manual(values = 21:25)
+      #scale_fill_manual(values= c("Weak\n(bottom 25%)" = "#D2222D",
+      #                            "Emerging\n(25% - 50%)" = "#FFBF00",
+      #                            "Strong\n(top 50%)" = "#238823"))+
+      # guides(fill=guide_legend(override.aes=list(shape=21)))
     
-
+    
+    
     return(plot)
 
   }
