@@ -175,10 +175,37 @@ vars_ctf <- db_variables |>
   ) |>
   pull(variable)
 
-# family variable averages
-# vars_family_average <- 
+vars_static_ctf <- db_variables |>
+  filter(
+    benchmarked_ctf == "Yes"
+  ) |>
+  pull(variable)
 
+vars_dynamic_ctf <- db_variables |>
+  filter(
+    benchmark_dynamic_indicator == "Yes"
+  ) |>
+  pull(variable)
+
+vars_dynamic_partial_ctf <- db_variables |>
+  filter(
+    benchmark_dynamic_family_aggregate == "Partial"
+  ) |>
+  pull(variable)
+
+vars_static_family_ctf <- db_variables |>
+  filter(
+    benchmark_static_family_aggregate_download == "Yes"
+  ) |>
+  pull(variable)
+
+vars_dynamic_family_ctf <- db_variables |>
+  filter(
+    benchmark_dynamic_family_aggregate == "Yes"
+  ) |>
+  pull(variable)
 # extract family names
+
 family_names <-
   db_variables %>%
   # exclude extraneous families
