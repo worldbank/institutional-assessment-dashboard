@@ -864,7 +864,7 @@ shinyjs::hide("save_inputs")
 
   output$select_button <-
     renderUI({
-      if (length(input$countries) >= 10 & input$country != "") {
+      if (length(input$countries) >= 10 & length(input$country) >=1) {
         actionButton(
           "select",
           "Apply selection",
@@ -1217,7 +1217,7 @@ shinyjs::hide("save_inputs")
               .$var_name
 
             missing_variables <- c(missing_variables, low_variance_variables)
-
+            
             data_family() %>%
               static_plot(
                 base_country(),
@@ -1364,41 +1364,42 @@ shinyjs::hide("save_inputs")
   ## End of benchmark tab ----------------------
 
   ## Dynamic benchmark plot  ============================================================
-  
-  shiny::observeEvent(
-      list(input$country,
-      input$groups,
-      input$family,
-      input$benchmark_median,
-      input$rank,
-      input$benchmark_dots,
-      input$create_custom_grps,
-      input$threshold,
-      input$preset_order,
-      input$countries  ), {
-    
-    shinyWidgets::updateMaterialSwitch(
-      session = session,
-      inputId = "show_dynamic_plot",
-      value = FALSE
-    )
-
-  })
-  
+  # 
+  # shiny::observeEvent(
+  #     list(input$country,
+  #     input$groups,
+  #     input$family,
+  #     input$benchmark_median,
+  #     input$rank,
+  #     input$benchmark_dots,
+  #     input$create_custom_grps,
+  #     input$threshold,
+  #     input$preset_order,
+  #     input$countries  ), {
+  #     
+  #   if (length(input$country)==1){
+  #   
+  #   shinyWidgets::updateMaterialSwitch(
+  #     session = session,
+  #     inputId = "show_dynamic_plot",
+  #     value = TRUE
+  #   )}
+  # 
+  # })
+  # 
   
   
   output$dynamic_benchmark_plot <-
     renderPlotly({
-      if (length(input$countries) >= 10) {
-        
-        input$select
+      validate(need(length(input$country) == 1,'Dynamic Benchmarking is available only when One base Country is selected'))
+      if (length(input$countries) >= 10 && length(input$country) == 1) {
         
         isolate(
           if (input$family == "Overview") {
             missing_variables <-
               global_data_dyn %>%
               missing_var_dyn(
-                base_country(),
+                base_country()[1],
                 country_list,
                 input$countries,
                 vars_all,
@@ -1417,7 +1418,7 @@ shinyjs::hide("save_inputs")
             data_dyn() %>%
               filter(str_detect(variable, "_avg"))%>%
               static_plot_dyn(
-                base_country(),
+                base_country()[1],
                 input$family,
                 input$rank,
                 dots = input$benchmark_dots,

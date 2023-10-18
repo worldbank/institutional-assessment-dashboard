@@ -226,7 +226,7 @@ ui <-
                   label = "Select a base country",
                   choices = c("", countries),
                   selected = NULL,
-                  multiple = FALSE,
+                  multiple = TRUE,
                   options = list(
                     `actions-box` = TRUE,
                     `live-search` = TRUE 
@@ -413,14 +413,14 @@ ui <-
                 )
               ),
               
-              shiny::column(3,
-                shinyWidgets::materialSwitch(
-                  inputId = "show_dynamic_plot",
-                  label = "Show dynamic benchmark plot",
-                  status = "success",
-                  value = FALSE
-                )
-              ),
+              # shiny::column(3,
+              #               shinyWidgets::materialSwitch(
+              #                 inputId = "show_dynamic_plot",
+              #                 label = "Show dynamic benchmark plot",
+              #                 status = "success",
+              #                 value = FALSE
+              #               )
+              # ),
               
 
               ## Save inputs button
@@ -498,7 +498,6 @@ ui <-
             )
               )
             )
-
           ),
           
           ## Dynamic benchmark tab  -------------------------------------------------------
@@ -510,8 +509,9 @@ ui <-
             title = "Dynamic Benchmarks",
             collapsible = TRUE,
             
+            
             conditionalPanel(
-              "input.select !== 0 && input.show_dynamic_plot === true",
+              "input.select !== 0",
               fluidRow(
                 
                 column(
@@ -527,8 +527,10 @@ ui <-
               
             )
             
-  
+            
+            
           ),
+          
 
           bs4Card(
             title = "Indicator definitions",

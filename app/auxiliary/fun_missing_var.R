@@ -9,9 +9,12 @@ missing_var <- function(data, base_country, country_list, comparison_countries, 
   na_indicators <-
     data %>%
     ungroup() %>%
-    filter(country_name == base_country) %>%
+    filter(country_name %in% base_country) %>%
+    select(-(1:3)) %>%
+    summarise(across(everything(), ~ if_else(any(is.na(.)), NA, sum(., na.rm = TRUE)))) %>%
     select(where(is.na)) %>%
-    names
+    distinct() %>%
+    names 
 
   # List final relevant variables: those selected, minus those missing
   variables <-
