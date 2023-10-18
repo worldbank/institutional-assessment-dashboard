@@ -2254,7 +2254,7 @@ shinyjs::hide("save_inputs")
   
   
   observeEvent(input$family, {
-    if (input$family == "SOE Corporate Governance" || input$family == "Labor and Social Protection institutions"  )
+    if (input$family == "SOE Corporate Governance" || input$family == "Labor and Social Protection Institutions"  )
       shinyjs::hide("download_data_1")
     else
       shinyjs::show("download_data_1")
