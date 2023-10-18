@@ -35,7 +35,12 @@ db_variables <-
     )
   )
 
+family_order <- read.csv(here(
+  "data",
+  "family_order.csv"
+))
 
+db_variables <- left_join(db_variables, family_order, by = "family_name")
 
 source(here("auxiliary", "vars-control.R"))
 
@@ -63,7 +68,7 @@ raw_data <-
   read_rds(
     here(
       "data",
-      "compiled_indicators_updated.rds"
+      "compiled_indicators.rds"
     )
   ) %>%
   filter(year >= 1990,
