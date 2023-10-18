@@ -1494,10 +1494,10 @@ interactive_bar <-
           title = list(text = '<b>Closeness to\nfrontier:</b>'),
           y = 0.5
         ),
-        margin = list(t = 75, b = 150),
+        margin = list(t = 75, b = 200),
         annotations =
           list(x = -.1,
-               y = -.3,
+               y = -.4,
                text = HTML(
                  paste(
                    str_wrap(
