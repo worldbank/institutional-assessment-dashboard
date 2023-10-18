@@ -244,6 +244,7 @@ group_ctf_dynamic <- country_list %>%
   left_join(
     ctf_dynamic,
     by = "country_code",
+    relationship = "many-to-many"
   ) %>%
   group_by(
     group_code, group, year
