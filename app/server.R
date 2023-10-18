@@ -1219,6 +1219,8 @@ shinyjs::hide("save_inputs")
             missing_variables <- c(missing_variables, low_variance_variables)
             
             data_family() %>%
+              left_join(.,family_order,by=c('var_name'='family_name'))%>%
+              arrange(country_name,family_order)%>%
               static_plot(
                 base_country(),
                 input$family,
@@ -1244,7 +1246,8 @@ shinyjs::hide("save_inputs")
                 vars(),
                 variable_names
               )
-
+            
+            
             low_variance_variables <-
               low_variance_indicators() %>%
               data.frame() %>%
@@ -1365,28 +1368,28 @@ shinyjs::hide("save_inputs")
 
   ## Dynamic benchmark plot  ============================================================
   # 
-  # shiny::observeEvent(
-  #     list(input$country,
-  #     input$groups,
-  #     input$family,
-  #     input$benchmark_median,
-  #     input$rank,
-  #     input$benchmark_dots,
-  #     input$create_custom_grps,
-  #     input$threshold,
-  #     input$preset_order,
-  #     input$countries  ), {
-  #     
-  #   if (length(input$country)==1){
-  #   
-  #   shinyWidgets::updateMaterialSwitch(
-  #     session = session,
-  #     inputId = "show_dynamic_plot",
-  #     value = TRUE
-  #   )}
-  # 
-  # })
-  # 
+  shiny::observeEvent(
+      list(input$country,
+      input$groups,
+      input$family,
+      input$benchmark_median,
+      input$rank,
+      input$benchmark_dots,
+      input$create_custom_grps,
+      input$threshold,
+      input$preset_order,
+      input$countries  ), {
+
+    if (length(input$country)==1){
+
+    shinyWidgets::updateMaterialSwitch(
+      session = session,
+      inputId = "show_dynamic_plot",
+      value = FALSE
+    )}
+
+  })
+
   
   
   output$dynamic_benchmark_plot <-
@@ -2250,16 +2253,26 @@ shinyjs::hide("save_inputs")
     }) 
   
   
+  observeEvent(input$family, {
+    if (input$family == "SOE Corporate Governance" || input$family == "Labor and Social Protection institutions"  )
+      shinyjs::hide("download_data_1")
+    else
+      shinyjs::show("download_data_1")
+  })
+
+  
   
   ## Save inputs to be loaded the next time --------------------------------------------------------
   download_data_1 <- eventReactive(input$select , {
     
       if (input$family == "Overview") {
-        data<-data_family()
+        data<-data_family()%>%
+          filter(country_name==base_country())
           
       } else {
         data<-data() %>%
-          filter(variable %in% vars())
+          filter(variable %in% vars())%>%
+          filter(country_name==base_country())
       }
     
     return(data)

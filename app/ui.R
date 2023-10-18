@@ -477,8 +477,15 @@ ui <-
                   label = "Show notes",
                   status = "success",
                   value = FALSE
-                ),column(
-                  width = 7),
+                ),
+                column(width = 1),
+                shinyWidgets::materialSwitch(
+                  inputId = "show_dynamic_plot",
+                  label = "Show dynamic benchmark plot",
+                  status = "success",
+                  value = FALSE
+                )
+                
 
                 
               ),
@@ -511,7 +518,7 @@ ui <-
             
             
             conditionalPanel(
-              "input.select !== 0",
+              "input.select !== 0 && input.show_dynamic_plot === true",
               fluidRow(
                 
                 column(
