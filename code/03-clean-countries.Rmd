@@ -1,5 +1,9 @@
 # Clean list of contries
 
+This file creates a clean list of countries to be used calculating CTF.
+In order to clean the list of countries, only countries with data are kept,
+duplicate group names are removed, and column names are standardized
+
 - Inputs:
   - `data/output/compiled_indicators.rds`
   - `data/input/wb/CLASS.xlsx`, obtained from https://datahelpdesk.worldbank.org/knowledgebase/articles/906519-world-bank-country-and-lending-groups on September 1, 2022
@@ -9,7 +13,17 @@
   - `data/final/wb_country_list.rds`
   - `data/final/wb_country_groups.rds`
 
+
 ## Inputs
+
+Read in a list of compiled indicators, which includes all of the indicator values
+for each country year.
+
+Read in a list of all of the country groups being used, these groups can be
+regional, income based, or economic.
+
+Read in a country list, which includes countries, their country codes, the region
+they are in and the group code. Clean this list to have standardized column names
 
 ```{r}
   indicators <-
@@ -51,7 +65,8 @@
 
 ## Subset country list
 
-The only relevant countries are those we have some data for
+Take the country list that was loaded in the last section and select only 
+countries that we have data for. 
 
 ```{r}
 country_list <-
@@ -62,6 +77,8 @@ country_list <-
 ```
 
 ## Subset groups
+
+Filter out any duplicate groups from the country list file
 
 ```{r}
 country_list <-

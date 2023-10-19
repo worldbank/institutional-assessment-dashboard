@@ -19,11 +19,13 @@ Closeness to frontier (CTF) is global, meaning that we identify the worst and be
 performance for indicator $i$ among all countries and in the last $y$ years (2013 - most recent data).^[In [the doing business report](https://www.doingbusiness.org/content/dam/doingBusiness/media/Annual-Reports/English/DB17-Chapters/DB17-DTF-and-DBRankings.pdf) they consider the last 5 years, but here for some indicators we have shorter time series].
 
 
-1. Keep only data from after 2013
+## 1. Read in data and keep only data from after 2013
 
 Ideally, this will use data for the last 7 years in any given year
 
 ```{r}
+
+#load in cleaned indicators from step file 03-clean-countries
 cliar_indicators <-
   read_rds(
     here(
@@ -39,6 +41,7 @@ cliar_indicators <-
     year >= 2013
   )
 
+#read in country list from step 3
 country_list <- read_rds(
   here(
     "data",
@@ -47,6 +50,7 @@ country_list <- read_rds(
   )
 )
 
+#read in db_variables
 db_variables <- read_rds(
   here(
     "data",
@@ -55,16 +59,34 @@ db_variables <- read_rds(
   )
 )
 
-vars_ctf <- db_variables |>
+#filter out the variables that are marked for benchmarking 
+vars_ctf <- db_variables |> 
   filter(
     benchmarked_ctf == "Yes"
-  ) |>
+  ) |> 
   pull(variable)
 ```
 
-2. Rescale indicators so a higher number denotes stronger institutions
-
+## 2. Rescale indicators so a higher number denotes stronger institutions
+V-DEM: corruptionPRM indicators: Countries are graded between 0 (less control/involvement) and 6 (more control/involvement). 
+    In order to rescale these indicators, the years after 2018 are selected, 
+    and then each indicator value is subtracted from 6. so that a value that was
+    previously 0 for less control, is now 6, indicating a stronger institution.
+    
+    NOTE:
+    Methodological note for PRM indicates that 1998 and 2013 indicators are 
+    comparable, but not with 2018 due to change in methodology, so we only retain
+    post-2018 data.
+    
+Enterprise Survey: Percent Of Firms Identifying X As A Major Constraint
+    Subtract each indicator from 100, so that a low percentage of firm, for example
+    10%, will now have a score of 90, indicating stronger institutions
+    
+Freedom house: Countries are graded between 1 (most free) and 7 (least free)
+    Subtract each indicator from 8 so that a value of 1 for the most free is now 7,
+    indicating stronger institutions
 ```{r}
+#create new table to hold rescaled values
 cliar_indicators_rescaled <- cliar_indicators |>
   mutate(
     # V-DEM: corruption
@@ -91,29 +113,38 @@ cliar_indicators_rescaled <- cliar_indicators |>
 ```
 
 
-3. Calculate country-level average for each indicator
+## 3. Calculate country-level average for each indicator
 
 For the static benchmark, we only calculate averages for indicators starting in the year 2018.
 
 ```{r}
 country_average <-
+  #filter only data from years we are using
   cliar_indicators_rescaled %>%
-  filter(year >= 2018) |>
+  filter(year >= 2018) |> 
+  #this groups countries together so average can be taken 
   group_by(
     country_code
   ) %>%
   summarise(
     across(
+      #take average of all variables marked for ctf
       all_of(c(vars_ctf, "wdi_nygdppcapppkd")),
       ~ mean(., na.rm = TRUE)
     )
   )
 ```
 
-4. Identify worst and best performance for each indicator
+## 4. Identify worst and best performance for each indicator
 
+Find this information both on a global time-scale, and for each individual year.
+
+Inspect the entire dataset of rescaled indicator values - so including the indicator
+values for every country year after 2013 - and identify the lowes tand highest 
+values in each category. 
 ```{r}
 # static
+# find min and max values for global dataset of all years
 min_max <-
   cliar_indicators_rescaled %>%
   filter(year >= 2018) |>
@@ -134,6 +165,7 @@ min_max <-
   )
 
 # dynamic: note that there are quite a few cases of Infinite warnings (due to missingness)
+# find min and max values for each indicator for each year
 min_max_dynamic <- cliar_indicators_rescaled %>%
   group_by(year) %>%
   summarise(
@@ -154,26 +186,37 @@ min_max_dynamic <- cliar_indicators_rescaled %>%
   filter(!is.infinite(min) & !is.infinite(max))
 ```
 
-5. Calculate closeness to frontier at indicator level
+## 5. Calculate closeness to frontier at indicator level
+
+The CTF is calculated with this formula  ctf = (min - value) / (min - max)
+meaning each country's average value for each indicator is subtracted from the 
+minumun value of that indicator, and this number is divided by the total range of
+the indicator.
 
 ```{r}
+
+#calculate the static ctf
 ctf <-
+  #take the country average data created in step 3
   country_average %>%
   pivot_longer(
     all_of(vars_ctf),
     names_to = "variable"
   ) %>%
+  #combine average data with min and max level, merging by indicator
   left_join(
     min_max,
     by = "variable"
   ) %>%
   mutate(
+    #ctf formula
     ctf = (min - value) / (min - max),
     ctf = ifelse(
       ctf == 0,
       0.01,
       ctf
     )
+  #clean data to save in a readable format
   ) %>%
   pivot_wider(
     id_cols = c("country_code"),
@@ -186,23 +229,28 @@ ctf <-
       select(country_code)
   )
 
+#calculate dynamic ctf
 ctf_dynamic <-
+  #use rescaled data for this calculation
   cliar_indicators_rescaled %>%
   pivot_longer(
     all_of(vars_ctf),
     names_to = "variable"
   ) %>%
+  #combine with min max data 
   left_join(
     min_max_dynamic,
     by = c("year", "variable")
   ) %>%
   mutate(
+    #ctf formula
     ctf_dyn = (min - value) / (min - max),
     ctf_dyn = ifelse(
       ctf_dyn == 0,
       0.01,
       ctf_dyn
     )
+  #clean data for saving
   ) %>%
   pivot_wider(
     id_cols = c("country_code", "year"),
@@ -215,9 +263,12 @@ ctf_dynamic <-
   )
 ```
 
-## Calculate median per group
+## 6. Calculate median per group
 
+Group countries by regional, economic, or income groups and take indicator median
+for those groups
 ```{r}
+
 group_ctf <-
   country_list %>%
   left_join(
@@ -270,7 +321,7 @@ ctf_dynamic <- add_column(ctf_dynamic, country_group = 0, .after = "country_code
 group_ctf_dynamic <- add_column(group_ctf_dynamic, country_group = 1, .after = "country_code")
 ```
 
-## Clean CTF data and incorporate logged GDP per capita
+## 7. Clean CTF data and incorporate logged GDP per capita
 
 ```{r}
 # static
@@ -328,8 +379,10 @@ ctf_dynamic_clean <-
 ```
 
 
-## Convert to long-form
+## 8. Convert to long-form
 
+This changes the CTF dataset from wide form to long for and adds some additional 
+data such as indicator family
 ```{r}
 # static
 ctf_long <-
@@ -391,11 +444,14 @@ ctf_dynamic_long_clean <-
   bind_rows(ctf_dynamic_long)
 ```
 
-## Calculate family level data
+## 9. Calculate family level data
+
+Find the average ctf of all indicators in a family
 
 ### Static
 
 ```{r}
+# group by unique rows 
 ctf_long_clean_family_level <- ctf_long_clean %>%
   distinct(family_name, family_var, country_name, country_code,
     group, variable, var_name, country_group,
@@ -405,6 +461,7 @@ ctf_long_clean_family_level <- ctf_long_clean %>%
     family_name, family_var, country_name, country_code,
     country_group
   ) %>%
+  
   summarise(value = mean(value[family_name != var_name], na.rm = TRUE)) %>%
   rowwise() %>%
   mutate(
@@ -482,7 +539,8 @@ ctf_dynamic_clean <- ctf_dynamic_long_clean_family_level %>%
 ```
 
 
-## Data Quality Control
+## 9.  Data Quality Control
+Test that all expected countries and indicators are covered
 ```{r}
 test_that(
   "All countries are covered",
@@ -515,7 +573,7 @@ test_that(
 ```
 
 
-## Update db_variables to contain the family averages
+## 10. Update db_variables to contain the family averages
 
 ```{r}
 ## temporarily clean the family names
@@ -561,7 +619,7 @@ db_variables <- db_variables %>%
   arrange(family_var, rank_id)
 ```
 
-## Write-out data
+## 11. Write-out data
 
 ```{r}
 write_rds(
