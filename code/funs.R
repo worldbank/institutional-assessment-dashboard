@@ -167,7 +167,7 @@ compute_family_average <- function(cliar_data, vars, type = "static", db_variabl
       across(all_of(grouping))
     ) |>
     summarise(
-      value = mean(value, na.rm = TRUE),
+      value = mean(value),
       .groups = "drop"
     )
 

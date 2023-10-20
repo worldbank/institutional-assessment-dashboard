@@ -61,7 +61,8 @@ db_variables <- read_rds(
 ```{r}
 cliar_indicators_rescaled <- cliar_indicators |>
   mutate(
-    # V-DEM: corruption
+    # V-DEM: corruption: flip direction because “The directionality of the V-Dem corruption index runs from less corrupt to more corrupt unlike the other V-Dem variables that generally run from less democratic to more democratic situation”.
+    vdem_core_v2x_corr = 1 - vdem_core_v2x_corr,
     # PRM indicators: Countries are graded between 0 (less control/involvement) and 6 (more control/involvement).
     # Methodological note for PRM indicates that 1998 and 2013 indicators are comparable,
     # but not with 2018 due to change in methodology, so we only retain post-2018 data.
@@ -98,9 +99,10 @@ country_average <-
   ) %>%
   summarise(
     across(
-      all_of(c(vars_static_ctf, "wdi_nygdppcapppkd")),
+      all_of(c(vars_static_ctf)),
       ~ mean(., na.rm = TRUE)
-    )
+    ),
+    wdi_nygdppcapppkd = wdi_nygdppcapppkd[year == max(year)]
   )
 ```
 
@@ -424,6 +426,118 @@ ctf_dynamic_clean <- ctf_dynamic |>
     by = c("country_code", "year")
   )
 ```
+
+## Diagnostics on family averages
+```{r}
+# select family averages to diagnose
+vars_family_static_ctf <- ctf_static_family |> 
+  select(ends_with("avg")) |> 
+  colnames() |> 
+  str_replace(
+    "_avg",
+    ""
+  )
+
+vars_family_dynamic_ctf <- ctf_dynamic_family |> 
+  select(ends_with("avg")) |> 
+  colnames() |> 
+  str_replace(
+    "_avg",
+    ""
+  )
+
+# missingness by institutional family average
+# static
+ctf_static_family |> 
+  select(ends_with("avg")) |> 
+  naniar::gg_miss_var(
+    show_pct = TRUE
+  ) +
+  ggtitle(
+    "Percentage of Missing Institutional Family Averages: Static CTF",
+    subtitle = "Unit of Analysis: Country"
+  )
+
+# dynamic
+ctf_dynamic_family |> 
+  select(ends_with("avg")) |> 
+  naniar::gg_miss_var(
+    show_pct = TRUE
+  ) +
+  ggtitle(
+    "Percentage of Missing Institutional Family Averages: Dynamic CTF",
+    subtitle = "Unit of Analysis: Country-Year"
+  )
+
+# static family averages diagnosis
+theme_set(
+  theme_minimal()
+)
+
+vars_family_static_ctf |> 
+  set_names(vars_family_static_ctf) |> 
+  map_dfr(
+    ~ select(
+      ctf,
+      all_of(
+        intersect(vars_static_ctf, get(.))
+        )
+      )|> 
+        miss_var_summary(),
+    .id = "family_var"
+  ) |> 
+  left_join(db_variables) |> 
+  select(-variable) |> 
+  rename(variable = var_name) |> 
+  ggplot(
+    aes(pct_miss, variable)
+  ) +
+  geom_col() +
+  geom_label(
+    aes(label = round(pct_miss))
+  ) +
+  facet_wrap(
+    vars(family_var),
+    scales = "free_y",
+    ncol = 2
+  ) +
+  ggtitle(
+    "Missingness by Indicator in the Static Benchmarking"
+  )
+  
+# dynamic family averages diagnosis
+vars_family_dynamic_ctf |> 
+  set_names(vars_family_dynamic_ctf) |> 
+  map_dfr(
+    ~ select(
+      ctf,
+      all_of(
+        intersect(vars_dynamic_ctf, get(.))
+        )
+      )|> 
+        miss_var_summary(),
+    .id = "family_var"
+  ) |> 
+  left_join(db_variables) |> 
+  select(-variable) |> 
+  rename(variable = var_name) |> 
+  ggplot(
+    aes(pct_miss, variable)
+  ) +
+  geom_col() +
+  geom_label(
+    aes(label = round(pct_miss))
+  ) +
+  facet_wrap(
+    vars(family_var),
+    scales = "free_y",
+    ncol = 2
+  ) +
+  ggtitle(
+    "Missingness by Indicator in the Dynamic Benchmarking"
+  )
+```
+
 
 ## Data Quality Control
 ```{r}

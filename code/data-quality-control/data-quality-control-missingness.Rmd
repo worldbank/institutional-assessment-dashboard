@@ -127,7 +127,6 @@ plot_missingness_heatmap <- function(data, family, dictionary){
   )
 }
 
-
 rename_from_dictionary <- function(data, dictionary){
   # function to rename variables from dictionary
   var_tibble <- tibble(
