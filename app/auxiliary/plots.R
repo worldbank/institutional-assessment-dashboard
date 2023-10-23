@@ -337,28 +337,48 @@ static_plot <-
           #lab = NULL
         )
     }
+    if (length(base_country)==1){
+      plot <-
+        plot +
+        suppressWarnings(geom_point(
+          data = data %>% filter(country_name %in% base_country),
+          aes(
+            y = var_name,
+            x = var,
+            fill = status ,
+            text = text
+          ),
+          shape = 21,
+          size = 3,
+          color = "gray0",
+          show.legend = TRUE
+        ))
+    }else {
+      plot <-
+        plot +
+        suppressWarnings(geom_point(
+          data = data %>% filter(country_name %in% base_country),
+          aes(
+            y = var_name,
+            x = var,
+            shape = country_name,
+            fill = status ,
+            text = text
+          ),
+          size = 3,
+          color = "gray0",
+          show.legend = TRUE
+        ))+ 
+        scale_shape_manual(values = 21:25)      
+        # scale_fill_manual(values= c("Weak\n(bottom 25%)" = "#D2222D",
+        #                            "Emerging\n(25% - 50%)" = "#FFBF00",
+        #                            "Strong\n(top 50%)" = "#238823"))+
+        # guides(fill=guide_legend(override.aes=list(shape=21)))
+
+    }
     
     
-    plot <-
-      plot +
-      suppressWarnings(geom_point(
-        data = data %>% filter(country_name %in% base_country),
-        aes(
-          y = var_name,
-          x = var,
-          shape = country_name,
-          fill = status ,
-          text = text
-        ),
-        size = 3,
-        color = "gray0",
-        show.legend = TRUE
-      ))+ 
-      scale_shape_manual(values = 21:25)
-      #scale_fill_manual(values= c("Weak\n(bottom 25%)" = "#D2222D",
-      #                            "Emerging\n(25% - 50%)" = "#FFBF00",
-      #                            "Strong\n(top 50%)" = "#238823"))+
-      # guides(fill=guide_legend(override.aes=list(shape=21)))
+
     
     
     
