@@ -1421,7 +1421,7 @@ shinyjs::hide("save_inputs")
             data_dyn() %>%
               filter(str_detect(variable, "_avg"))%>%
               static_plot_dyn(
-                base_country()[1],
+                base_country(),
                 input$family,
                 input$rank,
                 dots = input$benchmark_dots,
@@ -2074,8 +2074,10 @@ shinyjs::hide("save_inputs")
       } else {
         custom_df <- NULL
       }
-
-      plot1 <- data_family() %>%
+      
+      plot1 <-data_family() %>%
+        left_join(.,family_order,by=c('var_name'='family_name'))%>%
+        arrange(country_name,family_order)%>% 
         static_plot(
           base_country(),
           "Country overview",
@@ -2087,9 +2089,10 @@ shinyjs::hide("save_inputs")
           threshold = input$threshold
         )
       
-      plot2 <- data_family_dyn() %>%
+      plot2 <-             data_dyn() %>%
+        filter(str_detect(variable, "_avg"))%>%
         static_plot_dyn(
-          base_country(),
+          base_country()[1],
           "Country overview",
           input$rank,
           dots = input$benchmark_dots,
@@ -2098,7 +2101,6 @@ shinyjs::hide("save_inputs")
           threshold = input$threshold
         )
       
-
       plot1 <- dml(ggobj = plot1)
       plot2 <- dml(ggobj = plot2)
       
