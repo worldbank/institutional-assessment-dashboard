@@ -2136,9 +2136,8 @@ shinyjs::hide("save_inputs")
       # This line ensures that the table is only displayed when family is not NULL. It's null when we
       # transition from the default "Overview" to the family saved in the setup file.
       
-      variables <-
-        db_variables %>%
-        filter(var_level == "indicator")
+      variables <- db_variables %>%
+        filter(var_level == "indicator" & benchmarked_ctf == 'Yes' & family_var != 'vars_other')
       
       if (input$family != "Overview") {
         variables <-
