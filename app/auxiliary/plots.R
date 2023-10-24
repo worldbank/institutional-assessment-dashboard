@@ -41,18 +41,32 @@ static_plot <-
     }
 
     if(preset_order == TRUE){
-      
       ## temporary
-      data$var_name <-
-        factor(
-          data$var_name,
-          levels = sort(unique(data$var_name),
-            decreasing = TRUE),
-          ordered = TRUE
-        )
-      data$var_name = data$var_name
-    }else{
+      
+      data <- data %>%
+        group_by(country_name) %>%
+        mutate(rank_id = rank(-dtf,ties.method = "max"))
+      
+        base_country_df<-data%>%
+          filter(country_name==base_country[1])
+    
+        base_country_df<-base_country_df%>%
+            arrange(rank_id)
+          
+        unique_indicators = base_country_df %>% 
+            distinct(var_name,rank_id) %>% 
+            arrange(desc(rank_id)) %>% 
+            pull(var_name)
+      
+        data$var_name <-
+          factor(
+            data$var_name,
+            levels = unique_indicators,
+            ordered = TRUE
+          )
 
+    }else{
+      
       data <- data %>% 
         left_join(., db_variables %>% select(variable, rank_id),
           by = "variable")

@@ -5,6 +5,7 @@ server <- function(input, output, session) {
 
   ## Hide save inputs button at onset
 shinyjs::hide("save_inputs")
+shinyjs::disable("preset_order")
   
   
   ## Base country ------------------------------------------------------------
@@ -42,6 +43,17 @@ shinyjs::hide("save_inputs")
     ))
 
   })
+  
+  
+observeEvent(input$country,{
+  if(length(input$country)>1){
+    shinyjs::disable("preset_order")
+  }else{
+    shinyjs::enable("preset_order")
+  }
+  
+  
+})
   
  
   ## Once the submit button is clicked, check to see if the file contains core fields
@@ -882,6 +894,7 @@ shinyjs::hide("save_inputs")
           shinyjs::disable("report"),
           shinyjs::disable("pptreport"),
           shinyjs::disable("download_data_1"),
+          
         )
       }
     })
