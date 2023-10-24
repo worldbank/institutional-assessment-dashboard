@@ -63,6 +63,9 @@ cliar_indicators_rescaled <- cliar_indicators |>
   mutate(
     # V-DEM: corruption: flip direction because “The directionality of the V-Dem corruption index runs from less corrupt to more corrupt unlike the other V-Dem variables that generally run from less democratic to more democratic situation”.
     vdem_core_v2x_corr = 1 - vdem_core_v2x_corr,
+    # V-DEM: political polarization, higher scores denote higher polarization, which can lead to institutional weakness
+    # so we decide to flip the indicator by multiplying by -1
+    vdem_core_v2cacamps = -1 * vdem_core_v2cacamps,
     # PRM indicators: Countries are graded between 0 (less control/involvement) and 6 (more control/involvement).
     # Methodological note for PRM indicates that 1998 and 2013 indicators are comparable,
     # but not with 2018 due to change in methodology, so we only retain post-2018 data.
@@ -81,7 +84,15 @@ cliar_indicators_rescaled <- cliar_indicators |>
     across(
       c(starts_with("fh_fiw")),
       ~ (8 - .x)
-    )
+    ),
+    # WDI: ensure that pupil-teacher ratio increases lead to a worse score
+    # note that because there is no pre-defined maximum for the ratio so we flip direction multiplying by -1
+    across(
+      c(wdi_seprmenrltczs, wdi_sesecenrltczs),
+      ~ -1 * .x
+    ),
+    # GFDB:Bank concentration, the higher it is, the less competition. therefore indicator is flipped
+    wb_gfdb_oi_01 = 100 - wb_gfdb_oi_01
   )
 ```
 
