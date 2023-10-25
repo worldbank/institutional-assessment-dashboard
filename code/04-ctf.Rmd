@@ -143,7 +143,7 @@ min_max <-
 # dynamic: note that there are quite a few cases of Infinite warnings (due to missingness)
 min_max_dynamic <- cliar_indicators_rescaled %>%
   filter(
-    between(year, 2013, 2022)
+    between(year, 2014, 2022)
   ) |> 
   summarise(
     across(
