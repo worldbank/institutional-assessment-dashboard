@@ -623,7 +623,7 @@ write_rds(
 )
 
 cliar_indicators_diagnostic |> 
-    write_csv(
+    write_rds(
       here(
         "data",
         "output",
