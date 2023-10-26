@@ -314,7 +314,8 @@ ui <-
                         label = "Number of groups",
                         value = 1,
                         min = 1,
-                        max = 3
+                        max = 5,
+                        step = 0.5
                       )
                     ),
                     shiny::column(

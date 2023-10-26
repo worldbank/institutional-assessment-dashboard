@@ -291,33 +291,33 @@ observeEvent(input$country,{
     lapply(1:n_fields, function(i) {
       custom_names <- ""
       custom_countries <- NULL
-      
-      
       c_groups <- input$groups[!input$groups %in% unlist(group_list)]
 
       if (n_fields >= 1) {
+
+        # if(nrow(saved_inputs_df()) > 0 &
+        #     !is.null(saved_inputs_df()$no_custom_grps) &
+        #     saved_inputs_df()$create_custom_groups == TRUE ){
+        # 
+        #  if(saved_inputs_df()$no_custom_grps == input$custom_grps_count){
+        #    custom_names <- saved_inputs_df()[paste("custom_grps_names", i, sep = "_")]
+        #    custom_countries <- unlist(strsplit(as.character(saved_inputs_df()[
+        #      paste("custom_grps_countries", i, sep = "_")]), split = ";")
+        #    )
+        # 
+        #  }else{
+        #    custom_names <- isolate(input[[paste("custom_grps_names", i, sep = "_")]])
+        #    custom_countries <- isolate(input[[paste("custom_grps_countries", i, sep = "_")]])
+        # }
+        # 
+        # }else{
+        #   custom_names <- isolate(input[[paste("custom_grps_names", i, sep = "_")]])
+        #   custom_countries <- isolate(input[[paste("custom_grps_countries", i, sep = "_")]])
+        # }
         
-        if(nrow(saved_inputs_df()) > 0 & 
-            !is.null(saved_inputs_df()$no_custom_grps) &
-            saved_inputs_df()$create_custom_groups == TRUE ){
-          
-         if(saved_inputs_df()$no_custom_grps == input$custom_grps_count){ 
-           custom_names <- saved_inputs_df()[paste("custom_grps_names", i, sep = "_")]
-           custom_countries <- unlist(strsplit(as.character(saved_inputs_df()[
-             paste("custom_grps_countries", i, sep = "_")]), split = ";")
-           ) 
-          
-         }else{
-           custom_names <- isolate(input[[paste("custom_grps_names", i, sep = "_")]])
-           custom_countries <- isolate(input[[paste("custom_grps_countries", i, sep = "_")]])
-        }
-
-        }else{
-          custom_names <- isolate(input[[paste("custom_grps_names", i, sep = "_")]])
-          custom_countries <- isolate(input[[paste("custom_grps_countries", i, sep = "_")]])
-        }
-
-
+        custom_names <- isolate(input[[paste("custom_grps_names", i, sep = "_")]])
+        custom_countries <- isolate(input[[paste("custom_grps_countries", i, sep = "_")]])
+  
         value_textInput <- custom_names
         selected_pickerinput <- custom_countries
 
