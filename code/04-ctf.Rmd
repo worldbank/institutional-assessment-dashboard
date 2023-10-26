@@ -54,12 +54,6 @@ db_variables <- read_rds(
     "db_variables.rds"
   )
 )
-
-vars_ctf <- db_variables |>
-  filter(
-    benchmarked_ctf == "Yes"
-  ) |>
-  pull(variable)
 ```
 
 2. Rescale indicators so a higher number denotes stronger institutions
@@ -67,7 +61,11 @@ vars_ctf <- db_variables |>
 ```{r}
 cliar_indicators_rescaled <- cliar_indicators |>
   mutate(
-    # V-DEM: corruption
+    # V-DEM: corruption: flip direction because “The directionality of the V-Dem corruption index runs from less corrupt to more corrupt unlike the other V-Dem variables that generally run from less democratic to more democratic situation”.
+    vdem_core_v2x_corr = 1 - vdem_core_v2x_corr,
+    # V-DEM: political polarization, higher scores denote higher polarization, which can lead to institutional weakness
+    # so we decide to flip the indicator by multiplying by -1
+    vdem_core_v2cacamps = -1 * vdem_core_v2cacamps,
     # PRM indicators: Countries are graded between 0 (less control/involvement) and 6 (more control/involvement).
     # Methodological note for PRM indicates that 1998 and 2013 indicators are comparable,
     # but not with 2018 due to change in methodology, so we only retain post-2018 data.
@@ -86,7 +84,15 @@ cliar_indicators_rescaled <- cliar_indicators |>
     across(
       c(starts_with("fh_fiw")),
       ~ (8 - .x)
-    )
+    ),
+    # WDI: ensure that pupil-teacher ratio increases lead to a worse score
+    # note that because there is no pre-defined maximum for the ratio so we flip direction multiplying by -1
+    across(
+      c(wdi_seprmenrltczs, wdi_sesecenrltczs),
+      ~ -1 * .x
+    ),
+    # GFDB:Bank concentration, the higher it is, the less competition. therefore indicator is flipped
+    wb_gfdb_oi_01 = 100 - wb_gfdb_oi_01
   )
 ```
 
@@ -104,9 +110,10 @@ country_average <-
   ) %>%
   summarise(
     across(
-      all_of(c(vars_ctf, "wdi_nygdppcapppkd")),
+      all_of(c(vars_static_ctf)),
       ~ mean(., na.rm = TRUE)
-    )
+    ),
+    wdi_nygdppcapppkd = wdi_nygdppcapppkd[year == max(year)]
   )
 ```
 
@@ -119,7 +126,7 @@ min_max <-
   filter(year >= 2018) |>
   summarise(
     across(
-      all_of(vars_ctf),
+      all_of(vars_static_ctf),
       list(
         min = ~ min(., na.rm = TRUE),
         max = ~ max(., na.rm = TRUE)
@@ -135,10 +142,12 @@ min_max <-
 
 # dynamic: note that there are quite a few cases of Infinite warnings (due to missingness)
 min_max_dynamic <- cliar_indicators_rescaled %>%
-  group_by(year) %>%
+  filter(
+    between(year, 2014, 2022)
+  ) |> 
   summarise(
     across(
-      all_of(vars_ctf),
+      all_of(vars_dynamic_ctf),
       list(
         min = ~ min(., na.rm = TRUE),
         max = ~ max(., na.rm = TRUE)
@@ -147,7 +156,7 @@ min_max_dynamic <- cliar_indicators_rescaled %>%
     )
   ) %>%
   pivot_longer(
-    -year,
+    everything(),
     names_to = c("variable", ".value"),
     names_pattern = "(.*)-(.*)"
   ) %>%
@@ -160,7 +169,7 @@ min_max_dynamic <- cliar_indicators_rescaled %>%
 ctf <-
   country_average %>%
   pivot_longer(
-    all_of(vars_ctf),
+    all_of(vars_static_ctf),
     names_to = "variable"
   ) %>%
   left_join(
@@ -189,12 +198,12 @@ ctf <-
 ctf_dynamic <-
   cliar_indicators_rescaled %>%
   pivot_longer(
-    all_of(vars_ctf),
+    all_of(vars_dynamic_ctf),
     names_to = "variable"
   ) %>%
   left_join(
     min_max_dynamic,
-    by = c("year", "variable")
+    by = c("variable")
   ) %>%
   mutate(
     ctf_dyn = (min - value) / (min - max),
@@ -229,7 +238,7 @@ group_ctf <-
   ) %>%
   summarise(
     across(
-      c(all_of(vars_ctf)),
+      c(all_of(vars_static_ctf)),
       ~ median(., na.rm = TRUE)
     )
   ) %>%
@@ -243,18 +252,19 @@ group_ctf <-
 ctf <- tibble::add_column(ctf, country_group = 0, .after = "country_code")
 group_ctf <- tibble::add_column(group_ctf, country_group = 1, .after = "country_code")
 
-
+# dynamic
 group_ctf_dynamic <- country_list %>%
   left_join(
     ctf_dynamic,
     by = "country_code",
+    relationship = "many-to-many"
   ) %>%
   group_by(
     group_code, group, year
   ) %>%
   summarise(
     across(
-      c(all_of(vars_ctf)),
+      c(all_of(vars_dynamic_ctf)),
       ~ median(., na.rm = TRUE)
     )
   ) %>%
@@ -264,8 +274,6 @@ group_ctf_dynamic <- country_list %>%
     country_code = group_code
   )
 
-
-# dynamic
 ctf_dynamic <- add_column(ctf_dynamic, country_group = 0, .after = "country_code")
 group_ctf_dynamic <- add_column(group_ctf_dynamic, country_group = 1, .after = "country_code")
 ```
@@ -274,7 +282,7 @@ group_ctf_dynamic <- add_column(group_ctf_dynamic, country_group = 1, .after = "
 
 ```{r}
 # static
-ctf_clean <-
+ctf <-
   ctf %>%
   # add country codes and names
   left_join(
@@ -301,7 +309,7 @@ ctf_clean <-
   )
 
 # dynamic
-ctf_dynamic_clean <-
+ctf_dynamic <-
   ctf_dynamic %>%
   # add country codes and names
   left_join(
@@ -327,15 +335,14 @@ ctf_dynamic_clean <-
   )
 ```
 
-
 ## Convert to long-form
 
 ```{r}
 # static
 ctf_long <-
-  ctf_clean %>%
+  ctf %>%
   pivot_longer(
-    all_of(vars_ctf),
+    all_of(vars_static_ctf),
     names_to = "variable"
   ) %>%
   select(-contains("gdp")) %>%
@@ -347,6 +354,7 @@ ctf_long <-
   left_join(
     country_list %>%
       select(country_code, group),
+    relationship = "many-to-many",
     by = "country_code",
   )
 
@@ -363,9 +371,9 @@ ctf_long_clean <-
 
 # dynamic
 ctf_dynamic_long <-
-  ctf_dynamic_clean %>%
+  ctf_dynamic %>%
   pivot_longer(
-    all_of(vars_ctf),
+    all_of(vars_dynamic_ctf),
     names_to = "variable"
   ) %>%
   select(-contains("gdp")) %>%
@@ -376,6 +384,7 @@ ctf_dynamic_long <-
   left_join(
     country_list %>%
       select(country_code, group),
+    relationship = "many-to-many",
     by = "country_code",
   )
 
@@ -396,89 +405,148 @@ ctf_dynamic_long_clean <-
 ### Static
 
 ```{r}
-ctf_long_clean_family_level <- ctf_long_clean %>%
-  distinct(family_name, family_var, country_name, country_code,
-    group, variable, var_name, country_group,
-    .keep_all = TRUE
-  ) %>%
-  group_by(
-    family_name, family_var, country_name, country_code,
-    country_group
-  ) %>%
-  summarise(value = mean(value[family_name != var_name], na.rm = TRUE)) %>%
-  rowwise() %>%
-  mutate(
-    variable = paste0(family_var, "_avg"),
-    var_name = (paste0(family_name, " Average"))
-  ) %>%
-  left_join(ctf_long_clean %>%
-    distinct(
-      family_name, family_var, country_name,
-      country_code, group, country_group
-    )) %>%
-  ungroup()
-
-## Attach this to ctf_long_clean
-ctf_long_clean <- ctf_long_clean %>%
-  bind_rows(ctf_long_clean_family_level) %>%
-  arrange(
-    family_name, family_var, country_name, country_code,
-    group, variable, var_name
+# static
+ctf_static_family <- ctf |> 
+  compute_family_average(
+    vars = vars_static_family_ctf,
+    db_variables = db_variables
   )
 
-## Convert it to wide format and attach it to ctf_clean
-ctf_clean <- ctf_long_clean_family_level %>%
-  select(-group) %>%
-  distinct() %>%
-  select(-family_name, -family_var, -var_name) %>%
-  mutate(value = ifelse(is.nan(value), NA, value)) %>%
-  pivot_wider(names_from = "variable", values_from = "value") %>%
-  full_join(ctf_clean, ., by = c("country_code", "country_name", "country_group"))
+# dynamic
+ctf_dynamic_family <- ctf_dynamic |> 
+  # only retain even years because data is updated every two-years
+  filter(
+    year %% 2 == 0
+  ) |> 
+  compute_family_average(
+    vars = c(vars_dynamic_family_ctf, vars_dynamic_partial_ctf),
+    type = "dynamic",
+    db_variables = db_variables
+  )
+
+# join family averages to ctfs
+ctf_clean <- ctf |> 
+  left_join(
+    ctf_static_family,
+    by = "country_code"
+  )
+
+ctf_dynamic_clean <- ctf_dynamic |> 
+  left_join(
+    ctf_dynamic_family,
+    by = c("country_code", "year")
+  )
 ```
 
-### Dynamic
-
+## Diagnostics on family averages
 ```{r}
-ctf_dynamic_long_clean_family_level <- ctf_dynamic_long_clean %>%
-  distinct(family_name, family_var, country_name, country_code,
-    group, variable, var_name,  year, country_group,
-    .keep_all = TRUE
-  ) %>%
-  group_by(
-    family_name, family_var, country_name, country_code,
-    country_group, year
-  ) %>%
-  summarise(value = mean(value[family_name != var_name], na.rm = TRUE)) %>%
-  rowwise() %>%
-  mutate(
-    variable = paste0(family_var, "_avg"),
-    var_name = (paste0(family_name, " Average"))
-  ) %>%
-  left_join(ctf_dynamic_long_clean %>%
-    distinct(
-      family_name, family_var, country_name,
-      country_code, group, year, country_group
-    )) %>%
-  ungroup()
-
-## Attach this to ctf_dynamic_long_clean
-ctf_dynamic_long_clean <- ctf_dynamic_long_clean %>%
-  bind_rows(ctf_dynamic_long_clean_family_level) %>%
-  arrange(
-    family_name, family_var, country_name, country_code,
-    group,year, variable, var_name
+# select family averages to diagnose
+vars_family_static_ctf <- ctf_static_family |> 
+  select(ends_with("avg")) |> 
+  colnames() |> 
+  str_replace(
+    "_avg",
+    ""
   )
 
-## Convert it to wide format and attach it to ctf_dynamic_clean
-ctf_dynamic_clean <- ctf_dynamic_long_clean_family_level %>%
-  select(-group) %>%
-  distinct() %>%
-  select(-family_name, -family_var, -var_name) %>%
-  mutate(value = ifelse(is.nan(value), NA, value)) %>%
-  pivot_wider(names_from = "variable", values_from = "value") %>%
-  full_join(ctf_dynamic_clean, ., by = c("country_code", "country_name", "country_group", "year"))
+vars_family_dynamic_ctf <- ctf_dynamic_family |> 
+  select(ends_with("avg")) |> 
+  colnames() |> 
+  str_replace(
+    "_avg",
+    ""
+  )
 
+# missingness by institutional family average
+# static
+ctf_static_family |> 
+  select(ends_with("avg")) |> 
+  naniar::gg_miss_var(
+    show_pct = TRUE
+  ) +
+  ggtitle(
+    "Percentage of Missing Institutional Family Averages: Static CTF",
+    subtitle = "Unit of Analysis: Country"
+  )
 
+# dynamic
+ctf_dynamic_family |> 
+  select(ends_with("avg")) |> 
+  naniar::gg_miss_var(
+    show_pct = TRUE
+  ) +
+  ggtitle(
+    "Percentage of Missing Institutional Family Averages: Dynamic CTF",
+    subtitle = "Unit of Analysis: Country-Year"
+  )
+
+# static family averages diagnosis
+theme_set(
+  theme_minimal()
+)
+
+vars_family_static_ctf |> 
+  set_names(vars_family_static_ctf) |> 
+  map_dfr(
+    ~ select(
+      ctf,
+      all_of(
+        intersect(vars_static_ctf, get(.))
+        )
+      )|> 
+        miss_var_summary(),
+    .id = "family_var"
+  ) |> 
+  left_join(db_variables) |> 
+  select(-variable) |> 
+  rename(variable = var_name) |> 
+  ggplot(
+    aes(pct_miss, variable)
+  ) +
+  geom_col() +
+  geom_label(
+    aes(label = round(pct_miss))
+  ) +
+  facet_wrap(
+    vars(family_var),
+    scales = "free_y",
+    ncol = 2
+  ) +
+  ggtitle(
+    "Missingness by Indicator in the Static Benchmarking"
+  )
+  
+# dynamic family averages diagnosis
+vars_family_dynamic_ctf |> 
+  set_names(vars_family_dynamic_ctf) |> 
+  map_dfr(
+    ~ select(
+      ctf,
+      all_of(
+        intersect(vars_dynamic_ctf, get(.))
+        )
+      )|> 
+        miss_var_summary(),
+    .id = "family_var"
+  ) |> 
+  left_join(db_variables) |> 
+  select(-variable) |> 
+  rename(variable = var_name) |> 
+  ggplot(
+    aes(pct_miss, variable)
+  ) +
+  geom_col() +
+  geom_label(
+    aes(label = round(pct_miss))
+  ) +
+  facet_wrap(
+    vars(family_var),
+    scales = "free_y",
+    ncol = 2
+  ) +
+  ggtitle(
+    "Missingness by Indicator in the Dynamic Benchmarking"
+  )
 ```
 
 
@@ -504,60 +572,44 @@ test_that(
     ## Shel added _avg to the pattern to take care of the new family level indicators (that all have an _avg suffix)
     expect_setequal(
       ctf_clean |> colnames() |> str_subset("year|country|gdp|_avg$", negate = TRUE),
-      vars_ctf
+      vars_static_ctf
     )
     expect_setequal(
       ctf_dynamic_clean |> colnames() |> str_subset("year|country|gdp|_avg$", negate = TRUE),
-      vars_ctf
+      vars_dynamic_ctf
     )
   }
 )
 ```
 
-
 ## Update db_variables to contain the family averages
 
 ```{r}
-## temporarily clean the family names
-
 db_variables <- db_variables %>% 
-                 mutate(family_name = ifelse(family_name == "Justice institutions", "Justice Institutions",
-                   ifelse(family_name == "Political institutions" , "Political Institutions" ,
-                     family_name
-                   )))
+  mutate(
+    across(where(is.character), str_squish)
+  ) |> 
+  rename(
+    rank_id = indicator_order
+  ) |> 
+  mutate(
+    rank_id = rank_id + 1
+  )
 
-
-db_variables<-db_variables %>% 
-  mutate(across(where(is.character), str_squish))
-
-## add a temporary rank id within family in db_variables
-set.seed(1957)
-generate_random_sequence <- function(length) {
-  return(sample(1:length, length, replace = FALSE))
-}
-
-db_variables<-db_variables %>% 
-  group_by(family_var) %>% 
-  mutate(rank_id = generate_random_sequence(n())) %>% 
-  ungroup() %>% 
-  mutate(rank_id = rank_id + 1)
-
-
-
-## add family level vars
+# add family level vars
 family_level_vars <- db_variables %>% 
   distinct(family_var, family_name) %>% 
   rowwise() %>% 
-  mutate(variable = paste0(family_var, "_avg"),
+  mutate(
+    variable = paste0(family_var, "_avg"),
     var_name = paste0(family_name, " Average"),
-    var_level = "indicator" ) %>% 
-  mutate(benchmarked_ctf = "Yes")
+    var_level = "indicator",
+    benchmarked_ctf = "Yes",
+    rank_id = 1
+  )
 
 db_variables <- db_variables %>% 
-  bind_rows(family_level_vars) %>% 
-  arrange(family_var) %>% 
-  mutate(rank_id = ifelse(variable %in% grep("_avg", variable, value = T), 
-    1, rank_id)) %>% 
+  bind_rows(family_level_vars) %>%
   arrange(family_var, rank_id)
 ```
 

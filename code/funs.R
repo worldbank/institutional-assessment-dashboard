@@ -9,7 +9,7 @@ flag_continued <- function(indicator, year_id, ref_year){
   # this function returns a flag for discontinued series
   # 1. compute the number of times the indicator is measured
   # since a reference year - 5 = last five years
-  times_updated <- length(indicator[{{year_id}} >= ref_year & !is.na(indicator)])
+  times_updated <- length(indicator[{{year_id}} >= ref_year - 5 & !is.na(indicator)])
 
   flag_continued <- if_else(times_updated > 0, 1, 0)
 
@@ -20,9 +20,9 @@ flag_country <- function(indicator, country_id, year_id, ref_year, country_regio
   # this function returns a flag for the country coverage
   # 1. compute the number of distinct country ids for indicators
   # if they are not missing and more recent than a reference year
-  country_coverage <- n_distinct({{country_id}}[{{year_id}} >= ref_year & !is.na(indicator)])
+  country_coverage <- n_distinct({{country_id}}[{{year_id}} >= ref_year - 5 & !is.na(indicator)])
   country_code_unique <- unique(
-    {{country_id}}[{{year_id}} >= ref_year & !is.na(indicator)]
+    {{country_id}}[{{year_id}} >= ref_year - 5 & !is.na(indicator)]
   )
 
   regions_covered <- country_region_list |>
@@ -36,8 +36,6 @@ flag_country <- function(indicator, country_id, year_id, ref_year, country_regio
     country_coverage >= 100 | (country_coverage >= 50 & regions_covered == 7),
     1, 0
   )
-
-  # still need to add the exception to the rule
 
   return(flag_country)
 }
@@ -136,4 +134,50 @@ compute_coverage <- function(data, country_id, year_id, ref_year){
 
 scale_values <- function(x){
   (x-min(x, na.rm = TRUE))/(max(x, na.rm = TRUE)-min(x, na.rm = TRUE))
+}
+
+compute_family_average <- function(cliar_data, vars, type = "static", db_variables){
+  # this function generates family averages
+  # taking a simple average by grouping
+  # default is static
+  cliar_data_long <-
+    cliar_data %>%
+    pivot_longer(
+      all_of({{vars}}),
+      names_to = "variable"
+    ) %>%
+    select(-contains("gdp")) %>%
+    left_join(
+      db_variables %>%
+        select(variable, var_name, family_name, family_var),
+      by = "variable"
+    )
+
+  # only calculate family averages for relevant institutional clusters
+  if(type == "static"){
+    grouping <- c("country_code", "family_var")
+    id_cols <- c("country_code")
+  } else{
+    grouping = c("country_code", "year", "family_var")
+    id_cols <- c("country_code", "year")
+  }
+
+  cliar_family_level_long <- cliar_data_long |>
+    group_by(
+      across(all_of(grouping))
+    ) |>
+    summarise(
+      value = mean(value),
+      .groups = "drop"
+    )
+
+  cliar_family_level <- cliar_family_level_long |>
+    pivot_wider(
+      id_cols = all_of(id_cols),
+      names_from = family_var,
+      names_glue = "{family_var}_avg",
+      values_from = value
+    )
+
+  return(cliar_family_level)
 }

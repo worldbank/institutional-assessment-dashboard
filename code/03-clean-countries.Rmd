@@ -46,7 +46,12 @@
       country_name = CountryName,
       group = GroupName,
       group_code = GroupCode
-    )
+    ) |>
+  # exclude non-WB member countries
+  filter(
+    country_code != "CUB" & 
+      country_code != "PRK"
+  )
 ```
 
 ## Subset country list

@@ -175,7 +175,6 @@ vars_family <-
   pull(family_var) %>%
   unique
 
-
 # vars_benchmarked --------------------------------------------------------
 vars_static_ctf <- db_variables |>
   filter(
