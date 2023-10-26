@@ -5,6 +5,7 @@ server <- function(input, output, session) {
 
   ## Hide save inputs button at onset
 shinyjs::hide("save_inputs")
+shinyjs::disable("preset_order")
   
   
   ## Base country ------------------------------------------------------------
@@ -42,6 +43,17 @@ shinyjs::hide("save_inputs")
     ))
 
   })
+  
+  
+observeEvent(input$country,{
+  if(length(input$country)>1){
+    shinyjs::disable("preset_order")
+  }else{
+    shinyjs::enable("preset_order")
+  }
+  
+  
+})
   
  
   ## Once the submit button is clicked, check to see if the file contains core fields
@@ -279,33 +291,33 @@ shinyjs::hide("save_inputs")
     lapply(1:n_fields, function(i) {
       custom_names <- ""
       custom_countries <- NULL
-      
-      
       c_groups <- input$groups[!input$groups %in% unlist(group_list)]
 
       if (n_fields >= 1) {
+
+        # if(nrow(saved_inputs_df()) > 0 &
+        #     !is.null(saved_inputs_df()$no_custom_grps) &
+        #     saved_inputs_df()$create_custom_groups == TRUE ){
+        # 
+        #  if(saved_inputs_df()$no_custom_grps == input$custom_grps_count){
+        #    custom_names <- saved_inputs_df()[paste("custom_grps_names", i, sep = "_")]
+        #    custom_countries <- unlist(strsplit(as.character(saved_inputs_df()[
+        #      paste("custom_grps_countries", i, sep = "_")]), split = ";")
+        #    )
+        # 
+        #  }else{
+        #    custom_names <- isolate(input[[paste("custom_grps_names", i, sep = "_")]])
+        #    custom_countries <- isolate(input[[paste("custom_grps_countries", i, sep = "_")]])
+        # }
+        # 
+        # }else{
+        #   custom_names <- isolate(input[[paste("custom_grps_names", i, sep = "_")]])
+        #   custom_countries <- isolate(input[[paste("custom_grps_countries", i, sep = "_")]])
+        # }
         
-        if(nrow(saved_inputs_df()) > 0 & 
-            !is.null(saved_inputs_df()$no_custom_grps) &
-            saved_inputs_df()$create_custom_groups == TRUE ){
-          
-         if(saved_inputs_df()$no_custom_grps == input$custom_grps_count){ 
-           custom_names <- saved_inputs_df()[paste("custom_grps_names", i, sep = "_")]
-           custom_countries <- unlist(strsplit(as.character(saved_inputs_df()[
-             paste("custom_grps_countries", i, sep = "_")]), split = ";")
-           ) 
-          
-         }else{
-           custom_names <- isolate(input[[paste("custom_grps_names", i, sep = "_")]])
-           custom_countries <- isolate(input[[paste("custom_grps_countries", i, sep = "_")]])
-        }
-
-        }else{
-          custom_names <- isolate(input[[paste("custom_grps_names", i, sep = "_")]])
-          custom_countries <- isolate(input[[paste("custom_grps_countries", i, sep = "_")]])
-        }
-
-
+        custom_names <- isolate(input[[paste("custom_grps_names", i, sep = "_")]])
+        custom_countries <- isolate(input[[paste("custom_grps_countries", i, sep = "_")]])
+  
         value_textInput <- custom_names
         selected_pickerinput <- custom_countries
 
@@ -864,7 +876,7 @@ shinyjs::hide("save_inputs")
 
   output$select_button <-
     renderUI({
-      if (length(input$countries) >= 10 & input$country != "") {
+      if (length(input$countries) >= 10 & length(input$country) >=1) {
         actionButton(
           "select",
           "Apply selection",
@@ -882,6 +894,7 @@ shinyjs::hide("save_inputs")
           shinyjs::disable("report"),
           shinyjs::disable("pptreport"),
           shinyjs::disable("download_data_1"),
+          
         )
       }
     })
@@ -1217,8 +1230,10 @@ shinyjs::hide("save_inputs")
               .$var_name
 
             missing_variables <- c(missing_variables, low_variance_variables)
-
+            
             data_family() %>%
+              left_join(.,family_order,by=c('var_name'='family_name'))%>%
+              arrange(country_name,family_order)%>%
               static_plot(
                 base_country(),
                 input$family,
@@ -1244,7 +1259,8 @@ shinyjs::hide("save_inputs")
                 vars(),
                 variable_names
               )
-
+            
+            
             low_variance_variables <-
               low_variance_indicators() %>%
               data.frame() %>%
@@ -1364,7 +1380,7 @@ shinyjs::hide("save_inputs")
   ## End of benchmark tab ----------------------
 
   ## Dynamic benchmark plot  ============================================================
-  
+  # 
   shiny::observeEvent(
       list(input$country,
       input$groups,
@@ -1376,29 +1392,30 @@ shinyjs::hide("save_inputs")
       input$threshold,
       input$preset_order,
       input$countries  ), {
-    
+
+    if (length(input$country)==1){
+
     shinyWidgets::updateMaterialSwitch(
       session = session,
       inputId = "show_dynamic_plot",
       value = FALSE
-    )
+    )}
 
   })
-  
+
   
   
   output$dynamic_benchmark_plot <-
     renderPlotly({
-      if (length(input$countries) >= 10) {
-        
-        input$select
+      validate(need(length(input$country) == 1,'Dynamic Benchmarking is available only when One base Country is selected'))
+      if (length(input$countries) >= 10 && length(input$country) == 1) {
         
         isolate(
           if (input$family == "Overview") {
             missing_variables <-
               global_data_dyn %>%
               missing_var_dyn(
-                base_country(),
+                base_country()[1],
                 country_list,
                 input$countries,
                 vars_all,
@@ -2070,8 +2087,10 @@ shinyjs::hide("save_inputs")
       } else {
         custom_df <- NULL
       }
-
-      plot1 <- data_family() %>%
+      
+      plot1 <-data_family() %>%
+        left_join(.,family_order,by=c('var_name'='family_name'))%>%
+        arrange(country_name,family_order)%>% 
         static_plot(
           base_country(),
           "Country overview",
@@ -2083,9 +2102,10 @@ shinyjs::hide("save_inputs")
           threshold = input$threshold
         )
       
-      plot2 <- data_family_dyn() %>%
+      plot2 <-             data_dyn() %>%
+        filter(str_detect(variable, "_avg"))%>%
         static_plot_dyn(
-          base_country(),
+          base_country()[1],
           "Country overview",
           input$rank,
           dots = input$benchmark_dots,
@@ -2094,7 +2114,6 @@ shinyjs::hide("save_inputs")
           threshold = input$threshold
         )
       
-
       plot1 <- dml(ggobj = plot1)
       plot2 <- dml(ggobj = plot2)
       
@@ -2130,9 +2149,8 @@ shinyjs::hide("save_inputs")
       # This line ensures that the table is only displayed when family is not NULL. It's null when we
       # transition from the default "Overview" to the family saved in the setup file.
       
-      variables <-
-        db_variables %>%
-        filter(var_level == "indicator")
+      variables <- db_variables %>%
+        filter(var_level == "indicator" & benchmarked_ctf == 'Yes' & family_var != 'vars_other')
       
       if (input$family != "Overview") {
         variables <-
@@ -2249,16 +2267,26 @@ shinyjs::hide("save_inputs")
     }) 
   
   
+  observeEvent(input$family, {
+    if (input$family == "SOE Corporate Governance" || input$family == "Labor and Social Protection Institutions"  )
+      shinyjs::hide("download_data_1")
+    else
+      shinyjs::show("download_data_1")
+  })
+
+  
   
   ## Save inputs to be loaded the next time --------------------------------------------------------
   download_data_1 <- eventReactive(input$select , {
     
       if (input$family == "Overview") {
-        data<-data_family()
+        data<-data_family()%>%
+          filter(country_name==base_country())
           
       } else {
         data<-data() %>%
-          filter(variable %in% vars())
+          filter(variable %in% vars())%>%
+          filter(country_name==base_country())
       }
     
     return(data)

@@ -9,9 +9,12 @@ def_quantiles <- function(data, base_country, country_list, comparison_countries
   na_indicators <-
     data %>%
     ungroup() %>%
-    filter(country_name == base_country) %>%
+    filter(country_name %in% base_country) %>%
+    select(-(1:3)) %>%
+    summarise(across(everything(), ~ if_else(any(is.na(.)), NA, sum(., na.rm = TRUE)))) %>%
     select(where(is.na)) %>%
-    names
+    distinct() %>%
+    names 
 
 # List final relevant variables: those selected, minus those missing
 # 
@@ -54,9 +57,9 @@ if(length(na_indicators) > 0){
       by = "variable"
     )
 
-if (threshold=="default"){
+if (threshold=="Default"){
     cutoff<-c(25,50)
-}else if (threshold=="terciles")
+}else if (threshold=="Terciles")
 {
   cutoff<-c(33,66)
 }
@@ -77,7 +80,7 @@ if (threshold=="default"){
         dtt > cutoff[1]/100 & dtt <= cutoff[2]/100 ~ paste0("Emerging\n(",cutoff[1],"% - ",cutoff[2],"%)"),
         dtt > cutoff[2]/100 ~ paste0("Strong\n(top ",cutoff[2],"%)")
       ),
-      nrank = rank(-value)
+      nrank = min_rank(-value)
     ) %>%
     ungroup %>%
     rename(dtf = value)
@@ -155,9 +158,9 @@ def_quantiles_dyn <- function(data, base_country, country_list, comparison_count
       by = "variable"
     )
   
-  if (threshold=="default"){
+  if (threshold=="Default"){
     cutoff<-c(25,50)
-  }else if (threshold=="terciles")
+  }else if (threshold=="Terciles")
   {
     cutoff<-c(33,66)
   }

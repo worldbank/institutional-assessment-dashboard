@@ -35,7 +35,12 @@ db_variables <-
     )
   )
 
+family_order <- read.csv(here(
+  "data",
+  "family_order.csv"
+))
 
+db_variables <- left_join(db_variables, family_order, by = "family_name")
 
 source(here("auxiliary", "vars-control.R"))
 

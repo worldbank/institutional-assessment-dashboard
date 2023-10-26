@@ -1,6 +1,6 @@
 
 note_size <- 11
-note_chars <- 140
+note_chars <- 200
 color_groups <- colorRampPalette(c("#001f3f", "#60C2F7"))
 color_countries <- colorRampPalette(c("grey20", "grey50"))
 
@@ -30,30 +30,43 @@ static_plot <-
            note = NULL,
            threshold,
            preset_order = FALSE) {
-    
+
     data$var_name <- ifelse(grepl("Average", data$var_name, ignore.case = TRUE), toupper(data$var_name), data$var_name)
     
-    if (threshold=="default"){
+    if (threshold=="Default"){
       cutoff<-c(25,50)
-    }else if (threshold=="terciles")
+    }else if (threshold=="Terciles")
     {
       cutoff<-c(33,66)
     }
 
-    
     if(preset_order == TRUE){
-      
       ## temporary
-      data$var_name <-
-        factor(
-          data$var_name,
-          levels = sort(unique(data$var_name),
-            decreasing = TRUE),
-          ordered = TRUE
-        )
-      data$var_name = data$var_name
-    }else{
+      
+      data <- data %>%
+        group_by(country_name) %>%
+        mutate(rank_id = rank(-dtf,ties.method = "max"))
+      
+        base_country_df<-data%>%
+          filter(country_name==base_country[1])
+    
+        base_country_df<-base_country_df%>%
+            arrange(rank_id)
+          
+        unique_indicators = base_country_df %>% 
+            distinct(var_name,rank_id) %>% 
+            arrange(desc(rank_id)) %>% 
+            pull(var_name)
+      
+        data$var_name <-
+          factor(
+            data$var_name,
+            levels = unique_indicators,
+            ordered = TRUE
+          )
 
+    }else{
+      
       data <- data %>% 
         left_join(., db_variables %>% select(variable, rank_id),
           by = "variable")
@@ -70,8 +83,6 @@ static_plot <-
           ordered = TRUE
         )
     }
-
-
 
     
     vars <-
@@ -92,7 +103,7 @@ static_plot <-
         "Strong\n(top 66%)" = "#238823"
         )
       }
-  
+    
     if (rank == FALSE) {
       x_lab <- "Closeness to frontier"
       
@@ -122,7 +133,7 @@ static_plot <-
       
       x_lab <- "Rank"
     }
-
+    
     plot <-
       ggplot() +
         geom_segment(
@@ -205,7 +216,7 @@ static_plot <-
         plot +
         labs(title = paste0("<b>", tab_name, "</b>"))
     }
-
+  
     if (dots) {
       plot <-
         plot +
@@ -283,53 +294,6 @@ static_plot <-
         custom_grp_median_data_df <- purrr::map_df(selected_custom_grps, custom_grp_median_data_func)
         
         
-        ## for each custom group
-        # for(i in 1: length(selected_custom_grps)){
-        # 
-        #   ## extract its data from the custom_df data. See sample custom_df data below
-        #   
-        #   #     Category Grp           Countries
-        #   # 1    Custom  xd             Denmark
-        #   # 2    Custom  xd  Russian Federation
-        #   # 3    Custom  xd              Sweden
-        #   # 4    Custom  ts          Tajikistan
-        #   # 5    Custom  ts            Thailand
-        #   # 6    Custom  ts Trinidad and Tobago
-        #   # 7    Custom  ts             Tunisia
-        #   # 8    Custom  ts        Turkmenistan
-        #   # 9    Custom POL          Uzbekistan
-        #   # 10   Custom POL       Venezuela, RB
-        #   # 11   Custom POL             Vietnam
-        #   # 12   Custom POL         Yemen, Rep.
-        #   custom_df_per_group <- custom_df %>% 
-        #         filter(Grp == selected_custom_grps[i])
-        # 
-        #   
-        #   ## calculate medians for each group
-        #   custom_grp_median_data[[i]] <-
-        #     ctf_long %>%
-        #     filter(
-        #       var_name %in% vars,
-        #       country_name %in% custom_df_per_group$Countries ## extract countries that fall in this group
-        #     ) %>%
-        #     mutate(
-        #       country_name = unique(custom_df_per_group$Grp), ## the country name will be the 
-        #       ## name of the group.
-        #       group = NA
-        #     ) %>%
-        #     unique %>%
-        #     group_by(
-        #       country_name,
-        #       var_name
-        #     ) %>%
-        #     summarise(value = median(value, na.rm = TRUE)) %>%
-        #     ungroup
-        # }
-        # 
-        # ## append all the group median datasets to one
-        # custom_grp_median_data <- bind_rows(custom_grp_median_data)
-
-        ## and append this to median data generated for pre-determined groups
         median_data <- median_data %>%
                          bind_rows(custom_grp_median_data_df)
       }
@@ -345,7 +309,7 @@ static_plot <-
           filter(
             var_name %in% vars,
             country_name %in% data$country_name,
-            country_name != base_country
+            !(country_name %in% unlist(base_country))
           ) %>%
           mutate(
             country_name = "Comparison countries",
@@ -387,24 +351,52 @@ static_plot <-
           #lab = NULL
         )
     }
+    if (length(base_country)==1){
+      plot <-
+        plot +
+        suppressWarnings(geom_point(
+          data = data %>% filter(country_name %in% base_country),
+          aes(
+            y = var_name,
+            x = var,
+            fill = status ,
+            text = text
+          ),
+          shape = 21,
+          size = 3,
+          color = "gray0",
+          show.legend = TRUE
+        ))
+    }else {
+      plot <-
+        plot +
+        suppressWarnings(geom_point(
+          data = data %>% filter(country_name %in% base_country),
+          aes(
+            y = var_name,
+            x = var,
+            shape = country_name,
+            fill = status ,
+            text = text
+          ),
+          size = 3,
+          color = "gray0",
+          show.legend = TRUE
+        ))+ 
+        scale_shape_manual(values = 21:25)      
+        # scale_fill_manual(values= c("Weak\n(bottom 25%)" = "#D2222D",
+        #                            "Emerging\n(25% - 50%)" = "#FFBF00",
+        #                            "Strong\n(top 50%)" = "#238823"))+
+        # guides(fill=guide_legend(override.aes=list(shape=21)))
 
-    plot <-
-      plot +
-      suppressWarnings(geom_point(
-        data = data %>% filter(country_name == base_country),
-        aes(
-          y = var_name,
-          x = var,
-          fill = status ,
-          text = text
-        ),
-        size = 3,
-        shape = 21,
-        color = "gray0"
-      ))
+    }
+    
+    
 
+    
+    
+    
     return(plot)
-
 
   }
 
@@ -423,9 +415,9 @@ static_plot_dyn <-
     threshold,
     preset_order = FALSE) {
     
-    if (threshold=="default"){
+    if (threshold=="Default"){
       cutoff<-c(25,50)
-    }else if (threshold=="terciles")
+    }else if (threshold=="Terciles")
     {
       cutoff<-c(33,66)
     }
@@ -462,7 +454,7 @@ static_plot_dyn <-
       arrange(var_name2) 
     
     base_country_vars <-  data %>% 
-      filter(country_name == base_country ) %>% 
+      filter(country_name %in% base_country ) %>% 
       distinct(var_name2) %>% 
       pull()
     
@@ -948,7 +940,6 @@ plot_notes_function <-
 
 interactive_plot <-
   function(x, tab_name, buttons,  plot_type) {
-
     x <- x +
       theme(
         legend.position = "top"
@@ -958,17 +949,7 @@ interactive_plot <-
       ggplotly(tooltip = "text") %>%
       layout(
         margin = list(l = 50, r = 50, t = 150, b = 150)#,
-        # annotations =
-        #   list(
-        #     x = -0.2,
-        #     y = -0.6,
-        #     text = shiny::HTML(notes),
-        #     showarrow = F,
-        #     xref = 'paper',
-        #     yref = 'paper',
-        #     align = 'left',
-        #     font = list(size = note_size)
-        #   )
+
       ) %>%
       config(
         modeBarButtonsToRemove = buttons,
@@ -995,9 +976,9 @@ interactive_plot <-
       if (!is.null(int_plot$x$data[[i]]$name)){
         int_plot$x$data[[i]]$name =  gsub("^\\(","",str_split(int_plot$x$data[[i]]$name,",")[[1]][1])
       }
-      
+
     }
-    
+
     int_plot <- clean_plotly_legend(int_plot)
     
     return(int_plot)
@@ -1156,7 +1137,7 @@ interactive_map <-
         yaxis = list(visible = FALSE),
         annotations =
           list(x = 0,
-               y = -0.2,
+               y = -0.8,
                text = HTML(
                  paste(
                    str_wrap(
@@ -1338,9 +1319,9 @@ trends_plot <- function(raw_data,
         title = list(text = '<b>Country:</b>'),
         y = 0.5
       ),
-      margin = list(l = 50, r = 50, t = 75, b = 135),
+      margin = list(l = 50, r = 150, t = 175, b = 200),
       annotations =
-        list(x = 0, y = -0.2,
+        list(x = 0, y = -0.5,
              text = HTML(
                paste(
                  str_wrap(
@@ -1547,10 +1528,10 @@ interactive_bar <-
           title = list(text = '<b>Closeness to\nfrontier:</b>'),
           y = 0.5
         ),
-        margin = list(t = 75, b = 150),
+        margin = list(t = 75, b = 200),
         annotations =
           list(x = -.1,
-               y = -.3,
+               y = -.4,
                text = HTML(
                  paste(
                    str_wrap(

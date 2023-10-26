@@ -5,7 +5,6 @@ db_variables <- read_rds(
     "db_variables.rds"
   )
 )
-
 # 1. Anti-corruption institutions ======================
 vars_anticorruption <-
   db_variables %>%
