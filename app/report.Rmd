@@ -391,7 +391,7 @@ print(table)
 ```{r,  results = "asis"}
 
 missing_stats <- params$global_data%>%
-  filter(country_name %in% c(params2$base_country,params2$comparison_countries))
+  filter(country_name %in% c(params$base_country,params$comparison_countries))
 
 missing_stats$Missing_Indicators <- apply(missing_stats, 1, function(row) {
   paste(Hmisc::label(missing_stats)[which(is.na(row))],collapse = ', ')
