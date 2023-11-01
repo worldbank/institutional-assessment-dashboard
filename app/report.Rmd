@@ -183,7 +183,8 @@ families <-
       "In the static benchmarking case, this institutional cluster is analyzed with",
       length(filtered_list),
       "available indicators:",
-      sapply(list(filtered_list), function(x) paste(x, collapse = ", "))
+      sapply(list(filtered_list), function(x) paste(x, collapse = ", ")),
+      "."
       )
 
       data <-
@@ -197,7 +198,7 @@ families <-
       summarize(count = n(),VarNames = sapply(list(var_name), function(x) paste(x, collapse = ", ")))
     
 
-    cat(
+    cat("\n\n",
       " The figure below graphically displays the results were: ",
       counts_category$count[counts_category$status=="Weak\n(bottom 25%)"],
       "indicators demonstrate a weak performance",
