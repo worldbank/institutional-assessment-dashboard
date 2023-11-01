@@ -545,7 +545,7 @@ static_plot_dyn <-
         ) %>% 
         ungroup() %>% 
         rowwise() %>% 
-        mutate(delta = round((latest_value_ctf - earliest_value_ctf)/earliest_value_ctf, 3)) %>% 
+        mutate(delta = round((latest_value_ctf - earliest_value_ctf), 3)) %>% 
         mutate(new_labels = 
           ifelse(earliest_value_rank != latest_value_rank, 
             paste0(var_name, 
