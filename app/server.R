@@ -2027,20 +2027,26 @@ observeEvent(input$country,{
       file.copy("www/", tmp_dir, recursive = TRUE)
       file.copy("report.Rmd", tempReport, overwrite = TRUE)
 
-
       params <-
         list(
           base_country = base_country(),
           comparison_countries = input$countries,
           data = data(),
           family_data = data_family(),
+          data_dyn = data_dyn(),
+          family_data_dyn = data_family_dyn(),
           rank = input$rank,
           definitions = definitions,
           variable_names = variable_names,
           dots = input$benchmark_dots,
           group_median = input$benchmark_median,
-          threshold = input$threshold
+          threshold = input$threshold,
+          family_order = family_order,
+          global_data = global_data,
+          family_order = family_order
         )
+      
+      #browser()
 
       rmarkdown::render(
         tempReport,
