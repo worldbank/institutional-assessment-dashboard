@@ -528,8 +528,8 @@ static_plot_dyn <-
     }
     
     ## calculate the delta and the new facet labels that will contain it.
-
       
+        
       data <- data %>% 
         group_by(family_name, var_name) %>% 
         mutate(n_countries_min = length(country_name[year == min(as.numeric(year), na.rm = TRUE)]),
