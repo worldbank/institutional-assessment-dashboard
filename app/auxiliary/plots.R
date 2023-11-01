@@ -841,7 +841,7 @@ static_plot_dyn <-
     
     ### create the plot
     plot <- plot +
-      facet_wrap(~var_name, ncol = n_col, 
+      facet_wrap(~var_name, ncol = 2, 
         labeller = labeller(var_name = plot_titles),
         shrink = FALSE, scales = sc) +
       theme(strip.text = element_text(face = "bold", size = 10))
