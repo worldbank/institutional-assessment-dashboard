@@ -189,6 +189,23 @@ families <-
       data <-
         params$data %>%
           filter(var_name %in% vars)
+      
+    counts_category<-data%>%
+      filter(country_name %in% c(params$base_country))%>%
+      filter(!str_detect(variable, "_avg"))%>%
+      group_by(status)%>%
+      summarize(count = n(),VarNames = sapply(list(var_name), function(x) paste(x, collapse = ", ")))
+    
+
+    cat(
+      " The figure below graphically displays the results were: ",
+      counts_category$count[counts_category$status=="Weak\n(bottom 25%)"],
+      "indicators demonstrate a weak performance",
+      counts_category$count[counts_category$status=="Emerging\n(25% - 50%)"],
+      " indicators exhibit emerging performance, and",
+      counts_category$count[counts_category$status=="Strong\n(top 50%)"],
+      " indicators exhibit strong performance."
+    )
 
       try(
         plot(
@@ -408,4 +425,3 @@ print(
 )
 
 ```
-
