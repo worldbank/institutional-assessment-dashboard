@@ -1023,7 +1023,7 @@ ui <-
               radioGroupButtons(
                 "data_value",
                 label = "Select information to show",
-                choices = c("Value", "Rank"),
+                choices = c("Value"),
                 selected = "Value",
                 direction = "vertical",
                 justified = TRUE,
