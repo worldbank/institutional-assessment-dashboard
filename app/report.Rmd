@@ -11,10 +11,14 @@ params:
   comparison_countries: NA
   data: NA
   family_data: NA
+  data_dyn : NA
+  family_data_dyn : NA
   rank: NA
   dots: NA
   group_median: NA
   threshold: NA
+  family_order: NA
+  global_data : NA
 ---
 
 
@@ -53,12 +57,41 @@ knitr::opts_chunk$set(
 knitr::include_graphics("www/cliar.png")
 ```
 
-# Methodology
+# Introduction
+
+1. **This institutional assessment for** `r params$base_country` **is based on the CLIAR Benchmarking: an innovative approach that uses data from a multitude of global indicators and compares the country with relevant peers.** 
+
+# What is CLIAR ? 
+**The objective of the Country-Level Institutional Assessment and Review (CLIAR) is to provide a standardized and structured yet flexible analysis, with a rigorous and effective methodology.** The CLIAR would help country teams make meaningful comparisons across different institutional strengths and weaknesses, enabling them to measure the overall effectiveness of government institutions in a structured and consistent manner. The findings emerging from the CLIAR can assist teams in identifying institutional challenges that need to be addressed to achieve sustained, inclusive growth and inform the programming of Bank resources. The CLIAR aims to make the Bank’s institutional diagnostic work and policy dialogue at the country level more coherent and integrated, building on a solid empirical base. 
+
+**The Country Level Institutional Assessment and Review (CLIAR) is composed of two but complementary products: (i) the CLIAR Benchmarking and (ii) the CLIAR Country Deep-Dive.** This report is based on the former, namely the CLIAR Benchmarking. 
+
+**The CLIAR Benchmarking is a quick and accessible methodology that quantitatively assesses the strengths and weaknesses of a country’s institutional dimensions against a set of comparator countries.** The set of curated institutional indicators are aggregated into the following 14 institutional families, or clusters: (i) political institutions; (ii) social institutions; (iii) anticorruption institutions, (iv) transparency and accountability institutions; (v) justice institutions, (vi) public financial management institutions, (vii) public sector human resources management, (viii) digital government and data institutions; (ix) financial market institutions; (x) business environment and trade institutions; (xi) labor market institutions; (xii) SOE corporate governance institutions; (xiii) service delivery institutions; and (xiv) climate change institutions.
+
+```{r, fig.cap="Institutional families"}
+knitr::include_graphics("www/families.png")
+```
+
+**This tool generates systematic evidence needed to map out a country’s institutional profile, and it does so in a standardized, transparent, and replicable way.** This provides a robust data-driven base to guide the selection of a subset of issues related to the identified gaps that can be subject to in-depth investigation, as an inherent limitation of the benchmarking exercise is that it is not intended as an exhaustive and comprehensive analysis of the specific institutional constraints of each country and may not authoritatively identify all key institutional shortcomings, but rather as a basis for customizing it to the best extent possible to the country context and better engage into a “Country Deep-Dive” 
+
+## Scoring and aggregation method 
+
+**The CLIAR Benchmarking analysis employs the “closeness to frontier” (CTF) methodology to standardize and compare a wide range of institutional indicators.** Each of the indicators is scored using the CTF where 1 is the best score is zero and is the worse. The individual indicator CTF scores are then averaged across the relevant institutional family to create the institutional level CTF score. Each country has up to XX indicator level CTF scores (depending on data availability) and 14 institutional family level CTF scores.  
+
+**Relative institutional weaknesses and strengths are then defined based on the percentile in which the specific indicator belongs, relative to the set of comparator countries (which are chosen by the country-team for each analysis).** Quantile distribution through traffic light coloring is then used to capture the areas where the largest institutional gaps exist, relative to the set of relevant country comparators. The current methodology classifies “weak institution”, “emerging institution”, and “advanced institution”, as those in the following percentiles: 0-25th, 25-50th, above 50th. (There is also the option of using terciles: 0-33rd, 33-66th, above 66th.)  
+
+**The CTF and the quantile analysis capture two related but different aspects of a country’s institutional performance.** The CTF compares the country’s performance with the best and worst performers. The quantile analysis benchmarks the country’s performance with the set of comparator countries. For example, it could be that for one indicator or institutional cluster the CTF score is relatively high and close to 1 (indicating in fact “closeness to the frontier”) but, at the same time, this dimension is marked as an institutional weakness (i.e., red color) because the country’s performance is still worse than most comparator countries. The benchmark analysis shows both dimensions to assess the country’s performance with respect to both the global frontier and the performance of all other comparator countries. 
+
+### Static vs. Dynamic Analysis 
+
+**We implement two types of distinct yet complementary benchmarking analyses, namely a static and a dynamic version.**
+
+#### Methodology
 
 1. **The World Bank Country-Level Institutional Assessment and Review (CLIAR) framework was used in order to assess the quality of institutional arrangements in** `r params$base_country` **vis-à-vis a set of comparator countries**. This exercise generates the empirical evidence needed to map out the country's institutional profile, and identifies its institutional strengths and weaknesses. The main advantage of the benchmarking analysis is that it offers a standardized, transparent, and replicable approach to identify key institutional areas where the performance may be deficient relative to that of comparator countries. This provides a robust empirical base to guide the selection of a subset of issues related to the identified gaps that can be subject to in-depth investigation. Despite these advantages, the benchmarking analysis has limitations, discussed in Appendix C.  
 
 2. **The benchmarking exercise clusters an array of well-established institutional indicators into nine institutional families**. There is no agreed theoretical framework that could guide the categorization process. The categorization process faces a trade-off between aggregation and narrowness, where the categories have to be broad enough to comprehensively capture the main indicators and policy spaces but also focused enough to guide an in-depth qualitative analysis as well as a productive dialogue in the country. The proposed categories, described in more detail in Appendix A, are based on an effort to balance this trade-off and capture key functions that different institutions perform (Figure 1): Anticorruption, transparency, and accountability; Business environment and trade; Financial market; Labor market; Justice; Political; Public sector; Social; and SOE corporate governance. The institutional benchmarking uses more than 80 indicators collected from a variety of data sources in order to provide a snapshot of governance and institutions according to the latest available international indicators, as of 2020. Details on the indicators used for the institutional benchmarking are provided in Appendix B.
-
+\begin{center}
 ```{r, fig.cap="Institutional families"}
 knitr::include_graphics("www/families.png")
 ```
@@ -70,14 +103,32 @@ knitr::include_graphics("www/families.png")
 ```{r, fig.cap="Traffic light coloring, as used in the institutional benchmarking exercise", out.width = "100%"}
 knitr::include_graphics("www/colors.png")
 ```
+<TO BE REMOVED SECTION>
 
-# Country overview
+# Static Benchmarking
+
+The static analysis of `r params$base_country` institutions was performed on a basis of `r length(unique(params$data$var_name))` available indicators that are grouped in `r length(unique(params$data$family_name))` institutional clusters (families). 
+
+```{r}
+temp<-params$family_data%>%
+  filter(country_name %in% c(params$base_country))%>%
+  mutate(flag = ifelse(dtt > 0.5, 1, 0))
+
+counts_category<-params$family_data%>%
+  filter(country_name %in% c(params$base_country))%>%
+  group_by(status)%>%
+  summarize(count = n(),VarNames = sapply(list(var_name), function(x) paste(x, collapse = ", ")))
+```
+
+`r sum(temp$flag)` institutional families out of `r length(unique(params$data$family_name))` exhibit a proximity to the frontier greater than 0,5, which means that `r sum(temp$flag)` institutional clusters are closer to the world’s best performers. In relative terms, as shown in Figure below, scores for `r counts_category$count[counts_category$status=="Weak\n(bottom 25%)"]`  institutional clusters namely `r counts_category$VarNames[counts_category$status=="Weak\n(bottom 25%)"]` indicate weak performance, `r counts_category$count[counts_category$status=="Emerging\n(25% - 50%)"]`  of the clusters namely `r counts_category$VarNames[counts_category$status=="Emerging\n(25% - 50%)"]` are classified as ‘emerging’ and `r counts_category$count[counts_category$status=="Strong\n(top 50%)"]` clusters namely `r counts_category$VarNames[counts_category$status=="Strong\n(top 50%)"]` demonstrate an advanced performance. 
+
+## Country overview
 
 ```{r}
 params$family_data %>%
   static_plot(
     params$base_country,
-    "Country overview", 
+    "Country overview",
     rank = params$rank,
     group_median = params$group_median,
     dots = params$dots,
@@ -89,30 +140,24 @@ params$family_data %>%
     ),
     threshold = params$threshold
   )
+
 ```
+
+
 
 # Institutional families
 
-```{r,  results = "asis"}
-for (category in c("Strong", "Emerging", "Weak")) {
+```{r, results = "asis"}
+families <-
+  params$family_order %>%
+  select(family_name) %>%
+  unlist
 
-  families <-
-    params$family_data %>%
-    filter(country_name == params$base_country,
-           str_detect(status, category)) %>%
-    select(var_name) %>%
-    unlist
-  
   if (length(families) > 0) {
 
     family_names <-
       paste(families, collapse = ", ")
 
-    cat("\n##",
-        category,
-        "institutional capital:",
-        family_names,
-        " \n")
 
     for (family in families) {
 
@@ -122,10 +167,19 @@ for (category in c("Strong", "Emerging", "Weak")) {
         select(var_name) %>%
         unlist
 
+      
+      filtered_list <- vars[!grepl("Average", vars)]
+      
+
       cat(
-        "\n###",
-        family,
-        " \n"
+      "\n####",family)
+      
+      cat(
+       "\n",
+      "In the static benchmarking case, this institutional cluster is analyzed with", 
+      length(filtered_list),
+      "available indicators:",
+      sapply(list(filtered_list), function(x) paste(x, collapse = ", "))
       )
 
       data <-
@@ -146,13 +200,67 @@ for (category in c("Strong", "Emerging", "Weak")) {
           )
         )
       )
-      
-
       cat("\n")
     }
 
   }
-}
+
+
+```
+
+
+
+# Dynamic Plots
+
+
+```{r, fig.height=12, results = "asis"}
+families <-
+  params$family_order %>%
+  select(family_name) %>%
+  unlist
+
+  if (length(families) > 0) {
+
+    family_names <-
+      paste(families, collapse = ", ")
+
+
+    for (family in families) {
+
+      vars <-
+        variable_names %>%
+        filter(family_name == family) %>%
+        select(var_name) %>%
+        unlist
+
+      data <-
+        params$data %>%
+          filter(var_name %in% vars)
+
+      data_dyn <-
+        params$data_dyn %>%
+          filter(var_name %in% vars)
+
+
+      try(
+        plot(
+          static_plot_dyn(
+            data_dyn,
+            params$base_country,
+            rank = params$rank,
+            dots = params$dots,
+            family,
+            title = FALSE,
+            note = source,
+            threshold = params$threshold
+          )
+        )
+      )
+      cat("\n")
+    }
+
+  }
+
 
 ```
 
@@ -174,23 +282,114 @@ for (category in c("Strong", "Emerging", "Weak")) {
 
 # Appendix B - Indicator definitions
 
-```{r,  results = "asis"}
-for (family in names(definitions)) {
-  cat("\n##",
-      family,
-      "\n")
-  
-  print(
-    knitr::kable(
-      definitions[[family]],
-      format = "pipe"
-    )
-  )
-  
-  cat("\n")
-  
-}
-```
+ ```{r,  results = "asis"}
+ for (family in names(definitions)[1:length(names(definitions))-1]) {
+   cat("\n",
+       family,
+       "\n")
+
+   print(
+     knitr::kable(
+       definitions[[family]],
+       format = "pipe"
+     )
+   )
+
+   cat("\n")
+
+ }
+ ```
+
+# Appendix C - Summary Statisics
+#### Static Data Summary
+ ```{r,  results = "asis"}
+ 
+    summary_data <-
+      params$data %>%
+        filter(country_name %in% c(params$base_country,params$comparison_countries))
+        
+    summary_stats <- summary_data %>%
+          group_by(var_name) %>%
+          summarise(
+            Mean = mean(dtf),
+            SD = sd(dtf),
+            Q25 = quantile(dtf, 0.25),
+            Q50 = quantile(dtf, 0.50),
+            Q75 = quantile(dtf, 0.75),
+            Min = min(dtf),
+            Max = max(dtf),
+            N = n()
+          )
+    
+    summary_stats<-summary_stats%>%
+      mutate_if(is.numeric, ~round(., 2))
+   
+     print(
+       knitr::kable(
+         summary_stats,
+         format = "pipe"
+       )
+     )
+
+
+ ```
+#### Dynamic Plot Data Summary
+ ```{r,  results = "asis"}
+ 
+    summary_data <-
+      params$data_dyn %>%
+        filter(country_name %in% c(params$base_country,params$comparison_countries))
+        
+    summary_stats <- summary_data %>%
+          group_by(var_name) %>%
+          summarise(
+            Mean = mean(dtf),
+            SD = sd(dtf),
+            Q25 = quantile(dtf, 0.25),
+            Q50 = quantile(dtf, 0.50),
+            Q75 = quantile(dtf, 0.75),
+            Min = min(dtf),
+            Max = max(dtf),
+            N = n()
+          )
+    
+    summary_stats<-summary_stats%>%
+      mutate_if(is.numeric, ~round(., 2))
+   
+      table <- knitr::kable(
+        summary_stats,
+        format = "pipe"
+      )
+    
+    
+    # Print the styled table
+    print(table)
+
+ ```
+ 
+#### Missing Stats  Summary
+ ```{r,  results = "asis"}
+ 
+      missing_stats <- params$global_data%>%
+                          filter(country_name %in% c(params2$base_country,params2$comparison_countries))
+      
+      missing_stats$Missing_Indicators <- apply(missing_stats, 1, function(row) {
+        paste(Hmisc::label(missing_stats)[which(is.na(row))],collapse = ', ')
+      })
+      
+      missing_stats<-missing_stats[,c('country_name','Missing_Indicators')]
+
+     print(
+       knitr::kable(
+         missing_stats,
+         format = "pipe"
+       )%>%
+      kable_styling(font_size = 7,full_width = TRUE)
+
+     )
+     
+ ```
+
 
 # Appendix C - The risks and limitations of the benchmarking analysis
 
@@ -207,3 +406,5 @@ for (family in names(definitions)) {
 **Formal vs. informal institutions.** Given the challenges associated with the effort to capture empirically informal institutions and the limited availability of cross-country data in this regard, the benchmarking exercise tends to be biased toward formal institutions. An important exception is the category of social institutions, which captures important manifestations of informal institutions such as social norms, beliefs, and social capital and trust. This bias toward formal institutions is an additional limitation of the quantitative analysis, as in many countries informal institutions often play an important role in shaping actors' expectations and behavior. The qualitative analysis is intended to address---at least in part---this shortcoming and is addressed specifically.
 
 **The limitations outlined above suggest that the benchmarking exercise is --- at best --- an "exercise of approximation."** It is not intended as an exhaustive and comprehensive analysis of the specific institutional constraints of each country and may not authoritatively identify all key institutional shortcomings. The tool should therefore be used only as an initial effort to bring well-structured evidence into the discussion of institutional challenges, as a basis for customizing it to the best extent possible to the country context. Most importantly, this is only the first step of the CLIAR, which provides an opportunity to address limitations and gaps experienced in the benchmarking with the qualitive analysis that follows.
+
+
