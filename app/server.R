@@ -1833,16 +1833,9 @@ observeEvent(input$country,{
             global_data_dyn
           }else{
             
-            
-            list_cols<-db_variables %>%
-              filter(benchmarked_ctf == 'Yes') %>%
-              filter(!grepl("_avg", variable))%>%
-              pull(variable)
-            
-            raw_data[,c('country_code','country_name','Year',list_cols)]
-            
-            
-            
+            raw_data%>%
+              select(-ends_with("_avg"))
+
           }
           
         }
@@ -1880,7 +1873,7 @@ observeEvent(input$country,{
         if(input$data_source == "Closeness to frontier (Dynamic)"){
           vars_table <- c("country_name", "country_code", "country_group", "year", vars)
         } else {
-          vars_table <- c("country_name", "country_code", "country_group", "Year", vars)
+          vars_table <- names(data)
         }
       }
       
