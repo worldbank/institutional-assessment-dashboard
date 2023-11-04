@@ -56,6 +56,8 @@ source <- "Source: Authors’ elaboration using CLIAR’s Interactive Online Das
 knitr::include_graphics("www/cliar.png")
 ```
 
+# Country-Level Institutional Assessment and Review (CLIAR) Benchmarking Report - **`r params$base_country`**
+
 \pagebreak
 
 ## Acronyms and Abbreviations
@@ -106,7 +108,7 @@ knitr::include_graphics("www/families.png")
 # Country Overview
 
 ## CLIAR Benchmarking
-**The World Bank Country-Level Institutional Assessment and Review (CLIAR) framework was used in order to assess the quality of institutional arrangements in** `r params$base_country` **vis-à-vis a set of comparator countries**. 
+**The World Bank Country-Level Institutional Assessment and Review (CLIAR) framework was used in order to assess the quality of institutional arrangements in** `r params$base_country` **vis-à-vis a set of comparator countries namely** `r params$comparison_countries`. 
 
 
 # Static Benchmarking
@@ -317,27 +319,7 @@ knitr::include_graphics("www/colors.png")
 The CTF and the quantile analysis capture two related but different aspects of a country’s institutional performance. The CTF compares the country’s performance with the best and worst performers. The quantile analysis benchmarks the country’s performance with the set of comparator countries. For example, it could be that for one indicator or institutional cluster the CTF score is relatively high and close to 1 (indicating in fact “closeness to the frontier”) but, at the same time, this dimension is marked as an institutional weakness (i.e., red color) because the country’s performance is still worse than most comparator countries. The benchmark analysis shows both dimensions to assess the country’s performance with respect to both the global frontier and the performance of all other comparator countries.
 
 
-# Appendix B - Description of CLIAR Indicators
-
-```{r,  results = "asis"}
-for (family in names(definitions)[1:length(names(definitions))-1]) {
-  cat("\n",
-      family,
-      "\n")
-  
-  print(
-    knitr::kable(
-      definitions[[family]],
-      format = "pipe"
-    )
-  )
-  
-  cat("\n")
-  
-}
-```
-
-# Appendix C - Summary Statisics
+# Appendix B - Summary Statisics
 
 #### Static Benchmarking Summary
 ```{r,  results = "asis"}
