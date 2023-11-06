@@ -130,8 +130,10 @@ counts_category<-params$family_data%>%
 
 ## Country overview
 
-```{r}
+```{r, results = "asis"}
 params$family_data %>%
+  left_join(.,params$family_order,by=c('var_name'='family_name'))%>%
+  arrange(country_name,family_order)%>% 
   static_plot(
     params$base_country,
     "Country overview",
@@ -174,9 +176,18 @@ families <-
         unlist
 
 
-      filtered_list <- vars[!grepl("Average", vars)]
 
+      data <-
+        params$data %>%
+          filter(var_name %in% vars)
+      
+      if(nrow(data)>0){
+        
+      
+      filtered_list<-unique(data$var_name)
+      filtered_list <- filtered_list[!grepl("Average", filtered_list)]
 
+      
       cat(
       "\n####",family)
 
@@ -189,12 +200,10 @@ families <-
       "."
       )
 
-      data <-
-        params$data %>%
-          filter(var_name %in% vars)
+
       
     counts_category<-data%>%
-      filter(country_name %in% c(params$base_country))%>%
+      filter(country_name %in% c(params2$base_country))%>%
       filter(!str_detect(variable, "_avg"))%>%
       group_by(status)%>%
       summarize(count = n(),VarNames = sapply(list(var_name), function(x) paste(x, collapse = ", ")))
@@ -202,11 +211,11 @@ families <-
 
     cat("\n\n",
       " The figure below graphically displays the results were: ",
-      counts_category$count[counts_category$status=="Weak\n(bottom 25%)"],
+      ifelse(length(counts_category$count[counts_category$status == "Weak\n(bottom 25%)"])==0, 0, counts_category$count[counts_category$status == "Weak\n(bottom 25%)"]),
       "indicators demonstrate a weak performance",
-      counts_category$count[counts_category$status=="Emerging\n(25% - 50%)"],
+      ifelse(length(counts_category$count[counts_category$status == "Emerging\n(25% - 50%)"])==0, 0, counts_category$count[counts_category$status == "Emerging\n(25% - 50%)"]),
       " indicators exhibit emerging performance, and",
-      counts_category$count[counts_category$status=="Strong\n(top 50%)"],
+      ifelse(length(counts_category$count[counts_category$status == "Strong\n(top 50%)"])==0, 0, counts_category$count[counts_category$status == "Strong\n(top 50%)"]),
       " indicators exhibit strong performance."
     )
 
@@ -226,6 +235,7 @@ families <-
       )
       cat("\n")
     }
+  }
 
   }
 
@@ -233,6 +243,32 @@ families <-
 ```
 
 # Dynamic Benchmarking
+
+The dynamic analysis of  institutions was performed on a basis of `r params$base_country` available indicators that are grouped in `r length(unique(params$data_dyn$var_name))` institutional clusters (families).
+
+
+```{r,fig.height= 8,results = "asis"}
+params2$data_dyn %>%
+    filter(str_detect(variable, "_avg"))%>%
+  static_plot_dyn(
+    params$base_country,
+    "Country overview",
+    rank = params$rank,
+    group_median = params$group_median,
+    dots = params$dots,
+    title = FALSE,
+    note = paste(
+      source,
+      str_wrap(note, 174),
+      sep = "\n"
+    ),
+    threshold = params$threshold
+  )
+
+```
+
+### CLIAR Dynamic Benchmarking: For Each Family 
+
 ```{r,results = "asis"}
 families <-
   params$family_order %>%
@@ -247,34 +283,34 @@ families <-
 
     for (family in families) {
 
-      
+
       cat(
       "\n####",family)
-      
+
       vars <-
         variable_names %>%
         filter(family_name == family) %>%
         select(var_name) %>%
         unlist
-      
+
       data_dyn <-
         params$data_dyn %>%
           filter(var_name %in% vars)
 
-    
+
     indicators<-unique(data_dyn$var_name)
-    
+
     if(length(indicators)>0){
-    
+
         for (i in seq(1, length(indicators), by = 2)) {
             pair <- indicators[i:(i + 1)]
             # Process the pair of elements here
-            
-          
-        
+
+
+
         data_dyn_sub <-data_dyn%>%
           filter(var_name %in% pair)
-    
+
           try(
             plot(
               static_plot_dyn(
@@ -289,9 +325,9 @@ families <-
               )
             )
           )
-        }   
-          
-          
+        }
+
+
     }
           cat("\n")
         }
@@ -407,4 +443,3 @@ print(
   
 )
 
-```
