@@ -203,7 +203,7 @@ families <-
 
       
     counts_category<-data%>%
-      filter(country_name %in% c(params2$base_country))%>%
+      filter(country_name %in% c(params$base_country))%>%
       filter(!str_detect(variable, "_avg"))%>%
       group_by(status)%>%
       summarize(count = n(),VarNames = sapply(list(var_name), function(x) paste(x, collapse = ", ")))
@@ -241,6 +241,7 @@ families <-
 
 
 ```
+\newpage
 
 # Dynamic Benchmarking
 
@@ -248,7 +249,7 @@ The dynamic analysis of  institutions was performed on a basis of `r params$base
 
 
 ```{r,fig.height= 8,results = "asis"}
-params2$data_dyn %>%
+params$data_dyn %>%
     filter(str_detect(variable, "_avg"))%>%
   static_plot_dyn(
     params$base_country,
@@ -269,7 +270,7 @@ params2$data_dyn %>%
 
 ### CLIAR Dynamic Benchmarking: For Each Family 
 
-```{r,results = "asis"}
+```{r}
 families <-
   params$family_order %>%
   select(family_name) %>%
