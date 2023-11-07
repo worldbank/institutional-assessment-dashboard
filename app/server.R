@@ -2120,27 +2120,69 @@ observeEvent(input$country,{
           dots = input$benchmark_dots,
           group_median = input$benchmark_median,
           custom_df = custom_df,
-          threshold = input$threshold
+          threshold = input$threshold,
+          title = FALSE,
         )
-      
       plot1 <- dml(ggobj = plot1)
       plot2 <- dml(ggobj = plot2)
       
       
       ppt <- ppt %>%
-        on_slide(index = 4) %>%
+        on_slide(index = 8) %>%
         ph_with(value = plot1, location = ph_location(
           left = 1.5, top = 1.2,
           width = 10.04, height = 4.67, bg = "transparent"
         )) %>% 
-        #https://rdrr.io/cran/officer/src/R/pptx_slide_manip.R
-        add_slide(master = "Custom Design") %>%
-        on_slide(index = 5) %>%
+        on_slide(index = 9) %>%
         ph_with(value = plot2, location = ph_location(
           left = 1.5, top = 1.2,
           width = 10.04, height = 4.67, bg = "transparent"
         ))
+      
+      slide_index = 10
+      
+      family_n <- data()%>%
+        distinct(family_name)%>%
+        filter(!is.na(family_name))%>%
+        pull(family_name) %>%
+        as.list()
 
+      
+      for(fam_n in family_n){
+      fam_variable_names<-variable_names %>%
+        filter(family_name == fam_n) %>%
+        pull(variable) %>%
+        unique()
+        
+        plt_f<-data() %>%
+          filter(variable %in% fam_variable_names)%>%
+          static_plot(
+            base_country(),
+            fam_n,
+            input$rank,
+            dots = input$benchmark_dots,
+            group_median = input$benchmark_median,
+            custom_df = custom_df(),
+            threshold = input$threshold,
+            preset_order = input$preset_order,
+            title = FALSE
+          )
+        
+        plt_f<-dml(ggobj = plt_f)
+        
+        ppt <- ppt %>%
+          add_slide(master = "Custom Design")%>%
+          on_slide(index = slide_index) %>%
+          ph_with(value = fam_n, location = ph_location(left = 1, top = 0.4,width = 12))%>%
+          ph_with(value = plt_f, location = ph_location(
+            left = 1.5, top = 1.2,
+            width = 10.04, height = 4.67, bg = "transparent"
+          ))
+        
+        slide_index = slide_index+1
+      }
+
+    
       print(ppt, file)
     }
   )
