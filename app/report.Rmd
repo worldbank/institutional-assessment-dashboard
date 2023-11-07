@@ -284,10 +284,6 @@ families <-
 
     for (family in families) {
 
-
-      cat(
-      "\n####",family)
-
       vars <-
         variable_names %>%
         filter(family_name == family) %>%
