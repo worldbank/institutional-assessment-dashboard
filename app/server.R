@@ -2046,7 +2046,8 @@ observeEvent(input$country,{
           threshold = input$threshold,
           family_order = family_order,
           global_data = global_data,
-          family_order = family_order
+          family_order = family_order,
+          download_opt = input$download_Opt
         )
       
       #browser()

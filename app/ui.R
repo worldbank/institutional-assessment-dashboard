@@ -393,6 +393,7 @@ ui <-
                 
 
               ),
+            
               
               column(
                 width = 2,
@@ -431,6 +432,17 @@ ui <-
                 downloadButton("save_inputs", "Save inputs")
               )
 
+            ),
+            fluidRow(style = "height: 15px;"),
+            
+            fluidRow(
+              prettyCheckbox(
+                inputId = "download_Opt",
+                label = "Download Advanced Report (~10min)",
+                value = FALSE,
+                icon = icon("check"),
+                status = "success"
+              )
             )
 
           ),

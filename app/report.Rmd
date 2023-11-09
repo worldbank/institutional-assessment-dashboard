@@ -19,6 +19,7 @@ params:
   threshold: NA
   family_order: NA
   global_data : NA
+  download_opt : NA
 ---
 
 
@@ -270,7 +271,9 @@ params$data_dyn %>%
 
 ### CLIAR Dynamic Benchmarking: For Each Family 
 
-```{r}
+```{r dyn_each_fam}
+if(params$download_opt==TRUE){
+
 families <-
   params$family_order %>%
   select(family_name) %>%
@@ -331,7 +334,7 @@ families <-
 
   }
 
-
+}
 ```
 \newpage 
 
@@ -355,7 +358,7 @@ The CTF and the quantile analysis capture two related but different aspects of a
 # Appendix B - Summary Statisics
 
 #### Static Benchmarking Summary
-```{r,  results = "asis"}
+```{r data_sum,  results = "asis"}
 
 summary_data <-
   params$data %>%
@@ -387,7 +390,7 @@ print(
 
 ```
 #### Dynamic Benchmarking Data Summary
-```{r,  results = "asis"}
+```{r dyn_data_sum,  results = "asis"}
 
 summary_data <-
   params$data_dyn %>%
