@@ -2126,34 +2126,41 @@ observeEvent(input$country,{
       plot1 <- dml(ggobj = plot1)
       plot2 <- dml(ggobj = plot2)
       
+      table_data <- data.frame(
+        Group = c("Base Country","Comparison Countries"),
+        Indicators = c(paste(input$country),paste(c(input$countries), collapse = ", "))
+      )
       
       ppt <- ppt %>%
         on_slide(index = 8) %>%
+        ph_with(value = table_data,ph_location(
+          left = 0.5,width = 12,top=1.3,  bg = "transparent",tcf = table_conditional_formatting(),
+          alignment = c('c','l')
+        )) 
+
+      ppt <- ppt %>%
+        on_slide(index = 9) %>%
         ph_with(value = plot1, location = ph_location(
           left = 1.5, top = 1.2,
           width = 10.04, height = 4.67, bg = "transparent"
-        )) %>% 
-        on_slide(index = 9) %>%
-        ph_with(value = plot2, location = ph_location(
-          left = 1.5, top = 1.2,
-          width = 10.04, height = 4.67, bg = "transparent"
         ))
-      
+
+
       slide_index = 10
-      
+
       family_n <- data()%>%
         distinct(family_name)%>%
         filter(!is.na(family_name))%>%
         pull(family_name) %>%
         as.list()
 
-      
+
       for(fam_n in family_n){
       fam_variable_names<-variable_names %>%
         filter(family_name == fam_n) %>%
         pull(variable) %>%
         unique()
-        
+
         plt_f<-data() %>%
           filter(variable %in% fam_variable_names)%>%
           static_plot(
@@ -2167,9 +2174,9 @@ observeEvent(input$country,{
             preset_order = input$preset_order,
             title = FALSE
           )
-        
+
         plt_f<-dml(ggobj = plt_f)
-        
+
         ppt <- ppt %>%
           add_slide(master = "Custom Design")%>%
           on_slide(index = slide_index) %>%
@@ -2178,10 +2185,18 @@ observeEvent(input$country,{
             left = 1.5, top = 1.2,
             width = 10.04, height = 4.67, bg = "transparent"
           ))
-        
+
         slide_index = slide_index+1
       }
 
+      ppt<-ppt%>%
+        add_slide(master = "Custom Design")%>%
+        on_slide(index = slide_index) %>%
+        ph_with(value = "Dynamic Benchmarking : Overview", location = ph_location(left = 1, top = 0.4,width = 12))%>%
+        ph_with(value = plot2, location = ph_location(
+          left = 1.5, top = 1.2,
+          width = 10.04, height = 4.67, bg = "transparent"
+        ))
     
       print(ppt, file)
     }
