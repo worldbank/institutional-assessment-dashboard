@@ -248,6 +248,15 @@ variable_list <-
 names(variable_list) <- family_names$var_name
 
 
+remove_average_items <- function(family) {
+  family_filtered <- family[!grepl("Average", family)]
+  return(family_filtered)
+}
+
+# Apply the function to each family in the list
+filtered_variable_list <- lapply(variable_list, remove_average_items)
+
+
 group_list <-
   list(
     `Economic` = country_groups %>% filter(group_category == "Economic") %>% pull(group_name),

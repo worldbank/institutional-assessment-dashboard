@@ -800,7 +800,7 @@ ui <-
                 pickerInput(
                   "vars_trends",
                   label = "Select indicator to visualize",
-                  choices = variable_list,
+                  choices = filtered_variable_list,
                   selected = NULL,
                   options = list(
                     `live-search` = TRUE,
