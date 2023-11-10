@@ -124,7 +124,8 @@ ui <-
             p("Welcome to the Country Level Institutional Assessment and Review (CLIAR) Benchmarking Dashboard!"), 
             p("The World Bank recognizes institutional strengthening as key ingredient for progress of its members countries along income categories. While there are numerous diagnostic and assessment tools for specific functional areas such as public financial management and tax administration, there is no analytical tool for country-level institutional assessment."), 
             p("The Country Level Institutional Assessment and Review (CLIAR) contributes to fill this gap via two distinct but complementary products: the (i) CLIAR Benchmarking and its Dashboard and the (ii) CLIAR Country Deep-Dive."),
-            p("The CLIAR Benchmarking Dashboard value added is to provide a standard quantitative methodology to summarize information from a large set of country-level institutional indicatorsIt does so by providing a user-friendly interface with multiple visualizations of a country’s institutional profile based on a set of international indicators, highlighting a given country’s institutional strengths and weaknesses relative to a set of country comparators. The findings can provide a structured, standardized, andup-to-date empirical guidance for further in-depth analysis in the specific areas of interest, given the nature of the World Bank engagement in a country and complementarity with other ongoing country-level diagnostics (e.g., SCDs, CEMs, and CPFs)."),
+            p("The CLIAR Benchmarking Dashboard value added is to provide a standard quantitative methodology to summarize information from a large set of country-level institutional indicators. It does so by providing a user-friendly interface with multiple visualizations of a country’s institutional profile based on a set of curated international indicators, highlighting a given country’s institutional strengths and weaknesses relative to a set of country comparators. 
+              The findings can provide a structured, standardized, and up-to-date empirical guidance for further in-depth analysis in the specific areas of interest. This can inform and contribute the World Bank's engagement in a given country and complement other strategic and analytical country-level reports, such as Country Climate and Development Reports (CCDR), Country Economic Memorandums (CEM), Public Expenditure Reviews (PER), Country-Partnership Frameworks (CPF), among others."),
             p("For full details about the methodology behind the CLIAR Benchmarking, please find the Methodological paper in the Methodology tab. Users of this resource should cite this paper. Publications using the CLIAR data should include a citation of the CLIAR Dashboard as well as the original source(s) of the data used. Citation information for each component dataset is also included in the Methodology page."),
             p("Disclaimer: The findings, interpretations, and conclusions expressed in CLIAR are a product of staff of the World Bank, but do not necessarily reflect the views of the World Bank and its affiliated organizations, or those of the Executive Directors of the World Bank or the governments they represent."),
             h3("How to use this dashboard"),
@@ -180,8 +181,8 @@ ui <-
               ),
               tags$li(
                 "The ",
-                tags$b("Feedback"),
-                "tab allows users to directly contact us to cliar@worldbank.org"
+                tags$b("Contact Us"),
+                "tab allows users to directly contact us to CLIAR@worldbank.org"
               ),
               tags$li(
                 "The ",
@@ -1086,7 +1087,7 @@ ui <-
                 
                 tags$li("Social institutions"), 
                 
-                tags$li("Anticorruption institutions"), 
+                tags$li("Absence of Corruption"), 
                 
                 tags$li("Transparency and Accountability institutions"), 
                 
@@ -1111,7 +1112,7 @@ ui <-
               ) 
               
             ), 
-            p("There is no agreed theoretical framework that could guide the categorization process. The proposed families are based on an effort to capture key functions that different institutions perform. In so doing, the categorization process faces a trade-off between aggregation and narrowness, where the categories ought to be broad enough to capture enough indicators and policy spaces, but narrow enough to guide a deep qualitative analysis as well as a fruitful and engaged conversation with the country.In addition, the categorization also faces the limitations of data availability."),
+            p("There is no agreed theoretical framework that could guide the categorization process. The proposed families are based on an effort to capture key functions that different institutions perform. In so doing, the categorization process faces a trade-off between aggregation and narrowness, where the categories ought to be broad enough to capture enough indicators and policy spaces, but narrow enough to guide a deep qualitative analysis as well as a fruitful and engaged conversation with the country. In addition, the categorization also faces the limitations of data availability."),
             p('All country-level indicators can be downloaded in the “Data” tab.')
           ),
 
