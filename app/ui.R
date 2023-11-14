@@ -1093,7 +1093,7 @@ ui <-
                 
                 tags$li("Justice institutions"), 
                 
-                tags$li("Public Financial Management institutions"), 
+                tags$li("Public Finance Institutions"), 
                 
                 tags$li("Public Human Resource Management institutions"), 
                 

@@ -2262,6 +2262,7 @@ observeEvent(input$country,{
               indicator = var_name,
               family = family_name,
               description,
+              description_short,
               source
             ),
           file,
