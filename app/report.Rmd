@@ -114,7 +114,7 @@ knitr::include_graphics("www/families.png")
 
 # Static Benchmarking
 
-The static analysis of `r params$base_country` institutions was performed on a basis of `r length(unique(params$data$var_name))` available indicators that are grouped in `r length(unique(params$data$family_name))` institutional clusters (families). 
+The static analysis of `r params$base_country` institutions was performed on a basis of `r length(unique(na.omit(params$data$var_name)))` available indicators that are grouped in `r length(unique(na.omit(params$data$family_name)))` institutional clusters (families). 
 
 ```{r}
 temp<-params$family_data%>%
@@ -127,7 +127,7 @@ counts_category<-params$family_data%>%
   summarize(count = n(),VarNames = sapply(list(var_name), function(x) paste(x, collapse = ", ")))
 ```
 
-`r sum(temp$flag)` institutional families out of `r length(unique(params$data$family_name))` exhibit a proximity to the frontier greater than 0,5, which means that `r sum(temp$flag)` institutional clusters are closer to the world’s best performers. In relative terms, as shown in Figure below, scores for `r counts_category$count[counts_category$status=="Weak\n(bottom 25%)"]`  institutional clusters namely `r counts_category$VarNames[counts_category$status=="Weak\n(bottom 25%)"]` indicate weak performance, `r counts_category$count[counts_category$status=="Emerging\n(25% - 50%)"]`  of the clusters namely `r counts_category$VarNames[counts_category$status=="Emerging\n(25% - 50%)"]` are classified as ‘emerging’ and `r counts_category$count[counts_category$status=="Strong\n(top 50%)"]` clusters namely `r counts_category$VarNames[counts_category$status=="Strong\n(top 50%)"]` demonstrate an advanced performance. 
+`r sum(temp$flag)` institutional families out of `r length(unique(na.omit(params$data$family_name)))` exhibit a proximity to the frontier greater than 0,5, which means that `r sum(temp$flag)` institutional clusters are closer to the world’s best performers. In relative terms, as shown in Figure below, scores for `r counts_category$count[counts_category$status=="Weak\n(bottom 25%)"]`  institutional clusters namely `r counts_category$VarNames[counts_category$status=="Weak\n(bottom 25%)"]` indicate weak performance, `r counts_category$count[counts_category$status=="Emerging\n(25% - 50%)"]`  of the clusters namely `r counts_category$VarNames[counts_category$status=="Emerging\n(25% - 50%)"]` are classified as ‘emerging’ and `r counts_category$count[counts_category$status=="Strong\n(top 50%)"]` clusters namely `r counts_category$VarNames[counts_category$status=="Strong\n(top 50%)"]` demonstrate an advanced performance. 
 
 ## Country overview
 
