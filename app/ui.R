@@ -1249,8 +1249,9 @@ tabItem(
             collapsed = TRUE,
             title = "Does the CLIAR Benchmarking collect new data on governance and institutions?",
             p(
-              "NO.
-              The dashboard extracts data from original sources and collects international indicators that are publicly available and have been widely tested and used as reliable proxies to measure country-level governance and institutions."
+              "No.
+              The CLIAR Benchmarking collects indicators that are publicly available and have been validated by our internal review process as proxies to measure country-level governance and institutions, with their corresponding caveats and limitations.
+              In some exceptional cases, CLIAR does combine existing indicators to create new ones (e.g., aggregation of binary indicators); these are detailed in the CLIAR Methodological Note."
             )
           ),
 
@@ -1262,9 +1263,9 @@ tabItem(
             title = "Can I add my own indicators to the dashboard and run the analysis including these indicators? ",
             p(
               "You cannot add indicators to the dashboard.
-              However, you can download the full database and augment it with additional indicators to customize the analysis.
-              You can also get in touch with the CLAIR team (CLIAR@worldbank.org) indicating which data you would like to be added in the database, and for which cluster.
-              Each request will be reviewed by a team of technical experts and if the indicator meets the selection criteria indicated in the methodological note (quality and coverage) it will be added."
+              However, you can download the full database and augment it with additional indicators to customize your analysis.
+              You can also get in touch with the CLIAR team (CLIAR@worldbank.org) indicating which data you would like to be added in the database, and for which cluster.
+              Each request will be reviewed by a team of technical experts and if the indicator meets the selection criteria indicated in the methodological note (quality and coverage) it will be added during the next update round."
             )
           ),
 
@@ -1275,8 +1276,7 @@ tabItem(
             title = "Is the “Closeness to Frontier” methodology the same one used in the “Doing Business Report”?",
             p(
               "The “Closeness to Frontier” is used in order to standardize indicators and make it possible to compare and aggregate them.
-              The resulting scores range between 0 and 1 and we labeled them “Closeness to Frontier” because higher values mean closer to the frontier, which is set at 1.
-              It is similar to the transformation that was used in the “Doing Business Reports”."
+              The resulting scores range between 0 and 1 and we labeled them “Closeness to Frontier” because higher values mean closer to the frontier, which is set at 1."
             )
           ),
 
@@ -1290,14 +1290,29 @@ tabItem(
               a given country of interest vis a vis a chosen set of comparator countries.
               Using the distribution of the CTF scores in the set of comparator countries,
               we identify the score range for the bottom 25% of comparators,
-              the score range for the 25%-50% group and the score range for the top 50% of comparators (or alternatively, using 33% and 66% as thresholds)..
+              the score range for the 25%-50% group and the score range for the top 50% of comparators (or alternatively, using 33% and 66% as thresholds).
               Given the CTF score of the country of interest,
               we identify whether the country of interest for the analysis belong to the bottom,
-              middle or top group.
-              These percentile groups are used because they are simple, intuitive and standards."
+              middle or top group. These percentile groups are used because they are simple and intuitive."
             )
           ),
-          
+          box(
+            width = 11,
+            status = "navy",
+            collapsed = TRUE,
+            title = "Why the length of the bar is different? Why a red bar is longer than another red bar, if they are both red?",
+            p(
+              "Using the distribution of the CTF scores in the set of comparator countries,
+              we identify the score range for the bottom 25% of comparators,
+              the score range for the 25%-50% group and the score range for the top 50% of comparators.
+              The red bar represents the score range for the bottom 25% of comparators. (The same explanation applies if 33% and 66% thresholds are used.)
+              While the CTF scores always range between 0 and 1,
+              the length of the red bar varies across indicators depending on the distribution of the CTF scores in the comparator group.
+              As an illustration, for a given set of comparator countries,
+              for a given indicator the CTF scores in the bottom 25% of comparators may range between 0 and 0.2,
+              while for another indicator it may range between 0 and 0.5."
+            )
+          ),
           box(
             width = 11,
             status = "navy",
@@ -1315,29 +1330,27 @@ tabItem(
             collapsed = TRUE,
             title = "Why are certain indicators or institutional families not appearing in my benchmarking results?",
             p(
-              "Indicators do not appear in the benchmarking analysis for one of these main reasons: the indicator is not available for the base country or the indicator exhibits low-variance in the distribution of the base country and comparator groups
-              . A family does not appear in the results when there is no data available (and this includes cases in the benchmarking analysis where there is no data available for an aggregation and comparison over time)."
-            )
-          ),
-
+              "TO COMPLETE"
+          )),
           box(
             width = 11,
             status = "navy",
             collapsed = TRUE,
-            title = "Why the length of the bar is different? Why a red bar is longer than another red bar, if they are both red?",
+            title = "Can I change in the dashboard the time period over which the benchmarking is applied?",
             p(
-              "Using the distribution of the CTF scores in the set of comparator countries,
-              we identify the score range for the bottom 25% of comparators,
-              the score range for the 25%-50% group and the score range for the top 50% of comparators.
-              The red bar represents the score range for the bottom 25% of comparators.(The same explanation applies if 33% and 66% thresholds are used.)
-              While the CTF scores always range between 0 and 1,
-              the length of the red bar varies across indicators depending on the distribution of the CTF scores in the comparator group.
-              As an illustration, for a given set of comparator countries,
-              for a given indicator the CTF scores in the bottom 25% of comparators may range between 0 and 0.2,
-              while for another indicator it may range between 0 and 0.5."
+              "The Dashboard does not offer that functionality, but such customized analyzed could be performed by downloading the data from the dashboard."
+            )
+          ), box(
+            width = 11,
+            status = "navy",
+            collapsed = TRUE,
+            title = "Why are certain indicators and clusters not included in the dynamic benchmarking?",
+            p(
+              "TO COMPLETE."
             )
           ),
-
+          
+          
           box(
             width = 11,
             status = "navy",
@@ -1360,7 +1373,7 @@ tabItem(
               the average CTF scores are calculated from the same indicators."
             )
           ),
-
+          
           box(
             width = 11,
             status = "navy",
@@ -1370,12 +1383,12 @@ tabItem(
               "The percentile analysis identifies whether the performance of the
               country of interest in a given indicator or institutional cluster
               belongs to the bottom 25%, the 25%-50% group or the top 50% of
-              the comparator countries.(or, alternatively, the groups based on 33% and 66% thresholds).
+              the comparator countries (or, alternatively, the groups based on 33% and 66% thresholds).
               This percentile analysis can be meaningfully performed only if
               there is sufficient number of comparator countries."
             )
           ),
-
+          
           box(
             width = 11,
             status = "navy",
@@ -1383,11 +1396,11 @@ tabItem(
             title = "How do you choose the comparator countries/groups?",
             p(
               "It depends on the purpose of the analysis and the country context.
-              For example, if this analysis is used in the SCDs, it is recommendable to use the regional,
-              aspirational and structural peers identified for the SCD."
+              For example, many reports have used regional,
+              aspirational, and structural peers as identified by World Bank Country Teams."
             )
           ),
-
+          
           box(
             width = 11,
             status = "navy",
@@ -1395,19 +1408,10 @@ tabItem(
             title = "Can I download the raw data for my own research/analytical purposes?",
             p(
               'Yes, the full compiled database is available in the "Data" tab for download.
-              Both the "Closeness to Frontier" scores and the full database with yearly indicators are available for download,
-              and therefore users can easily verify the latest year available for each indicator.'
+              Both the "Closeness to Frontier" scores and the full database with yearly indicators are available for download.'
             )
           ),
-          box(
-            width = 11,
-            status = "navy",
-            collapsed = TRUE,
-            title = "Can I change in the dashboard the time period over which the benchmarking is applied?",
-            p(
-              "The Dashboard does not offer that functionality, but such customized analyzed could be performed by downloading the data from the dashboard."
-            )
-          ),
+          
           box(
             width = 11,
             status = "navy",
@@ -1417,24 +1421,25 @@ tabItem(
               "A balanced sample of individual CTF scores is aggregated by family to create family-level CTF scores. For each institutional family, a “balanced” subset of countries with full coverage (i.e., non-missing data) across all indicators within each family is created. This ensures that each family-level aggregate score relies on the same set of indicators for every country, allowing for robust and methodically sound inferences. The CTF family-level score is computed via simple averaging of the indicators within each family. This family-level score captures the overall performance for a given institutional category relative to the “global frontier.” The drawback of this robust methodological aggregation decision is that the data requirement is higher. Several families in both the static and dynamic versions do not meet the data requirements for meaninful aggregation (i.e., the balanced sample is too small or empty), and thus CTF family scores are not computed. "
             )
           ),
-
+          
+          
           box(
             width = 11,
             status = "navy",
             collapsed = TRUE,
-            title = "How often is the CLIAR Benchmarking updated? How do I know that the G-BID uses the latest available data?",
+            title = "How often is the CLIAR data updated? How do I know that the CLIAR data uses the latest available data?",
             p(
-              'It is currently planned that the CLIAR Benchmarking Database will be updated once per year.
-              The G-BID is programmed so that the data extraction from the data sources (primarily gov360)
+              'It is currently planned that the CLIAR Database will be updated once per year.
+              The CLIAR Benchmarking Dashboard is programmed so that the data extraction from the data sources (primarily EFI360)
               is automated through APIs,
               therefore with minimal maintenance costs for the indicators already
               included in the dashboard and with stable APIs. The full compiled database,
               once updated, is available in the "Data" tab for download.
               Both the CLIAR Benchmarking "Closeness to Frontier" scores and the full CLIAR master database with
-              yearly indicators are available for downloadand therefore users can easily verify the latest year available for each indicator.'
+              yearly indicators are available for download and therefore users can easily verify the latest year available for each indicator.'
             )
           ),
-
+          
           box(
             width = 11,
             status = "navy",
@@ -1442,36 +1447,15 @@ tabItem(
             title = "How were the indicators included in the CLIAR Benchmarking selected?",
             p(
               'The indicators included in the CLIAR Benchmarking were selected following a criteria of 
-
               (geographical and time) coverage and quality. 
-
               This list was defined based on initial internal reviews, 
-
               and will be further refined based on inputs recently received by 
-
               sector experts and from the experiences of country teams in applying this tool. 
-
-               
-
-              The list of indicators used will be periodically 
-
-              reviewed in order to include new governance and institutions indicators 
-
-              that may be become available in the future. 
-
+              The list of indicators used will be periodically reviewed in order to include new indicators that may be become available in the future. 
               As such, the CLIAR database is a "live tool".' 
             )
-          ),
-
-          box(
-            width = 11,
-            status = "navy",
-            collapsed = TRUE,
-            title = "Is the CLIAR Benchmarking available to external users (i.e non-bank staff) ?",
-            p(
-              "As of now, the CLIAR Benchmarking is not available for external users. The team is working on making it publicly available"
-            )
           )
+
 
         ) # Close FAQ tab
       )
