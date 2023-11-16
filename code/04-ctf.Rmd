@@ -24,6 +24,7 @@ performance for indicator $i$ among all countries and in the last $y$ years (201
 Ideally, this will use data for the last 7 years in any given year
 
 ```{r}
+#load in cleaned indicators from step 3
 cliar_indicators <-
   read_rds(
     here(
@@ -32,13 +33,12 @@ cliar_indicators <-
       "compiled_indicators.rds"
     )
   ) %>%
-  # we subset our data to the post-2013 period.
-  # note: for the static exercise, we further subset to time period after 2018.
-  # for the dynamic exercise, we maintain our cutpoint at 2013.
+  # filter to only years 2013 or later
   filter(
     year >= 2013
   )
 
+#read in country list from step 3
 country_list <- read_rds(
   here(
     "data",
@@ -47,6 +47,7 @@ country_list <- read_rds(
   )
 )
 
+#read in db_variables
 db_variables <- read_rds(
   here(
     "data",
@@ -55,22 +56,38 @@ db_variables <- read_rds(
   )
 )
 
-vars_ctf <- db_variables |>
+#filter out the variables that are marked for benchmarking 
+vars_ctf <- db_variables |> 
   filter(
     benchmarked_ctf == "Yes"
-  ) |>
+  ) |> 
   pull(variable)
 ```
 
 2. Rescale indicators so a higher number denotes stronger institutions
-
+V-DEM: corruptionPRM indicators: Countries are graded between 0 (less control/involvement) and 6 (more control/involvement). 
+    In order to rescale these indicators, the years after 2018 are selected, 
+    and then each indicator value is subtracted from 6. so that a value that was
+    previously 0 for less control, is now 6, indicating a stronger institution.
+    
+    NOTE:
+    Methodological note for PRM indicates that 1998 and 2013 indicators are 
+    comparable, but not with 2018 due to change in methodology, so we only retain
+    post-2018 data.
+    
+Enterprise Survey: Percent Of Firms Identifying X As A Major Constraint
+    Subtract each indicator from 100, so that a low percentage of firm, for example
+    10%, will now have a score of 90, indicating stronger institutions
+    
+Freedom house: Countries are graded between 1 (most free) and 7 (least free)
+    Subtract each indicator from 8 so that a value of 1 for the most free is now 7,
+    indicating stronger institutions
 ```{r}
-cliar_indicators_rescaled <- cliar_indicators |>
+#create new table to hold rescaled values
+cliar_indicators_rescaled <- cliar_indicators |> 
   mutate(
-    # V-DEM: corruption
-    # PRM indicators: Countries are graded between 0 (less control/involvement) and 6 (more control/involvement).
-    # Methodological note for PRM indicates that 1998 and 2013 indicators are comparable,
-    # but not with 2018 due to change in methodology, so we only retain post-2018 data.
+   #PRM indicators: Countries are graded between 0 (less control/involvement) 
+    #and 6 (more control/involvement). 
     across(
       c(
         starts_with("oecd_pmr")
@@ -97,13 +114,16 @@ For the static benchmark, we only calculate averages for indicators starting in 
 
 ```{r}
 country_average <-
+  #filter only data from years we are using
   cliar_indicators_rescaled %>%
-  filter(year >= 2018) |>
+  filter(year >= 2018) |> 
+  #this groups countries together so average can be taken 
   group_by(
     country_code
   ) %>%
   summarise(
     across(
+      #take average of all variables marked for ctf
       all_of(c(vars_ctf, "wdi_nygdppcapppkd")),
       ~ mean(., na.rm = TRUE)
     )
@@ -111,7 +131,11 @@ country_average <-
 ```
 
 4. Identify worst and best performance for each indicator
+Find this data both on a global time-scale, and for each individual year.
 
+Inspect the entire dataset of rescaled indicator values - so including the indicator
+values for every country year after 2013 - and identify the lowes tand highest 
+values in each category. 
 ```{r}
 # static
 min_max <-
@@ -215,49 +239,62 @@ ctf_dynamic <-
   )
 ```
 
-## Calculate median per group
+6. Calculate median per group
 
+Group countries by regional, economic, or income groups and take indicator median
+for those groups
 ```{r}
+# static
 group_ctf <-
+  #join country list with ctf
   country_list %>%
   left_join(
     ctf,
     by = "country_code"
   ) %>%
+  #group by group code
   group_by(
     group_code, group
   ) %>%
+  #take median
   summarise(
     across(
       c(all_of(vars_ctf)),
       ~ median(., na.rm = TRUE)
     )
   ) %>%
+  #filter for any na values 
   filter(!is.na(group)) %>%
+  #rename values to be consisted with other datasets
   rename(
     country_name = group,
     country_code = group_code
   )
 
-# static
+
+#add group_ctf value to ctf dataset
 ctf <- tibble::add_column(ctf, country_group = 0, .after = "country_code")
 group_ctf <- tibble::add_column(group_ctf, country_group = 1, .after = "country_code")
 
-
+#dynamic
 group_ctf_dynamic <- country_list %>%
+  #join country list with ctf
   left_join(
     ctf_dynamic,
     by = "country_code",
   ) %>%
+  #group by group code
   group_by(
     group_code, group, year
   ) %>%
+  #take mediam
   summarise(
     across(
       c(all_of(vars_ctf)),
       ~ median(., na.rm = TRUE)
     )
   ) %>%
+  #filter out na and rename for consistency
   filter(!is.na(group)) %>%
   rename(
     country_name = group,
@@ -328,8 +365,10 @@ ctf_dynamic_clean <-
 ```
 
 
-## Convert to long-form
+8. Convert to long-form
 
+This changes the CTF dataset from wide form to long for and adds some additional 
+data such as indicator family
 ```{r}
 # static
 ctf_long <-
@@ -391,7 +430,10 @@ ctf_dynamic_long_clean <-
   bind_rows(ctf_dynamic_long)
 ```
 
-## Calculate family level data
+9. Calculate family level data
+
+Similarly to creating group-level data, this section calculates
+median CTF for each indicator family 
 
 ### Static
 
@@ -401,16 +443,20 @@ ctf_long_clean_family_level <- ctf_long_clean %>%
     group, variable, var_name, country_group,
     .keep_all = TRUE
   ) %>%
+  #group by family
   group_by(
     family_name, family_var, country_name, country_code,
     country_group
   ) %>%
+  #take the mean value of CTF for families
   summarise(value = mean(value[family_name != var_name], na.rm = TRUE)) %>%
   rowwise() %>%
+  #change names of columns
   mutate(
     variable = paste0(family_var, "_avg"),
     var_name = (paste0(family_name, " Average"))
   ) %>%
+  #join with main ctf dataset
   left_join(ctf_long_clean %>%
     distinct(
       family_name, family_var, country_name,
@@ -437,9 +483,11 @@ ctf_clean <- ctf_long_clean_family_level %>%
 ```
 
 ### Dynamic
+Take the famiy averages for dynamic data
 
 ```{r}
 ctf_dynamic_long_clean_family_level <- ctf_dynamic_long_clean %>%
+  #select and group by family and now also year
   distinct(family_name, family_var, country_name, country_code,
     group, variable, var_name,  year, country_group,
     .keep_all = TRUE
@@ -448,8 +496,10 @@ ctf_dynamic_long_clean_family_level <- ctf_dynamic_long_clean %>%
     family_name, family_var, country_name, country_code,
     country_group, year
   ) %>%
+  #take median
   summarise(value = mean(value[family_name != var_name], na.rm = TRUE)) %>%
   rowwise() %>%
+  #edit column names
   mutate(
     variable = paste0(family_var, "_avg"),
     var_name = (paste0(family_name, " Average"))
@@ -483,6 +533,8 @@ ctf_dynamic_clean <- ctf_dynamic_long_clean_family_level %>%
 
 
 ## Data Quality Control
+
+Test that all expected indicators and countries are covered
 ```{r}
 test_that(
   "All countries are covered",
@@ -590,7 +642,7 @@ write_rds(
     "closeness_to_frontier_dynamic.rds"
   )
 )
-
+S
 write_rds(
   ctf_dynamic_long_clean,
   here(

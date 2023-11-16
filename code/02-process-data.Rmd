@@ -11,7 +11,8 @@ source(
   here("vars-control.R")
 )
 
-# aux. funs
+# Load in the funs.R file which contains many of the specialized functions
+# used in this process.
 source(
   here("funs.R")
 )
@@ -22,6 +23,7 @@ ref_year <- 2023 - 5
 ## 1. Import data
 
 The data was imported from (a) the EFI360 shared data and (b) manual imports.
+This section first reads in each of the individual manual-input files.and the column id names are cleaned with the clean_names() function.After this is done, a list of of standardized WB country names and codes is read in and mutated to be better compatible with the CLIAR data
 
 ```{r read_in}
 db_variables <- read_rds(
@@ -92,6 +94,9 @@ open_budget <- list.files(
       col_select = c(ISO, year, obi)
     )
 
+
+# read in world bank standard country codes and mutate them to be compatible
+# with the other files
 wb_country_list <- read_xlsx(
   here(
    "data",
@@ -126,10 +131,15 @@ country_region_list <- wb_country_list |>
 ```
 
 ## 2. Process data
+In this section, we take the EFI files, plus the manual import data,
+and clean them. In order to ensure clean column names and accurate variables, 
+certain datasets are edited to create new variables or to change other factors. 
+More detail given in each subsection
 ```{r clean_data}
-# in this section, we take the EFI files, plus the manual import data,
-# to process them.
 # 1. efi
+#       For the EFI, first the name of enterprise survey variables is changed to 
+#       be more consistent. Then a single PFM indicator is by taking the sum of
+#       several GTMI variables. 
 efi_clean <- efi |> 
   clean_names() |> 
   # fix enterprise surveys variable name
@@ -166,6 +176,10 @@ efi_clean <- efi |>
   )
 
 # 2. fraser - market regulations
+      # For the fraser data, the clean dataset is created by selecting only the
+      # necessary columns, standardizing the country code variable name, casting
+      # the year variable to numeric, and changing variable prefixes to be
+      # in line with EFI conventions
 fraser_clean <- fraser |>
   transmute(
     country_code = iso_code_3,
@@ -185,6 +199,8 @@ fraser_clean <- fraser |>
   )
 
 # 3. romelli - central bank independence
+#       The romelli data is cleaned by setting the country code variable name
+#       and casting the year variable to numeric
 romelli_clean <- romelli |>
   transmute(
     country_code = wb_a3,
@@ -193,6 +209,10 @@ romelli_clean <- romelli |>
   )
 
 # 4. oecd - employment protection laws
+#       To clean this data, first the necessary data is taken from both the 
+#       regular and temporary employees datasets, as well as standardizing
+#       country code and making the year variable numeric. Then these two 
+#       categories are merged together.
 oecd_epl_regular_clean <- oecd_epl_regular |>
   filter(
     Series == "Version 4 (2013-2019)"
@@ -222,6 +242,10 @@ oecd_epl_clean <- oecd_epl_regular_clean |>
   )
 
 # 5. spi - statistical performance indicators
+#       First  generate an average index of the census and survey indexes, and
+#       then perform the standard cleanings of changing the country code column
+#       name and casting the year as numeric
+
 # SPI.DIM4.1.CEN.INDEX	SPI.DIM4.1.SVY.INDEX Dimension 5.2: Standards and Methods
 # SPI.DIM5.2.INDEX
 spi_clean <- spi |> 
@@ -242,6 +266,8 @@ spi_clean <- spi |>
   )
 
 # 6. aspire data
+#       Filter for the correct indicators, standardize name for country codes 
+#       remove non-country codes, and change shape of the data. 
 aspire_clean <- aspire |> 
   filter(
     indicator_name %in% c(
@@ -329,7 +355,13 @@ open_budget_clean <- open_budget |>
   )
 ```
 
-## Consolidate data
+## 3. Consolidate data
+This section joins all of the datasets together to make the full data. The
+join is done by country code and year. This section excludes certain codes and
+alters others so that all of them fit the same standard. Once the country
+codes are standard, the excluded codes are filtered out and the datasets are
+joined. Lastly, any year before 1990 is excluded from the final set and the
+columns are ordered by country name
 ```{r consolidate_data}
 excluded_country_code <- c(
   "AIA", # anguilla
@@ -392,7 +424,12 @@ cliar_indicators <- cliar_indicators %>%
   )
 ```
 
-## Data Quality Control: Indicator Selection
+## 4. Data Quality Control: Indicator Selection
+Verify that the indicators are selected correctly. To do this, take the non-
+removed indicators from the metadata file as the indicators from combined
+dataset created in step 5 and ensure they have the same contents by using an
+anti-join in both directions. Re-select indicators to ensure that only the
+indicators in metadata and v2 id cols are in data
 ```{r indicator_selection}
 # verify that the indicators are selected correctly
 db_variables_indicators <- db_variables|> 
@@ -440,7 +477,10 @@ cliar_indicators_clean <- cliar_indicators |>
   )
 ```
 
-## Data Quality Control: verify country_code, country_name consistency and completeness of country-year combinations
+## 5. Data Quality Control: verify country_code and country_name consistency
+This section ensures that the country_code code and the country name are
+consistent. Check this by performing an anti-join in both directions on the
+official WB list of country codes and names and the cliar indicators dataset
 ```{r country_validation}
 # there are 218 country codes listed in the WB's official website
 # https://datahelpdesk.worldbank.org/knowledgebase/articles/906519-world-bank-country-and-lending-groups
@@ -488,6 +528,11 @@ test_that(
 ```
 
 # 6. Compute coverage diagnostics
+Use the computer_coverage function from funs.R to create the coverage
+diagnostics. This function takes each indicator and determines how many
+countries and years it is present for. With that information, percentage
+coverage, year range, percent of complete records, as well as standard
+distribution information such as mean and standard deviation are calculated.
 ```{r coverage_diagnostics}
 cliar_indicators_diagnostic <- cliar_indicators_clean |>
   select(-country_name) |> 
