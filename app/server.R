@@ -1029,6 +1029,37 @@ observeEvent(input$country,{
       }
     )
   
+  data_avg <-
+    eventReactive(
+      input$select,
+      {
+        
+        static_avg_data<-global_data%>%
+          select(-matches("_avg"))
+        
+        vars_static_avg_data <- names(static_avg_data)[4:length(static_avg_data)] 
+        
+        static_avg <-compute_family_average(static_avg_data,vars_static_avg_data,"static",db_variables)
+        
+        static_avg<- static_avg%>%
+          select(-matches('NA'))
+        
+        static_avg_data<-static_avg_data%>%
+          left_join(.,static_avg,by='country_code')
+        
+        static_avg_data %>%
+          def_quantiles(
+            base_country(),
+            country_list,
+            input$countries,
+            vars_all,
+            variable_names,
+            input$threshold
+          ) 
+        
+      }
+    )
+  
   data <-
     eventReactive(
       input$select,
@@ -1270,7 +1301,7 @@ observeEvent(input$country,{
 
             missing_variables <- c(missing_variables, low_variance_variables)
 
-            data() %>%
+            data_avg() %>%
               filter(variable %in% vars()) %>%
               static_plot(
                 base_country(),

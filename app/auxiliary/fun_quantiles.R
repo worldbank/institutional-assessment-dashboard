@@ -91,6 +91,9 @@ if (threshold=="Default"){
     filter(country_name == base_country & q25==q50) %>%
     select(variable) %>%
     unlist
+  
+  low_variance_indicators <- low_variance_indicators[!grepl("_avg", low_variance_indicators)]
+  
 
   quantiles <-
     quantiles %>%
