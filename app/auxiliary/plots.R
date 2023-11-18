@@ -878,7 +878,7 @@ plot_notes_function <-
     }else{
       custom_grp_notes <- ""
     }
-    
+
     
     if (length(miss_var) > 0) {
       
@@ -922,8 +922,8 @@ plot_notes_function <-
     if (tab_name == "Overview") {
       notes <-
         paste(
-          notes, note_chars,
-          "<br><br>Family-level closeness to frontier is calculated by taking the average closeness to frontier for all the latest available indicators in each family."
+          notes,
+          "<br><br>Family-level closeness to frontier is calculated by taking the average closeness to frontier for the estimated indicators within each family."
         )
     }
     
