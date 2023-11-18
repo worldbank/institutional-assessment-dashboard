@@ -1390,6 +1390,7 @@ observeEvent(input$country,{
             .$var_name
           
           missing_variables <- c(missing_variables, low_variance_variables)
+          missing_variables <-missing_variables[!grepl("_avg", missing_variables)]
           
           plot_notes_function(
             base_country(),
