@@ -2025,10 +2025,12 @@ observeEvent(input$country,{
           browse_data() %>%
             setnames(
               .,
-              as.character(variable_names$var_name),
-              substr(as.character(variable_names$variable),1,32),
+              as.character(db_variables$var_name),
+              substr(as.character(db_variables$variable),1,32),
               skip_absent = TRUE
-            ),
+            )%>%
+            rename_all(~ ifelse(nchar(.) > 32, str_sub(., end = 32), .))
+          ,
           file
         )
       }
