@@ -1080,11 +1080,46 @@ observeEvent(input$country,{
         
       }
     )
+  
+  data_dyn_avg <-
+    eventReactive(
+      input$select,
+      {
+        dynamic_avg_data<-global_data_dyn%>%
+          select(-matches("_avg"))%>%
+          filter(
+            year %% 2 == 0
+          )
+        
+        vars_dynamic_avg_data <- names(dynamic_avg_data)[5:length(dynamic_avg_data)] 
+        
+        dynamic_avg <-compute_family_average(dynamic_avg_data,vars_dynamic_avg_data,"dynamic",db_variables)
+        
+        dynamic_avg<- dynamic_avg%>%
+          select(-matches('NA'))%>%
+          select(-matches("vars_other_avg"))
+        
+        dynamic_avg_data<-global_data_dyn%>%
+          select(-matches("_avg"))%>%
+          left_join(.,dynamic_avg,by=c('country_code','year'))
+        
+        dynamic_avg_data %>%
+          def_quantiles_dyn(
+            base_country(),
+            country_list,
+            input$countries,
+            vars_all,
+            variable_names,
+            input$threshold
+          )
+      }
+    )
 
   data_dyn <-
     eventReactive(
       input$select,
       {
+        
         global_data_dyn %>%
           def_quantiles_dyn(
             base_country(),
@@ -1473,8 +1508,8 @@ observeEvent(input$country,{
               .$var_name
             
             missing_variables <- c(missing_variables, low_variance_variables)
-
-            data_dyn() %>%
+            browser()
+            data_dyn_avg() %>%
               filter(str_detect(variable, "_avg"))%>%
               static_plot_dyn(
                 base_country(),
@@ -1512,7 +1547,7 @@ observeEvent(input$country,{
             
             missing_variables <- c(missing_variables, low_variance_variables)
             
-            data_dyn() %>%
+            data_dyn_avg() %>%
               filter(variable %in% vars()) %>%
               static_plot_dyn(
                 base_country(),
@@ -2157,7 +2192,7 @@ observeEvent(input$country,{
           threshold = input$threshold
         )
       
-      plot2 <-             data_dyn() %>%
+      plot2 <- data_dyn() %>%
         filter(str_detect(variable, "_avg"))%>%
         static_plot_dyn(
           base_country()[1],

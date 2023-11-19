@@ -103,7 +103,6 @@ if (threshold=="Default"){
 
 
 def_quantiles_dyn <- function(data, base_country, country_list, comparison_countries, vars, variable_names,threshold) {
-  
   # List all relevant countries
   comparison_list <-
     country_list %>%
@@ -118,6 +117,9 @@ def_quantiles_dyn <- function(data, base_country, country_list, comparison_count
   
   missing_vars <- sapply(na_indicators_df, function(x) sum(is.na(x)) / length(x))
   na_indicators <- names(missing_vars[missing_vars == 1])
+  
+  na_indicators <- na_indicators[!grepl("_avg", na_indicators)]
+  
   
   # List final relevant variables: those selected, minus those missing
   if(length(na_indicators) != 0){
