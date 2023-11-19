@@ -1508,7 +1508,7 @@ observeEvent(input$country,{
               .$var_name
             
             missing_variables <- c(missing_variables, low_variance_variables)
-            browser()
+
             data_dyn_avg() %>%
               filter(str_detect(variable, "_avg"))%>%
               static_plot_dyn(
