@@ -7,6 +7,7 @@ server <- function(input, output, session) {
 shinyjs::hide("save_inputs")
 shinyjs::disable("preset_order")
   
+benchmark_median<-NULL
   
   ## Base country ------------------------------------------------------------
   base_country <-
@@ -126,12 +127,12 @@ observeEvent(input$country,{
       selected = saved_inputs_df()$family
     )
     
-    ### group median
-    shinyWidgets::updatePickerInput(
-      session = session,
-      inputId = "benchmark_median", 
-      selected = unlist(strsplit(saved_inputs_df()$benchmark_median, ";"))
-    )
+    # ### group median
+    # shinyWidgets::updatePickerInput(
+    #   session = session,
+    #   inputId = "benchmark_median", 
+    #   selected = unlist(strsplit(saved_inputs_df()$benchmark_median, ";"))
+    # )
 
     ### show comparison countries
     shinyWidgets::updatePrettyCheckbox(
@@ -534,17 +535,16 @@ observeEvent(input$country,{
         selected = unique(c(input$groups, unique(custom_grps_df()$Grp)))
       )
 
-      
-      shinyWidgets::updatePickerInput(
-        session = session,
-        inputId = "benchmark_median",
-        choices = append("Comparison countries", append(group_list, Custom)),
-        selected = unique(c(input$benchmark_median, custom_grps_df()$Grp))[1:3],
-        options = list(
-          `live-search` = TRUE,
-          "max-options" = 3
-        )
-      )
+      # shinyWidgets::updatePickerInput(
+      #   session = session,
+      #   inputId = "benchmark_median",
+      #   choices = append("Comparison countries", append(group_list, Custom)),
+      #   selected = unique(c(input$benchmark_median, custom_grps_df()$Grp))[1:3],
+      #   options = list(
+      #     `live-search` = TRUE,
+      #     "max-options" = 3
+      #   )
+      # )
       
       shinyWidgets::updatePickerInput(
         session = session,
@@ -567,6 +567,8 @@ observeEvent(input$country,{
         selected = unique(c(input$groups, unique(custom_grps_df()$Grp)))
       )
       
+      
+      
     }
   })
 
@@ -583,16 +585,16 @@ observeEvent(input$country,{
         selected = input$groups[!input$groups %in% unique(custom_grps_df()$Grp)]
       )
 
-      shinyWidgets::updatePickerInput(
-        session = session,
-        inputId = "benchmark_median",
-        choices = append("Comparison countries", group_list),
-        selected = input$benchmark_median[!input$benchmark_median %in% unique(custom_grps_df()$Grp)],
-        options = list(
-          `live-search` = TRUE,
-          "max-options" = 3
-        )
-      )
+      # shinyWidgets::updatePickerInput(
+      #   session = session,
+      #   inputId = "benchmark_median",
+      #   choices = append("Comparison countries", group_list),
+      #   selected = input$benchmark_median[!input$benchmark_median %in% unique(custom_grps_df()$Grp)],
+      #   options = list(
+      #     `live-search` = TRUE,
+      #     "max-options" = 3
+      #   )
+      # )
       
       shinyWidgets::updatePickerInput(
         session = session,
@@ -962,6 +964,7 @@ observeEvent(input$country,{
         if (input$create_custom_grps == TRUE) {
           custom_df_countries <- custom_grps_df()$Countries[custom_grps_df()$Grp %in% input$groups &
             custom_grps_df()$Countries %in% input$countries]
+        
         }
         
         ## if we ever want to see which countries are in custom_grps_df() but unselected (not in input$countries), run
@@ -1218,13 +1221,22 @@ observeEvent(input$country,{
 
   custom_df <- shiny::eventReactive(input$select, {
     if (input$create_custom_grps == TRUE) {
-      custom_df <- custom_grps_df()[custom_grps_df()$Grp %in% input$benchmark_median &
-          custom_grps_df()$Countries %in% input$countries, ]
+      custom_df <- custom_grps_df()[custom_grps_df()$Countries %in% input$countries, ]
     } else {
       custom_df <- NULL
     }
     
   })
+  
+  benchmark_median <- shiny::eventReactive(input$select, {
+    if (input$create_custom_grps == TRUE) {
+      benchmark_median <- list(unique(custom_grps_df()$Grp))
+    } else {
+      benchmark_median <- NULL
+    }
+    
+  })
+  
 
   output$plot <-
     renderPlotly({
@@ -1270,7 +1282,7 @@ observeEvent(input$country,{
                 input$family,
                 input$rank,
                 dots = input$benchmark_dots,
-                group_median = input$benchmark_median,
+                group_median = benchmark_median(),
                 custom_df = custom_df(),
                 threshold = input$threshold,
                 preset_order = input$preset_order
@@ -1308,7 +1320,7 @@ observeEvent(input$country,{
                 input$family,
                 input$rank,
                 dots = input$benchmark_dots,
-                group_median = input$benchmark_median,
+                group_median = benchmark_median(),
                 custom_df = custom_df(),
                 threshold = input$threshold,
                 preset_order = input$preset_order
@@ -1322,7 +1334,7 @@ observeEvent(input$country,{
         )
       }
     }) %>%
-  bindCache(input$country,  input$groups, input$family, input$benchmark_median,
+  bindCache(input$country,  input$groups, input$family,
     input$rank, input$benchmark_dots, input$preset_order, input$create_custom_grps,
     input$show_dynamic_plot, input$threshold, input$countries) %>%
   bindEvent(input$select)
@@ -1417,7 +1429,6 @@ observeEvent(input$country,{
       list(input$country,
       input$groups,
       input$family,
-      input$benchmark_median,
       input$rank,
       input$benchmark_dots,
       input$create_custom_grps,
@@ -1470,7 +1481,7 @@ observeEvent(input$country,{
                 input$family,
                 input$rank,
                 dots = input$benchmark_dots,
-                group_median = input$benchmark_median,
+                group_median = benchmark_median(),
                 custom_df = custom_df(),
                 threshold = input$threshold,
                 preset_order = input$preset_order
@@ -1508,7 +1519,7 @@ observeEvent(input$country,{
                 input$family,
                 input$rank,
                 dots = input$benchmark_dots,
-                group_median = input$benchmark_median,
+                group_median = benchmark_median(),
                 custom_df = custom_df(),
                 threshold = input$threshold,
                 preset_order = input$preset_order
@@ -1523,7 +1534,7 @@ observeEvent(input$country,{
         )
       }
     }) %>%
-  bindCache(input$country,  input$groups, input$family, input$benchmark_median,
+  bindCache(input$country,  input$groups, input$family,
     input$rank, input$benchmark_dots, input$preset_order, input$create_custom_grps,
     input$show_dynamic_plot, input$threshold, input$countries) %>%
   bindEvent(input$select)
@@ -2076,7 +2087,7 @@ observeEvent(input$country,{
           definitions = definitions,
           variable_names = variable_names,
           dots = input$benchmark_dots,
-          group_median = input$benchmark_median,
+          group_median = benchmark_median(),
           threshold = input$threshold,
           family_order = family_order,
           global_data = global_data,
@@ -2126,7 +2137,7 @@ observeEvent(input$country,{
 
 
       if (input$create_custom_grps == TRUE) {
-        custom_df <- custom_grps_df()[custom_grps_df()$Grp %in% input$benchmark_median &
+        custom_df <- custom_grps_df()[
           custom_grps_df()$Countries %in% input$countries, ]
       } else {
         custom_df <- NULL
@@ -2139,7 +2150,7 @@ observeEvent(input$country,{
           base_country(),
           "Country overview",
           rank = input$rank,
-          group_median = input$benchmark_median,
+          group_median = benchmark_median(),
           dots = input$benchmark_dots,
           custom_df = custom_df,
           title = FALSE,
@@ -2153,7 +2164,7 @@ observeEvent(input$country,{
           "Country overview",
           input$rank,
           dots = input$benchmark_dots,
-          group_median = input$benchmark_median,
+          group_median = benchmark_median(),
           custom_df = custom_df,
           threshold = input$threshold,
           title = FALSE,
@@ -2203,7 +2214,7 @@ observeEvent(input$country,{
             fam_n,
             input$rank,
             dots = input$benchmark_dots,
-            group_median = input$benchmark_median,
+            group_median = benchmark_median(),
             custom_df = custom_df(),
             threshold = input$threshold,
             preset_order = input$preset_order,
@@ -2325,7 +2336,6 @@ observeEvent(input$country,{
       country = input$country , #base country
       groups = paste(c(input$groups), collapse = ";"), #comparison groups
       family  = input$family, #institutional family
-      benchmark_median = paste(c(input$benchmark_median), collapse = ";"), #group median
       benchmark_dots = input$benchmark_dots, #show comparison countries
       rank = input$rank, #show rank instead of value
       threshold = input$threshold, #threshold,

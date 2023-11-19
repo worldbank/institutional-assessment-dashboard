@@ -261,23 +261,23 @@ ui <-
                 )
               ),
 
-              column(
-                width = 3,
-                pickerInput(
-                  inputId = "benchmark_median",
-                  label = "Show group median",
-                  choices = append(
-                    "Comparison countries",
-                    group_list
-                  ),
-                  selected = NULL,
-                  multiple = TRUE,
-                  options = list(
-                    `live-search` = TRUE,
-                    "max-options" = 3
-                  )
-                )
-              )
+              # column(
+              #   width = 3,
+              #   pickerInput(
+              #     inputId = "benchmark_median",
+              #     label = "Show group median",
+              #     choices = append(
+              #       "Comparison countries",
+              #       group_list
+              #     ),
+              #     selected = NULL,
+              #     multiple = TRUE,
+              #     options = list(
+              #       `live-search` = TRUE,
+              #       "max-options" = 3
+              #     )
+              #   )
+              # )
             ),
             
             fluidRow(style = "height: 15px;"),
