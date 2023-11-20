@@ -186,7 +186,7 @@ def_quantiles_dyn <- function(data, base_country, country_list, comparison_count
         dtt > cutoff[1]/100 & dtt <= cutoff[2]/100 ~ paste0("Emerging\n(",cutoff[1],"% - ",cutoff[2],"%)"),
         dtt > cutoff[2]/100 ~ paste0("Strong\n(top ",cutoff[2],"%)")
       ),
-      nrank = rank(-value)
+      nrank = min_rank(-value)
     ) %>%
     ungroup %>%
     rename(dtf = value) %>% 
