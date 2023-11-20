@@ -2018,7 +2018,13 @@ observeEvent(input$country,{
     DT::renderDataTable(
       server = FALSE,
       datatable(
-        browse_data(),
+        browse_data()%>%
+          setnames(
+            .,
+            as.character(db_variables$variable),
+            as.character(db_variables$var_name),
+            skip_absent = TRUE
+          ),
         rownames = FALSE,
         extensions = c("FixedColumns"),
         filter = "none",
@@ -2044,8 +2050,8 @@ observeEvent(input$country,{
           browse_data() %>%
             setnames(
               .,
-              as.character(variable_names$var_name),
-              as.character(variable_names$variable),
+              as.character(db_variables$var_name),
+              as.character(db_variables$variable),
               skip_absent = TRUE
             ),
           file
