@@ -146,7 +146,7 @@ static_plot <-
           ),
           color = "#e47a81",
           size = 2,
-          alpha = 1
+          alpha = .1
         ) +
         geom_vline(
           xintercept = 1,
