@@ -2,12 +2,12 @@
 
 server <- function(input, output, session) {
   # Handle inputs ======================================================================
-
+  
   ## Hide save inputs button at onset
-shinyjs::hide("save_inputs")
-shinyjs::disable("preset_order")
-shinyjs::hide("benchmark_median")
-
+  shinyjs::hide("save_inputs")
+  shinyjs::disable("preset_order")
+  shinyjs::hide("benchmark_median")
+  
   
   ## Base country ------------------------------------------------------------
   base_country <-
@@ -25,38 +25,38 @@ shinyjs::hide("benchmark_median")
     
     shiny::showModal(
       modalDialog(
-      title = htmltools::tags$span(htmltools::tags$strong("Please upload an input file")),
-      tagList(
-        
-        shiny::fluidRow(
-          shiny::fileInput(
-            inputId = "input_file",
-            label = "",
-            accept = ".rds"
-          )
+        title = htmltools::tags$span(htmltools::tags$strong("Please upload an input file")),
+        tagList(
+          
+          shiny::fluidRow(
+            shiny::fileInput(
+              inputId = "input_file",
+              label = "",
+              accept = ".rds"
+            )
+          ),
+          shiny::fluidRow(
+            buttons_func("submit", "Submit")
+          ),
+          shiny::fluidRow(style = "height:15px;")
         ),
-        shiny::fluidRow(
-          buttons_func("submit", "Submit")
-        ),
-        shiny::fluidRow(style = "height:15px;")
-      ),
-      easyClose = FALSE
-    ))
-
+        easyClose = FALSE
+      ))
+    
   })
   
   
-observeEvent(input$country,{
-  if(length(input$country)>1){
-    shinyjs::disable("preset_order")
-  }else{
-    shinyjs::enable("preset_order")
-  }
+  observeEvent(input$country,{
+    if(length(input$country)>1){
+      shinyjs::disable("preset_order")
+    }else{
+      shinyjs::enable("preset_order")
+    }
+    
+    
+  })
   
   
-})
-  
- 
   ## Once the submit button is clicked, check to see if the file contains core fields
   
   saved_inputs_df <-  shiny::eventReactive(input$submit, {
@@ -70,7 +70,7 @@ observeEvent(input$country,{
     saved_inputs_df <- readRDS(file$datapath)
     
     core_fields <- c("country", "groups", "family","benchmark_median","benchmark_dots","rank",
-      "threshold", "worst_to_best_order", "comparison_countries", "create_custom_groups"
+                     "threshold", "worst_to_best_order", "comparison_countries", "create_custom_groups"
     )
     
     if(all(!core_fields %in% names(saved_inputs_df))){
@@ -83,101 +83,101 @@ observeEvent(input$country,{
   
   shiny::observeEvent(input$submit, {
     
-   # browser()
+    # browser()
     
-  core_fields <- c("country", "groups", "family","benchmark_median","benchmark_dots","rank",
-    "threshold", "worst_to_best_order", "comparison_countries", "create_custom_groups"
+    core_fields <- c("country", "groups", "family","benchmark_median","benchmark_dots","rank",
+                     "threshold", "worst_to_best_order", "comparison_countries", "create_custom_groups"
     )
     
-  ## if the file does not contain the core names, throw an erro
-  if(all(!core_fields %in% names(saved_inputs_df()))){
-    toast_messages_func("error", "Invalid file")
-  }
-   
-  
-  ## else load the inputs
-  if(all(core_fields %in% names(saved_inputs_df()))){
+    ## if the file does not contain the core names, throw an erro
+    if(all(!core_fields %in% names(saved_inputs_df()))){
+      toast_messages_func("error", "Invalid file")
+    }
     
     
-    ## show a waiter object as the inputs are being populated
-    waiter::waiter_show(html = shiny::tagList(
-      waiter::spin_ring(),
-      shiny::h4("Fetching data ...")
-    ))
-
-    ## update inputs 
-    ### country
-    shinyWidgets::updatePickerInput(
-      session = session,
-      inputId = "country", 
-      selected = saved_inputs_df()$country
-    )
+    ## else load the inputs
+    if(all(core_fields %in% names(saved_inputs_df()))){
+      
+      
+      ## show a waiter object as the inputs are being populated
+      waiter::waiter_show(html = shiny::tagList(
+        waiter::spin_ring(),
+        shiny::h4("Fetching data ...")
+      ))
+      
+      ## update inputs 
+      ### country
+      shinyWidgets::updatePickerInput(
+        session = session,
+        inputId = "country", 
+        selected = saved_inputs_df()$country
+      )
+      
+      ### comparison groups
+      shinyWidgets::updatePickerInput(
+        session = session,
+        inputId = "groups", 
+        selected = unlist(strsplit(saved_inputs_df()$groups, ";"))
+      )
+      
+      ### institutional family
+      shinyWidgets::updatePickerInput(
+        session = session,
+        inputId = "family",
+        selected = saved_inputs_df()$family
+      )
+      
+      ### group median
+      shinyWidgets::updatePickerInput(
+        session = session,
+        inputId = "benchmark_median",
+        selected = unlist(strsplit(saved_inputs_df()$benchmark_median, ";"))
+      )
+      
+      ### show comparison countries
+      shinyWidgets::updatePrettyCheckbox(
+        session = session,
+        inputId = "benchmark_dots",
+        value = saved_inputs_df()$benchmark_dots
+      )
+      
+      ### show rank instead of value
+      shinyWidgets::updatePrettyCheckbox(
+        session = session,
+        inputId = "rank",
+        value = saved_inputs_df()$rank
+      ) 
+      
+      ### benchmarking thresholds
+      shinyWidgets::updatePickerInput(session = session,
+                                      inputId = "threshold", 
+                                      selected = saved_inputs_df()$threshold
+      )
+      
+      ### ranking indicators from worse to best
+      shinyWidgets::updatePrettyCheckbox(
+        session = session,
+        inputId = "preset_order", 
+        value = saved_inputs_df()$worst_to_best_order
+      )
+      
+      removeModal()
+      
+      ## exit waiter once that process is finished 
+      waiter::waiter_hide()
+      
+      ## show save inputs button
+      shinyjs::show("save_inputs")
+      shinyjs::disable("save_inputs")
+      shinyjs::show("save_inputs")
+      shinyjs::disable("download_data_1")
+      
+    }
     
-    ### comparison groups
-    shinyWidgets::updatePickerInput(
-      session = session,
-      inputId = "groups", 
-      selected = unlist(strsplit(saved_inputs_df()$groups, ";"))
-    )
-    
-    ### institutional family
-    shinyWidgets::updatePickerInput(
-      session = session,
-      inputId = "family",
-      selected = saved_inputs_df()$family
-    )
-    
-    ### group median
-    shinyWidgets::updatePickerInput(
-      session = session,
-      inputId = "benchmark_median",
-      selected = unlist(strsplit(saved_inputs_df()$benchmark_median, ";"))
-    )
-
-    ### show comparison countries
-    shinyWidgets::updatePrettyCheckbox(
-      session = session,
-      inputId = "benchmark_dots",
-      value = saved_inputs_df()$benchmark_dots
-    )
-    
-    ### show rank instead of value
-    shinyWidgets::updatePrettyCheckbox(
-      session = session,
-      inputId = "rank",
-      value = saved_inputs_df()$rank
-    ) 
-    
-    ### benchmarking thresholds
-    shinyWidgets::updatePickerInput(session = session,
-      inputId = "threshold", 
-      selected = saved_inputs_df()$threshold
-    )
-    
-    ### ranking indicators from worse to best
-    shinyWidgets::updatePrettyCheckbox(
-      session = session,
-      inputId = "preset_order", 
-      value = saved_inputs_df()$worst_to_best_order
-    )
-
-    removeModal()
-    
-    ## exit waiter once that process is finished 
-    waiter::waiter_hide()
-    
-    ## show save inputs button
-    shinyjs::show("save_inputs")
-    shinyjs::disable("save_inputs")
-    shinyjs::show("save_inputs")
-    shinyjs::disable("download_data_1")
-    
-  }
-  
   })
-
+  
   ## Start of benchmark tab control inputs----------------------
-
+  
   ### Update inputs based on benchmark selection ------------------------------
   observeEvent(
     input$select,
@@ -277,25 +277,25 @@ observeEvent(input$country,{
   
   ## Create comparison group inputs where users can insert custom group names and countries that
   ## they'd want to place in those groups
-
+  
   ## Reactive object that will hold all these information
   custom_group_fields_reactive <- reactive({
     
     ## number of fields to create
     n_fields <- input$custom_grps_count
-
-
+    
+    
     ## create an object that will hold each custom group field (name and country drop-downs)
     ui_fields <- c()
-
+    
     ## for each custom group ....
     lapply(1:n_fields, function(i) {
       custom_names <- ""
       custom_countries <- NULL
       c_groups <- input$groups[!input$groups %in% unlist(group_list)]
-
+      
       if (n_fields >= 1) {
-
+        
         # if(nrow(saved_inputs_df()) > 0 &
         #     !is.null(saved_inputs_df()$no_custom_grps) &
         #     saved_inputs_df()$create_custom_groups == TRUE ){
@@ -318,11 +318,11 @@ observeEvent(input$country,{
         
         custom_names <- isolate(input[[paste("custom_grps_names", i, sep = "_")]])
         custom_countries <- isolate(input[[paste("custom_grps_countries", i, sep = "_")]])
-  
+        
         value_textInput <- custom_names
         selected_pickerinput <- custom_countries
-
-
+        
+        
         ui_fields[[i]] <- shiny::fluidRow(
           width = 6,
           shiny::column(
@@ -352,71 +352,71 @@ observeEvent(input$country,{
     })
     
   })
-
+  
   shiny::observeEvent(input$submit, {
-
-
+    
+    
     # browser()
-
-  if(nrow(saved_inputs_df()) > 0 & saved_inputs_df()$create_custom_groups == TRUE ){
-
-
-    ### create custom groups
-    shinyWidgets::updatePrettyCheckbox(
-      session = session,
-      inputId = "create_custom_grps",
-      value = saved_inputs_df()$create_custom_groups
-    )
-
-    ## update count
-    shiny::updateNumericInput(
-      session = session,
-      inputId = "custom_grps_count",
-      value = saved_inputs_df()$no_custom_grps
-    )
-
-
-    lapply(1:input$custom_grps_count, function(i) {
+    
+    if(nrow(saved_inputs_df()) > 0 & saved_inputs_df()$create_custom_groups == TRUE ){
       
-      if(saved_inputs_df()$no_custom_grps <= input$custom_grps_count){
-        shiny::updateTextInput(
-          session = session,
-          inputId = paste("custom_grps_names", i, sep = "_"),
-          label = paste("Insert the name of group ", i),
-          value = saved_inputs_df()[paste("custom_grps_names", i, sep = "_")]
-        )
+      
+      ### create custom groups
+      shinyWidgets::updatePrettyCheckbox(
+        session = session,
+        inputId = "create_custom_grps",
+        value = saved_inputs_df()$create_custom_groups
+      )
+      
+      ## update count
+      shiny::updateNumericInput(
+        session = session,
+        inputId = "custom_grps_count",
+        value = saved_inputs_df()$no_custom_grps
+      )
+      
+      
+      lapply(1:input$custom_grps_count, function(i) {
         
-        shinyWidgets::updatePickerInput(
-          session = session,
-          inputId = paste("custom_grps_countries", i, sep = "_"),
-          label = paste("Select countries that fall into group ", i),
-          choices = c("", saved_inputs_df()$comparison_sountries[!saved_inputs_df()$comparison_sountries %in% input$country]),
-          selected = unlist(strsplit(as.character(saved_inputs_df()[paste("custom_grps_countries", i, sep = "_")]), split = ";"))
-        )
-      }
-
-
-
-    })
-  }
+        if(saved_inputs_df()$no_custom_grps <= input$custom_grps_count){
+          shiny::updateTextInput(
+            session = session,
+            inputId = paste("custom_grps_names", i, sep = "_"),
+            label = paste("Insert the name of group ", i),
+            value = saved_inputs_df()[paste("custom_grps_names", i, sep = "_")]
+          )
+          
+          shinyWidgets::updatePickerInput(
+            session = session,
+            inputId = paste("custom_grps_countries", i, sep = "_"),
+            label = paste("Select countries that fall into group ", i),
+            choices = c("", saved_inputs_df()$comparison_sountries[!saved_inputs_df()$comparison_sountries %in% input$country]),
+            selected = unlist(strsplit(as.character(saved_inputs_df()[paste("custom_grps_countries", i, sep = "_")]), split = ";"))
+          )
+        }
+        
+        
+        
+      })
+    }
   })
-
+  
   
   ## Display the ui
   output$custom_grps <- renderUI({
     
     custom_group_fields_reactive()
   })
-
+  
   ## Generate a dataframe containing the custom groups
   custom_grps_df <- shiny::eventReactive(input$save_custom_grps, {
     
     n_fields <- input$custom_grps_count
-
+    
     if (n_fields > 0) {
       
       custom_grps_list <- list()
-
+      
       for (i in 1:n_fields) {
         grp_name <- as.character(input[[paste("custom_grps_names", i, sep = "_")]])
         country_selection <- as.vector(input[[paste("custom_grps_countries", i, sep = "_")]])
@@ -432,7 +432,7 @@ observeEvent(input$country,{
         }
         
       }
-
+      
       ## append all the dataframes into one. 
       custom_grps_df <- dplyr::bind_rows(custom_grps_list)
     } else {
@@ -456,7 +456,7 @@ observeEvent(input$country,{
     
     ## if the custom group dataframe is NULL
     if(is.null(custom_grps_df())){
-     
+      
       ## unselect the create_custom_grps field
       shinyWidgets::updatePrettyCheckbox(
         session = session,
@@ -468,12 +468,12 @@ observeEvent(input$country,{
     
     ## and convert the custom_grps_df reactive to NULL. 
     if(input$create_custom_grps == FALSE){
-    custom_grps_df() <- NULL
+      custom_grps_df() <- NULL
     }
-
+    
   })
   
-
+  
   ## Turning on the "Show custom groups" switch shows the custom groups ui
   shiny::observeEvent(input$show_custom_grps, {
     if (input$show_custom_grps == TRUE) {
@@ -486,18 +486,18 @@ observeEvent(input$country,{
       shinyjs::hide(id = "save_custom_grps")
     }
   })
-
+  
   ### Once the save button is clicked (***)
-
+  
   shiny::observeEvent(input$save_custom_grps, {
-
-
+    
+    
     ### check if any of the custom group names is part of group list.
     ### If so, ask the user to change the name
-
+    
     if (any(custom_grps_df()$Grp %in% unlist(group_list))) {
       dup_grp_names <- unique(custom_grps_df()$Grp[custom_grps_df()$Grp %in% unlist(group_list)])
-
+      
       shiny::showModal(
         modalDialog(
           shiny::tagList(
@@ -518,10 +518,10 @@ observeEvent(input$country,{
         inputId = "show_custom_grps",
         value = FALSE
       )
-
+      
       ## and edit the "Select comparison groups" and "Show group median" fields to include these custom groups
       Custom <- list(unique(custom_grps_df()$Grp))
-
+      
       if(length(unique(custom_grps_df()$Grp)) == 1){
         names(Custom) <- unique(custom_grps_df()$Grp)
       }else{
@@ -534,7 +534,7 @@ observeEvent(input$country,{
         choices = as.list(append(group_list, Custom)),
         selected = unique(c(input$groups, unique(custom_grps_df()$Grp)))
       )
-
+      
       shinyWidgets::updatePickerInput(
         session = session,
         inputId = "benchmark_median",
@@ -571,10 +571,10 @@ observeEvent(input$country,{
       
     }
   })
-
+  
   ## Unselecting the "Create custom groups" field should reset all custom group fields,
   ## but retain all other inputs
-
+  
   shiny::observeEvent(input$create_custom_grps, {
     
     if (input$create_custom_grps == FALSE) {
@@ -584,7 +584,7 @@ observeEvent(input$country,{
         choices = group_list,
         selected = input$groups[!input$groups %in% unique(custom_grps_df()$Grp)]
       )
-
+      
       shinyWidgets::updatePickerInput(
         session = session,
         inputId = "benchmark_median",
@@ -624,7 +624,7 @@ observeEvent(input$country,{
         selected = input$groups[!input$groups %in% unique(custom_grps_df()$Grp)]
       )
       
-
+      
       updateCheckboxGroupButtons(
         session,
         "countries",
@@ -632,8 +632,8 @@ observeEvent(input$country,{
         choices = countries,
         checkIcon = list(
           yes = icon("ok",
-            lib = "glyphicon",
-            style = "color: #e94152"
+                     lib = "glyphicon",
+                     style = "color: #e94152"
           )
         ),
         selected = input$countries[!input$countries %in% unique(custom_grps_df()$Countries)]
@@ -660,8 +660,8 @@ observeEvent(input$country,{
         choices = countries,
         checkIcon = list(
           yes = icon("ok",
-            lib = "glyphicon",
-            style = "color: #e94152"
+                     lib = "glyphicon",
+                     style = "color: #e94152"
           )
         ),
         selected = input$countries[!input$countries %in% unique(custom_grps_df()$Countries)]
@@ -683,17 +683,17 @@ observeEvent(input$country,{
       
     }
   })
-
-
-
+  
+  
+  
   ## Comparison countries
-
+  
   observeEvent(
     input$groups,
     {
       selected_groups <- input$groups
       selected_country <- input$country
-
+      
       # Can use character(0) to remove all choices
       if (is.null(selected_groups)) {
         selected <- NULL
@@ -703,20 +703,20 @@ observeEvent(input$country,{
           filter(group %in% selected_groups) %>%
           select(country_name) %>%
           unique()
-
+        
         if (!is.null(selected_country)) {
           selected <-
             selected %>%
             filter(country_name != selected_country)
         }
-
+        
         selected <-
           selected %>%
           pluck(1)
       }
-
-
-
+      
+      
+      
       updateCheckboxGroupButtons(
         session,
         "countries",
@@ -724,8 +724,8 @@ observeEvent(input$country,{
         choices = countries,
         checkIcon = list(
           yes = icon("ok",
-            lib = "glyphicon",
-            style = "color: #e94152"
+                     lib = "glyphicon",
+                     style = "color: #e94152"
           )
         ),
         selected = selected
@@ -785,7 +785,7 @@ observeEvent(input$country,{
   
   
   
-
+  
   # When custom groups are included and the group field is updated, append the countries to the initial list of countries
   # displayed
   observeEvent(
@@ -793,7 +793,7 @@ observeEvent(input$country,{
       input$groups,
       input$save_custom_grps
     ),
-
+    
     {
       if (!is.null(custom_grps_df())) {
         
@@ -819,8 +819,8 @@ observeEvent(input$country,{
           choices = countries,
           checkIcon = list(
             yes = icon("ok",
-              lib = "glyphicon",
-              style = "color: #e94152"
+                       lib = "glyphicon",
+                       style = "color: #e94152"
             )
           ),
           selected = selected_c
@@ -847,8 +847,8 @@ observeEvent(input$country,{
           choices = countries,
           checkIcon = list(
             yes = icon("ok",
-              lib = "glyphicon",
-              style = "color: #e94152"
+                       lib = "glyphicon",
+                       style = "color: #e94152"
             )
           ),
           selected = selected_c
@@ -869,13 +869,13 @@ observeEvent(input$country,{
         # )
         
       }
-
+      
     }
   )
-
-
+  
+  
   ## Validate options
-
+  
   output$select_button <-
     renderUI({
       if (length(input$countries) >= 10 & length(input$country) >=1) {
@@ -900,7 +900,7 @@ observeEvent(input$country,{
         )
       }
     })
-
+  
   observeEvent(
     input$countries,
     {
@@ -924,9 +924,9 @@ observeEvent(input$country,{
   )
   
   ## End of benchmark tab control inputs----------------------
-
+  
   ## Reactive objects ==============================================
-
+  
   ### Benchmark data -----------------------------------------------
   vars <-
     eventReactive(
@@ -942,20 +942,20 @@ observeEvent(input$country,{
         }
       }
     )
-
+  
   ### Comparison group note (group or countries) -------------------------
   ### To be edited to include custom groups
   note_compare <-
     eventReactive(
       input$select,
       {
-  
+        
         ## countries that fall under input$groups
         ## 
         group_list_countries <- country_list %>%
           filter(group %in% input$groups) %>%
           pull(country_name)
-
+        
         
         ## custom groups countries that fall under input$groups and are selected in the 
         ## "Select individual comparison countries" card. We don't care about those that are unselected.
@@ -963,16 +963,16 @@ observeEvent(input$country,{
         
         if (input$create_custom_grps == TRUE) {
           custom_df_countries <- custom_grps_df()$Countries[custom_grps_df()$Grp %in% input$groups &
-            custom_grps_df()$Countries %in% input$countries]
-        
+                                                              custom_grps_df()$Countries %in% input$countries]
+          
         }
         
         ## if we ever want to see which countries are in custom_grps_df() but unselected (not in input$countries), run
         ## the following code.
         ## Do not activate this line here coz the app will not work
         # dropped_custom_countries =  custom_grps_df()$Countries[!custom_grps_df()$Countries %in% input$countries]
-
-
+        
+        
         ## if no groups are selected
         if (is.null(input$groups)) {
           
@@ -984,9 +984,9 @@ observeEvent(input$country,{
           
           all(
             unique(input$countries) %in%
-              unique(
-                c(group_list_countries, custom_df_countries)
-              )
+            unique(
+              c(group_list_countries, custom_df_countries)
+            )
           )
         ) {
           ## return the groups instead
@@ -1000,7 +1000,7 @@ observeEvent(input$country,{
         }
       }
     )
-
+  
   ### Indicators with low variance -------------------------------------------
   low_variance_indicators <-
     eventReactive(
@@ -1016,7 +1016,7 @@ observeEvent(input$country,{
           )
       }
     )
-
+  
   low_variance_indicators_dyn <-
     eventReactive(
       input$select,
@@ -1114,7 +1114,7 @@ observeEvent(input$country,{
           )
       }
     )
-
+  
   data_dyn <-
     eventReactive(
       input$select,
@@ -1137,7 +1137,7 @@ observeEvent(input$country,{
       input$select,
       
       {
-
+        
         family_data(
           global_data,
           base_country(),
@@ -1175,7 +1175,7 @@ observeEvent(input$country,{
           )
       }
     )
-
+  
   # Missing variables from base country
   na_indicators <-
     eventReactive(
@@ -1188,10 +1188,10 @@ observeEvent(input$country,{
           names()
       }
     )
-
-
+  
+  
   ## Make sure only valid groups are chosen ----------------------------------
-
+  
   observeEvent(
     input$country,
     
@@ -1201,7 +1201,7 @@ observeEvent(input$country,{
       ## so ...
       
       if(nrow(saved_inputs_df())>0 & ## if an input file exists and
-          input$load_inputs == 1 ## the user has clicked the load input file button
+         input$load_inputs == 1 ## the user has clicked the load input file button
       ){
         sel_family = saved_inputs_df()$family ## the family selected by default is the one saved in the input file
       }else{
@@ -1232,9 +1232,9 @@ observeEvent(input$country,{
     
     ignoreNULL = FALSE
   )
-
+  
   ## Median data ------------------------------------------------------------
-
+  
   data_family_median <-
     eventReactive(
       input$select,
@@ -1247,13 +1247,13 @@ observeEvent(input$country,{
         )
       }
     )
-
+  
   ## Benchmark plot ============================================================
-
+  
   ## custom_df dataset will be used here if the groups in it are part of the benchmark median groups and its countries 
   ## are selected
   
-
+  
   custom_df <- shiny::eventReactive(input$select, {
     if (input$create_custom_grps == TRUE) {
       custom_df <- custom_grps_df()[custom_grps_df()$Grp %in% input$benchmark_median &
@@ -1264,7 +1264,7 @@ observeEvent(input$country,{
     }
     
   })
-
+  
   output$plot <-
     renderPlotly({
       
@@ -1272,12 +1272,12 @@ observeEvent(input$country,{
         
         input$select
         
-       # browser()
+        # browser()
         
         ## Important!
         ## Shel added custom_df as an argument in the static_plot function to accommodate the custom groups
-
-
+        
+        
         isolate(
           
           
@@ -1291,14 +1291,14 @@ observeEvent(input$country,{
                 vars_all,
                 variable_names
               )
-
+            
             low_variance_variables <-
               low_variance_indicators() %>%
               data.frame() %>%
               rename("variable" = ".") %>%
               left_join(variable_names %>% select(variable, var_name), by = "variable") %>%
               .$var_name
-
+            
             missing_variables <- c(missing_variables, low_variance_variables)
             
             data_family() %>%
@@ -1337,9 +1337,9 @@ observeEvent(input$country,{
               rename("variable" = ".") %>%
               left_join(variable_names %>% select(variable, var_name), by = "variable") %>%
               .$var_name
-
+            
             missing_variables <- c(missing_variables, low_variance_variables)
-
+            
             data_avg() %>%
               filter(variable %in% vars()) %>%
               static_plot(
@@ -1361,17 +1361,17 @@ observeEvent(input$country,{
         )
       }
     }) %>%
-  bindCache(input$country,  input$groups, input$family,input$benchmark_median,
-    input$rank, input$benchmark_dots, input$preset_order, input$create_custom_grps,
-    input$show_dynamic_plot, input$threshold, input$countries) %>%
-  bindEvent(input$select)
-
+    bindCache(input$country,  input$groups, input$family,input$benchmark_median,
+              input$rank, input$benchmark_dots, input$preset_order, input$create_custom_grps,
+              input$show_dynamic_plot, input$threshold, input$countries) %>%
+    bindEvent(input$select)
+  
   output$plot_notes <- renderUI({
-
+    
     if (length(input$countries) >= 10) {
       
       input$select
-    
+      
       
       ## Important!
       ## Shel added custom_df as an argument in the static_plot function to accommodate the custom groups
@@ -1444,35 +1444,35 @@ observeEvent(input$country,{
       )
     }
     
-
+    
     
   })
   
   ## End of benchmark tab ----------------------
-
+  
   ## Dynamic benchmark plot  ============================================================
   # 
   shiny::observeEvent(
-      list(input$country,
-      input$groups,
-      input$family,
-      input$rank,
-      input$benchmark_dots,
-      input$create_custom_grps,
-      input$threshold,
-      input$preset_order,
-      input$countries  ), {
-
-    if (length(input$country)==1){
-
-    shinyWidgets::updateMaterialSwitch(
-      session = session,
-      inputId = "show_dynamic_plot",
-      value = FALSE
-    )}
-
-  })
-
+    list(input$country,
+         input$groups,
+         input$family,
+         input$rank,
+         input$benchmark_dots,
+         input$create_custom_grps,
+         input$threshold,
+         input$preset_order,
+         input$countries  ), {
+           
+           if (length(input$country)==1){
+             
+             shinyWidgets::updateMaterialSwitch(
+               session = session,
+               inputId = "show_dynamic_plot",
+               value = FALSE
+             )}
+           
+         })
+  
   
   
   output$dynamic_benchmark_plot <-
@@ -1501,7 +1501,7 @@ observeEvent(input$country,{
               .$var_name
             
             missing_variables <- c(missing_variables, low_variance_variables)
-
+            
             data_dyn_avg() %>%
               filter(str_detect(variable, "_avg"))%>%
               left_join(.,family_order,by = 'family_name')%>%
@@ -1576,14 +1576,14 @@ observeEvent(input$country,{
         )
       }
     }) %>%
-  bindCache(input$country,  input$groups, input$family,input$benchmark_median,
-    input$rank, input$benchmark_dots, input$preset_order, input$create_custom_grps,
-    input$show_dynamic_plot, input$threshold, input$countries) %>%
-  bindEvent(input$select)
+    bindCache(input$country,  input$groups, input$family,input$benchmark_median,
+              input$rank, input$benchmark_dots, input$preset_order, input$create_custom_grps,
+              input$show_dynamic_plot, input$threshold, input$countries) %>%
+    bindEvent(input$select)
   
-
+  
   ## Change variable selection in all tabs --------------------------
-
+  
   observeEvent(
     input$vars_bar,
     {
@@ -1592,13 +1592,13 @@ observeEvent(input$country,{
         "y_scatter",
         selected = input$vars_bar
       )
-
+      
       updatePickerInput(
         session,
         "vars_map",
         selected = input$vars_bar
       )
-
+      
       updatePickerInput(
         session,
         "vars_trends",
@@ -1607,7 +1607,7 @@ observeEvent(input$country,{
     },
     ignoreNULL = FALSE
   )
-
+  
   observeEvent(
     input$y_scatter,
     {
@@ -1616,13 +1616,13 @@ observeEvent(input$country,{
         "vars_bar",
         selected = input$y_scatter
       )
-
+      
       updatePickerInput(
         session,
         "vars_map",
         selected = input$y_scatter
       )
-
+      
       updatePickerInput(
         session,
         "vars_trends",
@@ -1631,7 +1631,7 @@ observeEvent(input$country,{
     },
     ignoreNULL = FALSE
   )
-
+  
   observeEvent(
     input$vars_map,
     {
@@ -1640,13 +1640,13 @@ observeEvent(input$country,{
         "vars_bar",
         selected = input$vars_map
       )
-
+      
       updatePickerInput(
         session,
         "y_scatter",
         selected = input$vars_map
       )
-
+      
       updatePickerInput(
         session,
         "vars_trends",
@@ -1655,7 +1655,7 @@ observeEvent(input$country,{
     },
     ignoreNULL = FALSE
   )
-
+  
   observeEvent(
     input$vars_trends,
     {
@@ -1664,13 +1664,13 @@ observeEvent(input$country,{
         "vars_bar",
         selected = input$vars_trends
       )
-
+      
       updatePickerInput(
         session,
         "y_scatter",
         selected = input$vars_trends
       )
-
+      
       updatePickerInput(
         session,
         "vars_map",
@@ -1679,13 +1679,13 @@ observeEvent(input$country,{
     },
     ignoreNULL = FALSE
   )
-
-
+  
+  
   # Bar plot ==================================================================
-# 
-#   custom_df_bar <- reactive({
-#     custom_grps_df()[custom_grps_df()$Grp %in% input$groups_bar, ]
-#   }) 
+  # 
+  #   custom_df_bar <- reactive({
+  #     custom_grps_df()[custom_grps_df()$Grp %in% input$groups_bar, ]
+  #   }) 
   
   custom_df_bar <-  reactive({
     
@@ -1702,7 +1702,7 @@ observeEvent(input$country,{
   
   output$bar_plot <-
     renderPlotly({
-
+      
       
       
       static_bar(
@@ -1720,13 +1720,13 @@ observeEvent(input$country,{
           plotly_remove_buttons
         )
     })
-
+  
   # Scatter plot ============================================================
-
+  
   high_group <- reactive({
     
     
-   high_group_df <-  country_list %>%
+    high_group_df <-  country_list %>%
       filter(group %in% input$high_group) %>%
       select(group, country_name)
     
@@ -1737,15 +1737,15 @@ observeEvent(input$country,{
         rename(group = Grp, 
                country_name = Countries) %>% 
         left_join(., country_list %>% select(country_name), by = c("country_name"))
-     
+      
       high_group_df <- bind_rows(high_group_df, custom_df_data)   
-        
+      
     }
     
-   return(high_group_df)
-
+    return(high_group_df)
+    
   })
-
+  
   output$scatter_plot <-
     
     renderPlotly({
@@ -1774,7 +1774,7 @@ observeEvent(input$country,{
     })
   
   # Map =======================================================================
-
+  
   output$map <-
     renderPlotly({
       if (input$vars_map != "") {
@@ -1782,7 +1782,7 @@ observeEvent(input$country,{
           variable_names %>%
           filter(var_name == input$vars_map) %>%
           pull(variable)
-
+        
         static_map(
           input$value_map,
           var_selected,
@@ -1799,9 +1799,9 @@ observeEvent(input$country,{
           )
       }
     })
-
+  
   # Trends plot ===============================================================
-
+  
   observeEvent(
     input$vars_trends,
     {
@@ -1810,7 +1810,7 @@ observeEvent(input$country,{
           db_variables %>%
           filter(var_name == input$vars_trends) %>%
           pull(variable)
-
+        
         valid <-
           global_data %>%
           filter(
@@ -1820,10 +1820,10 @@ observeEvent(input$country,{
           unique() %>%
           unlist() %>%
           unname()
-
+        
         valid_countries <-
           intersect(valid, countries)
-
+        
         updatePickerInput(
           session,
           "country_trends",
@@ -1832,7 +1832,7 @@ observeEvent(input$country,{
             valid_countries
           )
         )
-
+        
         updateCheckboxGroupButtons(
           session,
           "countries_trends",
@@ -1848,8 +1848,8 @@ observeEvent(input$country,{
     },
     ignoreNULL = TRUE
   )
-
-
+  
+  
   custom_df_trend <-  reactive({
     
     if(any(!input$group_trends %in% unlist(group_list))){
@@ -1865,17 +1865,17 @@ observeEvent(input$country,{
   output$time_series <-
     renderPlotly({
       
- 
+      
       
       shiny::req(input$country_trends)
       shiny::req(input$vars_trends)
-
+      
       if (input$vars_trends != "") {
         var <-
           db_variables %>%
           filter(var_name == input$vars_trends) %>%
           pull(variable)
-
+        
         trends_plot(
           raw_data,
           var,
@@ -1889,25 +1889,25 @@ observeEvent(input$country,{
         )
       }
     })
-
-
-     shiny::observeEvent(input$y_scatter, {
-       
-       shiny::req(input$y_scatter)
-       
-       updatePickerInput(
-         session, 
-         inputId =  "x_scatter",
-         choices = x_scatter_choices(input$y_scatter)
-         
-         
-       )
-     })
-
-     
-
-
-
+  
+  
+  shiny::observeEvent(input$y_scatter, {
+    
+    shiny::req(input$y_scatter)
+    
+    updatePickerInput(
+      session, 
+      inputId =  "x_scatter",
+      choices = x_scatter_choices(input$y_scatter)
+      
+      
+    )
+  })
+  
+  
+  
+  
+  
   browse_data <-
     reactive({
       data <-
@@ -1920,11 +1920,11 @@ observeEvent(input$country,{
             
             raw_data%>%
               select(-ends_with("_avg"))
-
+            
           }
           
         }
-
+      
       groups <-
         if (input$groups_data == "All") {
           all_groups
@@ -1933,7 +1933,7 @@ observeEvent(input$country,{
         } else {
           ""
         }
-
+      
       selected_countries <-
         if (input$countries_data == "All") {
           countries
@@ -1942,7 +1942,7 @@ observeEvent(input$country,{
         } else if (input$countries_data == "Base + comparison countries") {
           c(input$country, input$countries)
         }
-
+      
       vars <-
         variable_names %>%
         filter(
@@ -1951,7 +1951,7 @@ observeEvent(input$country,{
         ) %>%
         select(variable) %>%
         unlist()
-
+      
       if (input$data_source == "Closeness to frontier (Static)") {
         vars_table <- c("country_name", "country_code", "country_group",  vars)
       }else{
@@ -1962,9 +1962,9 @@ observeEvent(input$country,{
         }
       }
       
-
+      
       vars_table <- unname(vars_table)
-
+      
       data <-
         data %>%
         filter(
@@ -1978,7 +1978,7 @@ observeEvent(input$country,{
           )
         ) %>%
         select(any_of(vars_table))
-
+      
       data <-
         data %>%
         setnames(
@@ -1987,7 +1987,7 @@ observeEvent(input$country,{
           as.character(variable_names$var_name),
           skip_absent = TRUE
         )
-
+      
       if (input$data_value == "Rank") {
         data1 <-
           data %>%
@@ -1998,7 +1998,7 @@ observeEvent(input$country,{
               ~ rank(desc(.), ties.method = "min")
             )
           )
-
+        
         # data2<-data %>%
         #   filter(country_group == 1) %>%
         #   mutate(
@@ -2007,13 +2007,13 @@ observeEvent(input$country,{
         #       ~ dense_rank(desc(.))
         #     )
         #   )
-
+        
         data <- data1
       }
-
+      
       return(data)
     })
-
+  
   output$benchmark_datatable <-
     DT::renderDataTable(
       server = FALSE,
@@ -2038,7 +2038,7 @@ observeEvent(input$country,{
         )
       )
     )
-
+  
   # Downloadable rds of selected dataset
   output$download_global_rds <-
     downloadHandler(
@@ -2058,7 +2058,7 @@ observeEvent(input$country,{
         )
       }
     )
-
+  
   # Downloadable csv of selected dataset
   output$download_global_csv <-
     downloadHandler(
@@ -2073,7 +2073,7 @@ observeEvent(input$country,{
         )
       }
     )
-
+  
   # Downloadable dta of selected dataset
   output$download_global_dta <-
     downloadHandler(
@@ -2095,10 +2095,10 @@ observeEvent(input$country,{
         )
       }
     )
-
-
+  
+  
   # Report ================================================================================
-
+  
   output$report <- downloadHandler(
     filename =
       reactive(
@@ -2113,16 +2113,16 @@ observeEvent(input$country,{
         color = "#17a2b8",
         text = "Compiling report",
       )
-
+      
       on.exit(remove_modal_spinner())
-
+      
       tmp_dir <- tempdir()
-
+      
       tempReport <- file.path(tmp_dir, "report.Rmd")
-
+      
       file.copy("www/", tmp_dir, recursive = TRUE)
       file.copy("report.Rmd", tempReport, overwrite = TRUE)
-
+      
       params <-
         list(
           base_country = base_country(),
@@ -2144,7 +2144,7 @@ observeEvent(input$country,{
         )
       
       #browser()
-
+      
       rmarkdown::render(
         tempReport,
         output_file = file,
@@ -2154,9 +2154,9 @@ observeEvent(input$country,{
       )
     }
   )
-
+  
   # PPT Report ================================================================================
-
+  
   output$pptreport <- downloadHandler(
     filename =
       reactive(
@@ -2171,22 +2171,22 @@ observeEvent(input$country,{
         color = "#17a2b8",
         text = "Compiling report",
       )
-
+      
       on.exit(remove_modal_spinner())
-
+      
       tmp_dir <- tempdir()
-
+      
       tempReport <- file.path(tmp_dir, "CLAR_template.pptx")
-
+      
       # file.copy("www/", tmp_dir, recursive = TRUE)
       # file.copy("CLAR_template.pptx", tempReport, overwrite = TRUE)
-
+      
       ppt <- read_pptx("www/CLIAR_template.pptx")
-
-
+      
+      
       if (input$create_custom_grps == TRUE) {
-
-          custom_df <- custom_grps_df()[custom_grps_df()$Grp %in% input$benchmark_median &
+        
+        custom_df <- custom_grps_df()[custom_grps_df()$Grp %in% input$benchmark_median &
                                         custom_grps_df()$Countries %in% input$countries]
       } else {
         custom_df <- NULL
@@ -2226,64 +2226,69 @@ observeEvent(input$country,{
         Indicators = c(paste(input$country),paste(c(input$countries), collapse = ", "))
       )
       
+      
+      properties <- fp_text(color = "black", font.size = 20, bold = FALSE)
+      text_1 <- ftext(paste0("Base Country : ",input$country),properties)
+      text_2 <- ftext(paste0("Comparison Countries : ",paste(c(input$countries), collapse = ", ")),properties)
+                       
       ppt <- ppt %>%
         on_slide(index = 8) %>%
-        ph_with(value = table_data,ph_location(
-          left = 0.5,width = 12,top=1.3,  bg = "transparent",tcf = table_conditional_formatting(),
-          alignment = c('c','l')
-        )) 
-
+        ph_with(value = fpar(text_1) ,ph_location(left = 0.5,width = 12,top=1.3,  bg = "transparent"))%>%
+        ph_with(value = fpar(text_2) ,ph_location(left = 0.5,width = 12,top=1.8,  bg = "transparent")) 
+      
       ppt <- ppt %>%
         on_slide(index = 9) %>%
         ph_with(value = plot1, location = ph_location(
           left = 1.5, top = 1.2,
           width = 10.04, height = 4.67, bg = "transparent"
         ))
-
-
+      
+      
       slide_index = 10
-
+      
       family_n <- data()%>%
         distinct(family_name)%>%
         filter(!is.na(family_name))%>%
         pull(family_name) %>%
         as.list()
-
-
-      for(fam_n in family_n){
-      fam_variable_names<-variable_names %>%
-        filter(family_name == fam_n) %>%
-        pull(variable) %>%
-        unique()
-
-        plt_f<-data() %>%
-          filter(variable %in% fam_variable_names)%>%
-          static_plot(
-            base_country(),
-            fam_n,
-            input$rank,
-            dots = input$benchmark_dots,
-            group_median = input$benchmark_median,
-            custom_df = custom_df(),
-            threshold = input$threshold,
-            preset_order = input$preset_order,
-            title = FALSE
-          )
-
-        plt_f<-dml(ggobj = plt_f)
-
-        ppt <- ppt %>%
-          add_slide(master = "Custom Design")%>%
-          on_slide(index = slide_index) %>%
-          ph_with(value = fam_n, location = ph_location(left = 1, top = 0.4,width = 12))%>%
-          ph_with(value = plt_f, location = ph_location(
-            left = 1.5, top = 1.2,
-            width = 10.04, height = 4.67, bg = "transparent"
-          ))
-
-        slide_index = slide_index+1
+      
+      
+      for(fam_n in family_order$family_name){
+        if(fam_n %in% family_n){
+          fam_variable_names<-variable_names %>%
+            filter(family_name == fam_n) %>%
+            pull(variable) %>%
+            unique()
+          
+          plt_f<-data() %>%
+            filter(variable %in% fam_variable_names)%>%
+            static_plot(
+              base_country(),
+              fam_n,
+              input$rank,
+              dots = input$benchmark_dots,
+              group_median = input$benchmark_median,
+              custom_df = custom_df(),
+              threshold = input$threshold,
+              preset_order = input$preset_order,
+              title = FALSE
+            )
+          
+          plt_f<-dml(ggobj = plt_f)
+          
+          ppt <- ppt %>%
+            add_slide(master = "Custom Design")%>%
+            on_slide(index = slide_index) %>%
+            ph_with(value = fam_n, location = ph_location(left = 1, top = 0.4,width = 12))%>%
+            ph_with(value = plt_f, location = ph_location(
+              left = 1.5, top = 1.2,
+              width = 10.04, height = 4.67, bg = "transparent"
+            ))
+          
+          slide_index = slide_index+1
+        }
       }
-
+      
       ppt<-ppt%>%
         add_slide(master = "Custom Design")%>%
         on_slide(index = slide_index) %>%
@@ -2292,16 +2297,16 @@ observeEvent(input$country,{
           left = 1.5, top = 1.2,
           width = 10.04, height = 4.67, bg = "transparent"
         ))
-    
+      
       print(ppt, file)
     }
   )
-
-
-
-
+  
+  
+  
+  
   # Definitions ===========================================================================
-
+  
   output$definition <-
     renderTable({
       
@@ -2328,7 +2333,7 @@ observeEvent(input$country,{
         )
       
     })
-
+  
   output$definition_bar <-
     renderTable({
       variables <-
@@ -2343,8 +2348,8 @@ observeEvent(input$country,{
           Source = source
         )
     })
-
-
+  
+  
   # Download csv with definitions
   output$download_indicators <-
     downloadHandler(
@@ -2364,7 +2369,7 @@ observeEvent(input$country,{
         )
       }
     )
-
+  
   # Full methodology --------------------------------------------------------
   output$download_metho <-
     downloadHandler(
@@ -2393,8 +2398,8 @@ observeEvent(input$country,{
       comparison_countries = paste(c(input$countries), collapse = ";"), #comparison countries
       create_custom_groups = input$create_custom_grps
     )
-
-
+    
+    
     if(input$create_custom_grps == TRUE){
       cliar_inputs$no_custom_grps = input$custom_grps_count
       
@@ -2403,7 +2408,7 @@ observeEvent(input$country,{
         cliar_inputs[, paste("custom_grps_names", i, sep = "_")] = input[[paste("custom_grps_names", i, sep = "_")]]
         cliar_inputs[, paste("custom_grps_countries", i, sep = "_")] = 
           paste(input[[paste("custom_grps_countries", i, sep = "_")]], collapse = ";")
-
+        
       }
     }
     
@@ -2419,7 +2424,7 @@ observeEvent(input$country,{
     shinyjs::enable("download_data_1")
     
   })
-
+  
   output$save_inputs <- downloadHandler(
     filename = function() { 
       paste("cliar_inputs.rds")
@@ -2435,21 +2440,21 @@ observeEvent(input$country,{
     else
       shinyjs::show("download_data_1")
   })
-
+  
   
   
   ## Save inputs to be loaded the next time --------------------------------------------------------
   download_data_1 <- eventReactive(input$select , {
     
-      if (input$family == "Overview") {
-        data<-data_family()%>%
-          filter(country_name==base_country())
-          
-      } else {
-        data<-data() %>%
-          filter(variable %in% vars())%>%
-          filter(country_name==base_country())
-      }
+    if (input$family == "Overview") {
+      data<-data_family()%>%
+        filter(country_name==base_country())
+      
+    } else {
+      data<-data() %>%
+        filter(variable %in% vars())%>%
+        filter(country_name==base_country())
+    }
     
     return(data)
     
@@ -2467,5 +2472,5 @@ observeEvent(input$country,{
   
   
   
-
+  
 }
