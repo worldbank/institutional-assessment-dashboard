@@ -1478,6 +1478,7 @@ observeEvent(input$country,{
   output$dynamic_benchmark_plot <-
     renderPlotly({
       validate(need(length(input$country) == 1,'Dynamic Benchmarking is available only when One base Country is selected'))
+      validate(need(!(input$family %in% family_order$family_name[family_order$Benchmark_dynamic_indicator == "No"])," No Dynamic Benchmarking Plot available for this family."))
       if (length(input$countries) >= 10 && length(input$country) == 1) {
         
         isolate(
@@ -1503,6 +1504,8 @@ observeEvent(input$country,{
 
             data_dyn_avg() %>%
               filter(str_detect(variable, "_avg"))%>%
+              left_join(.,family_order,by = 'family_name')%>%
+              filter(Benchmark_dynamic_family_aggregate!='No')%>%
               static_plot_dyn(
                 base_country(),
                 input$family,
@@ -1539,7 +1542,19 @@ observeEvent(input$country,{
             
             missing_variables <- c(missing_variables, low_variance_variables)
             
-            data_dyn_avg() %>%
+            plot_data <-data_dyn_avg() 
+            
+            plot_data_1  <- plot_data %>%
+              filter(str_detect(variable, "_avg"))%>%
+              left_join(.,family_order,by = 'family_name')%>%
+              filter(Benchmark_dynamic_family_aggregate!='No')
+            
+            plot_data_2  <- plot_data %>%
+              filter(!str_detect(variable, "_avg"))
+            
+            plot_data <- bind_rows(plot_data_1,plot_data_2)
+            
+            plot_data %>%
               filter(variable %in% vars()) %>%
               static_plot_dyn(
                 base_country(),
