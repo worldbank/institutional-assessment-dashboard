@@ -21,6 +21,7 @@ library(bsplus)
 library(htmltools)
 library(officer)
 library(rvg)
+library(xlsx)
 
 
 options(dplyr.summarise.inform = FALSE)

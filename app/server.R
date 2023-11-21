@@ -2446,28 +2446,45 @@ server <- function(input, output, session) {
   ## Save inputs to be loaded the next time --------------------------------------------------------
   download_data_1 <- eventReactive(input$select , {
     
-    if (input$family == "Overview") {
-      data<-data_family()%>%
+      data1<-data_family()%>%
         filter(country_name==base_country())
-      
-    } else {
-      data<-data() %>%
+
+      data2<-data() %>%
         filter(variable %in% vars())%>%
         filter(country_name==base_country())
-    }
-    
-    return(data)
-    
+      
+      data3<-data_family_dyn()%>%
+        filter(country_name==base_country())
+      
+      data4<-data_dyn_avg()%>%
+        filter(country_name==base_country())
+
+    list_of_dataframes <- list(data1,data2,data3,data4)
+      
+    return(list_of_dataframes)
   })
   
   
   
   output$download_data_1 <- downloadHandler(
     filename = function() { 
-      paste("download_data_1.csv")
+      paste0("CTF-plot-data.xlsx")
     },
     content = function(file) {
-      write.csv(download_data_1(), file)
+      
+      data<-download_data_1()
+      
+      data_frame1<-data[1]
+      data_frame2<-data[2]
+      data_frame3<-data[3]
+      data_frame4<-data[4]
+      
+      write.xlsx(data_frame1, file, sheetName = "Static Overview", row.names = FALSE,col.names = TRUE)
+      
+      write.xlsx(data_frame2, file, sheetName = "Static Family", append = TRUE, row.names = FALSE,col.names = TRUE)
+      write.xlsx(data_frame3, file, sheetName = "Dynamic Overview", append = TRUE, row.names = FALSE,col.names = TRUE)
+      write.xlsx(data_frame4, file, sheetName = "Dynamic Family", append = TRUE, row.names = FALSE,col.names = TRUE)
+      
     }) 
   
   
