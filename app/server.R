@@ -2459,7 +2459,7 @@ server <- function(input, output, session) {
       data4<-data_dyn_avg()%>%
         filter(country_name==base_country())
 
-    list_of_dataframes <- list(data1,data2,data3,data4)
+    list_of_dataframes <- list(data1 = data1,data2 = data2,data3 = data3,data4 = data4)
       
     return(list_of_dataframes)
   })
@@ -2472,19 +2472,45 @@ server <- function(input, output, session) {
     },
     content = function(file) {
       
+      show_modal_spinner(
+        color = "#17a2b8",
+        text = "Compiling Data",
+      )
+      
+      on.exit(remove_modal_spinner())
+
       data<-download_data_1()
       
-      data_frame1<-data[1]
-      data_frame2<-data[2]
-      data_frame3<-data[3]
-      data_frame4<-data[4]
+      data_frame1<-data$data1
+      data_frame2<-data$data2
+      data_frame3<-data$data3
+      data_frame4<-data$data4
       
-      write.xlsx(data_frame1, file, sheetName = "Static Overview", row.names = FALSE,col.names = TRUE)
+      # write.xlsx(data_frame1, file, sheetName = "Static Overview", row.names = FALSE,col.names = TRUE)
+      # 
+      # write.xlsx(data_frame2, file, sheetName = "Static Family", append = TRUE, row.names = FALSE,col.names = TRUE)
+      # write.xlsx(data_frame3, file, sheetName = "Dynamic Overview", append = TRUE, row.names = FALSE,col.names = TRUE)
+      # write.xlsx(data_frame4, file, sheetName = "Dynamic Family", append = TRUE, row.names = FALSE,col.names = TRUE)
+      # 
       
-      write.xlsx(data_frame2, file, sheetName = "Static Family", append = TRUE, row.names = FALSE,col.names = TRUE)
-      write.xlsx(data_frame3, file, sheetName = "Dynamic Overview", append = TRUE, row.names = FALSE,col.names = TRUE)
-      write.xlsx(data_frame4, file, sheetName = "Dynamic Family", append = TRUE, row.names = FALSE,col.names = TRUE)
+      # Create a workbook
+      wb <- createWorkbook()
       
+      # Add sheets to the workbook
+      sheet1 <- addWorksheet(wb, "Static Overview")
+      sheet2 <- addWorksheet(wb, "Static Family")
+      sheet3 <- addWorksheet(wb, "Dynamic Overview")
+      sheet4 <- addWorksheet(wb, "Dynamic Family")
+      
+      # Write data_frame1 to Sheet1 without appending sheet name to column names
+      writeData(wb, sheet1, data_frame1, startCol = 1, startRow = 1, colNames = TRUE,rowNames = FALSE)
+      
+      # Write data_frame2 to Sheet2 without appending sheet name to column names
+      writeData(wb, sheet2, data_frame2, startCol = 1, startRow = 1, colNames = TRUE,rowNames = FALSE)
+      writeData(wb, sheet3, data_frame3, startCol = 1, startRow = 1, colNames = TRUE,rowNames = FALSE)
+      writeData(wb, sheet4, data_frame4, startCol = 1, startRow = 1, colNames = TRUE,rowNames = FALSE)      
+      # Save the workbook to the specified file path
+      saveWorkbook(wb, file)
     }) 
   
   
