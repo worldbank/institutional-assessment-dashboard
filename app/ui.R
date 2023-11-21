@@ -1079,7 +1079,7 @@ ui <-
             status = "navy",
             title = "Institutional families",
 
-            p("The CLIAR Benchmarkinguses established well-institutional indicators, clustered into 14 main institutional families:", 
+            p("The CLIAR Benchmarking uses a set of curated and validated institutional indicators, clustered into 13 institutional clusters:", 
               
               tags$ul( 
                 
@@ -1112,7 +1112,7 @@ ui <-
               ) 
               
             ), 
-            p("There is no agreed theoretical framework that could guide the categorization process. The proposed families are based on an effort to capture key functions that different institutions perform. In so doing, the categorization process faces a trade-off between aggregation and narrowness, where the categories ought to be broad enough to capture enough indicators and policy spaces, but narrow enough to guide a deep qualitative analysis as well as a fruitful and engaged conversation with the country. In addition, the categorization also faces the limitations of data availability."),
+            p("The proposed clusters are based on an effort to capture key functions that different institutions perform. In so doing, the categorization process faces a trade-off between aggregation and narrowness, where the categories ought to be broad enough to capture enough indicators and policy spaces, but narrow enough to guide a deep qualitative analysis as well as a fruitful and engaged conversation with the country. In addition, the categorization also faces the limitations of data availability."),
             p('All country-level indicators can be downloaded in the “Data” tab.')
           ),
 
@@ -1226,7 +1226,7 @@ tabItem(
             tags$ul(
               tags$li(
                 'We ask that all users of the data to cite the data as follows:',
-                HTML('"<em>Source: World Bank Country Level Institutional Assessment and Review.</em>"')
+                HTML('"<em>Source: World Bank CLIAR Dashboard.</em>"')
               ),
               tags$li(
                 "We kindly request that if users modify the methodology and the source code for their reports and analyses clearly state so and highlight the relevant departures from the CLIAR Benchmarking methodology."
