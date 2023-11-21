@@ -14,6 +14,7 @@ $('#threshold').on('shown.bs.select', function() {
 
 ui <-
   dashboardPage(
+    
 
       freshTheme = create_theme(bs4dash_layout(sidebar_width = "400px")),
 
@@ -72,6 +73,11 @@ ui <-
         
        }
         
+    .shiny-notification {
+             position:fixed;
+             top: calc(80%);
+             left: calc(40%);
+             }
         
         .shiny-html-output.shiny-bound-output{
             text-align: justify;
