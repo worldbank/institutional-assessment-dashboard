@@ -1267,7 +1267,7 @@ server <- function(input, output, session) {
   
   output$plot <-
     renderPlotly({
-      tryCatch({
+      #tryCatch({
       if (length(input$countries) >= 10) {
         
         input$select
@@ -1360,13 +1360,12 @@ server <- function(input, output, session) {
           }
         )
       } #End If else
-      }, error = function(e) {
-        # If an error occurs, display a standard text message
-        showNotification('An error occurred. Data is missing for the selected base country.','',type = "error",duration = 10)
-        return()
-      }
-      )
-    }) %>%
+      # }, error = function(e) {
+      #   # If an error occurs, display a standard text message
+      #   #showNotification('An error occurred. Data is missing for the selected base country.','',type = "error",duration = 10)
+      #   return()
+      # }
+      }) %>%
     bindCache(input$country,  input$groups, input$family,input$benchmark_median,
               input$rank, input$benchmark_dots, input$preset_order, input$create_custom_grps,
               input$show_dynamic_plot, input$threshold, input$countries) %>%
@@ -1482,7 +1481,7 @@ server <- function(input, output, session) {
   
   
   output$dynamic_benchmark_plot <-
-    tryCatch({
+    #tryCatch({
     renderPlotly({
       validate(need(length(input$country) == 1,'Dynamic Benchmarking is available only when One base Country is selected'))
       validate(need(!(input$family %in% family_order$family_name[family_order$Benchmark_dynamic_indicator == "No"])," No Dynamic Benchmarking Plot available for this family."))
@@ -1583,13 +1582,13 @@ server <- function(input, output, session) {
         )
       }
       
-    }, error = function(e) {
-      # If an error occurs, display a standard text message
-      showNotification('An error occurred. Data is missing for the selected base country.','',type = "error",duration = 10)
-      return()
     }
-    )
-    }) %>%
+    # , error = function(e) {
+    #   # If an error occurs, display a standard text message
+    #   #showNotification('An error occurred. Data is missing for the selected base country.','',type = "error",duration = 10)
+    #   return()
+    # }
+    ) %>%
     bindCache(input$country,  input$groups, input$family,input$benchmark_median,
               input$rank, input$benchmark_dots, input$preset_order, input$create_custom_grps,
               input$show_dynamic_plot, input$threshold, input$countries) %>%
