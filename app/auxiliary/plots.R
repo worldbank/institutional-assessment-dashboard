@@ -100,7 +100,7 @@ static_plot <-
         colors <-c(
         "Weak\n(bottom 33%)" = "#D2222D",
         "Emerging\n(33% - 66%)" = "#FFBF00",
-        "Strong\n(top 66%)" = "#238823"
+        "Strong\n(top 34%)" = "#238823"
         )
       }
     
@@ -491,7 +491,7 @@ static_plot_dyn <-
           colors <-c(
             "Weak\n(bottom 33%)" = "#D2222D",
             "Emerging\n(33% - 66%)" = "#FFBF00",
-            "Strong\n(top 66%)" = "#238823"
+            "Strong\n(top 34%)" = "#238823"
           )
         }
     

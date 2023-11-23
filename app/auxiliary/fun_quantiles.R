@@ -78,7 +78,7 @@ if (threshold=="Default"){
       status = case_when(
         dtt <= cutoff[1]/100 ~ paste0("Weak\n(bottom ", cutoff[1],"%)"),
         dtt > cutoff[1]/100 & dtt <= cutoff[2]/100 ~ paste0("Emerging\n(",cutoff[1],"% - ",cutoff[2],"%)"),
-        dtt > cutoff[2]/100 ~ paste0("Strong\n(top ",cutoff[2],"%)")
+        dtt > cutoff[2]/100 ~ paste0("Strong\n(top ",100-cutoff[2],"%)")
       ),
       nrank = min_rank(-value)
     ) %>%
@@ -184,7 +184,7 @@ def_quantiles_dyn <- function(data, base_country, country_list, comparison_count
       status = case_when(
         dtt <= cutoff[1]/100 ~ paste0("Weak\n(bottom ", cutoff[1],"%)"),
         dtt > cutoff[1]/100 & dtt <= cutoff[2]/100 ~ paste0("Emerging\n(",cutoff[1],"% - ",cutoff[2],"%)"),
-        dtt > cutoff[2]/100 ~ paste0("Strong\n(top ",cutoff[2],"%)")
+        dtt > cutoff[2]/100 ~ paste0("Strong\n(top ",100-cutoff[2],"%)")
       ),
       nrank = min_rank(-value)
     ) %>%
@@ -195,4 +195,5 @@ def_quantiles_dyn <- function(data, base_country, country_list, comparison_count
     filter(todrop != 1) %>% 
     select(-todrop)
   
+
 }
