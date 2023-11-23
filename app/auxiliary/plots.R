@@ -107,29 +107,43 @@ static_plot <-
     if (rank == FALSE) {
       x_lab <- "Closeness to frontier"
       
-      data <-
-        data %>%
+      # data <-
+      #   data %>%
+      #   mutate(
+      #     var = dtf,
+      #     text = paste(
+      #       " Country:", country_name, "<br>",
+      #       "Closeness to frontier:", round(dtf, 3)
+      #     )
+      #   )
+      
+      data<-data %>%
+        group_by(dtf) %>%
         mutate(
           var = dtf,
           text = paste(
-            " Country:", country_name, "<br>",
-            "Closeness to frontier:", round(dtf, 3)
+            "Closeness to frontier:", round(dtf, 3), "<br>",
+            " Country:", paste(country_name, collapse = ", ")
           )
-        )
+        ) %>%
+        ungroup()
+
       
     } else {
       data <-
         data %>%
+        group_by(variable,nrank) %>%
         mutate(
           q25 = cutoff[[1]]/100,
           q50 = cutoff[[2]]/100,
           var = dtt,
           text = paste(
-            " Country:", country_name, "<br>",
-            "Closeness to frontier:", round(dtf, 3), "<br>",
-            "Rank:", nrank
+            "Rank:", nrank, "<br>",
+            " Country:", paste(country_name, collapse = ", "), "<br>",
+            "Closeness to frontier:", round(dtf, 3)
           )
-        )
+        ) %>%
+        ungroup()
       
       x_lab <- "Rank"
     }
