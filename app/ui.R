@@ -313,6 +313,10 @@ ui <-
 
             shiny::conditionalPanel(
               "input.create_custom_grps == true",
+              fluidRow(column(12, # This defines the width of the note (12 spans the entire row)
+                              tags$p(HTML("<strong>NOTE:</strong> Currently custom groups are not allowed when displaying ranks instead of values, when ranking from best to worst, or when doing the dynamic benchmark.")),
+                              
+              )),
               fluidRow(
                     shiny::column(
                       width = 3,
