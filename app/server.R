@@ -1303,7 +1303,7 @@ server <- function(input, output, session) {
             
             data_family() %>%
               left_join(.,family_order,by=c('var_name'='family_name'))%>%
-              arrange(country_name,family_order)%>%
+              arrange(family_order,country_name)%>%
               static_plot(
                 base_country(),
                 input$family,
