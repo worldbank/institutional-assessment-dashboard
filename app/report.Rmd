@@ -48,7 +48,7 @@ source <- "Source: Authors’ elaboration using CLIAR’s Interactive Online Das
       params$base_country,
       "'s performance. The traffic lights coloring indicates areas where the largest institutional gaps exist in ",
       params$base_country,
-      " relative to comparator countries, as follows: red = weak institutional capital; yellow = emerging institutional capital; green = strong institutional capital. See World Bank (2023) for a detailed discussion on the methodology as well as a detail description and sources of indicators in each institutional cluster."
+      " relative to comparator countries, as follows: red = weak institutional capital; yellow = emerging institutional capital; green = strong institutional capital."
     )
   
 ```
@@ -65,14 +65,30 @@ knitr::include_graphics("www/cliar.png")
 
 | Abbreviation | Description |
 | ------------ | ----------- |
+| ASPIRE       | Atlas of Social Protection Indicators of Resilience and Equity |
+| BTI          | Bertelsmann Transformation Index |
 | CLIAR        | Country Level Institutional Assessment and Review |
-| CSO          | Civil Society Organizations |
-| CTF          | Closeness to Frontier |
-| GTMI         | GovTech Maturity Index |
-| SOE          | State-Owned Enterprise |
-| UN           | United Nations |
-| VDEM         | Varieties of Democracy Database |
-| WB           | World Bank |
+| CTF	         | Closeness to Frontier |
+| CPIA         | Country Policy and Institutional Assessment |
+| CPF	         | Country Partnership Framework |
+| GFDB	       | Global Financial Database |
+| GSD          | Global State of Democracy |
+| IBRD	       | International Bank for Reconstruction and Development |
+| OECD	       | Organisation for Economic Co-operation and Development |
+| PEFA	       | Public Expenditure and Financial Accountability |
+| PMR          | Product Market Regulation (OECD Database) |
+| RISE         | Regulatory Indicators for Sustainable Energy |
+| SCD	         | Systematic Country Diagnostic |
+| SGI          | Sustainable Governance Indicators |
+| SPI	         | Statistical Performance Indicators |
+| V-DEM	       | Varieties of Democracy Database |
+| WDR	         | World Development Reports |
+| WBL          | Women, Business and the Law |
+| WDI	         | World Development Indicators |
+| WGI          | World Governance indicators |
+| WJP	         | World Justice Project |
+| WWBI         | Worldwide Bureaucracy Indicators |
+
 
 
 \newpage
@@ -84,22 +100,22 @@ knitr::include_graphics("www/cliar.png")
 This institutional assessment for **`r params$base_country`** is based on the CLIAR Benchmarking: an innovative approach that uses data from a multitude of global indicators and compares the country with relevant peers.
 
 ## What is CLIAR ? 
-**The objective of the Country-Level Institutional Assessment and Review (CLIAR) is to provide a standardized and structured yet flexible analysis, with a rigorous and effective methodology.** The CLIAR would help country teams make meaningful comparisons across different institutional strengths and weaknesses, enabling them to measure the overall effectiveness of government institutions in a structured and consistent manner. The findings emerging from the CLIAR can assist teams in identifying institutional challenges that need to be addressed to achieve sustained, inclusive growth and inform the programming of Bank resources. The CLIAR aims to make the Bank’s institutional diagnostic work and policy dialogue at the country level more coherent and integrated, building on a solid empirical base.
+**The Country Level Institutional Assessment and Review (CLIAR) is a methodological framework to make the Bank’s institutional diagnostic work and policy dialogue at the country level more integrated and data-driven.** The aim of CLIAR’s institutional analysis is to support the World Bank’s policy dialogue with counterparts and help identify entry-points and priorities for institutional reform. CLIAR is composed of two different but complementary products: (i) the CLIAR Dashboard and (ii) the CLIAR Country Deep-Dive. This report is focused on the former.
 
-**The Country Level Institutional Assessment and Review (CLIAR) is composed of two but complementary products: (i) the CLIAR Benchmarking and (ii) the CLIAR Country Deep-Dive.** This report is based on the former, namely the CLIAR Benchmarking.
+**The CLIAR Dashboard is a quick and accessible data-driven analytical tool and web-based platform that benchmarks the strengths and weaknesses of a given country’s institutional dimensions against a set of comparator countries.** The benchmarking methodology underlying the CLIAR Dashboard is designed as both an analytical and filtering tool. As an analytical tool, it helps task teams undertake a fast yet comprehensive benchmarking exercise of a country’s institutional profile to identify and map its main institutional strengths and weaknesses. As a filtering tool, it can help teams identify and select institutional themes as priority areas that most require reforms and in-depth analysis
 
-**The CLIAR Benchmarking is a quick and accessible methodology that quantitatively assesses the strengths and weaknesses of a country’s institutional dimensions against a set of comparator countries.** A set of curated institutional indicators are aggregated institutional families so to empirically map the institutional capital across substantive issue areas. There are 13 institutional families, or clusters: (1) political institutions; (2) social institutions; (3) absence of corruption, (4) transparency and accountability institutions; (5) justice institutions, (6) public financial management institutions, (7) public sector human resources management, (8) digital government and data institutions; (9) business environment institutions; (10) labor and social protection institutions; (11) SOE corporate governance institutions; (12) service delivery institutions; and (13) climate change institutions. 
+**The CLIAR Benchmarking is a quick and accessible methodology that quantitatively assesses the strengths and weaknesses of a country’s institutional dimensions against a set of comparator countries.** A set of curated institutional indicators are aggregated institutional clusters so to empirically map the institutional capital across substantive issue areas. There are 13 institutional families, or clusters: (1) political institutions; (2) social institutions; (3) absence of corruption, (4) transparency and accountability institutions; (5) justice institutions, (6) public finance institutions, (7) public sector human resources management, (8) digital government and data institutions; (9) business environment institutions; (10) labor and social protection institutions; (11) SOE corporate governance institutions; (12) service delivery institutions; and (13) climate change institutions. 
 
-```{r, fig.cap="Institutional families"}
+```{r, fig.cap="CLIAR Institutional families"}
 knitr::include_graphics("www/families.png")
 ```
 
 **The CLIAR Benchmarking generates systematic evidence needed to map out a country’s institutional profile, and it does so in a standardized, transparent, and replicable way.** This provides a robust data-driven base to guide the selection of a subset of issues related to the identified gaps that can be subject to in-depth investigation, as an inherent limitation of the benchmarking exercise is that it is not intended as an exhaustive and comprehensive analysis of the specific institutional constraints of each country and may not authoritatively identify all key institutional shortcomings, but rather as a basis for customizing it to the best extent possible to the country context and better engage into a “Country Deep-Dive”.
 
 ## Scoring and Aggregation Method
-**The CLIAR Benchmarking analysis employs the “closeness to frontier” (CTF) methodology to standardize and compare a wide range of institutional indicators.** Each of the indicators is scored using the CTF where 1 is the best score is zero and is the worse. The individual indicator CTF scores are then averaged across the relevant institutional family to create the institutional level CTF score. Each country has up to 137 indicator level CTF scores (depending on data availability) and 13 institutional family level CTF scores. 
+**The CLIAR Benchmarking analysis employs the “closeness to frontier” (CTF) methodology to standardize and compare a wide range of institutional indicators.** Each of the indicators is scored using the CTF where 1 is the best score is zero and is the worse. The individual indicator CTF scores are then averaged across the relevant institutional family to create the institutional level CTF score. Each country has up to 137 indicator level CTF scores (depending on data availability) and 13 institutional cluster-level CTF scores. 
 
-**Relative institutional weaknesses and strengths are then defined based on the percentile in which the specific indicator belongs, relative to the set of comparator countries (which are chosen by the country-team for each analysis).** Quantile distribution through traffic light coloring is then used to capture the areas where the largest institutional gaps exist, relative to the set of relevant country comparators. The current methodology classifies “weak institution”, “emerging institution”, and “advanced institution”, as those in the following percentiles: 0-25th, 25-50th, above 50th. (There is also the option of using terciles: 0-33rd, 33-66th, above 66th.) 
+**Relative institutional weaknesses and strengths are then defined based on the percentile in which the specific indicator belongs, relative to the set of comparator countries (which are chosen by the country-team for each analysis).** Quantile distribution through traffic light coloring is then used to capture the areas where the largest institutional gaps exist, relative to the set of relevant country comparators. The current methodology classifies “weak institution”, “emerging institution”, and “advanced institution”, as those in the following percentiles: 0-25th, 25-50th, above 50th. (Or terciles: 0-33rd, 33-66th, above 66th.) 
 
 **The CTF and the quantile analysis capture two related but different aspects of a country’s institutional performance.** The CTF compares the country’s performance with the best and worst performers. The quantile analysis benchmarks the country’s performance with the set of comparator countries. For example, it could be that for one indicator or institutional cluster the CTF score is relatively high and close to 1 (indicating in fact “closeness to the frontier”) but, at the same time, this dimension is marked as an institutional weakness (i.e., red color) because the country’s performance is still worse than most comparator countries. The benchmark analysis shows both dimensions to assess the country’s performance with respect to both the global frontier and the performance of all other comparator countries.
 
