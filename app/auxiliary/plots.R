@@ -49,13 +49,13 @@ static_plot <-
       
         base_country_df<-data%>%
           filter(country_name==base_country[1])
-    
+   
         base_country_df<-base_country_df%>%
-            arrange(rank_id)
+            arrange((dtt))
           
         unique_indicators = base_country_df %>% 
-            distinct(var_name,rank_id) %>% 
-            arrange(desc(rank_id)) %>% 
+            distinct(var_name,dtt) %>% 
+            arrange((dtt)) %>% 
             pull(var_name)
       
         data$var_name <-
