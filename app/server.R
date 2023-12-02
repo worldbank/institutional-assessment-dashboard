@@ -8,6 +8,13 @@ server <- function(input, output, session) {
   shinyjs::disable("preset_order")
   shinyjs::hide("benchmark_median")
   
+  # initialise then start the guide
+  start_tour <- FALSE
+  
+  observeEvent(input$start, {
+    guided_tour$init()$start()
+    start_tour <<- TRUE
+  })
   
   ## Base country ------------------------------------------------------------
   base_country <-

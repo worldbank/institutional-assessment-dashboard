@@ -9,14 +9,12 @@ $('#threshold').on('shown.bs.select', function() {
   });
 });"
 
-
-
-
 ui <-
   dashboardPage(
     
 
       freshTheme = create_theme(bs4dash_layout(sidebar_width = "400px")),
+      
 
     ## Header ------------------------------------------------------------------
 
@@ -34,7 +32,7 @@ ui <-
 
     ## Navigation menu ---------------------------------------------------------
     dashboardSidebar(
-
+      
       status = "info",
       skin = "light",
       elevation = 5,
@@ -61,6 +59,8 @@ ui <-
     ),
 
     dashboardBody(
+      
+      use_cicerone(),
       
       ## universal css styles
       tags$style(HTML("
@@ -111,12 +111,12 @@ ui <-
       )),
       
       tabItems(
-
+        
         ## Landing page --------------------------------------------------------
 
         tabItem(
           tabName = "home",
-
+          
           bs4Card(
             width = 12,
             status = "navy",
@@ -135,6 +135,12 @@ ui <-
             p("For full details about the methodology behind the CLIAR Benchmarking, please find the Methodological paper in the Methodology tab. Users of this resource should cite this paper. Publications using the CLIAR data should include a citation of the CLIAR Dashboard as well as the original source(s) of the data used. Citation information for each component dataset is also included in the Methodology page."),
             p("Disclaimer: The findings, interpretations, and conclusions expressed in CLIAR are a product of staff of the World Bank, but do not necessarily reflect the views of the World Bank and its affiliated organizations, or those of the Executive Directors of the World Bank or the governments they represent."),
             h3("How to use this dashboard"),
+            span(
+              buttons_func(
+                id = "start",
+                lab = "Start tour"
+              )
+            ),
             p("This dashboard aims to enable its users to interact with the country-level benchmarking through the following tabs:"),
             tags$ul(
               tags$li(
@@ -204,7 +210,7 @@ ui <-
         tabItem(
           tabName = "benchmark",
           useShinyjs(),
-
+          
           bs4Card(
             title = "Select information to display",
             status = "success",
@@ -217,9 +223,9 @@ ui <-
                 width = 3,
                 buttons_func(id = "load_inputs",
                   lab = "Load Inputs"
-                ),
-                
+                )
               )
+
             ),
             
             shiny::fluidRow(style = "height:30px;"),
