@@ -10,10 +10,16 @@ server <- function(input, output, session) {
   
   # initialise then start the guide
   start_tour <- FALSE
+  start_tour_bench <- FALSE
   
   observeEvent(input$start, {
-    guided_tour$init()$start()
+    guide_landing_page$init()$start()
     start_tour <<- TRUE
+  })
+  
+  observeEvent(input$start_guide_bench, {
+    guide_benchmark$init()$start()
+    start_tour_bench <<- TRUE
   })
   
   ## Base country ------------------------------------------------------------

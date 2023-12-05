@@ -141,6 +141,7 @@ ui <-
                 lab = "Start tour"
               )
             ),
+            br(),
             p("This dashboard aims to enable its users to interact with the country-level benchmarking through the following tabs:"),
             tags$ul(
               tags$li(
@@ -220,9 +221,17 @@ ui <-
             shiny::fluidRow(
               ## Load inputs button
               column(
-                width = 3,
+                width = 2,
                 buttons_func(id = "load_inputs",
                   lab = "Load Inputs"
+                )
+              ),
+              ## Guide action button
+              column(
+                width = 2,
+                buttons_func(
+                  id = "start_guide_bench",
+                  lab = "Start tour"
                 )
               )
 
@@ -231,175 +240,180 @@ ui <-
             shiny::fluidRow(style = "height:30px;"),
             
             fluidRow(
-
+              
+              
               column(
                 width = 3,
-                pickerInput(
-                  "country",
-                  label = "Select a base country",
-                  choices = c("", countries),
-                  selected = NULL,
-                  multiple = TRUE,
-                  options = list(
-                    `actions-box` = TRUE,
-                    `live-search` = TRUE 
+                  pickerInput(
+                    "country",
+                    label = "Select a base country",
+                    choices = c("", countries),
+                    selected = NULL,
+                    multiple = TRUE,
+                    options = list(
+                      `actions-box` = TRUE,
+                      `live-search` = TRUE 
+                    )
                   )
-                )
               ),
 
               column(
                 width = 3,
-                pickerInput(
-                  "groups",
-                  label = "Select comparison groups",
-                  choices = group_list,
-                  selected = NULL,
-                  multiple = TRUE,
-                  options = list(
-                    # size = 21,
-                    `actions-box` = TRUE,
-                    `live-search` = TRUE
+                  pickerInput(
+                    "groups",
+                    label = "Select comparison groups",
+                    choices = group_list,
+                    selected = NULL,
+                    multiple = TRUE,
+                    options = list(
+                      # size = 21,
+                      `actions-box` = TRUE,
+                      `live-search` = TRUE
+                    )
                   )
-                )
               ),
 
               column(
                 width = 3,
-                pickerInput(
-                  "family",
-                  label = "Select institutional family",
-                  choices = c("Overview", names(variable_list)),
-                  selected = NULL
-                )
+                  pickerInput(
+                    "family",
+                    label = "Select institutional family",
+                    choices = c("Overview", names(variable_list)),
+                    selected = NULL
+                  )
               ),
 
               column(
                 width = 3,
-                pickerInput(
-                  inputId = "benchmark_median",
-                  label = "Show group median",
-                  choices = append(
-                    "Comparison countries",
-                    group_list
-                  ),
-                  selected = NULL,
-                  multiple = TRUE,
-                  options = list(
-                    `live-search` = TRUE,
-                    "max-options" = 3
-                  )
-                )
-              )
-            ),
-            
-            fluidRow(style = "height: 15px;"),
-            
-            fluidRow(
-              shiny::column(3,
-                shinyWidgets::prettyCheckbox(
-                  inputId = "create_custom_grps",
-                  label = "Create custom groups",
-                  value = FALSE,
-                  icon = icon("check"),
-                  status = "success"
-                )
-                ),
-              shiny::conditionalPanel(
-               "input.create_custom_grps == true" ,
-              shiny::column(12,
-                shinyWidgets:: materialSwitch(
-                  inputId = "show_custom_grps",
-                  label = "Show custom groups",
-                  status = "success",
-                  value = TRUE
-                )
-              )
-              )
-            ),
-
-            shiny::conditionalPanel(
-              "input.create_custom_grps == true",
-              fluidRow(column(12, # This defines the width of the note (12 spans the entire row)
-                              tags$p(HTML("<strong>NOTE:</strong> Currently custom groups are not allowed when displaying ranks instead of values, when ranking from best to worst, or when doing the dynamic benchmark.")),
-                              
-              )),
-              fluidRow(
-                    shiny::column(
-                      width = 3,
-                      shiny::numericInput(
-                        inputId = "custom_grps_count",
-                        label = "Number of groups",
-                        value = 1,
-                        min = 1,
-                        max = 5,
-                        step = 1
-                      )
+                  pickerInput(
+                    inputId = "benchmark_median",
+                    label = "Show group median",
+                    choices = append(
+                      "Comparison countries",
+                      group_list
                     ),
-                    shiny::column(
-                      width = 6,
-                      
-                     shiny::conditionalPanel(
-                      "input.custom_grps_count >= 1",
-                      shiny::uiOutput("custom_grps")
-                      )
-              ),
-              column(
-                width = 3,
-                align = "center",
-                shiny::actionButton("save_custom_grps", "Save")
-                
-              )
-              
-              )
-              ),
-            fluidRow(style = "height: 15px;"),
-            fluidRow(
-              column(
-                width = 3,
-                prettyCheckbox(
-                  inputId = "benchmark_dots",
-                  label = "Show comparison countries",
-                  value = FALSE,
-                  icon = icon("check"),
-                  status = "success"
-                ),
-                prettyCheckbox(
-                  inputId = "rank",
-                  label = "Show rank instead of value",
-                  value = FALSE,
-                  icon = icon("check"),
-                  status = "success"
-                ),
-                
-                prettyCheckbox(
-                  inputId = "preset_order",
-                  label = "Rank indicators from best to worst",
-                  value = FALSE,
-                  icon = icon("check"),
-                  status = "success"
-                )
-              ),
-              
-              column(
-                width = 3,
-                pickerInput(
-                  inputId = "threshold", 
-                  label = "Benchmarking Thresholds",
-                  choices = c("Default","Terciles")
-                ),
-              ),
-              
-              tags$script(HTML(js)),
-
-              
-              column(
-                width = 3,
-                uiOutput(
-                  "select_button"
-                )
+                    selected = NULL,
+                    multiple = TRUE,
+                    options = list(
+                      `live-search` = TRUE,
+                      "max-options" = 3
+                    )
+                  )
               )
             ),
+              
+              fluidRow(style = "height: 15px;"),
+              
+              fluidRow(
+                shiny::column(3,
+                  shinyWidgets::prettyCheckbox(
+                    inputId = "create_custom_grps",
+                    label = "Create custom groups",
+                    value = FALSE,
+                    icon = icon("check"),
+                    status = "success"
+                  )
+                  ),
+                shiny::conditionalPanel(
+                 "input.create_custom_grps == true" ,
+                shiny::column(12,
+                  shinyWidgets:: materialSwitch(
+                    inputId = "show_custom_grps",
+                    label = "Show custom groups",
+                    status = "success",
+                    value = TRUE
+                  )
+                )
+                )
+              ),
+  
+              shiny::conditionalPanel(
+                "input.create_custom_grps == true",
+                fluidRow(column(12, # This defines the width of the note (12 spans the entire row)
+                                tags$p(HTML("<strong>NOTE:</strong> Currently custom groups are not allowed when displaying ranks instead of values, when ranking from best to worst, or when doing the dynamic benchmark.")),
+                                
+                )),
+                fluidRow(
+                      shiny::column(
+                        width = 3,
+                        shiny::numericInput(
+                          inputId = "custom_grps_count",
+                          label = "Number of groups",
+                          value = 1,
+                          min = 1,
+                          max = 5,
+                          step = 1
+                        )
+                      ),
+                      shiny::column(
+                        width = 6,
+                        
+                       shiny::conditionalPanel(
+                        "input.custom_grps_count >= 1",
+                        shiny::uiOutput("custom_grps")
+                        )
+                ),
+                column(
+                  width = 3,
+                  align = "center",
+                  shiny::actionButton("save_custom_grps", "Save")
+                  
+                )
+                
+                )
+              ),
+              
+              fluidRow(style = "height: 15px;"),
+              
+              fluidRow(
+                column(
+                  width = 3,
+                  prettyCheckbox(
+                    inputId = "benchmark_dots",
+                    label = "Show comparison countries",
+                    value = FALSE,
+                    icon = icon("check"),
+                    status = "success"
+                  ),
+                  prettyCheckbox(
+                    inputId = "rank",
+                    label = "Show rank instead of value",
+                    value = FALSE,
+                    icon = icon("check"),
+                    status = "success"
+                  ),
+                  
+                  prettyCheckbox(
+                    inputId = "preset_order",
+                    label = "Rank indicators from best to worst",
+                    value = FALSE,
+                    icon = icon("check"),
+                    status = "success"
+                  )
+                ),
+                
+                column(
+                  width = 3,
+                  pickerInput(
+                    inputId = "threshold", 
+                    label = "Benchmarking Thresholds",
+                    choices = c("Default","Terciles")
+                  ),
+                ),
+                
+                tags$script(HTML(js)),
+  
+                
+                column(
+                  width = 3,
+                  uiOutput(
+                    "select_button"
+                  )
+                )
+              ),
+              
             fluidRow(
+              id = "download_row",
               column(
                 width = 2,
                    downloadButton(

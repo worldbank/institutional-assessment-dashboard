@@ -65,7 +65,7 @@ source(here("auxiliary", "fun_publications.R"))
 source(here("modules", "mod_publications.R"))
 
 # Guide/help
-source(here("auxiliary", "guide.R"))
+source(here("auxiliary", "guides.R"))
 
 # Data -------------------------------------------------------------
 
