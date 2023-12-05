@@ -1,3 +1,10 @@
+db_variables <- read_rds(
+  here(
+    "data",
+    "output",
+    "db_variables.rds"
+  )
+)
 # 1. Anti-corruption institutions ======================
 vars_anticorruption <-
   db_variables %>%
@@ -167,6 +174,37 @@ vars_family <-
   ) %>%
   pull(family_var) %>%
   unique
+
+# vars_benchmarked --------------------------------------------------------
+vars_static_ctf <- db_variables |>
+  filter(
+    benchmarked_ctf == "Yes"
+  ) |>
+  pull(variable)
+
+vars_dynamic_ctf <- db_variables |>
+  filter(
+    benchmark_dynamic_indicator == "Yes"
+  ) |>
+  pull(variable)
+
+vars_dynamic_partial_ctf <- db_variables |>
+  filter(
+    benchmark_dynamic_family_aggregate == "Partial"
+  ) |>
+  pull(variable)
+
+vars_static_family_ctf <- db_variables |>
+  filter(
+    benchmark_static_family_aggregate_download == "Yes"
+  ) |>
+  pull(variable)
+
+vars_dynamic_family_ctf <- db_variables |>
+  filter(
+    benchmark_dynamic_family_aggregate == "Yes"
+  ) |>
+  pull(variable)
 
 # extract family names
 family_names <-

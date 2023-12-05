@@ -48,7 +48,7 @@ ui <-
         menuItem("Data", tabName = "data", icon = icon("table")),
         menuItem("Methodology", tabName = "methodology", icon = icon("book")),
         menuItem("Publications", tabName = "pubs", icon = icon("list")),
-        menuItem("Terms of use", tabName = "terms", icon = icon("handshake")),
+        menuItem("Terms of use and Disclaimers", tabName = "terms", icon = icon("handshake")),
         menuItem("FAQ", tabName = "faq", icon = icon("question")),
         menuItem("Contact Us", 
                    icon = icon("comments", lib = "font-awesome"),
@@ -124,9 +124,10 @@ ui <-
             p("Welcome to the Country Level Institutional Assessment and Review (CLIAR) Benchmarking Dashboard!"), 
             p("The World Bank recognizes institutional strengthening as key ingredient for progress of its members countries along income categories. While there are numerous diagnostic and assessment tools for specific functional areas such as public financial management and tax administration, there is no analytical tool for country-level institutional assessment."), 
             p("The Country Level Institutional Assessment and Review (CLIAR) contributes to fill this gap via two distinct but complementary products: the (i) CLIAR Benchmarking and its Dashboard and the (ii) CLIAR Country Deep-Dive."),
-            p("The CLIAR Benchmarking Dashboard value added is to provide a standard quantitative methodology to summarize information from a large set of country-level institutional indicatorsIt does so by providing a user-friendly interface with multiple visualizations of a country’s institutional profile based on a set of international indicators, highlighting a given country’s institutional strengths and weaknesses relative to a set of country comparators. The findings can provide a structured, standardized, andup-to-date empirical guidance for further in-depth analysis in the specific areas of interest, given the nature of the World Bank engagement in a country and complementarity with other ongoing country-level diagnostics (e.g., SCDs, CEMs, and CPFs)."),
-            p("For full details about the methodology behind the CLIAR Benchmarking, see the Methodological paper. Users of this resource should cite this paper. Publications using the CLIAR data should include a citation of the CLIAR Dashboard as well as the original source(s) of the data used. Citation information for each component dataset is included in the methodology page."),
-            
+            p("The CLIAR Benchmarking Dashboard value added is to provide a standard quantitative methodology to summarize information from a large set of country-level institutional indicators. It does so by providing a user-friendly interface with multiple visualizations of a country’s institutional profile based on a set of curated international indicators, highlighting a given country’s institutional strengths and weaknesses relative to a set of country comparators. 
+              The findings can provide a structured, standardized, and up-to-date empirical guidance for further in-depth analysis in the specific areas of interest. This can inform and contribute the World Bank's engagement in a given country and complement other strategic and analytical country-level reports, such as Country Climate and Development Reports (CCDR), Country Economic Memorandums (CEM), Public Expenditure Reviews (PER), Country-Partnership Frameworks (CPF), among others."),
+            p("For full details about the methodology behind the CLIAR Benchmarking, please find the Methodological paper in the Methodology tab. Users of this resource should cite this paper. Publications using the CLIAR data should include a citation of the CLIAR Dashboard as well as the original source(s) of the data used. Citation information for each component dataset is also included in the Methodology page."),
+            p("Disclaimer: The findings, interpretations, and conclusions expressed in CLIAR are a product of staff of the World Bank, but do not necessarily reflect the views of the World Bank and its affiliated organizations, or those of the Executive Directors of the World Bank or the governments they represent."),
             h3("How to use this dashboard"),
             p("This dashboard aims to enable its users to interact with the country-level benchmarking through the following tabs:"),
             tags$ul(
@@ -170,8 +171,8 @@ ui <-
               ),
               tags$li(
                 "The ",
-                tags$b("Terms of use"),
-                "tab provides more information about the terms of use as well as citation information."
+                tags$b("Terms of use and Disclaimer"),
+                "tab provides more information about the terms of use,disclaimer, as well as citation information."
               ),
               tags$li(
                 "The ",
@@ -180,8 +181,8 @@ ui <-
               ),
               tags$li(
                 "The ",
-                tags$b("Feedback"),
-                "tab allows users to directly contact us to cliar@worldbank.org"
+                tags$b("Contact Us"),
+                "tab allows users to directly contact us to CLIAR@worldbank.org"
               ),
               tags$li(
                 "The ",
@@ -314,7 +315,8 @@ ui <-
                         label = "Number of groups",
                         value = 1,
                         min = 1,
-                        max = 3
+                        max = 5,
+                        step = 1
                       )
                     ),
                     shiny::column(
@@ -392,6 +394,7 @@ ui <-
                 
 
               ),
+            
               
               column(
                 width = 2,
@@ -430,6 +433,17 @@ ui <-
                 downloadButton("save_inputs", "Save inputs")
               )
 
+            ),
+            fluidRow(style = "height: 15px;"),
+            
+            fluidRow(
+              prettyCheckbox(
+                inputId = "download_Opt",
+                label = "Download Advanced Report (~10min)",
+                value = FALSE,
+                icon = icon("check"),
+                status = "success"
+              )
             )
 
           ),
@@ -799,7 +813,7 @@ ui <-
                 pickerInput(
                   "vars_trends",
                   label = "Select indicator to visualize",
-                  choices = variable_list,
+                  choices = filtered_variable_list,
                   selected = NULL,
                   options = list(
                     `live-search` = TRUE,
@@ -1022,7 +1036,7 @@ ui <-
               radioGroupButtons(
                 "data_value",
                 label = "Select information to show",
-                choices = c("Value", "Rank"),
+                choices = c("Value"),
                 selected = "Value",
                 direction = "vertical",
                 justified = TRUE,
@@ -1073,13 +1087,13 @@ ui <-
                 
                 tags$li("Social institutions"), 
                 
-                tags$li("Anticorruption institutions"), 
+                tags$li("Absence of Corruption"), 
                 
                 tags$li("Transparency and Accountability institutions"), 
                 
                 tags$li("Justice institutions"), 
                 
-                tags$li("Public Financial Management institutions"), 
+                tags$li("Public Finance Institutions"), 
                 
                 tags$li("Public Human Resource Management institutions"), 
                 
@@ -1098,7 +1112,7 @@ ui <-
               ) 
               
             ), 
-            p("There is no agreed theoretical framework that could guide the categorization process. The proposed families are based on an effort to capture key functions that different institutions perform. In so doing, the categorization process faces a trade-off between aggregation and narrowness, where the categories ought to be broad enough to capture enough indicators and policy spaces, but narrow enough to guide a deep qualitative analysis as well as a fruitful and engaged conversation with the country."),
+            p("There is no agreed theoretical framework that could guide the categorization process. The proposed families are based on an effort to capture key functions that different institutions perform. In so doing, the categorization process faces a trade-off between aggregation and narrowness, where the categories ought to be broad enough to capture enough indicators and policy spaces, but narrow enough to guide a deep qualitative analysis as well as a fruitful and engaged conversation with the country. In addition, the categorization also faces the limitations of data availability."),
             p('All country-level indicators can be downloaded in the “Data” tab.')
           ),
 
@@ -1111,7 +1125,7 @@ ui <-
             p('The dashboard uses the “Closeness to Frontier"(CTF) methodology, which is adapted from the original Doing Business’s',
               a("Distance to Frontier methodology",
                 href = "https://www.doingbusiness.org/content/dam/doingBusiness/media/Annual-Reports/English/DB17-Chapters/DB17-DTF-and-DBRankings.pdf"),
-              '. The CTF methodology allows to assess country’s performance across institutional indicators by comparing it with the “global frontier”, where the global frontier is the world’s best performer. For each indicator, a country’s performance is rescaled on a 0-1 scale using the linear transformation (worst–y)/(worst–frontier), where 1 represents the best performer and 0 the worst performer. The higher the score, the closer a country is to the best performer and the lower the score, the closer a country is to the worst performer, and more distant to the frontier. The best and worst performers are identified using available data from the global sample (i.e., considering all countries for which data is available) since 2013. Thus, a country may set the frontier for an indicator even though it is no longer at the frontier in the most recent year for which the indicator is available.'),
+              '. The CTF methodology allows to assess country’s performance across institutional indicators by comparing it with the “global frontier”, where the global frontier is the world’s best performer. For each indicator, a country’s performance is rescaled on a 0-1 scale using the linear transformation (worst–y)/(worst–frontier), where 1 represents the best performer and 0 the worst performer. The higher the score, the closer a country is to the best performer and the lower the score, the closer a country is to the worst performer, and more distant to the frontier. The best and worst performers are identified using available data from the global sample (i.e., considering all countries for which data is available), and using the relevant time period according to the benchmarking approach –i.e., whether it estimates the static (default) CTF benchmarking scores or dynamic CTF scores. In the static case, the average of the 2018-2022 period is used.'),
             p('For each institutional family, the CTF scores obtained for each indicator are aggregated through simple averaging into one CTF score at family level. This captures the overall performance for an institutional family relatively to the “global frontier”, while the performance across the indicators will help identify the most challenging areas for institutional strengthening.')
 
           ),
@@ -1127,7 +1141,7 @@ ui <-
               HTML('<b>relative to the set of country comparators</b>'),
               '. Relative institutional weaknesses and strengths are defined based on the percentile in which each country indicator belongs. This methodology requires teams to make an informed decision on the set of comparator countries used for the benchmarking, since institutional weaknesses and strengths are identified relatively to those comparator countries.'),
             p('The “Closeness to Frontier” (length of the bar) and the percentile analysis (color of the bar) capture two related but different performance dimensions. The CTF compares the country’s performance with the best and worst performers. The percentile analysis benchmarks the country’s performance with all the set of other comparator countries. For example, it could be that for one indicator or institutional cluster the CTF score is relatively high and close to 1 (indicating in fact ‘closeness to the frontier’) but, at the same time, this dimension is marked as an institutional weakness (red coloring) because the country’s performance is still worse than the majority of comparator countries.'),
-            p('The percentile analysis effectively drops those indicators whose distribution precludes this percentile classification (i.e., low variance).')
+            p('The percentile analysis requires indicators to be available for the base country, while it also effectively drops those indicators whose distribution precludes this percentile classification (i.e., low variance).')
           ),
 
           box(
@@ -1207,7 +1221,7 @@ tabItem(
             width = 11,
             status = "navy",
             collapsible = FALSE,
-            title = "Terms of use",
+            title = "Terms of use and Disclaimer",
             solidHeader = TRUE,
             tags$ul(
               tags$li(
@@ -1215,7 +1229,10 @@ tabItem(
                 HTML('"<em>Source: World Bank Country Level Institutional Assessment and Review.</em>"')
               ),
               tags$li(
-                "We request that all users that modify the methodology and the source code for their reports and analysis will clearly state so and highlight the relevant departures from the CLIAR methodology provided on this dashboard."
+                "We kindly request that if users modify the methodology and the source code for their reports and analyses clearly state so and highlight the relevant departures from the CLIAR Benchmarking methodology."
+              ),
+              tags$li(
+                "Disclaimer: The findings, interpretations, and conclusions expressed in CLIAR are a product of staff of the World Bank, but do not necessarily reflect the views of the World Bank and its affiliated organizations, or those of the Executive Directors of the World Bank or the governments they represent. Moreover, country borders or names used and available in this dashboard do not necessarily reflect the World Bank Group's official position, and do not imply the expression of any opinion on the part of the World Bank, concerning the legal status of any country or territory or concerning the delimitation of frontiers or boundaries."
               )
             )
           )
@@ -1232,8 +1249,9 @@ tabItem(
             collapsed = TRUE,
             title = "Does the CLIAR Benchmarking collect new data on governance and institutions?",
             p(
-              "NO.
-              The dashboard extracts data from original sources and collects international indicators that are publicly available and have been widely tested and used as reliable proxies to measure country-level governance and institutions."
+              "No.
+              The CLIAR Benchmarking collects indicators that are publicly available and have been validated by our internal review process as proxies to measure country-level governance and institutions, with their corresponding caveats and limitations.
+              In some exceptional cases, CLIAR does combine existing indicators to create new ones (e.g., aggregation of binary indicators); these are detailed in the CLIAR Methodological Note."
             )
           ),
 
@@ -1245,9 +1263,9 @@ tabItem(
             title = "Can I add my own indicators to the dashboard and run the analysis including these indicators? ",
             p(
               "You cannot add indicators to the dashboard.
-              However, you can download the full database and augment it with additional indicators to customize the analysis.
-              You can also get in touch with the CLAIR team (CLIAR@worldbank.org) indicating which data you would like to be added in the database, and for which cluster.
-              Each request will be reviewed by a team of technical experts and if the indicator meets the selection criteria indicated in the methodological note (quality and coverage) it will be added."
+              However, you can download the full database and augment it with additional indicators to customize your analysis.
+              You can also get in touch with the CLIAR team (CLIAR@worldbank.org) indicating which data you would like to be added in the database, and for which cluster.
+              Each request will be reviewed by a team of technical experts and if the indicator meets the selection criteria indicated in the methodological note (quality and coverage) it will be added during the next update round."
             )
           ),
 
@@ -1258,8 +1276,7 @@ tabItem(
             title = "Is the “Closeness to Frontier” methodology the same one used in the “Doing Business Report”?",
             p(
               "The “Closeness to Frontier” is used in order to standardize indicators and make it possible to compare and aggregate them.
-              The resulting scores range between 0 and 1 and we labeled them “Closeness to Frontier” because higher values mean closer to the frontier, which is set at 1.
-              It is similar to the transformation that was used in the “Doing Business Reports”."
+              The resulting scores range between 0 and 1 and we labeled them “Closeness to Frontier” because higher values mean closer to the frontier, which is set at 1."
             )
           ),
 
@@ -1273,14 +1290,12 @@ tabItem(
               a given country of interest vis a vis a chosen set of comparator countries.
               Using the distribution of the CTF scores in the set of comparator countries,
               we identify the score range for the bottom 25% of comparators,
-              the score range for the 25%-50% group and the score range for the top 50% of comparators (or alternatively, using 33% and 66% as thresholds)..
+              the score range for the 25%-50% group and the score range for the top 50% of comparators (or alternatively, using 33% and 66% as thresholds).
               Given the CTF score of the country of interest,
               we identify whether the country of interest for the analysis belong to the bottom,
-              middle or top group.
-              These percentile groups are used because they are simple, intuitive and standards."
+              middle or top group. These percentile groups are used because they are simple and intuitive."
             )
           ),
-
           box(
             width = 11,
             status = "navy",
@@ -1290,7 +1305,7 @@ tabItem(
               "Using the distribution of the CTF scores in the set of comparator countries,
               we identify the score range for the bottom 25% of comparators,
               the score range for the 25%-50% group and the score range for the top 50% of comparators.
-              The red bar represents the score range for the bottom 25% of comparators.(The same explanation applies if 33% and 66% thresholds are used.)
+              The red bar represents the score range for the bottom 25% of comparators. (The same explanation applies if 33% and 66% thresholds are used.)
               While the CTF scores always range between 0 and 1,
               the length of the red bar varies across indicators depending on the distribution of the CTF scores in the comparator group.
               As an illustration, for a given set of comparator countries,
@@ -1298,7 +1313,44 @@ tabItem(
               while for another indicator it may range between 0 and 0.5."
             )
           ),
-
+          box(
+            width = 11,
+            status = "navy",
+            collapsed = TRUE,
+            title = "What is the difference between the static and dynamic benchmarking?",
+            p(
+              "The static benchmarking presents a cross-country snapshot based on averaging available indicators over the period 2018-2022; CTF calculations and distributional analysis are implemented over that cross-section. The dynamic benchmarking
+              , computes CTF scores at the individual level on an annual basis, from 2013 to 2022, and distributional analysis is implemented on an annual basis, when data is available. Given data limitations, the dynamic benchmarking is more limited in the number of indicators and families analyzed --and some families are not included precisely because they do not offer data that could be aggregated and compared over time."
+            )
+          ),
+          
+          box(
+            width = 11,
+            status = "navy",
+            collapsed = TRUE,
+            title = "Why are certain indicators or institutional families not appearing in my benchmarking results?",
+            p(
+              "TO COMPLETE"
+          )),
+          box(
+            width = 11,
+            status = "navy",
+            collapsed = TRUE,
+            title = "Can I change in the dashboard the time period over which the benchmarking is applied?",
+            p(
+              "The Dashboard does not offer that functionality, but such customized analyzed could be performed by downloading the data from the dashboard."
+            )
+          ), box(
+            width = 11,
+            status = "navy",
+            collapsed = TRUE,
+            title = "Why are certain indicators and clusters not included in the dynamic benchmarking?",
+            p(
+              "TO COMPLETE."
+            )
+          ),
+          
+          
           box(
             width = 11,
             status = "navy",
@@ -1321,7 +1373,7 @@ tabItem(
               the average CTF scores are calculated from the same indicators."
             )
           ),
-
+          
           box(
             width = 11,
             status = "navy",
@@ -1331,14 +1383,12 @@ tabItem(
               "The percentile analysis identifies whether the performance of the
               country of interest in a given indicator or institutional cluster
               belongs to the bottom 25%, the 25%-50% group or the top 50% of
-              the comparator countries.(or, alternatively, the groups based on 33% and 66% thresholds).
+              the comparator countries (or, alternatively, the groups based on 33% and 66% thresholds).
               This percentile analysis can be meaningfully performed only if
-              there is sufficient number of comparator countries.
-              Given the definition of the traffic coloring,
-              it is recommended to use a group of comparator countries which is aspirational."
+              there is sufficient number of comparator countries."
             )
           ),
-
+          
           box(
             width = 11,
             status = "navy",
@@ -1346,11 +1396,11 @@ tabItem(
             title = "How do you choose the comparator countries/groups?",
             p(
               "It depends on the purpose of the analysis and the country context.
-              For example, if this analysis is used in the SCDs, it is recommendable to use the regional,
-              aspirational and structural peers identified for the SCD."
+              For example, many reports have used regional,
+              aspirational, and structural peers as identified by World Bank Country Teams."
             )
           ),
-
+          
           box(
             width = 11,
             status = "navy",
@@ -1358,28 +1408,38 @@ tabItem(
             title = "Can I download the raw data for my own research/analytical purposes?",
             p(
               'Yes, the full compiled database is available in the "Data" tab for download.
-              Both the "Closeness to Frontier" scores and the full database with yearly indicators are available for download,
-              and therefore users can easily verify the latest year available for each indicator.'
+              Both the "Closeness to Frontier" scores and the full database with yearly indicators are available for download.'
             )
           ),
-
+          
           box(
             width = 11,
             status = "navy",
             collapsed = TRUE,
-            title = "How often is the CLIAR Benchmarking updated? How do I know that the G-BID uses the latest available data?",
+            title = "Why are certain family-level averages missing when I download the data even if there is non-missing data on the indicators of that family?",
             p(
-              'It is currently planned that the CLIAR Benchmarking Database will be updated once per year.
-              The G-BID is programmed so that the data extraction from the data sources (primarily gov360)
+              "A balanced sample of individual CTF scores is aggregated by family to create family-level CTF scores. For each institutional family, a “balanced” subset of countries with full coverage (i.e., non-missing data) across all indicators within each family is created. This ensures that each family-level aggregate score relies on the same set of indicators for every country, allowing for robust and methodically sound inferences. The CTF family-level score is computed via simple averaging of the indicators within each family. This family-level score captures the overall performance for a given institutional category relative to the “global frontier.” The drawback of this robust methodological aggregation decision is that the data requirement is higher. Several families in both the static and dynamic versions do not meet the data requirements for meaninful aggregation (i.e., the balanced sample is too small or empty), and thus CTF family scores are not computed. "
+            )
+          ),
+          
+          
+          box(
+            width = 11,
+            status = "navy",
+            collapsed = TRUE,
+            title = "How often is the CLIAR data updated? How do I know that the CLIAR data uses the latest available data?",
+            p(
+              'It is currently planned that the CLIAR Database will be updated once per year.
+              The CLIAR Benchmarking Dashboard is programmed so that the data extraction from the data sources (primarily EFI360)
               is automated through APIs,
               therefore with minimal maintenance costs for the indicators already
               included in the dashboard and with stable APIs. The full compiled database,
               once updated, is available in the "Data" tab for download.
-              Both the "Closeness to Frontier"" scores and the full database with
-              yearly indicators are available for download'
+              Both the CLIAR Benchmarking "Closeness to Frontier" scores and the full CLIAR master database with
+              yearly indicators are available for download and therefore users can easily verify the latest year available for each indicator.'
             )
           ),
-
+          
           box(
             width = 11,
             status = "navy",
@@ -1387,36 +1447,15 @@ tabItem(
             title = "How were the indicators included in the CLIAR Benchmarking selected?",
             p(
               'The indicators included in the CLIAR Benchmarking were selected following a criteria of 
-
               (geographical and time) coverage and quality. 
-
               This list was defined based on initial internal reviews, 
-
               and will be further refined based on inputs recently received by 
-
               sector experts and from the experiences of country teams in applying this tool. 
-
-               
-
-              The list of indicators used will be periodically 
-
-              reviewed in order to include new governance and institutions indicators 
-
-              that may be become available in the future. 
-
+              The list of indicators used will be periodically reviewed in order to include new indicators that may be become available in the future. 
               As such, the CLIAR database is a "live tool".' 
             )
-          ),
-
-          box(
-            width = 11,
-            status = "navy",
-            collapsed = TRUE,
-            title = "Is the CLIAR Benchmarking available to external users (i.e non-bank staff) ?",
-            p(
-              "As of now, the CLIAR Benchmarking is not available for external users. The team is working on making it publicly available"
-            )
           )
+
 
         ) # Close FAQ tab
       )

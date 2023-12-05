@@ -41,18 +41,32 @@ static_plot <-
     }
 
     if(preset_order == TRUE){
-      
       ## temporary
-      data$var_name <-
-        factor(
-          data$var_name,
-          levels = sort(unique(data$var_name),
-            decreasing = TRUE),
-          ordered = TRUE
-        )
-      data$var_name = data$var_name
-    }else{
+      
+      data <- data %>%
+        group_by(country_name) %>%
+        mutate(rank_id = rank(-dtf,ties.method = "max"))
+      
+        base_country_df<-data%>%
+          filter(country_name==base_country[1])
+    
+        base_country_df<-base_country_df%>%
+            arrange(rank_id)
+          
+        unique_indicators = base_country_df %>% 
+            distinct(var_name,rank_id) %>% 
+            arrange(desc(rank_id)) %>% 
+            pull(var_name)
+      
+        data$var_name <-
+          factor(
+            data$var_name,
+            levels = unique_indicators,
+            ordered = TRUE
+          )
 
+    }else{
+      
       data <- data %>% 
         left_join(., db_variables %>% select(variable, rank_id),
           by = "variable")
@@ -337,28 +351,48 @@ static_plot <-
           #lab = NULL
         )
     }
+    if (length(base_country)==1){
+      plot <-
+        plot +
+        suppressWarnings(geom_point(
+          data = data %>% filter(country_name %in% base_country),
+          aes(
+            y = var_name,
+            x = var,
+            fill = status ,
+            text = text
+          ),
+          shape = 21,
+          size = 3,
+          color = "gray0",
+          show.legend = TRUE
+        ))
+    }else {
+      plot <-
+        plot +
+        suppressWarnings(geom_point(
+          data = data %>% filter(country_name %in% base_country),
+          aes(
+            y = var_name,
+            x = var,
+            shape = country_name,
+            fill = status ,
+            text = text
+          ),
+          size = 3,
+          color = "gray0",
+          show.legend = TRUE
+        ))+ 
+        scale_shape_manual(values = 21:25)      
+        # scale_fill_manual(values= c("Weak\n(bottom 25%)" = "#D2222D",
+        #                            "Emerging\n(25% - 50%)" = "#FFBF00",
+        #                            "Strong\n(top 50%)" = "#238823"))+
+        # guides(fill=guide_legend(override.aes=list(shape=21)))
+
+    }
     
     
-    plot <-
-      plot +
-      suppressWarnings(geom_point(
-        data = data %>% filter(country_name %in% base_country),
-        aes(
-          y = var_name,
-          x = var,
-          shape = country_name,
-          fill = status ,
-          text = text
-        ),
-        size = 3,
-        color = "gray0",
-        show.legend = TRUE
-      ))+ 
-      scale_shape_manual(values = 21:25)
-      #scale_fill_manual(values= c("Weak\n(bottom 25%)" = "#D2222D",
-      #                            "Emerging\n(25% - 50%)" = "#FFBF00",
-      #                            "Strong\n(top 50%)" = "#238823"))+
-      # guides(fill=guide_legend(override.aes=list(shape=21)))
+
     
     
     
@@ -494,8 +528,8 @@ static_plot_dyn <-
     }
     
     ## calculate the delta and the new facet labels that will contain it.
-
       
+        
       data <- data %>% 
         group_by(family_name, var_name) %>% 
         mutate(n_countries_min = length(country_name[year == min(as.numeric(year), na.rm = TRUE)]),
@@ -511,7 +545,7 @@ static_plot_dyn <-
         ) %>% 
         ungroup() %>% 
         rowwise() %>% 
-        mutate(delta = round((latest_value_ctf - earliest_value_ctf)/earliest_value_ctf, 3)) %>% 
+        mutate(delta = round((latest_value_ctf - earliest_value_ctf), 3)) %>% 
         mutate(new_labels = 
           ifelse(earliest_value_rank != latest_value_rank, 
             paste0(var_name, 
@@ -807,7 +841,7 @@ static_plot_dyn <-
     
     ### create the plot
     plot <- plot +
-      facet_wrap(~var_name, ncol = n_col, 
+      facet_wrap(~var_name, ncol = 2, 
         labeller = labeller(var_name = plot_titles),
         shrink = FALSE, scales = sc) +
       theme(strip.text = element_text(face = "bold", size = 10))
@@ -844,7 +878,7 @@ plot_notes_function <-
     }else{
       custom_grp_notes <- ""
     }
-    
+
     
     if (length(miss_var) > 0) {
       
@@ -888,8 +922,8 @@ plot_notes_function <-
     if (tab_name == "Overview") {
       notes <-
         paste(
-          notes, note_chars,
-          "<br><br>Family-level closeness to frontier is calculated by taking the average closeness to frontier for all the latest available indicators in each family."
+          notes,
+          "<br><br>Family-level closeness to frontier is calculated by taking the average closeness to frontier for the estimated indicators within each family."
         )
     }
     

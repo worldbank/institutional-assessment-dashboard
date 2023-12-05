@@ -1,5 +1,5 @@
 def_quantiles <- function(data, base_country, country_list, comparison_countries, vars, variable_names,threshold) {
-  
+
 # List all relevant countries
   comparison_list <-
     country_list %>%
@@ -80,7 +80,7 @@ if (threshold=="Default"){
         dtt > cutoff[1]/100 & dtt <= cutoff[2]/100 ~ paste0("Emerging\n(",cutoff[1],"% - ",cutoff[2],"%)"),
         dtt > cutoff[2]/100 ~ paste0("Strong\n(top ",cutoff[2],"%)")
       ),
-      nrank = rank(-value)
+      nrank = min_rank(-value)
     ) %>%
     ungroup %>%
     rename(dtf = value)
@@ -91,6 +91,9 @@ if (threshold=="Default"){
     filter(country_name == base_country & q25==q50) %>%
     select(variable) %>%
     unlist
+  
+  low_variance_indicators <- low_variance_indicators[!grepl("_avg", low_variance_indicators)]
+  
 
   quantiles <-
     quantiles %>%
@@ -100,7 +103,6 @@ if (threshold=="Default"){
 
 
 def_quantiles_dyn <- function(data, base_country, country_list, comparison_countries, vars, variable_names,threshold) {
-  
   # List all relevant countries
   comparison_list <-
     country_list %>%
@@ -115,6 +117,9 @@ def_quantiles_dyn <- function(data, base_country, country_list, comparison_count
   
   missing_vars <- sapply(na_indicators_df, function(x) sum(is.na(x)) / length(x))
   na_indicators <- names(missing_vars[missing_vars == 1])
+  
+  na_indicators <- na_indicators[!grepl("_avg", na_indicators)]
+  
   
   # List final relevant variables: those selected, minus those missing
   if(length(na_indicators) != 0){
@@ -181,7 +186,7 @@ def_quantiles_dyn <- function(data, base_country, country_list, comparison_count
         dtt > cutoff[1]/100 & dtt <= cutoff[2]/100 ~ paste0("Emerging\n(",cutoff[1],"% - ",cutoff[2],"%)"),
         dtt > cutoff[2]/100 ~ paste0("Strong\n(top ",cutoff[2],"%)")
       ),
-      nrank = rank(-value)
+      nrank = min_rank(-value)
     ) %>%
     ungroup %>%
     rename(dtf = value) %>% 

@@ -111,7 +111,7 @@ simple_world_map <-
 ctf <-
   ctf %>%
   pivot_longer(
-    cols = all_of(c(vars_ctf,avg_columns)),
+    cols = all_of(c(vars_static_ctf, avg_columns)),
     values_to = "ctf"
   ) %>%
   mutate(

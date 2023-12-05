@@ -17,7 +17,7 @@ source(
   here("funs.R")
 )
 
-ref_year <- 2023 - 5
+ref_year <- 2023
 ```
 
 ## 1. Import data
@@ -26,16 +26,8 @@ The data was imported from (a) the EFI360 shared data and (b) manual imports.
 This section first reads in each of the individual manual-input files.and the column id names are cleaned with the clean_names() function.After this is done, a list of of standardized WB country names and codes is read in and mutated to be better compatible with the CLIAR data
 
 ```{r read_in}
-db_variables <- read_rds(
-  here(
-    "data",
-    "output",
-    "db_variables.rds"
-  )
-)
-
 efi <- read_dta(
-  here("data", "input", "efi", "EFI360_CLIAR_1990-2022_0828.dta")
+  here("data", "input", "efi", "EFI360_CLIAR_1990-2022.dta")
 )
 
 romelli <- read_dta(
@@ -43,10 +35,18 @@ romelli <- read_dta(
 ) |>
   clean_names()
 
+debt_transparency <- read_dta(
+  here("data", "input", "debt_transparency", "debt_transparency_2021-2022.dta")
+)
+
 fraser <- read_csv(
   here("data", "input", "fraser", "fraser.csv")
 ) |>
   clean_names()
+
+gfdb <- read_dta(
+  here("data", "input", "gfdb", "GFDB_19902021.dta")
+)
 
 oecd_epl_regular <- read_csv(
   here("data", "input", "oecd", "epl_regular.csv")
@@ -74,7 +74,7 @@ rise <- read_dta(
 )
 
 wdi <- read_dta(
-  here("data", "input", "wdi", "WDI_19902022.dta")
+  here("data", "input", "wdi", "WDI_19902022_CLIAR.dta")
 )
 
 vdem <- read_dta(
@@ -111,7 +111,16 @@ wb_country_list <- read_xlsx(
     country_name = CountryName,
     group = GroupName,
     group_code = GroupCode
+  ) |> 
+  # exclude non-WB member countries
+  filter(
+    country_code != "CUB" & 
+      country_code != "PRK"
   )
+
+wbl <- read_dta(
+  here("data", "input", "wbl", "WBL_19902022_CLIAR.dta")
+)
 
 # note that North America is not included in this list
 wb_regions <- c(
@@ -167,12 +176,28 @@ efi_clean <- efi |>
   mutate(
     wb_gtmi_pfm_mis = scale_values(wb_gtmi_pfm_mis)
   ) |> 
+  # edit WJP indicators to: (1) use 2018 data for 2017 in WJP and drop data if year < 2015
+  arrange(
+    iso3, year
+  ) |> 
+  mutate(
+    across(
+      starts_with("wjp_rol"),
+      ~ case_when(
+        year == 2017 ~ lead(.), # use 2018 data for 2017
+        year < 2015 ~ NA, # drop data if year < 2015
+        T ~ .
+      )
+    )
+  ) |> 
   select(
-    -index,
-    -country_name,
     country_code = iso3,
     year,
     everything()
+  ) |> 
+  select(
+    -index,
+    -country_name
   )
 
 # 2. fraser - market regulations
@@ -307,11 +332,13 @@ rise_clean <- rise |>
 
 # 8. wdi data
 wdi_clean <- wdi |> 
-  clean_names()
+  clean_names() |> 
+  select(-countryname)
 
 # 9. vdem
 vdem_clean <- vdem |> 
-  clean_names()
+  clean_names() |> 
+  select(-country_name)
 
 # 10. heritage
 heritage_clean <- heritage |> 
@@ -343,7 +370,7 @@ open_budget_clean <- open_budget |>
   select(
     country_code = ISO,
     year,
-    ibp_obis_obi = obi
+    ibp_obs_obi = obi
   ) |> 
   # fix cambodia ISO3
   mutate(
@@ -352,6 +379,33 @@ open_budget_clean <- open_budget |>
       "KHM",
       country_code
     )
+  )
+
+# 13. Debt Transparency
+debt_transparency_clean <- debt_transparency |> 
+  clean_names() |> 
+  rename_with(
+    # replace prefixses with efi conventions
+    ~ paste0("wb_", .),
+    .cols = starts_with("debt")
+  )
+
+# 14. GFDB Bank Concentration
+gfdb_clean <- gfdb |> 
+  clean_names() |> 
+  rename_with(
+    # replace prefixses with efi conventions
+    ~ paste0("wb_", .),
+    .cols = starts_with("gfdb")
+  )
+
+# 15. Women, Business and the Law
+wbl_clean <- wbl |> 
+  clean_names() |> 
+  rename_with(
+    # replace prefixses with efi conventions
+    ~ paste0("wb_", .),
+    .cols = starts_with("wbl")
   )
 ```
 
@@ -367,7 +421,9 @@ excluded_country_code <- c(
   "AIA", # anguilla
   "OECD", # OECD
   "SML", # somaliland
-  "ZZB", # zanzibar,
+  "ZZB", # zanzibar
+  "CUB", # cuba
+  "PRK", # democratic people's republic of Korea
   "KMH" # unclear, listed in Open Budget Survey
 )
 
@@ -383,7 +439,10 @@ cliar_indicators <- list(
   vdem_clean,
   heritage_clean,
   oecd_pmr_clean,
-  open_budget_clean
+  open_budget_clean,
+  debt_transparency_clean,
+  gfdb_clean,
+  wbl_clean
 ) |> 
   map(
     # fix country codes for full join
@@ -425,6 +484,7 @@ cliar_indicators <- cliar_indicators %>%
 ```
 
 ## 4. Data Quality Control: Indicator Selection
+
 Verify that the indicators are selected correctly. To do this, take the non-
 removed indicators from the metadata file as the indicators from combined
 dataset created in step 5 and ensure they have the same contents by using an
@@ -432,37 +492,13 @@ anti-join in both directions. Re-select indicators to ensure that only the
 indicators in metadata and v2 id cols are in data
 ```{r indicator_selection}
 # verify that the indicators are selected correctly
-db_variables_indicators <- db_variables|> 
+db_variables_indicators <- db_variables |> 
   select(
     variable
   )
 
-cliar_indicators_id <- cliar_indicators |> 
-  colnames() %>% 
-  tibble(
-    variable = .
-  )
-
-test_that(
-  "All indicators contained in metadata are in the CLIAR dataset",{
-    skip("Skipping until we finalize metadata file")
-    expect_equal(
-      nrow(
-        db_variables_indicators |> 
-          anti_join(cliar_indicators_id, by = "variable") |> 
-          as.data.frame()
-        ),
-      0
-    )
-  }
-)
-  
-cliar_indicators_id |> 
-  anti_join(db_variables_indicators, by = "variable") |> 
-  as.data.frame()
-  
 # only retain indicators contained in metadata + id cols
-cliar_indicators_clean <- cliar_indicators |> 
+cliar_indicators <- cliar_indicators |> 
   # add country names
   left_join(
     wb_country_list |> 
@@ -473,7 +509,70 @@ cliar_indicators_clean <- cliar_indicators |>
     country_code,
     country_name,
     year,
-    any_of(db_variables_indicators |> pull(variable))
+    all_of(db_variables_indicators |> pull(variable))
+  )
+
+cliar_indicators_id <- cliar_indicators |> 
+  colnames() %>% 
+  tibble(
+    variable = .
+  )
+
+test_that(
+  "All indicators contained in metadata are in the CLIAR dataset",{
+    expect_equal(
+      nrow(
+        db_variables_indicators |> 
+          anti_join(cliar_indicators_id, by = "variable") |> 
+          as.data.frame()
+        ),
+      0
+    )
+  }
+)
+```
+# 5. Compute family averages
+This section computes family averages, dynamically adapting to the selection of indicators.
+```{r}
+# compute family averages
+cliar_indicators_long <-
+  cliar_indicators %>%
+  pivot_longer(
+    any_of(vars_all),
+    names_to = "variable"
+  ) %>%
+  select(-contains("gdp")) %>%
+  left_join(
+    db_variables %>%
+      select(variable, var_name, family_name, family_var),
+    by = "variable"
+  )
+
+# only calculate family averages for relevant institutional clusters
+cliar_family_level_long <- cliar_indicators_long |>
+  filter(
+    family_var %in% vars_family
+  ) |>
+  group_by(
+    country_code, year, family_var
+  ) |>
+  summarise(
+    value = mean(value, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+cliar_family_level <- cliar_family_level_long |>
+  pivot_wider(
+    id_cols = c(country_code, year),
+    names_from = family_var,
+    names_glue = "{family_var}_avg",
+    values_from = value
+  )
+
+cliar_indicators_clean <- cliar_indicators |>
+  left_join(
+    cliar_family_level,
+    by = c("country_code", "year")
   )
 ```
 
@@ -489,12 +588,12 @@ test_that(
   "Verify that all the country codes from the official data are included",
   expect_equal(
     # number of rows is zero
-    cliar_indicators |> 
-      distinct(country_code) |> 
+    cliar_indicators_clean |> 
+      distinct(country_code, country_name) |> 
         anti_join(
           wb_country_list |> 
             distinct(country_code, country_name),
-          by = c("country_code")
+          by = c("country_code", "country_name")
         ) |> nrow(),
       0
   )
@@ -504,8 +603,8 @@ test_that(
 test_that(
   "Verify that CLIAR has distinct country years",{
     expect_equal(
-      nrow(cliar_indicators),
-      cliar_indicators |> 
+      nrow(cliar_indicators_clean),
+      cliar_indicators_clean |> 
         distinct(country_code, year) |> 
         nrow()
     )
@@ -517,7 +616,7 @@ test_that(
   "Verify that country codes have coverage for all years",{
     expect_equal(
       # calculate number of years covered by country
-      cliar_indicators |> 
+      cliar_indicators_clean |> 
         count(country_code) |> 
         pull(n) |> 
         unique(),
@@ -526,17 +625,13 @@ test_that(
   }
 )
 ```
-
 # 6. Compute coverage diagnostics
-Use the computer_coverage function from funs.R to create the coverage
-diagnostics. This function takes each indicator and determines how many
-countries and years it is present for. With that information, percentage
-coverage, year range, percent of complete records, as well as standard
+Use the compute_coverage function from funs.R to create the coverage countries and years it is present for. With that information, percentage coverage, year range, percent of complete records, as well as standard
 distribution information such as mean and standard deviation are calculated.
 ```{r coverage_diagnostics}
 cliar_indicators_diagnostic <- cliar_indicators_clean |>
   select(-country_name) |> 
-  compute_coverage(country_code, year, ref_year) |> 
+  compute_coverage(country_code, year, ref_year - 5) |> 
   left_join(
     db_variables |> select(variable, var_name, source, family_name),
     by = c("Indicator" = "variable")
@@ -567,7 +662,7 @@ write_rds(
 )
 
 cliar_indicators_diagnostic |> 
-    write_csv(
+    write_rds(
       here(
         "data",
         "output",
