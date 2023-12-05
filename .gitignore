@@ -66,3 +66,9 @@ passwords/
 data/raw/CLASS.xlsx
 **/output/
 
+# RENV files
+!code/renv.lock
+!code/.Rprofile
+!code/renv/settings.json
+!code/renv/activate.R
+
