@@ -94,7 +94,6 @@ open_budget <- list.files(
       col_select = c(ISO, year, obi)
     )
 
-
 # read in world bank standard country codes and mutate them to be compatible
 # with the other files
 wb_country_list <- read_xlsx(
@@ -112,6 +111,28 @@ wb_country_list <- read_xlsx(
     group = GroupName,
     group_code = GroupCode
   ) |> 
+  # exclude non-WB member countries
+  filter(
+    country_code != "CUB" & 
+      country_code != "PRK"
+  )
+
+# country income group and region
+country_income_and_region <- read_xlsx(
+      here(
+        "data",
+        "input", 
+        "wb",
+        "CLASS.xlsx"
+      ),
+      sheet = "List of economies",
+      n_max = 219
+    ) %>%
+    transmute(
+      country_code = Code,
+      region = Region,
+      income_group = `Income group`
+    ) |>
   # exclude non-WB member countries
   filter(
     country_code != "CUB" & 
@@ -648,11 +669,26 @@ cliar_indicators_diagnostic <- cliar_indicators_clean |>
   )
 ```
 
+## 8.Incorporate country income and region
+
+We incorporate the country income group and region. Please note that there is no available data on income group for Venezuela (`country_code` == "VEN"). We retroactively classify income groups using 2023 data.
+
+```{r country_income_and_region}
+cliar_indicators_complete <- cliar_indicators_clean |> 
+  left_join(
+    country_income_and_region,
+    by = c("country_code")
+  ) |> 
+  select(
+    country_code, country_name, income_group, region, year, everything()
+  )
+```
+
 ## 8. Save data
 
 ```{r}
 write_rds(
-  cliar_indicators_clean,
+  cliar_indicators_complete,
   here(
     "data",
     "output",

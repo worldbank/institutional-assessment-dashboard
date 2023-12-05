@@ -136,6 +136,9 @@ ctf <-
 ```{r}
 raw <-
   raw_indicators %>%
+  select(
+    -c(income_group, region)
+  ) %>%
   pivot_longer(
     cols = 4:ncol(.)
   ) %>%

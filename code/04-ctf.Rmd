@@ -60,6 +60,28 @@ vars_ctf <- db_variables |>
     benchmarked_ctf == "Yes"
   ) |>
   pull(variable)
+
+# country income group and region
+country_income_and_region <- read_xlsx(
+      here(
+        "data",
+        "input", 
+        "wb",
+        "CLASS.xlsx"
+      ),
+      sheet = "List of economies",
+      n_max = 219
+    ) %>%
+    transmute(
+      country_code = Code,
+      region = Region,
+      income_group = `Income group`
+    ) |>
+  # exclude non-WB member countries
+  filter(
+    country_code != "CUB" & 
+      country_code != "PRK"
+  )
 ```
 
 ## 2. Rescale indicators so a higher number denotes stronger institutions
@@ -666,6 +688,31 @@ db_variables <- db_variables %>%
   bind_rows(family_level_vars) %>%
   arrange(family_var, rank_id)
 ```
+
+## 13. Add income group and region
+
+In this section, we add income groups and region. Note that the CTF includes groups as observations, meaning that not all rows are expected to have an income group or region.
+
+```{r}
+ctf_complete <- ctf_clean |> 
+  left_join(
+    country_income_and_region,
+    by = c("country_code")
+  ) |> 
+  select(
+    country_code, country_name, income_group, region, everything()
+  )
+
+ctf_dynamic_clean <- ctf_dynamic_clean |> 
+  left_join(
+    country_income_and_region,
+    by = c("country_code")
+  ) |> 
+  select(
+    country_code, country_name, income_group, region, year, everything()
+  )
+```
+
 
 ## 13. Write-out data
 
