@@ -23,7 +23,7 @@ ref_year <- 2023
 ## 1. Import data
 
 The data was imported from (a) the EFI360 shared data and (b) manual imports.
-This section first reads in each of the individual manual-input files.and the column id names are cleaned with the clean_names() function.After this is done, a list of of standardized WB country names and codes is read in and mutated to be better compatible with the CLIAR data
+This section first reads in each of the individual manual-input files and the column id names are cleaned with the clean_names() function. After this is done, a list of of standardized WB country names and codes is read in and mutated to be better compatible with the CLIAR data
 
 ```{r read_in}
 efi <- read_dta(
@@ -140,10 +140,9 @@ country_region_list <- wb_country_list |>
 ```
 
 ## 2. Process data
-In this section, we take the EFI files, plus the manual import data,
-and clean them. In order to ensure clean column names and accurate variables, 
-certain datasets are edited to create new variables or to change other factors. 
-More detail given in each subsection
+
+In this section, we take the EFI files, plus the manual import data, and clean them. In order to ensure clean column names and accurate variables, certain datasets are edited to create new variables or to change other factors. More detail given in each subsection.
+
 ```{r clean_data}
 # 1. efi
 #       For the EFI, first the name of enterprise survey variables is changed to 
@@ -410,12 +409,10 @@ wbl_clean <- wbl |>
 ```
 
 ## 3. Consolidate data
-This section joins all of the datasets together to make the full data. The
-join is done by country code and year. This section excludes certain codes and
-alters others so that all of them fit the same standard. Once the country
-codes are standard, the excluded codes are filtered out and the datasets are
-joined. Lastly, any year before 1990 is excluded from the final set and the
-columns are ordered by country name
+
+This section joins all of the datasets together to make the full data. The join is done by country code and year. This section excludes certain codes and alters others so that all of them fit the same standard. Once the country codes are standard, the excluded codes are filtered out and the datasets are joined. Lastly, any year before 1990 is excluded from the final set and the
+columns are ordered by country name.
+
 ```{r consolidate_data}
 excluded_country_code <- c(
   "AIA", # anguilla
@@ -485,11 +482,8 @@ cliar_indicators <- cliar_indicators %>%
 
 ## 4. Data Quality Control: Indicator Selection
 
-Verify that the indicators are selected correctly. To do this, take the non-
-removed indicators from the metadata file as the indicators from combined
-dataset created in step 5 and ensure they have the same contents by using an
-anti-join in both directions. Re-select indicators to ensure that only the
-indicators in metadata and v2 id cols are in data
+Verify that the indicators are selected correctly. To do this, take the non-removed indicators from the metadata file as the indicators from combined dataset created in step 5 and ensure they have the same contents by using an anti-join in both directions. Re-select indicators to ensure that only the indicators in metadata and v2 id cols are in data.
+
 ```{r indicator_selection}
 # verify that the indicators are selected correctly
 db_variables_indicators <- db_variables |> 
@@ -531,8 +525,11 @@ test_that(
   }
 )
 ```
-# 5. Compute family averages
+
+## 5. Compute family averages
+
 This section computes family averages, dynamically adapting to the selection of indicators.
+
 ```{r}
 # compute family averages
 cliar_indicators_long <-
@@ -576,10 +573,10 @@ cliar_indicators_clean <- cliar_indicators |>
   )
 ```
 
-## 5. Data Quality Control: verify country_code and country_name consistency
-This section ensures that the country_code code and the country name are
-consistent. Check this by performing an anti-join in both directions on the
-official WB list of country codes and names and the cliar indicators dataset
+## 6. Data Quality Control: verify country_code and country_name consistency
+
+This section ensures that the country_code code and the country name are consistent. Check this by performing an anti-join in both directions on the official WB list of country codes and names and the cliar indicators dataset.
+
 ```{r country_validation}
 # there are 218 country codes listed in the WB's official website
 # https://datahelpdesk.worldbank.org/knowledgebase/articles/906519-world-bank-country-and-lending-groups
@@ -625,9 +622,11 @@ test_that(
   }
 )
 ```
-# 6. Compute coverage diagnostics
-Use the compute_coverage function from funs.R to create the coverage countries and years it is present for. With that information, percentage coverage, year range, percent of complete records, as well as standard
-distribution information such as mean and standard deviation are calculated.
+
+## 7. Compute coverage diagnostics
+
+Use the compute_coverage function from funs.R to create the coverage countries and years it is present for. With that information, percentage coverage, year range, percent of complete records, as well as standard distribution information such as mean and standard deviation are calculated.
+
 ```{r coverage_diagnostics}
 cliar_indicators_diagnostic <- cliar_indicators_clean |>
   select(-country_name) |> 
@@ -649,7 +648,7 @@ cliar_indicators_diagnostic <- cliar_indicators_clean |>
   )
 ```
 
-## 7. Save data
+## 8. Save data
 
 ```{r}
 write_rds(

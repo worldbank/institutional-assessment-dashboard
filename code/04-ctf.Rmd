@@ -80,7 +80,8 @@ Enterprise Survey: Percent Of Firms Identifying X As A Major Constraint
     
 Freedom house: Countries are graded between 1 (most free) and 7 (least free)
     Subtract each indicator from 8 so that a value of 1 for the most free is now 7,
-    indicating stronger institutions
+    indicating stronger institutions.
+    
 ```{r}
 #create new table to hold rescaled values
 cliar_indicators_rescaled <- cliar_indicators |> 
@@ -148,6 +149,7 @@ Find this data both on a global time-scale, and for each individual year.
 Inspect the entire dataset of rescaled indicator values - so including the indicator
 values for every country year after 2013 - and identify the lowes tand highest 
 values in each category. 
+
 ```{r}
 # static
 min_max <-
@@ -252,6 +254,7 @@ ctf_dynamic <-
       select(country_code, year)
   )
 ```
+
 ## 6. Calculate median per group
 
 Group countries by regional, economic, or income groups and take indicator median
@@ -319,7 +322,7 @@ ctf_dynamic <- add_column(ctf_dynamic, country_group = 0, .after = "country_code
 group_ctf_dynamic <- add_column(group_ctf_dynamic, country_group = 1, .after = "country_code")
 ```
 
-## Clean CTF data and incorporate logged GDP per capita
+## 7. Clean CTF data and incorporate logged GDP per capita
 
 ```{r}
 # static
@@ -379,7 +382,8 @@ ctf_dynamic <-
 ## 8. Convert to long-form
 
 This changes the CTF dataset from wide form to long for and adds some additional 
-data such as indicator family
+data such as indicator family.
+
 ```{r}
 # static
 ctf_long <-
@@ -443,7 +447,7 @@ ctf_dynamic_long_clean <-
   bind_rows(ctf_dynamic_long)
 ```
 
-9. Calculate family level data
+## 9. Calculate family level data
 
 Similarly to creating group-level data, this section calculates
 median CTF for each indicator family 
@@ -484,8 +488,9 @@ ctf_dynamic_clean <- ctf_dynamic |>
   )
 ```
 
-## Diagnostics on family averages
-Take the famiy averages for dynamic data.
+## 10. Diagnostics on family averages
+
+Take the family averages for dynamic data.
 ```{r}
 # select family averages to diagnose
 vars_family_static_ctf <- ctf_static_family |> 
@@ -597,7 +602,7 @@ vars_family_dynamic_ctf |>
 ```
 
 
-## Data Quality Control
+## 11. Data Quality Control
 
 Test that all expected indicators and countries are covered
 ```{r}
@@ -631,7 +636,7 @@ test_that(
 )
 ```
 
-## Update db_variables to contain the family averages
+## 12. Update db_variables to contain the family averages
 
 ```{r}
 db_variables <- db_variables %>% 
@@ -662,7 +667,7 @@ db_variables <- db_variables %>%
   arrange(family_var, rank_id)
 ```
 
-## Write-out data
+## 13. Write-out data
 
 ```{r}
 write_rds(
@@ -691,7 +696,7 @@ write_rds(
     "closeness_to_frontier_dynamic.rds"
   )
 )
-S
+
 write_rds(
   ctf_dynamic_long_clean,
   here(
