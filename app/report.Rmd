@@ -356,17 +356,13 @@ families <-
 
 # Appendix A - Additional methodological details.
 
-The CLIAR Benchmarking is based on XX indicators spanning the period between 1990 and 2022. These indicators are largely drawn from the EFI360 database, complemented by a small set of additional data sources that capture dimensions considered important for the analysis but that have not yet been included in the EFI360 platform. Indicators are selected based on two types of complementary and parallel reviews: (a) qualitative review, ensuring that the indicators selected are publicly available, conceptually relevant to each institutional family and of high quality (e.g., reputable institution, data collection and methodology) and (b) quantitative review, based on an assessment of indicator coverage for both country and year, with a particular focus on coverage for the last 5 years (i.e., 2018-2022). In particular, for the quantitative review we provide the following guiding criteria for inclusion (but exceptions are made on a case-by-case basis): 
+The CLIAR Benchmarking is based on 137 indicators spanning the period between 1990 and 2022. These indicators are largely drawn from the EFI360 database, complemented by a small set of additional data sources that capture dimensions considered important for the analysis but that have not yet been included in the EFI360 platform. Indicators are selected based on two types of complementary and parallel reviews: (a) qualitative review, ensuring that the indicators selected are publicly available, conceptually relevant to each institutional family and of high quality (e.g., reputable institution, data collection and methodology) and (b) quantitative review, based on an assessment of indicator coverage for both country and year, with a particular focus on coverage for the last 5 years (i.e., 2018-2022). In particular, for the quantitative review we provide the following guiding criteria for inclusion (but exceptions are made on a case-by-case basis): 
 * **Continuity**: The indicator must be updated at least once in the past five years. 
 * **Country Coverage**: The indicator must cover 100 countries at least once over the past 5 years.
 * **Year Coverage**: We include only variables that have at least 2 years of data (not per country but overall). Additionally, for each year to count, coverage must be of at least 10 countries.  
 
 The CLIAR Benchmarking analysis employs the “closeness to frontier” (CTF) methodology to standardize and compare a wide range of institutional indicators. The CTF methodology facilitates the assessment of a country’s performance across institutional indicators by comparing it with the “global frontier,” which corresponds to the world's best performer. For each indicator, a country's performance, y, is rescaled on a 0–1 scale using a linear transformation (worst–y)/(worst–frontier), where 1 represents the best performer and 0 the worst performer. The higher the score, the closer a country is to the best performer and the lower the score, the closer a country is to the worst performer, and more distant to the frontier. The best and worst performers are identified using available data from the global sample (i.e., considering all countries for which data are available) across the last five years data coverage (i.e., 2018-2022). Next, for each institutional category, the CTF scores obtained for each indicator are aggregated through simple averaging into one aggregated CTF score. This captures the overall performance for a category relative to the “global frontier.” Performance across indicators helps to identify priority areas for institutional strengthening.
-Relative institutional weaknesses and strengths are then defined based on the percentile in which the specific indicator belongs, relative to the set of comparator countries (which are chosen by the country-team for each analysis). Quantile distribution through traffic light coloring is then used to capture the areas where the largest institutional gaps exist, relative to the set of relevant country comparators. The current methodology classifies “weak institution”, “emerging institution”, and “advanced institution”, as those in the following percentiles: 0-25th, 25-50th, above 50th. (There is also the option of using terciles: 0-33rd, 33-66th, above 66th.) 
-
-```{r, fig.cap="Traffic light coloring, as used in the institutional benchmarking exercise", out.width = "100%"}
-knitr::include_graphics("www/colors.png")
-```
+Relative institutional weaknesses and strengths are then defined based on the percentile in which the specific indicator belongs, relative to the set of comparator countries (which are chosen by the country-team for each analysis). Quantile distribution through traffic light coloring is then used to capture the areas where the largest institutional gaps exist, relative to the set of relevant country comparators. The current methodology classifies “weak institution”, “emerging institution”, and “advanced institution”, as those in the following percentiles: 0-25th, 25-50th, above 50th (or terciles: 0-33rd, 33-66th, above 66th). 
 
 The CTF and the quantile analysis capture two related but different aspects of a country’s institutional performance. The CTF compares the country’s performance with the best and worst performers. The quantile analysis benchmarks the country’s performance with the set of comparator countries. For example, it could be that for one indicator or institutional cluster the CTF score is relatively high and close to 1 (indicating in fact “closeness to the frontier”) but, at the same time, this dimension is marked as an institutional weakness (i.e., red color) because the country’s performance is still worse than most comparator countries. The benchmark analysis shows both dimensions to assess the country’s performance with respect to both the global frontier and the performance of all other comparator countries.
 
@@ -439,11 +435,11 @@ print(table)
 
 ```
 
-#### Missing Stats  Summary
+#### Missing Indicators
 ```{r,  results = "asis"}
 
 missing_stats <- params$global_data%>%
-  filter(country_name %in% c(params$base_country,params$comparison_countries))
+  filter(country_name %in% c(params$base_country))
 
 missing_stats$Missing_Indicators <- apply(missing_stats, 1, function(row) {
   paste(Hmisc::label(missing_stats)[which(is.na(row))],collapse = ', ')
