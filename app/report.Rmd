@@ -97,7 +97,7 @@ knitr::include_graphics("www/cliar.png")
 
 # Introduction
 
-This institutional assessment for **`r params$base_country`** is based on the CLIAR Benchmarking: an innovative approach that uses data from a multitude of global indicators and compares the country with relevant peers.
+**This institutional assessment for `r params$base_country` is based on the CLIAR Dashboard**: an innovative approach that uses data from a multitude of global indicators and compares the country with relevant peers.
 
 ## What is CLIAR ? 
 **The Country Level Institutional Assessment and Review (CLIAR) is a methodological framework to make the Bank’s institutional diagnostic work and policy dialogue at the country level more integrated and data-driven.** The aim of CLIAR’s institutional analysis is to support the World Bank’s policy dialogue with counterparts and help identify entry-points and priorities for institutional reform. CLIAR is composed of two different but complementary products: (i) the CLIAR Dashboard and (ii) the CLIAR Country Deep-Dive. This report is focused on the former.
@@ -106,31 +106,27 @@ This institutional assessment for **`r params$base_country`** is based on the CL
 
 **The CLIAR Benchmarking is a quick and accessible methodology that quantitatively assesses the strengths and weaknesses of a country’s institutional dimensions against a set of comparator countries.** A set of curated institutional indicators are aggregated institutional clusters so to empirically map the institutional capital across substantive issue areas. There are 13 institutional families, or clusters: (1) political institutions; (2) social institutions; (3) absence of corruption, (4) transparency and accountability institutions; (5) justice institutions, (6) public finance institutions, (7) public sector human resources management, (8) digital government and data institutions; (9) business environment institutions; (10) labor and social protection institutions; (11) SOE corporate governance institutions; (12) service delivery institutions; and (13) climate change institutions. 
 
-```{r, fig.cap="CLIAR Institutional families"}
+```{r, fig.cap="CLIAR Institutional clusters"}
 knitr::include_graphics("www/families.png")
 ```
 
 **The CLIAR Benchmarking generates systematic evidence needed to map out a country’s institutional profile, and it does so in a standardized, transparent, and replicable way.** This provides a robust data-driven base to guide the selection of a subset of issues related to the identified gaps that can be subject to in-depth investigation, as an inherent limitation of the benchmarking exercise is that it is not intended as an exhaustive and comprehensive analysis of the specific institutional constraints of each country and may not authoritatively identify all key institutional shortcomings, but rather as a basis for customizing it to the best extent possible to the country context and better engage into a “Country Deep-Dive”.
 
 ## Scoring and Aggregation Method
-**The CLIAR Benchmarking analysis employs the “closeness to frontier” (CTF) methodology to standardize and compare a wide range of institutional indicators.** Each of the indicators is scored using the CTF where 1 is the best score is zero and is the worse. The individual indicator CTF scores are then averaged across the relevant institutional family to create the institutional level CTF score. Each country has up to 137 indicator level CTF scores (depending on data availability) and 13 institutional cluster-level CTF scores. 
+**The CLIAR benchmarking exercise employs the “closeness to frontier” (CTF) methodology to standardize, compare institutional indicators, and create an absolute measure of performance.** The CTF methodology facilitates the assessment of a country’s performance by comparing it with the “global frontier,” corresponding to the world's best performer. For each indicator, a country's performance (y) is rescaled on a 0 to 1 scale using a linear transformation ((Worst-y))/((Worst-Frontier)), where the final CTF score ranges between 0 (representing the worst performer) and 1 (representing the best performer).  The Worst and Frontier values are calculated using available data from the global sample and uses the relevant time period according to the benchmarking approach – i.e., static (default) or dynamic CTF benchmarking scores.
 
-**Relative institutional weaknesses and strengths are then defined based on the percentile in which the specific indicator belongs, relative to the set of comparator countries (which are chosen by the country-team for each analysis).** Quantile distribution through traffic light coloring is then used to capture the areas where the largest institutional gaps exist, relative to the set of relevant country comparators. The current methodology classifies “weak institution”, “emerging institution”, and “advanced institution”, as those in the following percentiles: 0-25th, 25-50th, above 50th. (Or terciles: 0-33rd, 33-66th, above 66th.) 
+**Relative institutional weaknesses and strengths are then defined based on the percentile in which the specific indicator belongs, relative to the set of selected comparator countries.** Quantile distribution through traffic light coloring is then used to capture the areas where the largest institutional gaps exist, relative to the set of relevant country comparators. The current methodology classifies “weak institution”, “emerging institution”, and “advanced institution”, as those in the following percentiles: 0-25th, 25-50th, above 50th. (Or terciles: 0-33rd, 33-66th, above 66th.) 
 
 **The CTF and the quantile analysis capture two related but different aspects of a country’s institutional performance.** The CTF compares the country’s performance with the best and worst performers. The quantile analysis benchmarks the country’s performance with the set of comparator countries. For example, it could be that for one indicator or institutional cluster the CTF score is relatively high and close to 1 (indicating in fact “closeness to the frontier”) but, at the same time, this dimension is marked as an institutional weakness (i.e., red color) because the country’s performance is still worse than most comparator countries. The benchmark analysis shows both dimensions to assess the country’s performance with respect to both the global frontier and the performance of all other comparator countries.
 
-## Static vs. Dynamic Analysis 
-**We implement two types of distinct yet complementary benchmarking analyses, namely a static and a dynamic version.**
 
-# Country Overview
-
-## CLIAR Benchmarking
-**The World Bank Country-Level Institutional Assessment and Review (CLIAR) framework was used in order to assess the quality of institutional arrangements in** `r params$base_country` **vis-à-vis a set of comparator countries namely** `r params$comparison_countries`. 
+# CLIAR Benchmarking
+**The World Bank Country-Level Institutional Assessment and Review (CLIAR) framework was used in order to assess the quality of institutional arrangements in `r params$base_country`.** The set of comparator countries is composed of: `r params$comparison_countries`. We implement two types of distinct yet complementary CLIAR benchmarking analyses, namely a static and a dynamic version. 
 
 
 # Static Benchmarking
 
-The static analysis of `r params$base_country` institutions was performed on a basis of `r length(unique(na.omit(params$data$var_name)))` available indicators that are grouped in `r length(unique(na.omit(params$data$family_name)))` institutional clusters (families). 
+The static analysis of `r params$base_country` institutions was performed on a basis of `r length(unique(na.omit(params$data$var_name)))` available indicators that are grouped in `r length(unique(na.omit(params$data$family_name)))` institutional clusters. 
 
 ```{r}
 temp<-params$family_data%>%
@@ -143,7 +139,7 @@ counts_category<-params$family_data%>%
   summarize(count = n(),VarNames = sapply(list(var_name), function(x) paste(x, collapse = ", ")))
 ```
 
-`r sum(temp$flag)` institutional families out of `r length(unique(na.omit(params$data$family_name)))` exhibit a proximity to the frontier greater than 0.5, which means that `r sum(temp$flag)` institutional clusters are closer to the world’s best performers. In relative terms, as shown in Figure below, scores for `r counts_category$count[counts_category$status=="Weak\n(bottom 25%)"]`  institutional clusters namely `r counts_category$VarNames[counts_category$status=="Weak\n(bottom 25%)"]` indicate weak performance, `r counts_category$count[counts_category$status=="Emerging\n(25% - 50%)"]`  of the clusters namely `r counts_category$VarNames[counts_category$status=="Emerging\n(25% - 50%)"]` are classified as ‘emerging’ and `r counts_category$count[counts_category$status=="Strong\n(top 50%)"]` clusters namely `r counts_category$VarNames[counts_category$status=="Strong\n(top 50%)"]` demonstrate an advanced performance. 
+`r sum(temp$flag)` institutional families out of `r length(unique(na.omit(params$data$family_name)))` exhibit a proximity to the frontier greater than 0.5, which means that `r sum(temp$flag)` institutional clusters are closer to the world’s best performers. In relative terms, as shown in Figure below, scores for `r counts_category$count[counts_category$status=="Weak\n(bottom 25%)"]`  institutional clusters (`r counts_category$VarNames[counts_category$status=="Weak\n(bottom 25%)"]`) indicate weak performance, `r counts_category$count[counts_category$status=="Emerging\n(25% - 50%)"]`  of the clusters (`r counts_category$VarNames[counts_category$status=="Emerging\n(25% - 50%)"]`) are classified as ‘emerging’ and `r counts_category$count[counts_category$status=="Strong\n(top 50%)"]` clusters (`r counts_category$VarNames[counts_category$status=="Strong\n(top 50%)"]`) demonstrate a strong performance. 
 
 ## Country overview
 
@@ -210,7 +206,7 @@ families <-
 
       cat(
        "\n",
-      "In the static benchmarking case, this institutional cluster is analyzed with",
+      "This institutional cluster is analyzed with",
       length(filtered_list),
       "available indicators:",
       sapply(list(filtered_list), function(x) paste(x, collapse = ", ")),
@@ -227,9 +223,9 @@ families <-
     
 
     cat("\n\n",
-      " The figure below graphically displays the results were: ",
+      " The figure below graphically displays the results where: ",
       ifelse(length(counts_category$count[counts_category$status == "Weak\n(bottom 25%)"])==0, 0, counts_category$count[counts_category$status == "Weak\n(bottom 25%)"]),
-      "indicators demonstrate a weak performance",
+      "indicators demonstrate a weak performance, ",
       ifelse(length(counts_category$count[counts_category$status == "Emerging\n(25% - 50%)"])==0, 0, counts_category$count[counts_category$status == "Emerging\n(25% - 50%)"]),
       " indicators exhibit emerging performance, and",
       ifelse(length(counts_category$count[counts_category$status == "Strong\n(top 50%)"])==0, 0, counts_category$count[counts_category$status == "Strong\n(top 50%)"]),
@@ -262,7 +258,7 @@ families <-
 
 # Dynamic Benchmarking
 
-The dynamic analysis of  institutions was performed on a basis of `r params$base_country` available indicators that are grouped in `r length(unique(params$data_dyn$var_name))` institutional clusters (families).
+The dynamic analysis of institutions is performed on a basis of `r params$base_country` available indicators that are grouped in `r length(unique(params$data_dyn$var_name))` institutional clusters.
 
 
 ```{r,fig.height= 8,results = "asis"}
@@ -357,9 +353,9 @@ families <-
 # Appendix A - Additional methodological details.
 
 The CLIAR Benchmarking is based on 137 indicators spanning the period between 1990 and 2022. These indicators are largely drawn from the EFI360 database, complemented by a small set of additional data sources that capture dimensions considered important for the analysis but that have not yet been included in the EFI360 platform. Indicators are selected based on two types of complementary and parallel reviews: (a) qualitative review, ensuring that the indicators selected are publicly available, conceptually relevant to each institutional family and of high quality (e.g., reputable institution, data collection and methodology) and (b) quantitative review, based on an assessment of indicator coverage for both country and year, with a particular focus on coverage for the last 5 years (i.e., 2018-2022). In particular, for the quantitative review we provide the following guiding criteria for inclusion (but exceptions are made on a case-by-case basis): 
-* **Continuity**: The indicator must be updated at least once in the past five years. 
-* **Country Coverage**: The indicator must cover 100 countries at least once over the past 5 years.
-* **Year Coverage**: We include only variables that have at least 2 years of data (not per country but overall). Additionally, for each year to count, coverage must be of at least 10 countries.  
+- **Continuity**: The indicator must be updated at least once in the past five years. 
+- **Country Coverage**: The indicator must cover 100 countries at least once over the past 5 years.
+- **Year Coverage**: We include only variables that have at least 2 years of data (not per country but overall). Additionally, for each year to count, coverage must be of at least 10 countries.  
 
 The CLIAR Benchmarking analysis employs the “closeness to frontier” (CTF) methodology to standardize and compare a wide range of institutional indicators. The CTF methodology facilitates the assessment of a country’s performance across institutional indicators by comparing it with the “global frontier,” which corresponds to the world's best performer. For each indicator, a country's performance, y, is rescaled on a 0–1 scale using a linear transformation (worst–y)/(worst–frontier), where 1 represents the best performer and 0 the worst performer. The higher the score, the closer a country is to the best performer and the lower the score, the closer a country is to the worst performer, and more distant to the frontier. The best and worst performers are identified using available data from the global sample (i.e., considering all countries for which data are available) across the last five years data coverage (i.e., 2018-2022). Next, for each institutional category, the CTF scores obtained for each indicator are aggregated through simple averaging into one aggregated CTF score. This captures the overall performance for a category relative to the “global frontier.” Performance across indicators helps to identify priority areas for institutional strengthening.
 Relative institutional weaknesses and strengths are then defined based on the percentile in which the specific indicator belongs, relative to the set of comparator countries (which are chosen by the country-team for each analysis). Quantile distribution through traffic light coloring is then used to capture the areas where the largest institutional gaps exist, relative to the set of relevant country comparators. The current methodology classifies “weak institution”, “emerging institution”, and “advanced institution”, as those in the following percentiles: 0-25th, 25-50th, above 50th (or terciles: 0-33rd, 33-66th, above 66th). 
