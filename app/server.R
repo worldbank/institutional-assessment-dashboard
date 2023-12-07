@@ -2463,14 +2463,14 @@ server <- function(input, output, session) {
         filter(country_name==base_country())
 
       data2<-data() %>%
-        filter(variable %in% vars())%>%
         filter(country_name==base_country())
       
       data3<-data_family_dyn()%>%
         filter(country_name==base_country())
       
       data4<-data_dyn_avg()%>%
-        filter(country_name==base_country())
+        filter(country_name==base_country())%>%
+        filter(variable!='wdi_nygdppcapppkd')
 
     list_of_dataframes <- list(data1 = data1,data2 = data2,data3 = data3,data4 = data4)
       
