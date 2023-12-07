@@ -549,7 +549,7 @@ ui <-
                   width = 12,
                   plotlyOutput(
                     "dynamic_benchmark_plot",
-                    height =  paste0(plot_height * 3.5, "px")
+                    height =  paste0(plot_height * 5, "px")
                   ) %>% shinycssloaders::withSpinner(color = "#051f3f", type = 8)
                 )
                 

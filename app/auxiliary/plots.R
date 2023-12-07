@@ -862,7 +862,7 @@ static_plot_dyn <-
       facet_wrap(~var_name, ncol = 2, 
         labeller = labeller(var_name = plot_titles),
         shrink = FALSE, scales = sc) +
-      theme(strip.text = element_text(face = "bold", size = 10))
+      theme(strip.text = element_text(face = "bold", size = 10),panel.spacing = unit(5, "lines"))
     
     
    ## fix facets
@@ -958,13 +958,22 @@ plot_notes_function <-
 
 interactive_plot <-
   function(x, tab_name, buttons,  plot_type) {
+    
+    if(tab_name=="Climate Change and Environment Institutions" & plot_type=='dynamic'){
+      plt_height = 3000
+    }else if(plot_type=='dynamic') {
+      plt_height = 1000
+    }else{
+      plt_height = 750
+    }
+    
     x <- x +
       theme(
         legend.position = "top"
       )
     
     int_plot <- x %>%
-      ggplotly(tooltip = "text") %>%
+      ggplotly(tooltip = "text",height = plt_height ) %>%
       layout(
         margin = list(l = 50, r = 50, t = 150, b = 150)#,
 
