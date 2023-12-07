@@ -53,9 +53,11 @@ static_plot <-
         custom_levels <- c("Weak\n(bottom 25%)", "Emerging\n(25% - 50%)", "Strong\n(top 50%)")
         
         base_country_df$status <- factor(base_country_df$status, levels = custom_levels, ordered = TRUE)
-        
+        if(rank==FALSE){
         base_country_df <- base_country_df[order(base_country_df$status,base_country_df$dtf), ]
-        
+        }else{
+          base_country_df <- base_country_df[order(base_country_df$status,base_country_df$dtt), ]
+        }
         unique_indicators = base_country_df %>% 
             distinct(var_name) %>% 
             pull(var_name)
