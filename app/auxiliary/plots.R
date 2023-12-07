@@ -862,7 +862,7 @@ static_plot_dyn <-
       facet_wrap(~var_name, ncol = 2, 
         labeller = labeller(var_name = plot_titles),
         shrink = FALSE, scales = sc) +
-      theme(strip.text = element_text(face = "bold", size = 10),panel.spacing = unit(5, "lines"))
+      theme(strip.text = element_text(face = "bold", size = 10),panel.spacing.y = unit(5, "lines"))
     
     
    ## fix facets
