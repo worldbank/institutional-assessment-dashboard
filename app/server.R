@@ -8,6 +8,8 @@ server <- function(input, output, session) {
   shinyjs::disable("preset_order")
   shinyjs::hide("benchmark_median")
   
+  observe_helpers()
+  
   # initialise then start the guide
   start_tour <- FALSE
   start_tour_bench <- FALSE

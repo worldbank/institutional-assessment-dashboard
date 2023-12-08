@@ -106,6 +106,10 @@ ui <-
           background-color: #3326da;
           color: white;
        }
+    
+       .shinyhelper-container {
+            color: #e94152;
+        }
 
         "
       )),
@@ -231,7 +235,7 @@ ui <-
                 width = 2,
                 buttons_func(
                   id = "start_guide_bench",
-                  lab = "Start tour"
+                  lab = "Start guide tour"
                 )
               )
 
@@ -254,6 +258,17 @@ ui <-
                       `actions-box` = TRUE,
                       `live-search` = TRUE 
                     )
+                  ) |> 
+                  helper(
+                    type = "inline",
+                    title = "Base Country",
+                    content = c(
+                      "Some <b>base country</b> help.",
+                      "More information... it is possible to add with markdown."
+                    ),
+                    buttonLabel = "Close",
+                    fade = T,
+                    size = "s"
                   )
               ),
 
@@ -270,6 +285,17 @@ ui <-
                       `actions-box` = TRUE,
                       `live-search` = TRUE
                     )
+                  ) |> 
+                  helper(
+                    type = "inline",
+                    title = "Comparison Groups",
+                    content = c(
+                      "Some <b>comparison groups</b> help.",
+                      "More information... it is possible to add with markdown."
+                    ),
+                    buttonLabel = "Close",
+                    fade = T,
+                    size = "s"
                   )
               ),
 
@@ -280,6 +306,17 @@ ui <-
                     label = "Select institutional family",
                     choices = c("Overview", names(variable_list)),
                     selected = NULL
+                  ) |> 
+                  helper(
+                    type = "inline",
+                    title = "Institutional Family",
+                    content = c(
+                      "Some <b>institutional family</b> help.",
+                      "More information... it is possible to add with markdown."
+                    ),
+                    buttonLabel = "Close",
+                    fade = T,
+                    size = "s"
                   )
               ),
 
