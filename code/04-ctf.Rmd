@@ -163,6 +163,24 @@ country_average <-
     ),
     wdi_nygdppcapppkd = wdi_nygdppcapppkd[year == max(year)]
   )
+
+country_last_year <-
+  #filter only data from years we are using
+  cliar_indicators_rescaled %>%
+  filter(year >= 2018) |> 
+  arrange(country_code, year) |> 
+  #this groups countries together so average can be taken 
+  group_by(
+    country_code
+  ) |> 
+  select(
+    all_of(c(vars_static_ctf))
+  ) |> 
+  # fill missing observations for each indicator with the latest available data
+  fill() |> 
+  # slice last available data for each country_code
+  slice_tail() |> 
+  ungroup()
 ```
 
 ## 4. Identify worst and best performance for each indicator
@@ -248,6 +266,35 @@ ctf <-
       select(country_code)
   )
 
+# reproduce CTF scores using latest available data for each country-indicator
+ctf_static_last_year <- country_last_year %>%
+  pivot_longer(
+    all_of(vars_static_ctf),
+    names_to = "variable"
+  ) %>%
+  left_join(
+    min_max,
+    by = "variable"
+  ) %>%
+  mutate(
+    ctf = (min - value) / (min - max),
+    ctf = ifelse(
+      ctf == 0,
+      0.01,
+      ctf
+    )
+  ) %>%
+  pivot_wider(
+    id_cols = c("country_code"),
+    names_from = "variable",
+    values_from = "ctf"
+  ) %>%
+  select(-starts_with("gdp")) %>%
+  left_join(
+    country_average %>%
+      select(country_code)
+  )
+  
 ctf_dynamic <-
   cliar_indicators_rescaled %>%
   pivot_longer(
@@ -308,7 +355,6 @@ group_ctf <-
     country_name = group,
     country_code = group_code
   )
-
 
 #add group_ctf value to ctf dataset
 ctf <- tibble::add_column(ctf, country_group = 0, .after = "country_code")
@@ -403,7 +449,7 @@ ctf_dynamic <-
 
 ## 8. Convert to long-form
 
-This changes the CTF dataset from wide form to long for and adds some additional 
+This changes the CTF dataset from wide form to long form and adds some additional 
 data such as indicator family.
 
 ```{r}
@@ -471,8 +517,7 @@ ctf_dynamic_long_clean <-
 
 ## 9. Calculate family level data
 
-Similarly to creating group-level data, this section calculates
-median CTF for each indicator family 
+Similarly to creating group-level data, this section calculates median CTF for each indicator family 
 
 ### Static
 
@@ -513,6 +558,7 @@ ctf_dynamic_clean <- ctf_dynamic |>
 ## 10. Diagnostics on family averages
 
 Take the family averages for dynamic data.
+
 ```{r}
 # select family averages to diagnose
 vars_family_static_ctf <- ctf_static_family |> 
@@ -623,7 +669,6 @@ vars_family_dynamic_ctf |>
   )
 ```
 
-
 ## 11. Data Quality Control
 
 Test that all expected indicators and countries are covered
@@ -713,8 +758,41 @@ ctf_dynamic_clean <- ctf_dynamic_clean |>
   )
 ```
 
+## 14.Robustness checks: 5-year average vs. Last available data
 
-## 13. Write-out data
+This section produces a set of robustness checks on the computation of the static CTF, comparing the 5-year average scores with the scores computed using the latest available data. We conduct two tests: (a) a scatterplot, where the unit of analysis is a country-indicator combination and (b) a correlation matrix of all indicators. 
+
+```{r}
+ctf_static_last_year_long <- ctf_static_last_year |> 
+  pivot_longer(
+    cols = c(
+      all_of(vars_static_ctf)
+    ),
+    names_to = "variable",
+    values_to = "ctf_last_year"
+  )
+
+ctf_static_long <- ctf_clean |> 
+  filter(country_group == 0) |> 
+  select(country_code, all_of(vars_static_ctf)) |> 
+  pivot_longer(
+    cols = c(
+      all_of(vars_static_ctf)
+    ),
+    names_to = "variable",
+    values_to = "ctf_year_average"
+  )
+
+# merge datasets using country code and variable to compute correlation
+ctf_robustness <- ctf_static_last_year_long |> 
+  inner_join(
+    ctf_static_long,
+    by = c("country_code", "variable")
+  )
+
+```
+
+## 15. Write-out data
 
 ```{r}
 write_rds(
