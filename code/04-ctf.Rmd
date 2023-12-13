@@ -760,7 +760,11 @@ ctf_dynamic_clean <- ctf_dynamic_clean |>
 
 ## 14.Robustness checks: 5-year average vs. Last available data
 
-This section produces a set of robustness checks on the computation of the static CTF, comparing the 5-year average scores with the scores computed using the latest available data. We conduct two tests: (a) a scatterplot, where the unit of analysis is a country-indicator combination and (b) a correlation matrix of all indicators. 
+This section produces a set of robustness checks on the computation of the static CTF, comparing the 5-year average scores with the scores computed using the latest available data. We conduct two tests: (a) a scatterplot, where the unit of analysis is a country-indicator combination and (b) a histogram of the correlation for each indicator. 
+
+For (a), we plot the values of CTF-scores for the 5-year average against the last-year available, using as the join keys the country code and variable. We find that the CTF scores produced using these different approaches are along the 45 degree line, indicating that they are strongly correlated and consistent with one another.
+
+For (b), we summarize the CTF scores presented in (a) at the indicator level, computing the correlation between the CTF scores using 5-year averages and last-year values for each indicator. For example, for the indicator "Separation of powers", we calculate the correlation of its two types of CTF scores (5-year vs. last-year) across countries. This gives us a final correlation score at the indicator level, e.g., `0.982`. The same procedure is repeated for each indicator. Finally, we produce a histogram of all correlation scores at the indicator level. We find that the majority of scores (96.4%) have a correlation above 0.95. 
 
 ```{r}
 ctf_static_last_year_long <- ctf_static_last_year |> 
@@ -790,6 +794,54 @@ ctf_robustness <- ctf_static_last_year_long |>
     by = c("country_code", "variable")
   )
 
+# (a) scatterplot of last year vs. year-average ctf scores
+ctf_robustness |> 
+  ggplot() +
+  geom_point(
+    aes(ctf_year_average, ctf_last_year),
+    color = "steelblue3",
+    alpha = 0.7
+  ) +
+  labs(
+    x = "CTF score: 5-year average",
+    y = "CTF score: latest available data",
+    caption = "The unit of analysis is at the country-indicator level. Please note that indicators for which either value were missing are not plotted."
+  ) +
+  ggtitle(
+    "Correlation between CTF scores computed using (a) 5-Year Average and (b) Last-Year values for indicators"
+  ) +
+  theme_minimal()
+
+# (b) distribution of correlations by indicator
+ctf_robustness |> 
+  group_by(variable) |> 
+  summarise(
+    correlation = cor(ctf_last_year, ctf_year_average, use = "pairwise.complete", method = "pearson")
+  ) |> 
+  ggplot() +
+  geom_histogram(
+    aes(correlation, y = stat(width*density), binwidth = 0.01)
+  ) +
+  geom_vline(
+    xintercept = 0.95,
+    linetype = "dashed",
+    color = "red3"
+  ) +
+  scale_y_continuous(
+    labels = percent_format()
+  ) +
+  coord_cartesian(
+    xlim = c(0.9, 1)
+  ) +
+  labs(
+    x = "Correlation between CTF scores",
+    y = "Percentage of Indicators",
+    caption = "Dashed red line indicators a correlation above 0.95. 5 out of 137 (3.6%) indicators have a correlation below 0.95. No indicators have a correlation between 0.9."
+  ) +
+  ggtitle(
+    "Distribution of indicator-level correlations of CTF scores"
+  ) +
+  theme_minimal()
 ```
 
 ## 15. Write-out data
