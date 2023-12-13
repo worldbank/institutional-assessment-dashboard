@@ -49,13 +49,17 @@ static_plot <-
       
         base_country_df<-data%>%
           filter(country_name==base_country[1])
-    
-        base_country_df<-base_country_df%>%
-            arrange(rank_id)
-          
+        
+        custom_levels <- c("Weak\n(bottom 25%)", "Emerging\n(25% - 50%)", "Strong\n(top 50%)")
+        
+        base_country_df$status <- factor(base_country_df$status, levels = custom_levels, ordered = TRUE)
+        if(rank==FALSE){
+        base_country_df <- base_country_df[order(base_country_df$status,base_country_df$dtf), ]
+        }else{
+          base_country_df <- base_country_df[order(base_country_df$status,base_country_df$dtt), ]
+        }
         unique_indicators = base_country_df %>% 
-            distinct(var_name,rank_id) %>% 
-            arrange(desc(rank_id)) %>% 
+            distinct(var_name) %>% 
             pull(var_name)
       
         data$var_name <-
@@ -100,36 +104,50 @@ static_plot <-
         colors <-c(
         "Weak\n(bottom 33%)" = "#D2222D",
         "Emerging\n(33% - 66%)" = "#FFBF00",
-        "Strong\n(top 66%)" = "#238823"
+        "Strong\n(top 34%)" = "#238823"
         )
       }
     
     if (rank == FALSE) {
       x_lab <- "Closeness to frontier"
       
-      data <-
-        data %>%
+      # data <-
+      #   data %>%
+      #   mutate(
+      #     var = dtf,
+      #     text = paste(
+      #       " Country:", country_name, "<br>",
+      #       "Closeness to frontier:", round(dtf, 3)
+      #     )
+      #   )
+      
+      data<-data %>%
+        group_by(dtf) %>%
         mutate(
           var = dtf,
           text = paste(
-            " Country:", country_name, "<br>",
-            "Closeness to frontier:", round(dtf, 3)
+            "Closeness to frontier:", round(dtf, 3), "<br>",
+            " Country:", paste(country_name, collapse = ", ")
           )
-        )
+        ) %>%
+        ungroup()
+
       
     } else {
       data <-
         data %>%
+        group_by(variable,nrank) %>%
         mutate(
           q25 = cutoff[[1]]/100,
           q50 = cutoff[[2]]/100,
           var = dtt,
           text = paste(
-            " Country:", country_name, "<br>",
-            "Closeness to frontier:", round(dtf, 3), "<br>",
-            "Rank:", nrank
+            "Rank:", nrank, "<br>",
+            " Country:", paste(country_name, collapse = ", "), "<br>",
+            "Closeness to frontier:", round(dtf, 3)
           )
-        )
+        ) %>%
+        ungroup()
       
       x_lab <- "Rank"
     }
@@ -491,7 +509,7 @@ static_plot_dyn <-
           colors <-c(
             "Weak\n(bottom 33%)" = "#D2222D",
             "Emerging\n(33% - 66%)" = "#FFBF00",
-            "Strong\n(top 66%)" = "#238823"
+            "Strong\n(top 34%)" = "#238823"
           )
         }
     
@@ -844,7 +862,7 @@ static_plot_dyn <-
       facet_wrap(~var_name, ncol = 2, 
         labeller = labeller(var_name = plot_titles),
         shrink = FALSE, scales = sc) +
-      theme(strip.text = element_text(face = "bold", size = 10))
+      theme(strip.text = element_text(face = "bold", size = 10),panel.spacing = unit(5, "lines"))
     
     
    ## fix facets
@@ -940,13 +958,22 @@ plot_notes_function <-
 
 interactive_plot <-
   function(x, tab_name, buttons,  plot_type) {
+    
+    if(lengths(variable_list[tab_name])>10 & plot_type=='dynamic'){
+      plt_height = 3000
+    }else if(plot_type=='dynamic') {
+      plt_height = 1000
+    }else{
+      plt_height = 750
+    }
+    
     x <- x +
       theme(
         legend.position = "top"
       )
     
     int_plot <- x %>%
-      ggplotly(tooltip = "text") %>%
+      ggplotly(tooltip = "text",height = plt_height ) %>%
       layout(
         margin = list(l = 50, r = 50, t = 150, b = 150)#,
 

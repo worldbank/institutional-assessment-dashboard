@@ -14,6 +14,7 @@ $('#threshold').on('shown.bs.select', function() {
 
 ui <-
   dashboardPage(
+    
 
       freshTheme = create_theme(bs4dash_layout(sidebar_width = "400px")),
 
@@ -72,6 +73,11 @@ ui <-
         
        }
         
+    .shiny-notification {
+             position:fixed;
+             top: calc(80%);
+             left: calc(40%);
+             }
         
         .shiny-html-output.shiny-bound-output{
             text-align: justify;
@@ -307,6 +313,10 @@ ui <-
 
             shiny::conditionalPanel(
               "input.create_custom_grps == true",
+              fluidRow(column(12, # This defines the width of the note (12 spans the entire row)
+                              tags$p(HTML("<strong>NOTE:</strong> Currently custom groups are not allowed when displaying ranks instead of values, when ranking from best to worst, or when doing the dynamic benchmark.")),
+                              
+              )),
               fluidRow(
                     shiny::column(
                       width = 3,
@@ -539,7 +549,7 @@ ui <-
                   width = 12,
                   plotlyOutput(
                     "dynamic_benchmark_plot",
-                    height =  paste0(plot_height * 3.5, "px")
+                    height =  paste0(plot_height * 5, "px")
                   ) %>% shinycssloaders::withSpinner(color = "#051f3f", type = 8)
                 )
                 
@@ -1079,7 +1089,7 @@ ui <-
             status = "navy",
             title = "Institutional families",
 
-            p("The CLIAR Benchmarkinguses established well-institutional indicators, clustered into 14 main institutional families:", 
+            p("The CLIAR Benchmarking uses a set of curated and validated institutional indicators, clustered into 13 institutional clusters:", 
               
               tags$ul( 
                 
@@ -1112,7 +1122,7 @@ ui <-
               ) 
               
             ), 
-            p("There is no agreed theoretical framework that could guide the categorization process. The proposed families are based on an effort to capture key functions that different institutions perform. In so doing, the categorization process faces a trade-off between aggregation and narrowness, where the categories ought to be broad enough to capture enough indicators and policy spaces, but narrow enough to guide a deep qualitative analysis as well as a fruitful and engaged conversation with the country. In addition, the categorization also faces the limitations of data availability."),
+            p("The proposed clusters are based on an effort to capture key functions that different institutions perform. In so doing, the categorization process faces a trade-off between aggregation and narrowness, where the categories ought to be broad enough to capture enough indicators and policy spaces, but narrow enough to guide a deep qualitative analysis as well as a fruitful and engaged conversation with the country. In addition, the categorization also faces the limitations of data availability."),
             p('All country-level indicators can be downloaded in the “Data” tab.')
           ),
 
@@ -1226,7 +1236,7 @@ tabItem(
             tags$ul(
               tags$li(
                 'We ask that all users of the data to cite the data as follows:',
-                HTML('"<em>Source: World Bank Country Level Institutional Assessment and Review.</em>"')
+                HTML('"<em>Source: World Bank CLIAR Dashboard.</em>"')
               ),
               tags$li(
                 "We kindly request that if users modify the methodology and the source code for their reports and analyses clearly state so and highlight the relevant departures from the CLIAR Benchmarking methodology."

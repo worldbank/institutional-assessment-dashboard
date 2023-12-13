@@ -30,7 +30,7 @@ pub_function <- function(image,
                          authors) {
 
   ## A link that redirects users to the publication site is embedded on the card  -----------
-  tags$a(href = link,
+  tags$a(href = link,target="_blank",
 
   shiny::div(
     class = "pubs",

@@ -1267,7 +1267,7 @@ server <- function(input, output, session) {
   
   output$plot <-
     renderPlotly({
-      
+      tryCatch({
       if (length(input$countries) >= 10) {
         
         input$select
@@ -1303,7 +1303,7 @@ server <- function(input, output, session) {
             
             data_family() %>%
               left_join(.,family_order,by=c('var_name'='family_name'))%>%
-              arrange(country_name,family_order)%>%
+              arrange(family_order,country_name)%>%
               static_plot(
                 base_country(),
                 input$family,
@@ -1359,8 +1359,13 @@ server <- function(input, output, session) {
               )
           }
         )
-      }
-    }) %>%
+      } #End If else
+       }, error = function(e) {
+         # If an error occurs, display a standard text message
+         showNotification('An error occurred. Data is missing for the selected base country.','',type = "error",duration = 10)
+         return()
+       })
+      }) %>%
     bindCache(input$country,  input$groups, input$family,input$benchmark_median,
               input$rank, input$benchmark_dots, input$preset_order, input$create_custom_grps,
               input$show_dynamic_plot, input$threshold, input$countries) %>%
@@ -1477,6 +1482,7 @@ server <- function(input, output, session) {
   
   output$dynamic_benchmark_plot <-
     renderPlotly({
+      tryCatch({
       validate(need(length(input$country) == 1,'Dynamic Benchmarking is available only when One base Country is selected'))
       validate(need(!(input$family %in% family_order$family_name[family_order$Benchmark_dynamic_indicator == "No"])," No Dynamic Benchmarking Plot available for this family."))
       if (length(input$countries) >= 10 && length(input$country) == 1) {
@@ -1575,7 +1581,14 @@ server <- function(input, output, session) {
           }
         )
       }
-    }) %>%
+      
+    }
+    , error = function(e) {
+    #   # If an error occurs, display a standard text message
+       showNotification('An error occurred. Data is missing for the selected base country.','',type = "error",duration = 10)
+       return()
+    })
+      })%>%
     bindCache(input$country,  input$groups, input$family,input$benchmark_median,
               input$rank, input$benchmark_dots, input$preset_order, input$create_custom_grps,
               input$show_dynamic_plot, input$threshold, input$countries) %>%
@@ -2446,28 +2459,71 @@ server <- function(input, output, session) {
   ## Save inputs to be loaded the next time --------------------------------------------------------
   download_data_1 <- eventReactive(input$select , {
     
-    if (input$family == "Overview") {
-      data<-data_family()%>%
+      data1<-data_family()%>%
+        filter(country_name==base_country())
+
+      data2<-data() %>%
         filter(country_name==base_country())
       
-    } else {
-      data<-data() %>%
-        filter(variable %in% vars())%>%
+      data3<-data_family_dyn()%>%
         filter(country_name==base_country())
-    }
-    
-    return(data)
-    
+      
+      data4<-data_dyn_avg()%>%
+        filter(country_name==base_country())%>%
+        filter(variable!='wdi_nygdppcapppkd')
+
+    list_of_dataframes <- list(data1 = data1,data2 = data2,data3 = data3,data4 = data4)
+      
+    return(list_of_dataframes)
   })
   
   
   
   output$download_data_1 <- downloadHandler(
     filename = function() { 
-      paste("download_data_1.csv")
+      paste0("CTF-plot-data.xlsx")
     },
     content = function(file) {
-      write.csv(download_data_1(), file)
+      
+      show_modal_spinner(
+        color = "#17a2b8",
+        text = "Compiling Data",
+      )
+      
+      on.exit(remove_modal_spinner())
+
+      data<-download_data_1()
+      
+      data_frame1<-data$data1
+      data_frame2<-data$data2
+      data_frame3<-data$data3
+      data_frame4<-data$data4
+      
+      # write.xlsx(data_frame1, file, sheetName = "Static Overview", row.names = FALSE,col.names = TRUE)
+      # 
+      # write.xlsx(data_frame2, file, sheetName = "Static Family", append = TRUE, row.names = FALSE,col.names = TRUE)
+      # write.xlsx(data_frame3, file, sheetName = "Dynamic Overview", append = TRUE, row.names = FALSE,col.names = TRUE)
+      # write.xlsx(data_frame4, file, sheetName = "Dynamic Family", append = TRUE, row.names = FALSE,col.names = TRUE)
+      # 
+      
+      # Create a workbook
+      wb <- createWorkbook()
+      
+      # Add sheets to the workbook
+      sheet1 <- addWorksheet(wb, "Static Overview")
+      sheet2 <- addWorksheet(wb, "Static Family")
+      sheet3 <- addWorksheet(wb, "Dynamic Overview")
+      sheet4 <- addWorksheet(wb, "Dynamic Family")
+      
+      # Write data_frame1 to Sheet1 without appending sheet name to column names
+      writeData(wb, sheet1, data_frame1, startCol = 1, startRow = 1, colNames = TRUE,rowNames = FALSE)
+      
+      # Write data_frame2 to Sheet2 without appending sheet name to column names
+      writeData(wb, sheet2, data_frame2, startCol = 1, startRow = 1, colNames = TRUE,rowNames = FALSE)
+      writeData(wb, sheet3, data_frame3, startCol = 1, startRow = 1, colNames = TRUE,rowNames = FALSE)
+      writeData(wb, sheet4, data_frame4, startCol = 1, startRow = 1, colNames = TRUE,rowNames = FALSE)      
+      # Save the workbook to the specified file path
+      saveWorkbook(wb, file)
     }) 
   
   

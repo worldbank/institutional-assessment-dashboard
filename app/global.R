@@ -21,6 +21,7 @@ library(bsplus)
 library(htmltools)
 library(officer)
 library(rvg)
+library(openxlsx)
 
 
 options(dplyr.summarise.inform = FALSE)
@@ -197,9 +198,14 @@ for (i in colnames(global_data)[4:length(colnames(global_data))]){
     attr(global_data[[i]],'label')<-name
   }}
 
-for (i in colnames(raw_data)[4:length(colnames(raw_data))]){
-  attr(raw_data[[i]],'label')<-subset(db_variables$var_name,db_variables$variable==i)
-}
+for (i in colnames(global_data_dyn)[5:length(colnames(global_data_dyn))]){
+  name<-subset(db_variables$var_name,db_variables$variable==i)
+  if(length(name)>0){
+    name<-str_replace_all(name, "[[:punct:]]", "")
+    attr(global_data_dyn[[i]],'label')<-name
+  }}
+
+
 for (i in colnames(raw_data)[4:length(colnames(raw_data))]){
   name<-subset(db_variables$var_name,db_variables$variable==i)
   if(length(name)>0){
