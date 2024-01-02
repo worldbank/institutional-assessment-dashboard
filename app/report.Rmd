@@ -59,6 +59,11 @@ knitr::include_graphics("www/cliar.png")
 
 # Country-Level Institutional Assessment and Review (CLIAR) Benchmarking Report - **`r params$base_country`**
 
+
+
+Report generated on : `r format(Sys.time(), "%Y-%m-%d %H:%M:%S")`
+
+
 \pagebreak
 
 ## Acronyms and Abbreviations
@@ -225,11 +230,17 @@ families <-
     cat("\n\n",
       " The figure below graphically displays the results where: ",
       ifelse(length(counts_category$count[counts_category$status == "Weak\n(bottom 25%)"])==0, 0, counts_category$count[counts_category$status == "Weak\n(bottom 25%)"]),
-      "indicators demonstrate a weak performance, ",
+      ifelse(length(counts_category$count[counts_category$status == "Weak\n(bottom 25%)"])==0,'indicator', 
+             ifelse(counts_category$count[counts_category$status == "Weak\n(bottom 25%)"]<2,'indicator','indicators')),
+      " demonstrate a weak performance, ",
       ifelse(length(counts_category$count[counts_category$status == "Emerging\n(25% - 50%)"])==0, 0, counts_category$count[counts_category$status == "Emerging\n(25% - 50%)"]),
-      " indicators exhibit emerging performance, and",
+      ifelse(length(counts_category$count[counts_category$status == "Emerging\n(25% - 50%)"])==0,'indicator',
+             ifelse(counts_category$count[counts_category$status == "Emerging\n(25% - 50%)"]<2,'indicator','indicators')),
+      "  exhibit emerging performance, and",
       ifelse(length(counts_category$count[counts_category$status == "Strong\n(top 50%)"])==0, 0, counts_category$count[counts_category$status == "Strong\n(top 50%)"]),
-      " indicators exhibit strong performance."
+      ifelse(length(counts_category$count[counts_category$status == "Strong\n(top 50%)"])==0,'indicator', 
+             ifelse(counts_category$count[counts_category$status == "Strong\n(top 50%)"]<2,'indicator','indicators')),
+      " exhibit strong performance."
     )
 
       try(
@@ -388,7 +399,9 @@ summary_stats <- summary_data %>%
 summary_stats<-summary_stats%>%
   mutate_if(is.numeric, ~round(., 2))
 
-print(
+names(summary_stats)[names(summary_stats) == 'var_name'] <- 'Indicator'
+
+ print(
   knitr::kable(
     summary_stats,
     format = "pipe"
