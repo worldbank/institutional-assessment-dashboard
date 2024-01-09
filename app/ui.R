@@ -9,9 +9,6 @@ $('#threshold').on('shown.bs.select', function() {
   });
 });"
 
-
-
-
 ui <-
   dashboardPage(
     
@@ -38,30 +35,56 @@ ui <-
       status = "info",
       skin = "light",
       elevation = 5,
+      
+      useFirebase(), # import dependencies
+      firebaseUIContainer(),
+      
+      reqSignin(
+        h4("Logged in!"),
 
-      sidebarMenu(
-        menuItem("Home", tabName = "home", icon = icon("home")),
-        menuItem("Country benchmarking", tabName = "benchmark", icon = icon("sort-amount-up")),
-        menuItem("Cross-country comparison", tabName = "country", icon = icon("chart-bar")),
-        menuItem("Bivariate correlation", tabName = "scatter", icon = icon("search-dollar")),
-        menuItem("World map", tabName = "world_map", icon = icon("globe-americas")),
-        menuItem("Time trends", tabName = "trends", icon = icon("chart-line")),
-        menuItem("Data", tabName = "data", icon = icon("table")),
-        menuItem("Methodology", tabName = "methodology", icon = icon("book")),
-        menuItem("Publications", tabName = "pubs", icon = icon("list")),
-        menuItem("Terms of use and Disclaimers", tabName = "terms", icon = icon("handshake")),
-        menuItem("FAQ", tabName = "faq", icon = icon("question")),
-        menuItem("Contact Us", 
-                   icon = icon("comments", lib = "font-awesome"),
-                   href = "mailto:CLIAR@worldbank.org"),
-        menuItem("Source code", 
-                   icon = icon("github", lib = "font-awesome"),
-                   href = "https://github.com/worldbank/institutional-assessment-dashboard/")
+        sidebarMenu(
+          menuItem("Home", tabName = "home", icon = icon("home")),
+          menuItem("Country benchmarking", tabName = "benchmark", icon = icon("sort-amount-up")),
+          menuItem("Cross-country comparison", tabName = "country", icon = icon("chart-bar")),
+          menuItem("Bivariate correlation", tabName = "scatter", icon = icon("search-dollar")),
+          menuItem("World map", tabName = "world_map", icon = icon("globe-americas")),
+          menuItem("Time trends", tabName = "trends", icon = icon("chart-line")),
+          menuItem("Data", tabName = "data", icon = icon("table")),
+          menuItem("Methodology", tabName = "methodology", icon = icon("book")),
+          menuItem("Publications", tabName = "pubs", icon = icon("list")),
+          menuItem("Terms of use and Disclaimers", tabName = "terms", icon = icon("handshake")),
+          menuItem("FAQ", tabName = "faq", icon = icon("question")),
+          menuItem("Contact Us", 
+                     icon = icon("comments", lib = "font-awesome"),
+                     href = "mailto:CLIAR@worldbank.org"),
+          menuItem("Source code", 
+                     icon = icon("github", lib = "font-awesome"),
+                     href = "https://github.com/worldbank/institutional-assessment-dashboard/")
+        )
+      
       )
+      
     ),
 
     dashboardBody(
       
+      tags$head(HTML("
+        
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+        <script async src='https://www.googletagmanager.com/gtag/js?id=G-CDFJLHD42K'></script>
+        <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        
+        gtag('config', 'G-CDFJLHD42K');
+        
+        </script>
+        
+        "
+        
+      )),
+
       ## universal css styles
       tags$style(HTML("
       

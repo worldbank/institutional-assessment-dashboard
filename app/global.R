@@ -22,6 +22,7 @@ library(htmltools)
 library(officer)
 library(rvg)
 library(openxlsx)
+library(firebase)
 
 
 options(dplyr.summarise.inform = FALSE)

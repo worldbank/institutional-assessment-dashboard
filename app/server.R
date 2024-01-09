@@ -3,6 +3,26 @@
 server <- function(input, output, session) {
   # Handle inputs ======================================================================
   
+  ## Fisebase ---------------------------------------------------------------
+  f <- FirebaseUI$
+    new()$
+    set_providers(
+      email = TRUE, 
+      google = TRUE
+    )$
+    launch()
+  
+  a <- Analytics$
+    new()$
+    launch()
+  
+  observeEvent(f$get_signed_in(), {
+    f$req_sign_in()
+
+    a$log_event('notification_received');
+    a$set_user_properties(level = "free")
+  })
+  
   ## Hide save inputs button at onset
   shinyjs::hide("save_inputs")
   shinyjs::disable("preset_order")
