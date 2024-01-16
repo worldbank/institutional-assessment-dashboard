@@ -79,6 +79,19 @@ ui <-
         
         gtag('config', 'G-CDFJLHD42K');
         
+        gtag('event', 'page_view');
+        
+        // Event Tracking Code
+        $(document).on('shiny:inputchanged', function(event) {
+          if(event.name == 'country'){
+            const data = {
+              name: event.name,
+              value: event.value
+            };
+            gtag('event', 'input_updates', data);
+          }
+        });
+
         </script>
         
         "
