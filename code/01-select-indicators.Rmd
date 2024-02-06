@@ -13,10 +13,16 @@ This list is filled by hand in Excel.
 db_variables <-
   read_excel(
     here(
-      "..",
+
       "data",
+      "input",
+      "cliar",
       "db_variables.xlsx"
     )
+  ) |> 
+  clean_names() |> 
+  mutate(
+    variable = make_clean_names(variable)
   )
 ```
 
@@ -26,9 +32,9 @@ db_variables <-
 write_rds(
   db_variables,
   here(
-    "..",
+
     "data",
-    "final",
+    "output",
     "db_variables.rds"
   )
 )
@@ -63,9 +69,8 @@ names(description) <-
 write_rds(
   description,
   here(
-    "..",
     "data",
-    "final",
+    "output",
     "definitions.rds"
   )
 )

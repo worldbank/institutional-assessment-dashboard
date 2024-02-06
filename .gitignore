@@ -50,7 +50,8 @@
 
 # Markdown
 !/**/*.md
-!*.csv
+#!*.csv
+!app/data/publicationsList.xlsx
 
 #######################
 # Include all the files with passwords or tokens here. All files named
@@ -64,8 +65,11 @@ password/
 passwords/
 data/raw/CLASS.xlsx
 
-#######################
-# renv file
-!renv.lock
-!settings.json
-!activate.R
+**/output/
+
+# RENV files
+!code/renv.lock
+!code/.Rprofile
+!code/renv/settings.json
+!code/renv/activate.R
+

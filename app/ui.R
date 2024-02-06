@@ -14,6 +14,7 @@ $('#threshold').on('shown.bs.select', function() {
 
 ui <-
   dashboardPage(
+    
 
       freshTheme = create_theme(bs4dash_layout(sidebar_width = "400px")),
 
@@ -22,7 +23,7 @@ ui <-
     dashboardHeader(
 
       title = dashboardBrand(
-        title = "Global Benchmarking Institutions Dashboard"
+        title = "CLIAR Benchmarking Dashboard"
       ),
       status = "white",
       border = TRUE,
@@ -47,18 +48,68 @@ ui <-
         menuItem("Time trends", tabName = "trends", icon = icon("chart-line")),
         menuItem("Data", tabName = "data", icon = icon("table")),
         menuItem("Methodology", tabName = "methodology", icon = icon("book")),
-        menuItem("Terms of use", tabName = "terms", icon = icon("handshake")),
+        menuItem("Publications", tabName = "pubs", icon = icon("list")),
+        menuItem("Terms of use and Disclaimers", tabName = "terms", icon = icon("handshake")),
         menuItem("FAQ", tabName = "faq", icon = icon("question")),
-        customItem("Feedback", 
+        menuItem("Contact Us", 
                    icon = icon("comments", lib = "font-awesome"),
-                   href = "mailto:cliar@worldbank.org"),
-        customItem("Source code", 
+                   href = "mailto:CLIAR@worldbank.org"),
+        menuItem("Source code", 
                    icon = icon("github", lib = "font-awesome"),
                    href = "https://github.com/worldbank/institutional-assessment-dashboard/")
       )
     ),
 
     dashboardBody(
+      
+      ## universal css styles
+      tags$style(HTML("
+      
+      /* Make the dynamic dashboard scrollable */
+                      
+       #shiny-tab-benchmark > div:nth-child(4) > div{
+        max-height: 600px;
+        overflow-y: auto;
+        
+       }
+        
+    .shiny-notification {
+             position:fixed;
+             top: calc(80%);
+             left: calc(40%);
+             }
+        
+        .shiny-html-output.shiny-bound-output{
+            text-align: justify;
+        }
+        
+      /* Changed the background of the load and save input buttons a shade of red */
+      .load_save_btns .bttn-primary{background-color: #e94152;}
+      
+      /* Changed the background of the selected country or countries to a shade of blue */
+      .dropdown-item.active, .dropdown-item:active,
+      .dropdown-item.opt.selected
+      {background-color: #007bff6b;}
+       
+       .far.fa-square-check{
+            background-color: #e94152e8;
+            color: white;
+       } 
+       
+       #save_inputs{
+          background-color: #e94152;
+          color: white;
+          border-radius: 20px;
+       }
+       
+       #download_data_1{
+          background-color: #3326da;
+          color: white;
+       }
+
+        "
+      )),
+      
       tabItems(
 
         ## Landing page --------------------------------------------------------
@@ -75,14 +126,14 @@ ui <-
                 img(src = "cliar.png", width = "80%")
               ),
 
-            br(),
-            p("The World Bank recognizes institutional strengthening as key ingredient for progress of its members countries along income categories. While there are numerous diagnostic and assessment tools for specific functional areas such as public financial management and tax administration, there is no analytical tool for country-level institutional assessment."),
-            p("The Global Benchmarking Institutions Dashboard (G-BID) contributes to fill this gap by providing a standard methodology to summarize information from a large set of country-level institutional indicators."),
-            p("The dashboard provides a user-friendly interface with multiple visualizations of a country’s institutional profile based on a set of international indicators, highlighting a given country’s institutional strengths and weaknesses relative to a set of country comparators. The findings of the G-BID can provide a structured and up-to-date empirical guidance for further in-depth analysis in the specific areas of interest, given the nature of the World Bank engagement in a country and/or complementarity with other ongoing country-level diagnostics (SCDs, CEMs, CPFs and the like)."),
-            p("The G-BID is part of a larger analytical effort to assess and review the quality of country’s institutions. For full details about the broader analytical effort, see the Approach paper: Marco Larizza, Serena Sara Daniela Cocciolo, Eric Braian Arias, Peter Siegenthaler and Jim Brumby (forthcoming),  ",
-              tags$em("Country Level Institutional Assessment and Review (CLIAR)"),
-              "Users of this resource should cite this approach paper. Further, any publications using data drawn from the G-BID should include a citation of the dashboard as well as the original source(s) of the data used. Citation information for each component dataset is included in the methodology page."),
-
+            br(),            
+            p("Welcome to the Country Level Institutional Assessment and Review (CLIAR) Benchmarking Dashboard!"), 
+            p("The World Bank recognizes institutional strengthening as key ingredient for progress of its members countries along income categories. While there are numerous diagnostic and assessment tools for specific functional areas such as public financial management and tax administration, there is no analytical tool for country-level institutional assessment."), 
+            p("The Country Level Institutional Assessment and Review (CLIAR) contributes to fill this gap via two distinct but complementary products: the (i) CLIAR Benchmarking and its Dashboard and the (ii) CLIAR Country Deep-Dive."),
+            p("The CLIAR Benchmarking Dashboard value added is to provide a standard quantitative methodology to summarize information from a large set of country-level institutional indicators. It does so by providing a user-friendly interface with multiple visualizations of a country’s institutional profile based on a set of curated international indicators, highlighting a given country’s institutional strengths and weaknesses relative to a set of country comparators. 
+              The findings can provide a structured, standardized, and up-to-date empirical guidance for further in-depth analysis in the specific areas of interest. This can inform and contribute the World Bank's engagement in a given country and complement other strategic and analytical country-level reports, such as Country Climate and Development Reports (CCDR), Country Economic Memorandums (CEM), Public Expenditure Reviews (PER), Country-Partnership Frameworks (CPF), among others."),
+            p("For full details about the methodology behind the CLIAR Benchmarking, please find the Methodological paper in the Methodology tab. Users of this resource should cite this paper. Publications using the CLIAR data should include a citation of the CLIAR Dashboard as well as the original source(s) of the data used. Citation information for each component dataset is also included in the Methodology page."),
+            p("Disclaimer: The findings, interpretations, and conclusions expressed in CLIAR are a product of staff of the World Bank, but do not necessarily reflect the views of the World Bank and its affiliated organizations, or those of the Executive Directors of the World Bank or the governments they represent."),
             h3("How to use this dashboard"),
             p("This dashboard aims to enable its users to interact with the country-level benchmarking through the following tabs:"),
             tags$ul(
@@ -126,8 +177,8 @@ ui <-
               ),
               tags$li(
                 "The ",
-                tags$b("Terms of use"),
-                "tab provides more information about the terms of use as well as citation information."
+                tags$b("Terms of use and Disclaimer"),
+                "tab provides more information about the terms of use,disclaimer, as well as citation information."
               ),
               tags$li(
                 "The ",
@@ -136,8 +187,8 @@ ui <-
               ),
               tags$li(
                 "The ",
-                tags$b("Feedback"),
-                "tab allows users to directly contact us to cliar@worldbank.org"
+                tags$b("Contact Us"),
+                "tab allows users to directly contact us to CLIAR@worldbank.org"
               ),
               tags$li(
                 "The ",
@@ -160,6 +211,19 @@ ui <-
             solidHeader = TRUE,
             width = 12,
 
+            shiny::fluidRow(
+              ## Load inputs button
+              column(
+                width = 3,
+                buttons_func(id = "load_inputs",
+                  lab = "Load Inputs"
+                ),
+                
+              )
+            ),
+            
+            shiny::fluidRow(style = "height:30px;"),
+            
             fluidRow(
 
               column(
@@ -169,10 +233,10 @@ ui <-
                   label = "Select a base country",
                   choices = c("", countries),
                   selected = NULL,
-                  multiple = FALSE,
+                  multiple = TRUE,
                   options = list(
-                    size = 20,
-                    `actions-box` = TRUE
+                    `actions-box` = TRUE,
+                    `live-search` = TRUE 
                   )
                 )
               ),
@@ -186,8 +250,9 @@ ui <-
                   selected = NULL,
                   multiple = TRUE,
                   options = list(
-                    size = 21,
-                    `actions-box` = TRUE
+                    # size = 21,
+                    `actions-box` = TRUE,
+                    `live-search` = TRUE
                   )
                 )
               ),
@@ -215,14 +280,74 @@ ui <-
                   multiple = TRUE,
                   options = list(
                     `live-search` = TRUE,
-                    maxOptions = 3
+                    "max-options" = 3
                   )
                 )
               )
             ),
-
+            
+            fluidRow(style = "height: 15px;"),
+            
             fluidRow(
+              shiny::column(3,
+                shinyWidgets::prettyCheckbox(
+                  inputId = "create_custom_grps",
+                  label = "Create custom groups",
+                  value = FALSE,
+                  icon = icon("check"),
+                  status = "success"
+                )
+                ),
+              shiny::conditionalPanel(
+               "input.create_custom_grps == true" ,
+              shiny::column(12,
+                shinyWidgets:: materialSwitch(
+                  inputId = "show_custom_grps",
+                  label = "Show custom groups",
+                  status = "success",
+                  value = TRUE
+                )
+              )
+              )
+            ),
 
+            shiny::conditionalPanel(
+              "input.create_custom_grps == true",
+              fluidRow(column(12, # This defines the width of the note (12 spans the entire row)
+                              tags$p(HTML("<strong>NOTE:</strong> Currently custom groups are not allowed when displaying ranks instead of values, when ranking from best to worst, or when doing the dynamic benchmark.")),
+                              
+              )),
+              fluidRow(
+                    shiny::column(
+                      width = 3,
+                      shiny::numericInput(
+                        inputId = "custom_grps_count",
+                        label = "Number of groups",
+                        value = 1,
+                        min = 1,
+                        max = 5,
+                        step = 1
+                      )
+                    ),
+                    shiny::column(
+                      width = 6,
+                      
+                     shiny::conditionalPanel(
+                      "input.custom_grps_count >= 1",
+                      shiny::uiOutput("custom_grps")
+                      )
+              ),
+              column(
+                width = 3,
+                align = "center",
+                shiny::actionButton("save_custom_grps", "Save")
+                
+              )
+              
+              )
+              ),
+            fluidRow(style = "height: 15px;"),
+            fluidRow(
               column(
                 width = 3,
                 prettyCheckbox(
@@ -239,7 +364,14 @@ ui <-
                   icon = icon("check"),
                   status = "success"
                 ),
-               
+                
+                prettyCheckbox(
+                  inputId = "preset_order",
+                  label = "Rank indicators from best to worst",
+                  value = FALSE,
+                  icon = icon("check"),
+                  status = "success"
+                )
               ),
               
               column(
@@ -247,7 +379,7 @@ ui <-
                 pickerInput(
                   inputId = "threshold", 
                   label = "Benchmarking Thresholds",
-                  choices = c("default","terciles")
+                  choices = c("Default","Terciles")
                 ),
               ),
               
@@ -259,22 +391,23 @@ ui <-
                 uiOutput(
                   "select_button"
                 )
-              ),
+              )
             ),
             fluidRow(
               column(
-                width = 3,
-                                 downloadButton(
-                                   "report",
-                                   "Download editable report",
-                                   style = "width:100%; background-color: #204d74; color: white"
-                                 )
+                width = 2,
+                   downloadButton(
+                     "report",
+                     "Download editable report",
+                     style = "width:100%; background-color: #204d74; color: white"
+                   )
                 
 
               ),
+            
               
               column(
-                width = 3,
+                width = 2,
                 downloadButton(
                   "pptreport",
                   "Download PPT report",
@@ -283,7 +416,44 @@ ui <-
                 
                 
               ),
+              column(
+                
+                width = 2,
+                downloadButton(
+                  "download_data_1",
+                  "Download Data",
+                  style = "width:100%; background-color: #204d74; color: white"
+                )
+              ),
               
+              # shiny::column(3,
+              #               shinyWidgets::materialSwitch(
+              #                 inputId = "show_dynamic_plot",
+              #                 label = "Show dynamic benchmark plot",
+              #                 status = "success",
+              #                 value = FALSE
+              #               )
+              # ),
+              
+
+              ## Save inputs button
+              column(
+                align = "right",
+                width = 3,
+                downloadButton("save_inputs", "Save inputs")
+              )
+
+            ),
+            fluidRow(style = "height: 15px;"),
+            
+            fluidRow(
+              prettyCheckbox(
+                inputId = "download_Opt",
+                label = "Download Advanced Report (~10min)",
+                value = FALSE,
+                icon = icon("check"),
+                status = "success"
+              )
             )
 
           ),
@@ -308,8 +478,8 @@ ui <-
           ),
 
           bs4Card(
-            title = NULL,
-            collapsible = FALSE,
+            title = "Static Benchmarks",
+            collapsible = TRUE,
             width = 12,
 
             conditionalPanel(
@@ -320,15 +490,78 @@ ui <-
                   width = 12,
                   plotlyOutput(
                     "plot",
-                    height = paste0(plot_height * .8, "px")
+                    height = paste0(plot_height * 1.5, "px")
+                  ) %>% shinycssloaders::withSpinner(color = "#051f3f", type = 8)
+                )
+
+              ),
+              fluidRow(
+                shinyWidgets:: materialSwitch(
+                  inputId = "show_plot_notes",
+                  label = "Show notes",
+                  status = "success",
+                  value = FALSE
+                ),
+                column(width = 1),
+                shinyWidgets::materialSwitch(
+                  inputId = "show_dynamic_plot",
+                  label = "Show dynamic benchmark plot",
+                  status = "success",
+                  value = FALSE
+                )
+                
+
+                
+              ),
+              
+              conditionalPanel(
+                "input.show_plot_notes !== false",
+                
+              fluidRow(
+                
+                column(
+                  width = 12,
+                  htmlOutput(
+                    "plot_notes"
                   )
                 )
 
-              )
-
             )
-
+              )
+            )
           ),
+          
+          ## Dynamic benchmark tab  -------------------------------------------------------
+          
+          bs4Card(
+            width = 12,
+            solidHeader = FALSE,
+            gradientColor = "primary",
+            title = "Dynamic Benchmarks",
+            collapsible = TRUE,
+            
+            
+            conditionalPanel(
+              "input.select !== 0 && input.show_dynamic_plot === true",
+              fluidRow(
+                
+                column(
+                  width = 12,
+                  plotlyOutput(
+                    "dynamic_benchmark_plot",
+                    height =  paste0(plot_height * 5, "px")
+                  ) %>% shinycssloaders::withSpinner(color = "#051f3f", type = 8)
+                )
+                
+              ),
+              
+              
+            )
+            
+            
+            
+          ),
+          
 
           bs4Card(
             title = "Indicator definitions",
@@ -342,6 +575,8 @@ ui <-
           )
         ),
 
+        
+        
         ## Country comparison ----------------------------------------------------
 
         tabItem(
@@ -363,10 +598,10 @@ ui <-
                   choices = variable_list,
                   selected = NULL,
                   options = list(
-                    size = 20,
+                    # size = 20,
                     `actions-box` = TRUE,
                     `live-search` = TRUE,
-                    maxOptions = 3
+                    "max-options" = 3
                   ),
                   width = "100%"
                 )
@@ -380,6 +615,7 @@ ui <-
                   choices = c("", countries),
                   selected = NULL,
                   multiple = FALSE
+                  
                 )
               ),
 
@@ -390,7 +626,12 @@ ui <-
                   label = "Select comparison groups",
                   choices = group_list,
                   selected = NULL,
-                  multiple = TRUE
+                  multiple = TRUE,
+                  options = list(
+                    # size = 21,
+                    `live-search` = TRUE,
+                    `actions-box` = TRUE
+                  )
                 )
               )
             )
@@ -427,7 +668,7 @@ ui <-
 
               plotlyOutput(
                 "bar_plot",
-                height = paste0(plot_height, "px")
+                height = paste0(plot_height * 1.6, "px")
               )
             )
           )
@@ -455,8 +696,9 @@ ui <-
                   selected = NULL,
                   multiple = FALSE,
                   options = list(
-                    size = 20,
-                    `actions-box` = TRUE
+                    # size = 20,
+                    `actions-box` = TRUE,
+                    `live-search` = TRUE
                   )
                 )
               ),
@@ -466,14 +708,11 @@ ui <-
                 pickerInput(
                   "y_scatter",
                   label = "Select indicator for Y axis",
-                  choices = append(
-                    "Log GDP per capita, PPP",
-                    variable_list
-                  ),
+                  choices = y_scatter_choices,
                   selected = NULL,
                   options = list(
                     `live-search` = TRUE,
-                    size = 20,
+                    # size = 20,
                     title = "Click to select family or indicator"
                   ),
                   width = "100%"
@@ -485,14 +724,11 @@ ui <-
                 pickerInput(
                   "x_scatter",
                   label = "Select indicator for X axis",
-                  choices = append(
-                    "Log GDP per capita, PPP",
-                    variable_list
-                  ),
-                  selected = "Log GDP per capita, PPP",
+                  choices = NULL,
+                  selected = NULL,
                   options = list(
                     `live-search` = TRUE,
-                    size = 20,
+                    # size = 20,
                     title = "Click to select family or indicator"
                   ),
                   width = "100%"
@@ -512,13 +748,24 @@ ui <-
                   multiple = FALSE,
                   options = list(
                     `live-search` = TRUE,
-                    `actions-box` = TRUE,
-                    size = 18
+                    `actions-box` = TRUE#,
+                    # size = 18
                   ),
                 )
               )
 
 
+            ),
+            fluidRow(
+              column(
+                width = 3,
+                shinyWidgets::materialSwitch(
+                  inputId = "linear_fit",
+                  label = "Show linear fit line", 
+                  value = FALSE,
+                  status = "success"
+                )
+              )
             )
           ),
 
@@ -551,7 +798,7 @@ ui <-
 
               plotlyOutput(
                 "scatter_plot",
-                height = paste0(plot_height, "px")
+                height = paste0(plot_height * 1.6, "px")
               )
             )
           )
@@ -576,11 +823,11 @@ ui <-
                 pickerInput(
                   "vars_trends",
                   label = "Select indicator to visualize",
-                  choices = variable_list,
+                  choices = filtered_variable_list,
                   selected = NULL,
                   options = list(
                     `live-search` = TRUE,
-                    size = 21,
+                    # size = 21,
                     title = "Click to select family or indicator"
                   ),
                   width = "100%"
@@ -596,7 +843,8 @@ ui <-
                   selected = NULL,
                   multiple = FALSE,
                   options = list(
-                    size = 23
+                    # size = 23
+                    `live-search` = TRUE
                   )
                 )
               ),
@@ -610,9 +858,9 @@ ui <-
                   selected = NULL,
                   multiple = TRUE,
                   options = list(
-                    maxOptions = 5,
-                    `live-search` = TRUE,
-                    size = 21
+                    "max-options" = 5,
+                    `live-search` = TRUE#,
+                    # size = 21
                   )
                 )
               )
@@ -648,7 +896,7 @@ ui <-
 
               plotlyOutput(
                 "time_series",
-                height = paste0(plot_height, "px")
+                height = paste0(plot_height * 1.6, "px")
               )
             )
           )
@@ -678,7 +926,7 @@ ui <-
                   selected = NULL,
                   options = list(
                     `live-search` = TRUE,
-                    size = 20,
+                    # size = 20,
                     title = "Click to select family or indicator"
                   ),
                   width = "100%"
@@ -783,9 +1031,10 @@ ui <-
               radioGroupButtons(
                 "data_source",
                 label = "Select a data source",
-                choices = c("Closeness to frontier",
+                choices = c("Closeness to frontier (Static)",
+                            "Closeness to frontier (Dynamic)",
                             "Original indicators"),
-                selected = "Closeness to frontier",
+                selected = "Closeness to frontier (Static)",
                 direction = "vertical",
                 justified = TRUE,
                 checkIcon = list(
@@ -797,7 +1046,7 @@ ui <-
               radioGroupButtons(
                 "data_value",
                 label = "Select information to show",
-                choices = c("Value", "Rank"),
+                choices = c("Value"),
                 selected = "Value",
                 direction = "vertical",
                 justified = TRUE,
@@ -840,20 +1089,40 @@ ui <-
             status = "navy",
             title = "Institutional families",
 
-            p("The dashboard uses established well-institutional indicators, clustered into nine main institutional families:",
-              tags$ul(
-                tags$li("Anticorruption, transparency and accountability institutions"),
-                tags$li("Business environment and trade institutions"),
-                tags$li("Financial institutions"),
-                tags$li("SOE Corporate Governance"),
-                tags$li("Labor market institutions"),
-                tags$li("Justice institutions"),
-                tags$li("Political institutions"),
-                tags$li("Public sector institutions"),
-                tags$li("Social institutions")
-              )
-            ),
-            p("There is no agreed theoretical framework that could guide the categorization process. The proposed families are based on an effort to capture key functions that different institutions perform. In so doing, the categorization process faces a trade-off between aggregation and narrowness, where the categories ought to be broad enough to capture enough indicators and policy spaces, but narrow enough to guide a deep qualitative analysis as well as a fruitful and engaged conversation with the country."),
+            p("The CLIAR Benchmarking uses a set of curated and validated institutional indicators, clustered into 13 institutional clusters:", 
+              
+              tags$ul( 
+                
+                tags$li("Political institutions"), 
+                
+                tags$li("Social institutions"), 
+                
+                tags$li("Absence of Corruption"), 
+                
+                tags$li("Transparency and Accountability institutions"), 
+                
+                tags$li("Justice institutions"), 
+                
+                tags$li("Public Finance Institutions"), 
+                
+                tags$li("Public Human Resource Management institutions"), 
+                
+                tags$li("Digital and Data institutions"), 
+                
+                tags$li("Business environment institutions"), 
+                
+                tags$li("SOE Corporate Governance"), 
+                
+                tags$li("Labor and Social Protection institutions"), 
+                
+                tags$li("Service Delivery institutions"), 
+                
+                tags$li("Climate Change and Environment institutions") 
+                
+              ) 
+              
+            ), 
+            p("The proposed clusters are based on an effort to capture key functions that different institutions perform. In so doing, the categorization process faces a trade-off between aggregation and narrowness, where the categories ought to be broad enough to capture enough indicators and policy spaces, but narrow enough to guide a deep qualitative analysis as well as a fruitful and engaged conversation with the country. In addition, the categorization also faces the limitations of data availability."),
             p('All country-level indicators can be downloaded in the “Data” tab.')
           ),
 
@@ -863,10 +1132,10 @@ ui <-
             collapsed = TRUE,
             title = "Closeness to frontier",
 
-            p('The dashboard uses the “Closeness to Frontier” methodology, which is adapted from the Doing Business’s',
+            p('The dashboard uses the “Closeness to Frontier"(CTF) methodology, which is adapted from the original Doing Business’s',
               a("Distance to Frontier methodology",
                 href = "https://www.doingbusiness.org/content/dam/doingBusiness/media/Annual-Reports/English/DB17-Chapters/DB17-DTF-and-DBRankings.pdf"),
-              '. The CTF methodology allows to assess country’s performance across institutional indicators by comparing it with the “global frontier”, where the global frontier is the world’s best performer. For each indicator, a country’s performance is rescaled on a 0-1 scale using the linear transformation (worst–y)/(worst–frontier), where 1 represents the best performer and 0 the worst performer. The higher the score, the closer a country is to the best performer and the lower the score, the closer a country is to the worst performer, and more distant to the frontier. The best and worst performers are identified using available data from the global sample (i.e., considering all countries for which data is available) since 2013. Thus, a country may set the frontier for an indicator even though it is no longer at the frontier in the most recent year for which the indicator is available.'),
+              '. The CTF methodology allows to assess country’s performance across institutional indicators by comparing it with the “global frontier”, where the global frontier is the world’s best performer. For each indicator, a country’s performance is rescaled on a 0-1 scale using the linear transformation (worst–y)/(worst–frontier), where 1 represents the best performer and 0 the worst performer. The higher the score, the closer a country is to the best performer and the lower the score, the closer a country is to the worst performer, and more distant to the frontier. The best and worst performers are identified using available data from the global sample (i.e., considering all countries for which data is available), and using the relevant time period according to the benchmarking approach –i.e., whether it estimates the static (default) CTF benchmarking scores or dynamic CTF scores. In the static case, the average of the 2018-2022 period is used.'),
             p('For each institutional family, the CTF scores obtained for each indicator are aggregated through simple averaging into one CTF score at family level. This captures the overall performance for an institutional family relatively to the “global frontier”, while the performance across the indicators will help identify the most challenging areas for institutional strengthening.')
 
           ),
@@ -882,7 +1151,7 @@ ui <-
               HTML('<b>relative to the set of country comparators</b>'),
               '. Relative institutional weaknesses and strengths are defined based on the percentile in which each country indicator belongs. This methodology requires teams to make an informed decision on the set of comparator countries used for the benchmarking, since institutional weaknesses and strengths are identified relatively to those comparator countries.'),
             p('The “Closeness to Frontier” (length of the bar) and the percentile analysis (color of the bar) capture two related but different performance dimensions. The CTF compares the country’s performance with the best and worst performers. The percentile analysis benchmarks the country’s performance with all the set of other comparator countries. For example, it could be that for one indicator or institutional cluster the CTF score is relatively high and close to 1 (indicating in fact ‘closeness to the frontier’) but, at the same time, this dimension is marked as an institutional weakness (red coloring) because the country’s performance is still worse than the majority of comparator countries.'),
-            p('The percentile analysis effectively drops those indicators whose distribution precludes this percentile classification (i.e., low variance).')
+            p('The percentile analysis requires indicators to be available for the base country, while it also effectively drops those indicators whose distribution precludes this percentile classification (i.e., low variance).')
           ),
 
           box(
@@ -897,26 +1166,27 @@ ui <-
                 "World Bank Country and Lending Groups.",
                 href = "https://datahelpdesk.worldbank.org/knowledgebase/articles/906519-world-bank-country-and-lending-groups"
               ),
-              "It classifies all 189 World Bank member countries, and all other economies with populations of more than 30,000.",
-              "Economies are divided among income groups according to 2019 gross national income (GNI) per capita,",
+              "which classifies all 218 World Bank member countries and economies.", 
+              "Income classifications for FY24 is based on 2022 gross national income (GNI) per capita,", 
               "calculated using the World Bank Atlas method."
             ),
             p(
               "The groups are:",
               tags$ul(
-                tags$li(HTML("<b>Low income:</b> $1,035 or less")),
-                tags$li(HTML("<b>Lower middle income:</b> $1,036 - 4,045")),
-                tags$li(HTML("<b>Upper middle income:</b> $4,046 - 12,535")),
-                tags$li(HTML("<b>High income:</b> $12,536 or more"))
+                tags$li(HTML("<b>Low income:</b> $1,135 or less")), 
+                
+                tags$li(HTML("<b>Lower middle income:</b> $1,136 - 4,465")), 
+                
+                tags$li(HTML("<b>Upper middle income:</b> $4,466 - 13,845")), 
+                
+                tags$li(HTML("<b>High income:</b> more than $13,845")) 
               )
             ),
             p(
               HTML("The term <i>country</i>, used interchangeably with <i>economy,</i>"),
               "does not imply political independence but refers to any territory for which authorities report separate social or economic statistics.",
-              "Income classifications set on 1 July 2020 remain in effect until 1 July 2021.",
-              "Argentina, which was temporarily unclassified in July 2016 pending release of revised national accounts statistics,",
-              "was classified as upper middle income for FY17 as of 29 September 2016 based on alternative conversion factors."
-            ),
+              "Income classifications set on 1 July 2023 remain in effect until 1 July 2024.",
+              ),
             p(
               "OECD members are: ", paste0(paste(country_list %>% filter(group_code=="OED") %>% .$country_name, collapse = ", "),".")
             )
@@ -945,7 +1215,13 @@ ui <-
           )
 
         ),
-        
+
+## Publications  ================================================================
+tabItem(
+  tabName = "pubs",
+  publicationsUI("publications")
+),
+                
 ## Terms of use ================================================================
 
         tabItem(
@@ -955,15 +1231,18 @@ ui <-
             width = 11,
             status = "navy",
             collapsible = FALSE,
-            title = "Terms of use",
+            title = "Terms of use and Disclaimer",
             solidHeader = TRUE,
             tags$ul(
               tags$li(
                 'We ask that all users of the data to cite the data as follows:',
-                HTML('"<em>Source: World Bank Country Level Institutional Assessment and Review.</em>"')
+                HTML('"<em>Source: World Bank CLIAR Dashboard.</em>"')
               ),
               tags$li(
-                "We request that all users that modify the methodology and the source code for their reports and analysis will clearly state so and highlight the relevant departures from the CLIAR methodology provided on this dashboard."
+                "We kindly request that if users modify the methodology and the source code for their reports and analyses clearly state so and highlight the relevant departures from the CLIAR Benchmarking methodology."
+              ),
+              tags$li(
+                "Disclaimer: The findings, interpretations, and conclusions expressed in CLIAR are a product of staff of the World Bank, but do not necessarily reflect the views of the World Bank and its affiliated organizations, or those of the Executive Directors of the World Bank or the governments they represent. Moreover, country borders or names used and available in this dashboard do not necessarily reflect the World Bank Group's official position, and do not imply the expression of any opinion on the part of the World Bank, concerning the legal status of any country or territory or concerning the delimitation of frontiers or boundaries."
               )
             )
           )
@@ -978,10 +1257,11 @@ ui <-
             width = 11,
             status = "navy",
             collapsed = TRUE,
-            title = "Does the G-BID collect new data on governance and institutions?",
+            title = "Does the CLIAR Benchmarking collect new data on governance and institutions?",
             p(
-              "NO.
-              The dashboard extracts data from original sources and collects international indicators that are publicly available and have been widely tested and used as reliable proxies to measure country-level governance and institutions."
+              "No.
+              The CLIAR Benchmarking collects indicators that are publicly available and have been validated by our internal review process as proxies to measure country-level governance and institutions, with their corresponding caveats and limitations.
+              In some exceptional cases, CLIAR does combine existing indicators to create new ones (e.g., aggregation of binary indicators); these are detailed in the CLIAR Methodological Note."
             )
           ),
 
@@ -992,11 +1272,10 @@ ui <-
             collapsed = TRUE,
             title = "Can I add my own indicators to the dashboard and run the analysis including these indicators? ",
             p(
-              "NO.
-              You cannot add indicators to the dashboard.
-              However, you can download the full database and augment it with additional indicators to customize the analysis.
-              You can also get in touch with the G-BID/CLAIR (cliar@worldbank.org) indicating which data you would like to be added in the database, and for which cluster.
-              Each request will be reviewed by a team of technical experts and if the indicator meets the selection criteria indicated in the methodological note (quality and coverage) it will be added to the G-BID."
+              "You cannot add indicators to the dashboard.
+              However, you can download the full database and augment it with additional indicators to customize your analysis.
+              You can also get in touch with the CLIAR team (CLIAR@worldbank.org) indicating which data you would like to be added in the database, and for which cluster.
+              Each request will be reviewed by a team of technical experts and if the indicator meets the selection criteria indicated in the methodological note (quality and coverage) it will be added during the next update round."
             )
           ),
 
@@ -1007,8 +1286,7 @@ ui <-
             title = "Is the “Closeness to Frontier” methodology the same one used in the “Doing Business Report”?",
             p(
               "The “Closeness to Frontier” is used in order to standardize indicators and make it possible to compare and aggregate them.
-              The resulting scores range between 0 and 1 and we labeled them “Closeness to Frontier” because higher values mean closer to the frontier, which is set at 1.
-              It is similar to the transformation that was used in the “Doing Business Reports”."
+              The resulting scores range between 0 and 1 and we labeled them “Closeness to Frontier” because higher values mean closer to the frontier, which is set at 1."
             )
           ),
 
@@ -1022,16 +1300,12 @@ ui <-
               a given country of interest vis a vis a chosen set of comparator countries.
               Using the distribution of the CTF scores in the set of comparator countries,
               we identify the score range for the bottom 25% of comparators,
-              the score range for the 25%-50% group and the score range for the top 50% of comparators.
+              the score range for the 25%-50% group and the score range for the top 50% of comparators (or alternatively, using 33% and 66% as thresholds).
               Given the CTF score of the country of interest,
               we identify whether the country of interest for the analysis belong to the bottom,
-              middle or top group.
-              These percentile groups are used because they are simple, intuitive and standards.
-              The sensitivity analysis shows that most of the results are not sensitive to this choice,
-              and for example would be robust if the grouping 0-33%, 33%-66%, 66%+ would be used."
+              middle or top group. These percentile groups are used because they are simple and intuitive."
             )
           ),
-
           box(
             width = 11,
             status = "navy",
@@ -1041,7 +1315,7 @@ ui <-
               "Using the distribution of the CTF scores in the set of comparator countries,
               we identify the score range for the bottom 25% of comparators,
               the score range for the 25%-50% group and the score range for the top 50% of comparators.
-              The red bar represents the score range for the bottom 25% of comparators.
+              The red bar represents the score range for the bottom 25% of comparators. (The same explanation applies if 33% and 66% thresholds are used.)
               While the CTF scores always range between 0 and 1,
               the length of the red bar varies across indicators depending on the distribution of the CTF scores in the comparator group.
               As an illustration, for a given set of comparator countries,
@@ -1049,7 +1323,44 @@ ui <-
               while for another indicator it may range between 0 and 0.5."
             )
           ),
-
+          box(
+            width = 11,
+            status = "navy",
+            collapsed = TRUE,
+            title = "What is the difference between the static and dynamic benchmarking?",
+            p(
+              "The static benchmarking presents a cross-country snapshot based on averaging available indicators over the period 2018-2022; CTF calculations and distributional analysis are implemented over that cross-section. The dynamic benchmarking
+              , computes CTF scores at the individual level on an annual basis, from 2013 to 2022, and distributional analysis is implemented on an annual basis, when data is available. Given data limitations, the dynamic benchmarking is more limited in the number of indicators and families analyzed --and some families are not included precisely because they do not offer data that could be aggregated and compared over time."
+            )
+          ),
+          
+          box(
+            width = 11,
+            status = "navy",
+            collapsed = TRUE,
+            title = "Why are certain indicators or institutional families not appearing in my benchmarking results?",
+            p(
+              "TO COMPLETE"
+          )),
+          box(
+            width = 11,
+            status = "navy",
+            collapsed = TRUE,
+            title = "Can I change in the dashboard the time period over which the benchmarking is applied?",
+            p(
+              "The Dashboard does not offer that functionality, but such customized analyzed could be performed by downloading the data from the dashboard."
+            )
+          ), box(
+            width = 11,
+            status = "navy",
+            collapsed = TRUE,
+            title = "Why are certain indicators and clusters not included in the dynamic benchmarking?",
+            p(
+              "TO COMPLETE."
+            )
+          ),
+          
+          
           box(
             width = 11,
             status = "navy",
@@ -1057,7 +1368,7 @@ ui <-
             title = "How do you deal with missing data for certain indicators and for certain countries?",
             p(
               "We deal with missing data in various ways.
-              First, the benchmarking analysis uses the average of indicators over recent years.
+              First, the (static) benchmarking analysis uses the average of indicators over recent years.
               Conceptually, governance and institutional indicators are expected to show limited yearly variations.
               This helps in reducing data gaps.
               Second, we only include in the institutional benchmarking the indicators that
@@ -1072,7 +1383,7 @@ ui <-
               the average CTF scores are calculated from the same indicators."
             )
           ),
-
+          
           box(
             width = 11,
             status = "navy",
@@ -1082,14 +1393,12 @@ ui <-
               "The percentile analysis identifies whether the performance of the
               country of interest in a given indicator or institutional cluster
               belongs to the bottom 25%, the 25%-50% group or the top 50% of
-              the comparator countries.
+              the comparator countries (or, alternatively, the groups based on 33% and 66% thresholds).
               This percentile analysis can be meaningfully performed only if
-              there is sufficient number of comparator countries.
-              Given the definition of the traffic coloring,
-              it is recommended to use a group of comparator countries which is aspirational."
+              there is sufficient number of comparator countries."
             )
           ),
-
+          
           box(
             width = 11,
             status = "navy",
@@ -1097,74 +1406,66 @@ ui <-
             title = "How do you choose the comparator countries/groups?",
             p(
               "It depends on the purpose of the analysis and the country context.
-              For example, if this analysis is used in the SCDs, it is recommendable to use the regional,
-              aspirational and structural peers identified for the SCD."
+              For example, many reports have used regional,
+              aspirational, and structural peers as identified by World Bank Country Teams."
             )
           ),
-
+          
           box(
             width = 11,
             status = "navy",
             collapsed = TRUE,
             title = "Can I download the raw data for my own research/analytical purposes?",
             p(
-              'YES. The full compiled database, once updated, is available in the "Data" tab for download.
-              Both the "Closeness to Frontier" scores and the full database with yearly indicators are available for download,
-              and therefore users can easily verify the latest year available for each indicator.'
+              'Yes, the full compiled database is available in the "Data" tab for download.
+              Both the "Closeness to Frontier" scores and the full database with yearly indicators are available for download.'
             )
           ),
-
+          
           box(
             width = 11,
             status = "navy",
             collapsed = TRUE,
-            title = "How often is the G-BID updated? How do I know that the G-BID uses the latest available data?",
+            title = "Why are certain family-level averages missing when I download the data even if there is non-missing data on the indicators of that family?",
             p(
-              'It is currently planned that the G-BID will be updated once or twice a year,
-              depending on demands and usage.
-              The G-BID is programmed so that the data extraction from the data sources (primarily gov360)
+              "A balanced sample of individual CTF scores is aggregated by family to create family-level CTF scores. For each institutional family, a “balanced” subset of countries with full coverage (i.e., non-missing data) across all indicators within each family is created. This ensures that each family-level aggregate score relies on the same set of indicators for every country, allowing for robust and methodically sound inferences. The CTF family-level score is computed via simple averaging of the indicators within each family. This family-level score captures the overall performance for a given institutional category relative to the “global frontier.” The drawback of this robust methodological aggregation decision is that the data requirement is higher. Several families in both the static and dynamic versions do not meet the data requirements for meaninful aggregation (i.e., the balanced sample is too small or empty), and thus CTF family scores are not computed. "
+            )
+          ),
+          
+          
+          box(
+            width = 11,
+            status = "navy",
+            collapsed = TRUE,
+            title = "How often is the CLIAR data updated? How do I know that the CLIAR data uses the latest available data?",
+            p(
+              'It is currently planned that the CLIAR Database will be updated once per year.
+              The CLIAR Benchmarking Dashboard is programmed so that the data extraction from the data sources (primarily EFI360)
               is automated through APIs,
               therefore with minimal maintenance costs for the indicators already
               included in the dashboard and with stable APIs. The full compiled database,
               once updated, is available in the "Data" tab for download.
-              Both the "Closeness to Frontier"" scores and the full database with
-              yearly indicators are available for download,
-              and therefore users can easily verify the latest year available for each indicator.'
+              Both the CLIAR Benchmarking "Closeness to Frontier" scores and the full CLIAR master database with
+              yearly indicators are available for download and therefore users can easily verify the latest year available for each indicator.'
             )
           ),
-
+          
           box(
             width = 11,
             status = "navy",
             collapsed = TRUE,
-            title = "How were the indicators included in G-BID selected?",
+            title = "How were the indicators included in the CLIAR Benchmarking selected?",
             p(
-              'The indicators included in the G-BID were selected following two criteria:
-              geographical coverage and quality.
-              This list was defined based on initial internal reviews,
-              and will be further refined based on inputs recently received by
-              sector experts and from the experiences of country teams in applying this tool.
-              For example, the team is currently considering expanding the existing
-              database in order to include indicators from additional data sources,
-              such as Tax DIAMOND and Regional Barometers.
-              The list of indicators used in the G-BID will be periodically
-              reviewed in order to include new governance and institutions indicators
-              that may be become available in the future.
-              The G-BID is a "live tool".'
-            )
-          ),
-
-          box(
-            width = 11,
-            status = "navy",
-            collapsed = TRUE,
-            title = "Is the G-BID available to external users (i.e non-bank staff) ?",
-            p(
-              "As of now, the G-BID is not available for external users.
-              The team will consider making the dashboard publicly available it has been tested and validated through a
-              few pilots, and depending on demands and usage."
+              'The indicators included in the CLIAR Benchmarking were selected following a criteria of 
+              (geographical and time) coverage and quality. 
+              This list was defined based on initial internal reviews, 
+              and will be further refined based on inputs recently received by 
+              sector experts and from the experiences of country teams in applying this tool. 
+              The list of indicators used will be periodically reviewed in order to include new indicators that may be become available in the future. 
+              As such, the CLIAR database is a "live tool".' 
             )
           )
+
 
         ) # Close FAQ tab
       )

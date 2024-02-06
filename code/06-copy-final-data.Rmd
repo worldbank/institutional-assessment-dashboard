@@ -1,0 +1,20 @@
+# Move final data to app folder
+
+```{r}
+file.copy(
+  list.files(
+    here(
+      "data",
+      "output"
+    ),
+    full.names = TRUE
+  ),
+  here(
+    "..",
+    "app",
+    "data"
+  ),
+  recursive = TRUE,
+  overwrite = TRUE
+)
+```

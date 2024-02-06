@@ -5,11 +5,8 @@ To run the code, you will need to get access to the project's OneDrive folder,
 and copy the files inside the data folder to the data folder of your local repository clone.*
 
 1. Click on the green `Code` button in this repository and download or clone the files to your computer.
-1. Make sure the `data` folder contains the subfolders `raw`, `clean`, and `final`.
-1. Copy the files in the `raw` folder in OneDrive to the `raw` folder in GitHub.
-1. Open the R Project to prepare the data at `code/notebook.Rproj`.
-1. Find the file `master.R` in R's *Files* pane, open it, and run the entire code in it.
-1. If the code runs without errors, 8 files will be created in the `data/final` folder.
+1. Copy the data files in the OneDrive to the `code/data/input` folder in GitHub.
+1. Open the R Project,use the index.Rmd file and bookdown::render_book() command to generate the data.
 
 If all this is working, you should be able to run the app:
 1. Go to `app`.
