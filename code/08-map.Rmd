@@ -1,0 +1,176 @@
+# Create spatial data
+
+- Inputs:
+  - `data/final/closeness_to_frontier.rds`
+  - `data/final/compiled_indicators.rds`
+  - `data/raw/WB_countries_Admin0_lowres.geojson`, obtained from https://datacatalog.worldbank.org/int/search/dataset/0038272 on September 1, 2022
+  - `data/raw/WB_disputed_areas_Admin0_10m_lowres.geojson`, obtained from https://datacatalog.worldbank.org/int/search/dataset/0038272 on September 1, 2022
+  
+- Output:
+  - `data/final/indicators_map.rds`
+
+## Input data 
+
+```{r}
+ctf <-
+  read_rds(
+    here(
+      "..",
+      "data",
+      "final",
+      "closeness_to_frontier.rds"
+    )
+  )
+
+raw_indicators <-
+  read_rds(
+    here(
+      "..",
+      "data",
+      "final",
+      "compiled_indicators.rds"
+    )
+  )
+
+db_variables <-
+  read_rds(
+    here(
+      "..",
+      "data",
+      "final",
+      "db_variables.rds"
+    )
+  )
+```
+
+## Official WB maps 
+
+```{r}
+world_map <-
+  read_sf(
+    here(
+      "..",
+      "data",
+      "raw",
+      "WB_countries_Admin0_lowres.geojson"
+    )
+  )
+
+disputed_areas <-
+  read_sf(
+    here(
+      "..",
+      "data",
+      "raw",
+      "WB_disputed_areas_Admin0_10m_lowres.geojson"
+    )
+  )
+```
+
+# Clean maps 
+
+In this section, we combine the world map data with disputed areas, in order to address potential boundary conflicts. We also simplify the world map through the `st_simplify` command in order to improve loading performance on our Shiny App.
+
+```{r}
+disputed_areas <-
+  disputed_areas %>%
+  transmute(country_code = str_trim(WB_A3)) %>%
+  filter(
+    !is.na(country_code),
+    country_code != ""
+  )
+
+world_map <-
+  world_map %>%
+  select(country_code = WB_A3) 
+
+world_map <-
+  world_map %>%
+  bind_rows(
+    disputed_areas
+  )
+
+# simplify map to improve loading performance
+simple_world_map <-
+  world_map %>%
+  # fix wrapping of dateline to avoid spurious ribbon
+  # source: https://github.com/r-spatial/sf/issues/1046
+  st_transform(4326) %>% 
+  st_wrap_dateline() |> 
+  # project into robinson coordinate system
+  st_transform(crs = '+proj=robin') %>%
+  # simplify polygons to improve rendering
+  st_simplify(
+    dTolerance = 0.05
+  ) 
+```
+
+
+# Combine maps and data
+
+## Closeness to frontier
+
+```{r}
+ctf <-
+  ctf %>%
+  pivot_longer(
+    cols = db_variables$variable,
+    values_to = "ctf"
+  ) %>%
+  mutate(
+    bin = case_when(
+      ctf < .2 ~ "0.0 - 0.2",
+      ctf < .4 ~ "0.2 - 0.4",
+      ctf < .5 ~ "0.4 - 0.6",
+      ctf < .8 ~ "0.6 - 0.8",
+      ctf <= 1 ~ "0.8 - 1.0" 
+    )
+  ) %>%
+  pivot_wider(
+    id_cols = starts_with("country_"),
+    names_from = name,
+    values_from = c(bin, ctf)
+  )
+```
+
+## Raw data
+
+```{r}
+raw <-
+  raw_indicators %>%
+  pivot_longer(
+    cols = 4:ncol(.)
+  ) %>%
+  filter(!is.na(value)) %>%
+  group_by(country_code, name) %>%
+  filter(year == max(year)) %>%
+  ungroup %>%
+  pivot_wider(
+    values_from = c(value, year),
+    names_from = name
+  )
+
+final_world_map <-
+  world_map %>%
+  left_join(
+    raw
+  ) %>%
+  left_join(
+    ctf
+  )
+```
+
+
+# Save datasets
+
+```{r}
+final_world_map %>%
+  write_rds(
+    here(
+      "..",
+      "data",
+      "final",
+      "indicators_map.rds"
+    )
+  )
+```

@@ -64,6 +64,7 @@ passwords.*
 password/
 passwords/
 data/raw/CLASS.xlsx
+
 **/output/
 
 # RENV files

@@ -2,6 +2,7 @@
 local({
 
   # the requested version of renv
+
   version <- "1.0.3"
   attr(version, "sha") <- NULL
 
@@ -782,13 +783,14 @@ local({
   renv_bootstrap_validate_version <- function(version, description = NULL) {
   
     # resolve description file
+
     #
     # avoid passing lib.loc to `packageDescription()` below, since R will
     # use the loaded version of the package by default anyhow. note that
     # this function should only be called after 'renv' is loaded
     # https://github.com/rstudio/renv/issues/1625
     description <- description %||% packageDescription("renv")
-  
+
     # check whether requested version 'version' matches loaded version of renv
     sha <- attr(version, "sha", exact = TRUE)
     valid <- if (!is.null(sha))
@@ -1008,6 +1010,7 @@ local({
   renv_bootstrap_exec <- function(project, libpath, version) {
     if (!renv_bootstrap_load(project, libpath, version))
       renv_bootstrap_run(version, libpath)
+
   }
   
   renv_bootstrap_run <- function(version, libpath) {
@@ -1033,7 +1036,7 @@ local({
     warning(paste(msg, collapse = "\n"), call. = FALSE)
   
   }
-  
+
   renv_json_read <- function(file = NULL, text = NULL) {
   
     jlerr <- NULL
@@ -1174,6 +1177,7 @@ local({
 
   # run bootstrap code
   renv_bootstrap_exec(project, libpath, version)
+
 
   invisible()
 

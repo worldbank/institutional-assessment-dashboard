@@ -1,0 +1,29 @@
+# Move final data to app folder
+
+```{r}
+file.copy(
+  list.files(
+    here(
+      "..",
+      "data",
+      "final"
+    ),
+    full.names = TRUE
+  ),
+  here(
+    "..",
+    "app",
+    "data"
+  ),
+  recursive = TRUE
+)
+
+file.copy(
+  "vars-control.R",
+  here(
+    "..",
+    "app",
+    "auxiliary"
+  )
+)
+```
