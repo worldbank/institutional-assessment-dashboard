@@ -1357,6 +1357,7 @@ trends_plot <- function(raw_data,
                paste(
                  str_wrap(
                    paste(
+                     "<b>Note:</b>,Data displayed in based on the original indicators<br>",
                      "<b>Definition:</b>",
                      def$description
                    ),
@@ -1513,12 +1514,6 @@ static_bar <-
           label = round(get(varname), 3)
         )
       ) +
-      geom_vline(
-        xintercept = 1,
-        linetype = "dashed",
-        color = "#238823",
-        size = 1
-      ) +
       theme_minimal() +
       theme(
         legend.position = "none",
@@ -1559,14 +1554,16 @@ interactive_bar <-
           title = list(text = '<b>Closeness to\nfrontier:</b>'),
           y = 0.5
         ),
-        margin = list(t = 75, b = 200),
+        margin = list(t = 75, b = 220),
         annotations =
           list(x = -.1,
                y = -.4,
                text = HTML(
                  paste(
+                   
                    str_wrap(
                      paste(
+                       "<b>Note:</b>,Data displayed is based on the CTF data. <br>",
                        "<b>Definition:</b>",
                        def$description
                      ),
