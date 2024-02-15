@@ -2056,7 +2056,7 @@ server <- function(input, output, session) {
   output$download_global_rds <-
     downloadHandler(
       filename = function() {
-        paste0(input$data_source, "-", input$data_value, "-gbid-data.rds")
+        paste0("CLIAR ",input$data_source," data.rds")
       },
       content = function(file) {
         write_rds(
@@ -2076,7 +2076,7 @@ server <- function(input, output, session) {
   output$download_global_csv <-
     downloadHandler(
       filename = function() {
-        paste0(input$data_source, "-", input$data_value, "-gbid-data.csv")
+        paste0("CLIAR ",input$data_source," data.csv")
       },
       content = function(file) {
         write_csv(
@@ -2091,7 +2091,7 @@ server <- function(input, output, session) {
   output$download_global_dta <-
     downloadHandler(
       filename = function() {
-        paste0(input$data_source, "-", input$data_value, "-gbid-data.dta")
+        paste0("CLIAR ",input$data_source," data.dta")
       },
       content = function(file) {
         write_dta(
