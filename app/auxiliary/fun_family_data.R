@@ -53,7 +53,7 @@ family_data_dyn <- function(data, base_country, variable_names) {
   
   dtf_family_level <-
     data %>%
-    pivot_longer(cols = 4:ncol(.),
+    pivot_longer(cols = 5:ncol(.),
       names_to = "variable") %>%
     left_join(variable_names,
       by = c("variable")) %>%

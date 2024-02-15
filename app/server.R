@@ -1091,7 +1091,7 @@ server <- function(input, output, session) {
             year %% 2 == 0
           )
         
-        vars_dynamic_avg_data <- names(dynamic_avg_data)[5:length(dynamic_avg_data)] 
+        vars_dynamic_avg_data <- names(dynamic_avg_data)[6:length(dynamic_avg_data)] 
         
         dynamic_avg <-compute_family_average(dynamic_avg_data,vars_dynamic_avg_data,"dynamic",db_variables)
         
