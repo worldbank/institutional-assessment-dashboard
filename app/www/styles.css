@@ -1,9 +1,9 @@
  /* Make the dynamic dashboard scrollable */
                       
-#shiny-tab-benchmark > div:nth-child(4) > div{
+/*#shiny-tab-benchmark > div:nth-child(4) > div{
   max-height: 600px;
   overflow-y: auto;
-}
+}*/
   
 .shiny-notification{
   position:fixed;
@@ -45,6 +45,6 @@
 
 #countries .btn {
   font-size: 10px; 
-  padding: 5px; 
-  margin: 0;
+  padding: 2px; 
+  margin: 0.5px;
 }
