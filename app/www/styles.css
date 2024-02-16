@@ -1,23 +1,50 @@
-.dataTables_wrapper .dt-buttons {
-  float:none;
-  text-align:right;
+ /* Make the dynamic dashboard scrollable */
+                      
+#shiny-tab-benchmark > div:nth-child(4) > div{
+  max-height: 600px;
+  overflow-y: auto;
+}
+  
+.shiny-notification{
+  position:fixed;
+  top: calc(80%);
+  left: calc(40%);
+}
+  
+.shiny-html-output.shiny-bound-output{
+  text-align: justify;
+}
+  
+/* Changed the background of the load and save input buttons a shade of red */
+.load_save_btns .bttn-primary{
+  background-color: #e94152;
 }
 
-#expand-button {
-  background-color: #e3e3e3;
-  width: 100%
+/* Changed the background of the selected country or countries to a shade of blue */
+.dropdown-item.active, 
+.dropdown-item:active,
+.dropdown-item.opt.selected{
+  background-color: #007bff6b;
+}
+ 
+.far.fa-square-check{
+  background-color: #e94152e8;
+  color: white;
+} 
+
+#save_inputs{
+  background-color: #e94152;
+  color: white;
+  border-radius: 20px;
+}
+ 
+#download_data_1{
+  background-color: #3326da;
+  color: white;
 }
 
-.multicol-7 {
-  background-color: white;
-  border: 1px solid #e3e3e3;
-  border-radius: 4px;
-  width: 1700px;
-  padding: 20px;
-  -webkit-column-count: 10; /* Chrome, Safari, Opera */
-  -moz-column-count: 10;    /* Firefox */
-  column-count: 10;
-  column-width: auto;
-  -moz-column-fill: auto;
-  -column-fill: auto;
+#countries .btn {
+  font-size: 10px; 
+  padding: 5px; 
+  margin: 0;
 }
