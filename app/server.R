@@ -1825,7 +1825,7 @@ server <- function(input, output, session) {
           pull(variable)
         
         valid <-
-          global_data %>%
+          raw_data %>%
           filter(
             !is.na(get(var))
           ) %>%

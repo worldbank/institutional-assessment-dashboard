@@ -589,7 +589,22 @@ ui <-
             width = 11,
 
             fluidRow(
-
+              column(
+                width = 5,
+                pickerInput(
+                  "vars_bar",
+                  label = "Select indicator",
+                  choices = variable_list_benchmarked,
+                  selected = NULL,
+                  options = list(
+                    # size = 20,
+                    `actions-box` = TRUE,
+                    `live-search` = TRUE,
+                    "max-options" = 3
+                  ),
+                  width = "100%"
+                )
+              ),
               column(
                 width = 3,
                 pickerInput(
@@ -598,7 +613,6 @@ ui <-
                   choices = c("", countries),
                   selected = NULL,
                   multiple = FALSE
-                  
                 )
               ),
 
@@ -617,22 +631,7 @@ ui <-
                   )
                 )
               ),              
-              column(
-                width = 5,
-                pickerInput(
-                  "vars_bar",
-                  label = "Select indicator",
-                  choices = variable_list,
-                  selected = NULL,
-                  options = list(
-                    # size = 20,
-                    `actions-box` = TRUE,
-                    `live-search` = TRUE,
-                    "max-options" = 3
-                  ),
-                  width = "100%"
-                )
-              )
+              
             )
           ),
 
@@ -817,6 +816,21 @@ ui <-
             collapsible = TRUE,
 
             fluidRow(
+                     column(
+                       width = 5,
+                       pickerInput(
+                         "vars_trends",
+                         label = "Select indicator to visualize",
+                         choices = filtered_variable_list,
+                         selected = NULL,
+                         options = list(
+                           `live-search` = TRUE,
+                           # size = 21,
+                           title = "Click to select family or indicator"
+                         ),
+                         width = "100%"
+                       )
+                     ),
 
               column(
                 width = 3,
@@ -846,21 +860,6 @@ ui <-
                     `live-search` = TRUE#,
                     # size = 21
                   )
-                )
-              ),
-              column(
-                width = 5,
-                pickerInput(
-                  "vars_trends",
-                  label = "Select indicator to visualize",
-                  choices = filtered_variable_list,
-                  selected = NULL,
-                  options = list(
-                    `live-search` = TRUE,
-                    # size = 21,
-                    title = "Click to select family or indicator"
-                  ),
-                  width = "100%"
                 )
               )
             )

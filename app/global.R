@@ -249,9 +249,21 @@ extract_variables <-
 variable_list <-
   lapply(family_names$var_name, extract_variables)
 
-
-
 names(variable_list) <- family_names$var_name
+
+extract_variables_benchmarked <-
+  function(x) {
+    db_variables %>%
+      filter(
+        family_name == x, benchmarked_ctf=='Yes'
+      ) %>%
+      pull(var_name)
+  }
+
+variable_list_benchmarked <-
+  lapply(family_names$var_name, extract_variables_benchmarked)
+
+names(variable_list_benchmarked) <- family_names$var_name
 
 
 remove_average_items <- function(family) {
