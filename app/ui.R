@@ -16,7 +16,7 @@ ui <-
   dashboardPage(
     
     
-    freshTheme = create_theme(bs4dash_layout(sidebar_width = "400px")),
+    freshTheme = create_theme(bs4dash_layout(sidebar_width = "350px")),
     
     ## Header ------------------------------------------------------------------
     
