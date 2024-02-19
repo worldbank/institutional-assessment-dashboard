@@ -23,6 +23,8 @@ library(officer)
 library(rvg)
 library(openxlsx)
 library(countrycode)
+library(cicerone)
+library(shinyhelper)
 
 options(dplyr.summarise.inform = FALSE)
 
@@ -62,6 +64,9 @@ source(here("auxiliary", "fun_publications.R"))
 
 # Modules
 source(here("modules", "mod_publications.R"))
+
+# Guide/help
+source(here("auxiliary", "guides.R"))
 
 # Data -------------------------------------------------------------
 

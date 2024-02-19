@@ -4,9 +4,25 @@ server <- function(input, output, session) {
   # Handle inputs ======================================================================
   
   ## Hide save inputs button at onset
-  shinyjs::hide("save_inputs")
+  #shinyjs::hide("save_inputs")
   shinyjs::disable("preset_order")
   shinyjs::hide("benchmark_median")
+  
+  observe_helpers()
+  
+  # initialise then start the guide
+  start_tour <- FALSE
+  start_tour_bench <- FALSE
+  
+  observeEvent(input$start, {
+    guide_landing_page$init()$start()
+    start_tour <<- TRUE
+  })
+  
+  observeEvent(input$start_guide_bench, {
+    guide_benchmark$init()$start()
+    start_tour_bench <<- TRUE
+  })
   
   
   ## Base country ------------------------------------------------------------
@@ -885,7 +901,7 @@ server <- function(input, output, session) {
           icon = icon("check"),
           status = "success",
           width = "100%",
-          shinyjs::show("save_inputs"),
+          #shinyjs::show("save_inputs"),
           shinyjs::enable("save_inputs")
         )
       } else {

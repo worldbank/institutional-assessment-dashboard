@@ -62,6 +62,8 @@ ui <-
     
     dashboardBody(
       
+      cicerone::use_cicerone(),
+      
       ## universal css styles
       tags$head(includeCSS("www/styles.css")),
       
@@ -158,57 +160,63 @@ ui <-
         tabItem(
           tabName = "benchmark",
           useShinyjs(),
-            
-            ### Base country card
-            bs4Card(
-              title = "Base country",
-              status = "success",
-              solidHeader = TRUE,
-              width = 12,
-              collapsible = TRUE,
-              
-              shiny::fluidRow(
-                column(
-                  width = 6,
-                  pickerInput(
-                    "country",
-                    label = "Select a base country",
-                    choices = countries,
-                    choicesOpt = list(
-                      content = flags_with_countries,
-                      style = rep(length(flags_with_countries))
-                    ),
-                    selected = NULL,
-                    multiple = TRUE,
-                    options = list(
-                      `actions-box` = TRUE,
-                      `live-search` = TRUE 
-                    )
-                  )
+          
+          fluidRow(
+            column(
+              width = 5,
+              style = "padding-left: 25px", #display: flex; align-items: center; justify-content: center;",
+              pickerInput(
+                "country",
+                label = tags$span("Base country:", style = "font-size: 28px; color: #051f3f;"),
+                choices = countries,
+                choicesOpt = list(
+                  content = flags_with_countries,
+                  style = rep(length(flags_with_countries))
                 ),
-                column(width = 2),
-                ## Save inputs button
-                column(
-                  style = "display: flex; align-items: center; justify-content: center;",
-                  width = 2,
-                  shinyjs::hidden(
-                    downloadButton(
-                      "save_inputs", 
-                      "Save inputs"
-                    )
-                  )
-                ),
-                ## Load inputs button
-                column(
-                  width = 2,
-                  style = "display: flex; align-items: center; justify-content: center;",
-                  buttons_func(
-                      id = "load_inputs",
-                      lab = "Load Inputs"
-                  )
+                selected = NULL,
+                multiple = TRUE,
+                options = list(
+                  `actions-box` = TRUE,
+                  `live-search` = TRUE 
                 )
               )
             ),
+            ## Guide action button
+            column(
+              width = 3,
+              style = "display: flex; align-items: center; justify-content: center;",
+              shinyWidgets::actionBttn(
+                inputId = "start_guide_bench",
+                label = "Start guided tour", 
+                icon = shiny::icon("gear"),
+                style = "jelly",
+                color = "primary",
+                size = "sm"
+              )
+            ),
+            ## Load inputs button
+            column(
+              width = 2,
+              style = "display: flex; align-items: center; justify-content: center;",
+              buttons_func(
+                id = "load_inputs",
+                lab = "Load Inputs"
+              )
+            ),
+            ## Save inputs button
+            column(
+              style = "display: flex; align-items: center; justify-content: center;",
+              width = 2,
+              shinyjs::disabled(
+                downloadButton(
+                  "save_inputs", 
+                  "Save inputs"
+                )
+              )
+            )
+          ),
+          
+          fluidRow(style = "height: 5px;"),
             
             ### Comparison card 
             bs4Card(
@@ -234,6 +242,7 @@ ui <-
                   )
                 ),
                 column(
+                  id = "show_countries_column",
                   width = 3,
                   style = "display: flex; align-items: center; justify-content: center;",
                   shinyWidgets::materialSwitch(
@@ -244,14 +253,26 @@ ui <-
                   )
                 ),
                 column(
+                  id = "custom_grps_column",
                   width = 3,
-                  style = "display: flex; align-items: center; justify-content: center;",
+                  style = "display: flex; align-items: center; justify-content: left;",
                   shinyWidgets::materialSwitch(
                     inputId = "create_custom_grps",
                     label = tags$b("Create custom groups"),
                     value = FALSE,
                     status = "success"
-                  )
+                  ) |> 
+                    helper(
+                      type = "inline",
+                      icon = "circle-info",
+                      title = "Note",
+                      content = c(
+                        "Currently custom groups are not allowed when displaying ranks instead of values, when ranking from best to worst, or when doing the dynamic benchmark."
+                      ),
+                      buttonLabel = "Close",
+                      fade = T,
+                      size = "s"
+                    )
                 )
               ),
               
@@ -269,12 +290,12 @@ ui <-
                      )
                   )
                 ),
-                fluidRow(
-                  column(
-                    width = 12,
-                    tags$p(HTML("<strong>NOTE:</strong> Currently custom groups are not allowed when displaying ranks instead of values, when ranking from best to worst, or when doing the dynamic benchmark."))
-                  )
-                ),
+                #fluidRow(
+                #  column(
+                #    width = 12,
+                #    tags$p(HTML("<strong>NOTE:</strong> Currently custom groups are not allowed when displaying ranks instead of values, when ranking from best to worst, or when doing the dynamic benchmark."))
+                #  )
+                #),
                 fluidRow(
                   column(
                     width = 3,
@@ -290,7 +311,14 @@ ui <-
                   column(
                     width = 3,
                     style = "display: flex; align-items: center; justify-content: center;",
-                    shiny::actionButton("save_custom_grps", "Save custom groups")
+                    shinyWidgets::actionBttn(
+                      inputId = "save_custom_grps",
+                      label = "Save custom groups", 
+                      icon = shiny::icon("save"),
+                      style = "jelly",
+                      color = "primary",
+                      size = "sm"
+                    )
                   ),
                   column(
                     width = 12,
@@ -399,26 +427,32 @@ ui <-
               fluidRow(
                 column(
                   width = 4,
-                  downloadButton(
-                    "report",
-                    "Download editable report",
-                    style = "width:100%; background-color: #204d74; color: white"
+                  shinyjs::disabled(
+                    downloadButton(
+                      "report",
+                      "Download editable report",
+                      style = "width:100%; background-color: #204d74; color: white"
+                    )
                   )
                 ),
                 column(
                   width = 4,
-                  downloadButton(
-                    "pptreport",
-                    "Download PPT report",
-                    style = "width:100%; background-color: #204d74; color: white"
+                  shinyjs::disabled(
+                    downloadButton(
+                      "pptreport",
+                      "Download PPT report",
+                      style = "width:100%; background-color: #204d74; color: white"
+                    )
                   )
                 ),
                 column(
                   width = 4,
-                  downloadButton(
-                    "download_data_1",
-                    "Download Data",
-                    style = "width:100%; background-color: #204d74; color: white"
+                  shinyjs::disabled(
+                    downloadButton(
+                      "download_data_1",
+                      "Download Data",
+                      style = "width:100%; background-color: #204d74; color: white"
+                    )
                   )
                 )
                 # shiny::column(3,
