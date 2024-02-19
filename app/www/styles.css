@@ -16,16 +16,20 @@
   
 /* Changed the background of the load and save input buttons a shade of red */
 .load_save_btns .bttn-primary{
-  background-color: #e94152;
+  background-color: #89baf5;
   color: white;
   border-radius: 20px;
+}
+
+.bttn-jelly.bttn-primary {
+  background-color: #89baf5;
 }
 
 /* Changed the background of the selected country or countries to a shade of blue */
 .dropdown-item.active, 
 .dropdown-item:active,
-.dropdown-item.opt.selected{
-  background-color: #007bff6b;
+.dropdown-item.selected{
+  background-color: #007bff6b !important;
 }
  
 .far.fa-square-check{
@@ -34,7 +38,7 @@
 } 
 
 #save_inputs{
-  background-color: #e94152;
+  background-color: #89baf5;
   color: white;
   border-radius: 20px;
   padding: 4px 10px;
@@ -78,4 +82,8 @@
 /* Side bar tab active background */
 .sidebar-dark-info .nav-sidebar>.nav-item>.nav-link.active, .sidebar-light-info .nav-sidebar>.nav-item>.nav-link.active {
   background-color: #051f3f !important;
+}
+
+.shinyhelper-container i {
+  padding-left: 20px; 
 }
