@@ -22,7 +22,7 @@ library(htmltools)
 library(officer)
 library(rvg)
 library(openxlsx)
-
+library(countrycode)
 
 options(dplyr.summarise.inform = FALSE)
 
@@ -236,6 +236,15 @@ countries <-
   unname %>%
   unique %>%
   sort
+
+# Get flags for each country
+country_flags_codes <- countrycode::countrycode(countries, "country.name.en", "ecb")
+
+flags_with_countries <- mapply(function(country, code) {
+  flag_html <- tags$img(src = paste0(src='https://flagcdn.com/w20/', tolower(code), '.png'), alt = code)
+  label_html <- tags$span(country)
+  paste(flag_html, label_html, sep = " ")
+}, countries, country_flags_codes, SIMPLIFY = FALSE)
 
 extract_variables <-
   function(x) {
