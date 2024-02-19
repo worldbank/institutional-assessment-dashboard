@@ -1,9 +1,8 @@
- /* Make the dynamic dashboard scrollable */
-                      
-/*#shiny-tab-benchmark > div:nth-child(4) > div{
+/* Make the dynamic dashboard scrollable */
+#shiny-tab-benchmark > div:nth-child(6) > div{
   max-height: 600px;
   overflow-y: auto;
-}*/
+}
   
 .shiny-notification{
   position:fixed;
@@ -18,6 +17,8 @@
 /* Changed the background of the load and save input buttons a shade of red */
 .load_save_btns .bttn-primary{
   background-color: #e94152;
+  color: white;
+  border-radius: 20px;
 }
 
 /* Changed the background of the selected country or countries to a shade of blue */
@@ -36,6 +37,8 @@
   background-color: #e94152;
   color: white;
   border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 16px;
 }
  
 #download_data_1{
@@ -43,8 +46,36 @@
   color: white;
 }
 
+/* Countries list names */
 #countries .btn {
   font-size: 10px; 
   padding: 2px; 
   margin: 0.5px;
+}
+
+/* Card header background */
+.card-success:not(.card-outline)>.card-header {
+  background-color: #051f3f !important;
+  color: white !important;
+}
+
+/* Button card expand background */
+.card-success:not(.card-outline)>.card-header .btn-success {
+  border-color: #051f3f !important;
+}
+
+.card-success:not(.card-outline)>.card-header .btn-success.focus, 
+.card-success:not(.card-outline)>.card-header .btn-tool, 
+.card-success:not(.card-outline)>.card-header .btn-success:focus, 
+.card-success:not(.card-outline)>.card-header .btn-success:hover {
+  background-color: #051f3f !important;
+}
+
+.card-success.card-outline {
+  border-top: 3px solid #051f3f !important;
+}
+
+/* Side bar tab active background */
+.sidebar-dark-info .nav-sidebar>.nav-item>.nav-link.active, .sidebar-light-info .nav-sidebar>.nav-item>.nav-link.active {
+  background-color: #051f3f !important;
 }
