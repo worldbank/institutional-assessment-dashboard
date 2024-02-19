@@ -116,7 +116,7 @@ static_plot <-
       #   mutate(
       #     var = dtf,
       #     text = paste(
-      #       " Country:", country_name, "<br>",
+      #       "Country:", country_name, "<br>",
       #       "Closeness to frontier:", round(dtf, 3)
       #     )
       #   )
@@ -127,7 +127,7 @@ static_plot <-
           var = dtf,
           text = paste(
             "Closeness to frontier:", round(dtf, 3), "<br>",
-            " Country:", paste(country_name, collapse = ", ")
+            "Country:", paste(country_name, collapse = ", ")
           )
         ) %>%
         ungroup()
@@ -143,7 +143,7 @@ static_plot <-
           var = dtt,
           text = paste(
             "Rank:", nrank, "<br>",
-            " Country:", paste(country_name, collapse = ", "), "<br>",
+            "Country:", paste(country_name, collapse = ", "), "<br>",
             "Closeness to frontier:", round(dtf, 3)
           )
         ) %>%
@@ -355,7 +355,7 @@ static_plot <-
             x = value,
             shape = country_name,
             text = paste(
-              " Group:", country_name,"<br>",
+              "Group:", country_name,"<br>",
               "Median closeness to frontier:", round(value, 3)
             )
           ),
@@ -521,7 +521,7 @@ static_plot_dyn <-
         mutate(
           var = dtf,
           text = paste(
-            " Country:", country_name, "<br>",
+            "Country:", country_name, "<br>",
             "Year: ", year, "<br>",
             "Closeness to frontier:", round(dtf, 3)
           )
@@ -535,7 +535,7 @@ static_plot_dyn <-
           q50 = cutoff[[2]]/100,
           var = dtt,
           text = paste(
-            " Country:", country_name, "<br>",
+            "Country:", country_name, "<br>",
             "Year: ", year,  "<br>",
             "Closeness to frontier:", round(dtf, 3), "<br>",
             "Rank:", nrank
@@ -793,7 +793,7 @@ static_plot_dyn <-
             x = as.character(year),
             shape = country_name,
             text = paste(
-              " Group:", country_name,"<br>",
+              "Group:", country_name,"<br>",
               "Year: ", year,  "<br>",
               "Median closeness to frontier:", round(value, 3)
             )
