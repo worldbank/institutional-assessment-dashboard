@@ -883,20 +883,22 @@ server <- function(input, output, session) {
           "select",
           "Apply selection",
           icon = icon("check"),
-          class = "btn-success",
-          width = "100%"
+          status = "success",
+          width = "100%",
+          shinyjs::show("save_inputs"),
+          shinyjs::enable("save_inputs")
         )
       } else {
         actionButton(
           "select",
           "Select a base country and at least 10 comparison countries to apply selection",
           icon = icon("triangle-exclamation"),
-          class = "btn-warning",
+          status = "warning",
           width = "100%",
           shinyjs::disable("report"),
           shinyjs::disable("pptreport"),
           shinyjs::disable("download_data_1"),
-          
+          shinyjs::disable("save_inputs")
         )
       }
     })
@@ -2431,8 +2433,8 @@ server <- function(input, output, session) {
   
   # When 'apply selection' button is clicked, show the save button
   shiny::observeEvent(input$select, {
-    shinyjs::show("save_inputs")
-    shinyjs::enable("save_inputs")
+    #shinyjs::show("save_inputs")
+    #shinyjs::enable("save_inputs")
     shinyjs::show("download_data_1")
     shinyjs::enable("download_data_1")
     
