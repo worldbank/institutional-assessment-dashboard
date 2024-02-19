@@ -155,12 +155,11 @@ ui <-
         ),
         
         ## Country benchmark tab -------------------------------------------------------
-        
         tabItem(
           tabName = "benchmark",
           useShinyjs(),
             
-            ### Base country card -------------------------------------------------------
+            ### Base country card
             bs4Card(
               title = "Base country",
               status = "success",
@@ -168,15 +167,17 @@ ui <-
               width = 12,
               collapsible = TRUE,
               
-              shiny::fluidRow(style = "height:15px;"),
-              
               shiny::fluidRow(
                 column(
                   width = 6,
                   pickerInput(
                     "country",
                     label = "Select a base country",
-                    choices = c("", countries),
+                    choices = countries,
+                    choicesOpt = list(
+                      content = flags_with_countries,
+                      style = rep(length(flags_with_countries))
+                    ),
                     selected = NULL,
                     multiple = TRUE,
                     options = list(
@@ -185,33 +186,33 @@ ui <-
                     )
                   )
                 ),
+                column(width = 2),
+                ## Save inputs button
+                column(
+                  style = "display: flex; align-items: center; justify-content: center;",
+                  width = 2,
+                  shinyjs::hidden(
+                    downloadButton(
+                      "save_inputs", 
+                      "Save inputs"
+                    )
+                  )
+                ),
                 ## Load inputs button
                 column(
                   width = 2,
-                ),
-                column(
-                  width = 2,
-                  align = "center",
+                  style = "display: flex; align-items: center; justify-content: center;",
                   buttons_func(
                       id = "load_inputs",
                       lab = "Load Inputs"
-                  )
-                ),
-                ## Save inputs button
-                column(
-                  align = "center",
-                  width = 2,
-                  downloadButton(
-                    "save_inputs", 
-                    "Save inputs"
                   )
                 )
               )
             ),
             
-            ### Comparison card -------------------------------------------------------
+            ### Comparison card 
             bs4Card(
-              title = "Comparison groups and countries",              
+              title = "Comparator countries",              
               status = "success",
               solidHeader = TRUE,
               width = 12,
@@ -219,7 +220,7 @@ ui <-
               
               shiny::fluidRow(
                 column(
-                  width = 12,
+                  width = 6,
                   pickerInput(
                     "groups",
                     label = "Select comparison groups",
@@ -233,12 +234,22 @@ ui <-
                   )
                 ),
                 column(
-                  width = 6,
+                  width = 3,
+                  style = "display: flex; align-items: center; justify-content: center;",
+                  shinyWidgets::materialSwitch(
+                    inputId = "show_countries",
+                    label = tags$b("Show countries list"),
+                    value = FALSE,
+                    status = "success"
+                  )
+                ),
+                column(
+                  width = 3,
+                  style = "display: flex; align-items: center; justify-content: center;",
                   shinyWidgets::materialSwitch(
                     inputId = "create_custom_grps",
                     label = tags$b("Create custom groups"),
                     value = FALSE,
-                    #icon = icon("check"),
                     status = "success"
                   )
                 )
@@ -247,8 +258,7 @@ ui <-
               shiny::conditionalPanel(
                 "input.create_custom_grps == true",
                 
-                shiny::fluidRow(
-                  
+                fluidRow(
                   column(
                     width = 12,
                     shinyWidgets::materialSwitch(
@@ -259,7 +269,6 @@ ui <-
                      )
                   )
                 ),
-                
                 fluidRow(
                   column(
                     width = 12,
@@ -279,43 +288,46 @@ ui <-
                     )
                   ),
                   column(
+                    width = 3,
+                    style = "display: flex; align-items: center; justify-content: center;",
+                    shiny::actionButton("save_custom_grps", "Save custom groups")
+                  ),
+                  column(
                     width = 12,
                     conditionalPanel(
                       "input.custom_grps_count >= 1",
                       uiOutput("custom_grps")
                     )
                   )
-                ),
-                column(
-                  width = 12,
-                  align = "center",
-                  shiny::actionButton("save_custom_grps", "Save custom groups")
                 )
               ),
-              
-              fluidRow(style = "height: 15px;"),
-              
-              #### List countries ---------------------------------------------------
-              shiny::fluidRow(
-                column(
-                  width = 12,
-                  checkboxGroupButtons(
-                    inputId = "countries",
-                    individual = TRUE,
-                    label = NULL,
-                    choices = countries,
-                    selected = NULL, 
-                    checkIcon = list(
-                      yes = icon("ok",
-                                 lib = "glyphicon")
+              #### Countries list 
+              shiny::conditionalPanel(
+                "input.show_countries == true",
+                
+                fluidRow(style = "height: 15px;"),
+                
+                fluidRow(
+                  column(
+                    width = 12,
+                    checkboxGroupButtons(
+                      inputId = "countries",
+                      individual = TRUE,
+                      label = NULL,
+                      choices = countries,
+                      selected = NULL, 
+                      checkIcon = list(
+                        yes = icon(
+                          "ok",
+                          lib = "glyphicon"
+                        )
+                      )
                     )
                   )
                 )
               )
-              
             ),
-            
-            ### Bench card -------------------------------------------------------
+            ### Bench card 
             bs4Card(
               title = "Benchmarking options",
               status = "success",
@@ -323,8 +335,7 @@ ui <-
               width = 12,
               collapsible = TRUE,
               collapsed = TRUE,
-              
-              shiny::fluidRow(
+              fluidRow(
                 column(
                   width = 6,
                   pickerInput(
@@ -333,8 +344,9 @@ ui <-
                     choices = c("Default","Terciles")
                   )
                 ),
+                column(width = 1),
                 column(
-                  width = 6,
+                  width = 5,
                   prettyCheckbox(
                     inputId = "benchmark_dots",
                     label = "Show comparison countries",
@@ -359,81 +371,78 @@ ui <-
                 )
               )
             ),
-            
-          ### Outputs card -----------------------------------------------------
-          bs4Card(
-            title = "Outputs",
-            status = "success",
-            solidHeader = TRUE,
-            width = 12,
-            collapsible = TRUE,
-            
-            shiny::fluidRow(
-              column(
-                width = 6,
-                pickerInput(
-                  "family",
-                  label = "Select institutional family",
-                  choices = c("Overview", names(variable_list)),
-                  selected = NULL
+            ### Outputs card
+            bs4Card(
+              title = "Outputs",
+              status = "success",
+              solidHeader = TRUE,
+              width = 12,
+              collapsible = TRUE,
+              fluidRow(
+                column(
+                  width = 6,
+                  pickerInput(
+                    "family",
+                    label = "Select institutional family",
+                    choices = c("Overview", names(variable_list)),
+                    selected = NULL
+                  )
+                ),
+                column(
+                  width = 6,
+                  style = "display: flex; align-items: center; justify-content: center;",
+                  uiOutput(
+                    "select_button"
+                  )
                 )
               ),
-              column(
-                width = 6,
-                uiOutput(
-                  "select_button"
+              fluidRow(
+                column(
+                  width = 4,
+                  downloadButton(
+                    "report",
+                    "Download editable report",
+                    style = "width:100%; background-color: #204d74; color: white"
+                  )
+                ),
+                column(
+                  width = 4,
+                  downloadButton(
+                    "pptreport",
+                    "Download PPT report",
+                    style = "width:100%; background-color: #204d74; color: white"
+                  )
+                ),
+                column(
+                  width = 4,
+                  downloadButton(
+                    "download_data_1",
+                    "Download Data",
+                    style = "width:100%; background-color: #204d74; color: white"
+                  )
                 )
-              )
-            ),
-            
-            shiny::fluidRow(
-              column(
-                width = 4,
-                downloadButton(
-                  "report",
-                  "Download editable report",
-                  style = "width:100%; background-color: #204d74; color: white"
-                )
+                # shiny::column(3,
+                #               shinyWidgets::materialSwitch(
+                #                 inputId = "show_dynamic_plot",
+                #                 label = "Show dynamic benchmark plot",
+                #                 status = "success",
+                #                 value = FALSE
+                #               )
+                # )
               ),
-              column(
-                width = 4,
-                downloadButton(
-                  "pptreport",
-                  "Download PPT report",
-                  style = "width:100%; background-color: #204d74; color: white"
-                )
-              ),
-              column(
-                width = 4,
-                downloadButton(
-                  "download_data_1",
-                  "Download Data",
-                  style = "width:100%; background-color: #204d74; color: white"
+              shiny::fluidRow(
+                column(
+                  width = 12,
+                  prettyCheckbox(
+                    inputId = "download_Opt",
+                    label = "Download Advanced Report (~10min)",
+                    value = FALSE,
+                    icon = icon("check"),
+                    status = "success"
+                  )
                 )
               )
-              # shiny::column(3,
-              #               shinyWidgets::materialSwitch(
-              #                 inputId = "show_dynamic_plot",
-              #                 label = "Show dynamic benchmark plot",
-              #                 status = "success",
-              #                 value = FALSE
-              #               )
-              # )
-            ),
-            shiny::fluidRow(
-              column(
-                width = 12,
-                prettyCheckbox(
-                  inputId = "download_Opt",
-                  label = "Download Advanced Report (~10min)",
-                  value = FALSE,
-                  icon = icon("check"),
-                  status = "success"
-                )
-              )
-            )
           ),
-          
           ### Static Benchmarks ----
           bs4Card(
             title = "Static Benchmarks",
@@ -506,8 +515,7 @@ ui <-
                   ) %>% shinycssloaders::withSpinner(color = "#051f3f", type = 8)
                 )
                 
-              ),
-              
+              )
               
             )
             
@@ -516,7 +524,7 @@ ui <-
           bs4Card(
             title = "Indicator definitions",
             collapsible = TRUE,
-            collapsed = FALSE,
+            collapsed = TRUE,
             status = "secondary",
             solidHeader = TRUE,
             width = 12,
