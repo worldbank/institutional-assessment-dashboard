@@ -177,16 +177,20 @@ efi_clean <- efi |>
     .cols = starts_with("wb_survey")
   ) |> 
   # create PFM MIS indicator by summing over the following and rescaling:
+  # GTMI_I-12       Is there an e-Procurement System in place? (foreign and domestic debt)
   # GTMI_I-13       Is there a Debt Management System (DMS) in place? (foreign and domestic debt)
   # GTMI_I-14       Is there a Public Investment Management System (PIMS) in place?
-  # GTMI_I-7         Is there a Tax Management Information System in place?
-  # GTMI_I-6         Is there a TSA supported by FMIS to automate payments and bank reconciliation?
-  # GTMI_I-5         Is there an operational FMIS in place to support core PFM functions?
+  # GTMI_I-8        Is there a Customs System in place?
+  # GTMI_I-7        Is there a Tax Management Information System in place?
+  # GTMI_I-6        Is there a TSA supported by FMIS to automate payments and bank reconciliation?
+  # GTMI_I-5        Is there an operational FMIS in place to support core PFM functions?
   rowwise() |> 
   mutate(
     wb_gtmi_pfm_mis = sum(
+      # wb_gtmi_i_12,
       wb_gtmi_i_13,
       wb_gtmi_i_14,
+      wb_gtmi_i_8,
       wb_gtmi_i_7,
       wb_gtmi_i_6,
       wb_gtmi_i_5
