@@ -2071,6 +2071,14 @@ server <- function(input, output, session) {
         paste0("CLIAR ",input$data_source," data.rds")
       },
       content = function(file) {
+        
+        show_modal_spinner(
+          color = "#17a2b8",
+          text = "Loading Data",
+        )
+        
+        on.exit(remove_modal_spinner())
+        
         write_rds(
           browse_data() %>%
             setnames(
@@ -2091,6 +2099,14 @@ server <- function(input, output, session) {
         paste0("CLIAR ",input$data_source," data.csv")
       },
       content = function(file) {
+        
+        show_modal_spinner(
+          color = "#17a2b8",
+          text = "Loading Data",
+        )
+        
+        on.exit(remove_modal_spinner())
+        
         write_csv(
           browse_data(),
           file,
@@ -2106,6 +2122,14 @@ server <- function(input, output, session) {
         paste0("CLIAR ",input$data_source," data.dta")
       },
       content = function(file) {
+        
+        show_modal_spinner(
+          color = "#17a2b8",
+          text = "Loading Data",
+        )
+        
+        on.exit(remove_modal_spinner())
+        
         write_dta(
           browse_data() %>%
             setnames(
