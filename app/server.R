@@ -1937,18 +1937,19 @@ server <- function(input, output, session) {
     reactive({
       data <-
         if (input$data_source == "Closeness to frontier (Static)") {
-          merged_data <- raw_data %>%
+
+          raw_data %>%
             select(country_code,country_name, income_group, region) %>%
             distinct() %>%
             left_join(global_data, by = c("country_code","country_name"))
-          
+
         } else {
           if(input$data_source == "Closeness to frontier (Dynamic)"){
-            
-            merged_data <- raw_data %>%
+          raw_data %>%
               select(country_code,country_name, income_group, region) %>%
               distinct() %>%
               left_join(global_data_dyn, by = c("country_code","country_name"))
+
             
           }else{
             
@@ -1987,10 +1988,10 @@ server <- function(input, output, session) {
         unlist()
       
       if (input$data_source == "Closeness to frontier (Static)") {
-        vars_table <- c("country_name", "country_code", "country_group",  vars)
+        vars_table <- c("country_name", "country_code", "country_group","income_group","region",vars)
       }else{
         if(input$data_source == "Closeness to frontier (Dynamic)"){
-          vars_table <- c("country_name", "country_code", "country_group", "year", vars)
+          vars_table <- c("country_name", "country_code", "country_group","income_group","region", "year", vars)
         } else {
           vars_table <- names(data)
         }
