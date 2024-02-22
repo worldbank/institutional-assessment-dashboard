@@ -735,52 +735,52 @@ server <- function(input, output, session) {
   )
   
   
-  
-  observeEvent(
-    input$vars_bar,
-    {
-      
-      var <-
-        db_variables %>%
-        filter(var_name == input$vars_bar) %>%
-        pull(variable)
-      
-      valid <-
-        global_data %>%
-        filter(
-          !is.na(get(var))
-        ) %>%
-        select(country_name) %>%
-        unique() %>%
-        unlist() %>%
-        unname()
-      
-      bar_countries <-
-        intersect(valid, countries)
-      
-      updatePickerInput(
-        session,
-        "country_bar",
-        choices = c(
-          "",
-          bar_countries
-        )
-      )
-      
-      updateCheckboxGroupButtons(
-        session,
-        "countries_bar",
-        choices = bar_countries,
-        checkIcon = list(
-          yes = icon(
-            "ok",
-            lib = "glyphicon"
-          )
-        )
-      )
-    },
-    ignoreNULL = TRUE
-  )
+  # 
+  # observeEvent(
+  #   input$vars_bar,
+  #   {
+  #     
+  #     var <-
+  #       db_variables %>%
+  #       filter(var_name == input$vars_bar) %>%
+  #       pull(variable)
+  #     
+  #     valid <-
+  #       global_data %>%
+  #       filter(
+  #         !is.na(get(var))
+  #       ) %>%
+  #       select(country_name) %>%
+  #       unique() %>%
+  #       unlist() %>%
+  #       unname()
+  #     
+  #     bar_countries <-
+  #       intersect(valid, countries)
+  #     
+  #     updatePickerInput(
+  #       session,
+  #       "country_bar",
+  #       choices = c(
+  #         "",
+  #         bar_countries
+  #       )
+  #     )
+  #     
+  #     updateCheckboxGroupButtons(
+  #       session,
+  #       "countries_bar",
+  #       choices = bar_countries,
+  #       checkIcon = list(
+  #         yes = icon(
+  #           "ok",
+  #           lib = "glyphicon"
+  #         )
+  #       )
+  #     )
+  #   },
+  #   ignoreNULL = TRUE
+  # )
   
   
   
@@ -1713,11 +1713,25 @@ server <- function(input, output, session) {
   }) 
   
   
+  check_data <-function(country,indicator){
+    
+        var <-
+          db_variables %>%
+          filter(var_name == indicator) %>%
+          pull(variable)
+
+        indicator_val <-
+          global_data %>%
+          filter(country_name == country) %>%
+          pull(var)
+          
+        return(is.na(indicator_val))
+  }  
+  
   output$bar_plot <-
     renderPlotly({
       
-      
-      
+        validate(need(check_data(input$country_bar,input$vars_bar) == FALSE,'Country Comparison is not available for this Indicator for the selected base country'))
       static_bar(
         global_data,
         input$country_bar,
