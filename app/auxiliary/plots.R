@@ -1117,14 +1117,14 @@ static_map <-
             "#579E47",
             "#009E73"
           ),
-          name = NULL,
+          name = "Original Scale",
           na.value = "#808080"
         )
     } else if (source == "ctf") {
       plot <-
         plot +
         scale_fill_manual(
-          name = NULL,
+          name = "CTF",
           values = c(
             "0.0 - 0.2" = "#D55E00",
             "0.2 - 0.4" = "#DD7C00",
@@ -1149,21 +1149,23 @@ interactive_map <-
     def <-
       definitions %>%
       filter(variable == var)
-
-    if (source == "ctf") {
-      leg_title <- "Closeness to\nfrontier"
-    } else  {
-      leg_title <- NULL
-    }
+  
+    
+    # if (source == "ctf") {
+    #   leg_title <- "Closeness to\nfrontier"
+    # }else{
+    #   leg_title <-NULL
+    # }
 
     x %>%
       ggplotly(tooltip = "text") %>%
       layout(
-        legend = list(
-          title = list(text = paste("<b>", leg_title, "</b>")),
-          y = 0.5
-        ),
-        margin = list(t = 75, b = 125),
+        # legend = list(
+        #   title = list(text = paste("<b>", leg_title, "</b>")),
+        #   y = 0.2
+        # ),
+
+        margin = list(t = 75, b = 200),
         xaxis = list(visible = FALSE),
         yaxis = list(visible = FALSE),
         annotations =
