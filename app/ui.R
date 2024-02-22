@@ -979,7 +979,7 @@ ui <-
               plotlyOutput(
                 "map",
                 height = paste0(plot_height, "px")
-              )
+              ) %>% shinycssloaders::withSpinner(color = "#051f3f", type = 8)
             )
           )
         ),
