@@ -362,6 +362,8 @@ wdi_clean <- wdi |>
 # 9. vdem
 vdem_clean <- vdem |> 
   clean_names() |> 
+  # remove duplicate entries for west-bank and gaza
+  distinct(country_code, year, .keep_all = TRUE) |> 
   select(-country_name)
 
 # 10. heritage
@@ -446,7 +448,8 @@ excluded_country_code <- c(
   "ZZB", # zanzibar
   "CUB", # cuba
   "PRK", # democratic people's republic of Korea
-  "KMH" # unclear, listed in Open Budget Survey
+  "KMH", # unclear, listed in Open Budget Survey
+  "PSG" # palestine and gaza (VDEM)
 )
 
 cliar_indicators <- list(

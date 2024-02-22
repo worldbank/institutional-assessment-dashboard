@@ -1,7 +1,5 @@
 # Calculate distance to frontier
 
-NOTE: We have to add the dynamic benchmarking that Shel has designed for us.
-
 - Inputs:
   - `data/output/compiled_indicators.rds`
   - `data/outut/country_list.rds`
@@ -18,7 +16,7 @@ NOTE: We have to add the dynamic benchmarking that Shel has designed for us.
 Closeness to frontier (CTF) is global, meaning that we identify the worst and best performance in the full sample (all countries). For each indicator $i$, we compare the last available value of indicator $i$ with the worst and best
 performance for indicator $i$ among all countries and in the last $y$ years (2013 - most recent data).^[In [the doing business report](https://www.doingbusiness.org/content/dam/doingBusiness/media/Annual-Reports/English/DB17-Chapters/DB17-DTF-and-DBRankings.pdf) they consider the last 5 years, but here for some indicators we have shorter time series].
 
-## 1. Keep only data from after 2013
+## Keep only data from after 2013
 
 Ideally, this will use data for the last 7 years in any given year
 
@@ -84,9 +82,10 @@ country_income_and_region <- read_xlsx(
   )
 ```
 
-## 2. Rescale indicators so a higher number denotes stronger institutions
+## Rescale indicators so a higher number denotes stronger institutions
 
-V-DEM: corruptionPRM indicators: Countries are graded between 0 (less control/involvement) and 6 (more control/involvement). 
+V-DEM: corruption
+PRM indicators: Countries are graded between 0 (less control/involvement) and 6 (more control/involvement). 
     In order to rescale these indicators, the years after 2018 are selected, 
     and then each indicator value is subtracted from 6. so that a value that was
     previously 0 for less control, is now 6, indicating a stronger institution.
@@ -108,8 +107,9 @@ Freedom house: Countries are graded between 1 (most free) and 7 (least free)
 #create new table to hold rescaled values
 cliar_indicators_rescaled <- cliar_indicators |> 
   mutate(
-    # V-DEM: corruption: flip direction because “The directionality of the V-Dem corruption index runs from less corrupt to more corrupt unlike the other V-Dem variables that generally run from less democratic to more democratic situation”.
-    vdem_core_v2x_corr = 1 - vdem_core_v2x_corr,
+    # V-DEM: political and executive corruption: flip direction because “The directionality of the V-Dem corruption index runs from less corrupt to more corrupt unlike the other V-Dem variables that generally run from less democratic to more democratic situation”.
+    vdem_core_v2x_pubcorr = -1 * vdem_core_v2x_pubcorr,
+    vdem_core_v2x_execorr = -1 * vdem_core_v2x_execorr,
     # V-DEM: political polarization, higher scores denote higher polarization, which can lead to institutional weakness
     # so we decide to flip the indicator by multiplying by -1
     vdem_core_v2cacamps = -1 * vdem_core_v2cacamps,
@@ -143,7 +143,7 @@ cliar_indicators_rescaled <- cliar_indicators |>
   )
 ```
 
-## 3. Calculate country-level average for each indicator
+## Calculate country-level average for each indicator
 
 For the static benchmark, we only calculate averages for indicators starting in the year 2018.
 
@@ -183,7 +183,8 @@ country_last_year <-
   ungroup()
 ```
 
-## 4. Identify worst and best performance for each indicator
+## Identify worst and best performance for each indicator
+
 Find this data both on a global time-scale, and for each individual year.
 
 Inspect the entire dataset of rescaled indicator values - so including the indicator
@@ -234,7 +235,7 @@ min_max_dynamic <- cliar_indicators_rescaled %>%
   filter(!is.infinite(min) & !is.infinite(max))
 ```
 
-## 5. Calculate closeness to frontier at indicator level
+## Calculate closeness to frontier at indicator level
 
 ```{r}
 ctf <-
@@ -324,7 +325,7 @@ ctf_dynamic <-
   )
 ```
 
-## 6. Calculate median per group
+## Calculate median per group
 
 Group countries by regional, economic, or income groups and take indicator median
 for those groups
@@ -390,7 +391,7 @@ ctf_dynamic <- add_column(ctf_dynamic, country_group = 0, .after = "country_code
 group_ctf_dynamic <- add_column(group_ctf_dynamic, country_group = 1, .after = "country_code")
 ```
 
-## 7. Clean CTF data and incorporate logged GDP per capita
+## Clean CTF data and incorporate logged GDP per capita
 
 ```{r}
 # static
@@ -447,7 +448,7 @@ ctf_dynamic <-
   )
 ```
 
-## 8. Convert to long-form
+## Convert to long-form
 
 This changes the CTF dataset from wide form to long form and adds some additional 
 data such as indicator family.
@@ -515,7 +516,7 @@ ctf_dynamic_long_clean <-
   bind_rows(ctf_dynamic_long)
 ```
 
-## 9. Calculate family level data
+## Calculate family level data
 
 Similarly to creating group-level data, this section calculates median CTF for each indicator family 
 
@@ -555,7 +556,7 @@ ctf_dynamic_clean <- ctf_dynamic |>
   )
 ```
 
-## 10. Diagnostics on family averages
+## Diagnostics on family averages
 
 Take the family averages for dynamic data.
 
@@ -604,6 +605,7 @@ ctf_dynamic_family |>
 theme_set(
   theme_minimal()
 )
+
 
 vars_family_static_ctf |> 
   set_names(vars_family_static_ctf) |> 
@@ -669,7 +671,7 @@ vars_family_dynamic_ctf |>
   )
 ```
 
-## 11. Data Quality Control
+## Data Quality Control
 
 Test that all expected indicators and countries are covered
 ```{r}
@@ -703,7 +705,7 @@ test_that(
 )
 ```
 
-## 12. Update db_variables to contain the family averages
+## Update db_variables to contain the family averages
 
 ```{r}
 db_variables <- db_variables %>% 
@@ -734,7 +736,7 @@ db_variables <- db_variables %>%
   arrange(family_var, rank_id)
 ```
 
-## 13. Add income group and region
+## Add income group and region
 
 In this section, we add income groups and region. Note that the CTF includes groups as observations, meaning that not all rows are expected to have an income group or region.
 
@@ -748,7 +750,7 @@ ctf_complete <- ctf_clean |>
     country_code, country_name, income_group, region, everything()
   )
 
-ctf_dynamic_clean <- ctf_dynamic_clean |> 
+ctf_dynamic_complete <- ctf_dynamic_clean |> 
   left_join(
     country_income_and_region,
     by = c("country_code")
@@ -758,7 +760,86 @@ ctf_dynamic_clean <- ctf_dynamic_clean |>
   )
 ```
 
-## 14.Robustness checks: 5-year average vs. Last available data
+## Confidence Intervals
+
+```{r}
+std_err <- function(x){
+  sd(x, na.rm = TRUE)/sqrt(length(!is.na(x)))
+}
+
+# compute confidence intervals for each institutional family
+# for the static ctf
+ctf_confint_static <- ctf_complete |> 
+  select(
+    country_code,
+    country_name,
+    income_group,
+    region,
+    country_group,
+    ends_with("_avg")
+  ) |> 
+  mutate(
+    across(
+      ends_with("avg"),
+      ~ 1.96 * std_err(.),
+      .names = "{.col}_std_err"
+    ),
+    across(
+      ends_with("avg"),
+      ~ . + 1.96 * std_err(.),
+      .names = "{.col}_conf_int_upper"
+    ),
+    across(
+      ends_with("avg"),
+      ~ . - 1.96 * std_err(.),
+      .names = "{.col}_conf_int_lower"
+    )
+  ) %>%
+  select(
+    country_code:country_group,
+    everything()
+  )
+
+# for the dynamic ctf
+ctf_confint_dynamic <- ctf_dynamic_complete |> 
+  filter(
+    year %in% seq(2016, max(year), 2)
+  ) |> 
+  select(
+    country_code,
+    country_name,
+    year,
+    income_group,
+    region,
+    country_group,
+    ends_with("_avg")
+  ) |> 
+  group_by(year) |> 
+  mutate(
+    across(
+      ends_with("avg"),
+      ~ 1.96 * std_err(.),
+      .names = "{.col}_std_err"
+    ),
+    across(
+      ends_with("avg"),
+      ~ . + 1.96 * std_err(.),
+      .names = "{.col}_conf_int_upper"
+    ),
+    across(
+      ends_with("avg"),
+      ~ . - 1.96 * std_err(.),
+      .names = "{.col}_conf_int_lower"
+    )
+  ) %>%
+  ungroup() |> 
+  select(
+    country_code:country_group,
+    everything()
+  )
+```
+
+## Robustness checks: 5-year average vs. Last available data
 
 This section produces a set of robustness checks on the computation of the static CTF, comparing the 5-year average scores with the scores computed using the latest available data. We conduct two tests: (a) a scatterplot, where the unit of analysis is a country-indicator combination and (b) a histogram of the correlation for each indicator. 
 
@@ -844,11 +925,11 @@ ctf_robustness |>
   theme_minimal()
 ```
 
-## 15. Write-out data
+## Write-out data
 
 ```{r}
 write_rds(
-  ctf_clean,
+  ctf_complete,
   here(
     "data",
     "output",
@@ -866,7 +947,7 @@ write_rds(
 )
 
 write_rds(
-  ctf_dynamic_clean,
+  ctf_dynamic_complete,
   here(
     "data",
     "output",
@@ -880,6 +961,24 @@ write_rds(
     "data",
     "output",
     "closeness_to_frontier_dynamic_long.rds"
+  )
+)
+
+write_rds(
+  ctf_confint_static,
+  here(
+    "data",
+    "output", 
+    "closeness_to_frontier_confint_static.rds"
+  )
+)
+
+write_rds(
+  ctf_confint_dynamic,
+  here(
+    "data",
+    "output", 
+    "closeness_to_frontier_confint_dynamic.rds"
   )
 )
 
