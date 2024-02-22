@@ -1937,10 +1937,19 @@ server <- function(input, output, session) {
     reactive({
       data <-
         if (input$data_source == "Closeness to frontier (Static)") {
-          global_data
+          merged_data <- raw_data %>%
+            select(country_code,country_name, income_group, region) %>%
+            distinct() %>%
+            left_join(global_data, by = c("country_code","country_name"))
+          
         } else {
           if(input$data_source == "Closeness to frontier (Dynamic)"){
-            global_data_dyn
+            
+            merged_data <- raw_data %>%
+              select(country_code,country_name, income_group, region) %>%
+              distinct() %>%
+              left_join(global_data_dyn, by = c("country_code","country_name"))
+            
           }else{
             
             raw_data%>%
