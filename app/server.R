@@ -1598,97 +1598,97 @@ server <- function(input, output, session) {
   ## Change variable selection in all tabs --------------------------
   
   observeEvent(
-    input$vars_bar,
+    input$country_bar,
     {
       updatePickerInput(
         session,
-        "y_scatter",
-        selected = input$vars_bar
+        "country_scatter",
+        selected = input$country_bar
       )
+      
+      # updatePickerInput(
+      #   session,
+      #   "vars_map",
+      #   selected = input$country_bar
+      # )
       
       updatePickerInput(
         session,
-        "vars_map",
-        selected = input$vars_bar
-      )
-      
-      updatePickerInput(
-        session,
-        "vars_trends",
-        selected = input$vars_bar
+        "country_trends",
+        selected = input$country_bar
       )
     },
     ignoreNULL = FALSE
   )
   
   observeEvent(
-    input$y_scatter,
+    input$country_scatter,
     {
       updatePickerInput(
         session,
-        "vars_bar",
-        selected = input$y_scatter
+        "country_bar",
+        selected = input$country_scatter
       )
+      
+      # updatePickerInput(
+      #   session,
+      #   "vars_map",
+      #   selected = input$country_scatter
+      # )
       
       updatePickerInput(
         session,
-        "vars_map",
-        selected = input$y_scatter
-      )
-      
-      updatePickerInput(
-        session,
-        "vars_trends",
-        selected = input$y_scatter
+        "country_trends",
+        selected = input$country_scatter
       )
     },
     ignoreNULL = FALSE
   )
   
-  observeEvent(
-    input$vars_map,
-    {
-      updatePickerInput(
-        session,
-        "vars_bar",
-        selected = input$vars_map
-      )
-      
-      updatePickerInput(
-        session,
-        "y_scatter",
-        selected = input$vars_map
-      )
-      
-      updatePickerInput(
-        session,
-        "vars_trends",
-        selected = input$vars_map
-      )
-    },
-    ignoreNULL = FALSE
-  )
+  # observeEvent(
+  #   input$vars_map,
+  #   {
+  #     updatePickerInput(
+  #       session,
+  #       "vars_bar",
+  #       selected = input$vars_map
+  #     )
+  #     
+  #     updatePickerInput(
+  #       session,
+  #       "y_scatter",
+  #       selected = input$vars_map
+  #     )
+  #     
+  #     updatePickerInput(
+  #       session,
+  #       "vars_trends",
+  #       selected = input$vars_map
+  #     )
+  #   },
+  #   ignoreNULL = FALSE
+  # )
   
   observeEvent(
-    input$vars_trends,
+    input$country_trends,
     {
       updatePickerInput(
         session,
-        "vars_bar",
-        selected = input$vars_trends
+        "country_bar",
+        selected = input$country_trends
       )
       
       updatePickerInput(
         session,
-        "y_scatter",
-        selected = input$vars_trends
+        "country_scatter",
+        selected = input$country_trends
       )
-      
-      updatePickerInput(
-        session,
-        "vars_map",
-        selected = input$vars_trends
-      )
+      # 
+      # updatePickerInput(
+      #   session,
+      #   "vars_map",
+      #   selected = input$country_trends
+      # )
     },
     ignoreNULL = FALSE
   )
@@ -1713,7 +1713,7 @@ server <- function(input, output, session) {
   }) 
   
   
-  check_data <-function(country,indicator){
+  check_data <-function(data,country,indicator){
     
         var <-
           db_variables %>%
@@ -1721,7 +1721,7 @@ server <- function(input, output, session) {
           pull(variable)
 
         indicator_val <-
-          global_data %>%
+          data %>%
           filter(country_name == country) %>%
           pull(var)
           
@@ -1731,7 +1731,7 @@ server <- function(input, output, session) {
   output$bar_plot <-
     renderPlotly({
       
-        validate(need(check_data(input$country_bar,input$vars_bar) == FALSE,'Country Comparison is not available for this Indicator for the selected base country'))
+        validate(need(check_data(global_data,input$country_bar,input$vars_bar) == FALSE,'Country Comparison is not available for this Indicator for the selected base country'))
       static_bar(
         global_data,
         input$country_bar,
@@ -1829,53 +1829,53 @@ server <- function(input, output, session) {
   
   # Trends plot ===============================================================
   
-  observeEvent(
-    input$vars_trends,
-    {
-      if (input$vars_trends != "") {
-        var <-
-          db_variables %>%
-          filter(var_name == input$vars_trends) %>%
-          pull(variable)
-        
-        valid <-
-          raw_data %>%
-          filter(
-            !is.na(get(var))
-          ) %>%
-          select(country_name) %>%
-          unique() %>%
-          unlist() %>%
-          unname()
-        
-        valid_countries <-
-          intersect(valid, countries)
-        
-        updatePickerInput(
-          session,
-          "country_trends",
-          choices = c(
-            "",
-            valid_countries
-          )
-        )
-        
-        updateCheckboxGroupButtons(
-          session,
-          "countries_trends",
-          choices = valid_countries,
-          checkIcon = list(
-            yes = icon(
-              "ok",
-              lib = "glyphicon"
-            )
-          )
-        )
-      }
-    },
-    ignoreNULL = TRUE
-  )
-  
+  # observeEvent(
+  #   input$vars_trends,
+  #   {
+  #     if (input$vars_trends != "") {
+  #       var <-
+  #         db_variables %>%
+  #         filter(var_name == input$vars_trends) %>%
+  #         pull(variable)
+  #       
+  #       valid <-
+  #         raw_data %>%
+  #         filter(
+  #           !is.na(get(var))
+  #         ) %>%
+  #         select(country_name) %>%
+  #         unique() %>%
+  #         unlist() %>%
+  #         unname()
+  #       
+  #       valid_countries <-
+  #         intersect(valid, countries)
+  #       
+  #       updatePickerInput(
+  #         session,
+  #         "country_trends",
+  #         choices = c(
+  #           "",
+  #           valid_countries
+  #         )
+  #       )
+  #       
+  #       updateCheckboxGroupButtons(
+  #         session,
+  #         "countries_trends",
+  #         choices = valid_countries,
+  #         checkIcon = list(
+  #           yes = icon(
+  #             "ok",
+  #             lib = "glyphicon"
+  #           )
+  #         )
+  #       )
+  #     }
+  #   },
+  #   ignoreNULL = TRUE
+  # )
+  # 
   
   custom_df_trend <-  reactive({
     
@@ -1891,8 +1891,6 @@ server <- function(input, output, session) {
   
   output$time_series <-
     renderPlotly({
-      
-      
       
       shiny::req(input$country_trends)
       shiny::req(input$vars_trends)
