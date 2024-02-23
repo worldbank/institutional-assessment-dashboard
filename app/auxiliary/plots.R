@@ -29,7 +29,8 @@ static_plot <-
            dots = FALSE,
            note = NULL,
            threshold,
-           preset_order = FALSE) {
+           preset_order = FALSE,
+           report = FALSE) {
 
     data$var_name <- ifelse(grepl("Average", data$var_name, ignore.case = TRUE), toupper(data$var_name), data$var_name)
     
@@ -386,22 +387,55 @@ static_plot <-
           show.legend = TRUE
         ))
     }else {
-      plot <-
-        plot +
-        suppressWarnings(geom_point(
-          data = data %>% filter(country_name %in% base_country),
-          aes(
-            y = var_name,
-            x = var,
-            shape = country_name,
-            fill = status ,
-            text = text
-          ),
-          size = 3,
-          color = "gray0",
-          show.legend = TRUE
-        ))+ 
-        scale_shape_manual(values = 21:25)      
+      
+      if(report==TRUE){
+        
+        custom_levels <- c("Weak\n(bottom 25%)", "Emerging\n(25% - 50%)", "Strong\n(top 50%)")
+        
+        data$status <- factor(data$status, levels = custom_levels, ordered = TRUE)
+        
+        
+        plot <-
+          plot +
+          suppressWarnings(geom_point(
+            data = data %>% filter(country_name %in% base_country),
+            aes(
+              y = var_name,
+              x = var,
+              shape = country_name,
+              fill = status ,
+              text = text
+            ),
+            size = 3,
+            color = "gray0",
+            show.legend = TRUE
+          ))+
+          guides(fill=guide_legend(override.aes=list(shape=21)))+
+          scale_shape_manual(values = 21:25)+
+          guides(colour = guide_legend(order = 1), 
+                 shape = guide_legend(order = 2))
+      }else{
+        plot <-
+          plot +
+          suppressWarnings(geom_point(
+            data = data %>% filter(country_name %in% base_country),
+            aes(
+              y = var_name,
+              x = var,
+              shape = country_name,
+              fill = status ,
+              text = text
+            ),
+            size = 3,
+            color = "gray0",
+            show.legend = TRUE
+          ))+scale_shape_manual(values = 21:25)
+
+      }
+      
+      
+        #guides(fill=guide_legend(override.aes=list(shape=21)))#+
+        #scale_shape_manual(values = 21:25)      
         # scale_fill_manual(values= c("Weak\n(bottom 25%)" = "#D2222D",
         #                            "Emerging\n(25% - 50%)" = "#FFBF00",
         #                            "Strong\n(top 50%)" = "#238823"))+
@@ -809,6 +843,11 @@ static_plot_dyn <-
       
       
     }
+    
+    
+    custom_levels <- c("Weak\n(bottom 25%)", "Emerging\n(25% - 50%)", "Strong\n(top 50%)")
+    
+    data$status <- factor(data$status, levels = custom_levels, ordered = TRUE)
     
     ## add base country
     plot <-
