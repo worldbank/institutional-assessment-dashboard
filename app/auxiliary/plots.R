@@ -1232,8 +1232,9 @@ interactive_map <-
                      ),
                      note_chars
                    ),
+                   
                    str_wrap(
-                     "<b>Note:</b> The color illustrates the latest value of the indicator available for each country.",
+                     "<b>Note:</b> The color illustrates the latest value of the indicator available for each country.The data presented here for CTF is obtained by taking the average of the indicator for the period 2018-2022 and for original indicator, it is latest datapoint available.",
                      note_chars
                    ),
                    sep = "<br>"
