@@ -295,10 +295,11 @@ ui <-
                     label = helper(
                       shiny_tag = tags$b("Create custom groups"),
                       type = "inline",
-                      icon = "circle-info",
-                      title = "Note",
-                      content = c(
-                        "Currently custom groups are not allowed when displaying ranks instead of values, when ranking from best to worst, or when doing the dynamic benchmark."
+                      icon = "circle-question",
+                      title = "Custom groups",
+                      content = paste0(
+                        "Alternative, you may create up to three custom groups of countries. This feature will additionally display in the Benchmarking graphs the median estimates of each custom group.",
+                        "<br><br><b>Note:</b> Currently custom groups are not allowed when displaying ranks instead of values, when ranking from best to worst, or when doing the dynamic benchmark."
                       ),
                       buttonLabel = "Close",
                       fade = T,
