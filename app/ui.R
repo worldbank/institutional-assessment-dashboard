@@ -163,8 +163,8 @@ ui <-
           
           fluidRow(
             column(
-              width = 5,
-              style = "padding-left: 25px", #display: flex; align-items: center; justify-content: center;",
+              width = 6,
+              style = "padding-left: 24px",
               pickerInput(
                 "country",
                 label = tags$span("Base country:", style = "font-size: 28px; color: #051f3f;"),
@@ -184,33 +184,34 @@ ui <-
             ## Guide action button
             column(
               width = 3,
-              style = "display: flex; align-items: center; justify-content: center;",
-              shinyWidgets::actionBttn(
-                inputId = "start_guide_bench",
-                label = "Start guided tour", 
-                icon = shiny::icon("gear"),
-                style = "jelly",
-                color = "primary",
-                size = "sm"
+              tags$span("Guided tour", style = "font-size: 1rem; color: #051f3f; font-weight:bold"),
+              fluidRow(
+                shinyWidgets::actionBttn(
+                  inputId = "start_guide_bench",
+                  label = "Start", 
+                  icon = shiny::icon("gear"),
+                  style = "jelly",
+                  color = "primary",
+                  size = "sm"
+                )
               )
             ),
-            ## Load inputs button
             column(
-              width = 2,
-              style = "display: flex; align-items: center; justify-content: center;",
-              buttons_func(
-                id = "load_inputs",
-                lab = "Load Inputs"
-              )
-            ),
-            ## Save inputs button
-            column(
-              style = "display: flex; align-items: center; justify-content: center;",
-              width = 2,
-              shinyjs::disabled(
-                downloadButton(
-                  "save_inputs", 
-                  "Save inputs"
+              id = "input_buttons",
+              width = 3,
+              tags$span("Selection of Countries", style = "font-size: 1rem; color: #051f3f; font-weight:bold"),
+              fluidRow(
+                ## Load inputs button
+                buttons_func(
+                  id = "load_inputs",
+                  lab = "Load"
+                ),
+                ## Save inputs button
+                shinyjs::disabled(
+                  downloadButton(
+                    "save_inputs", 
+                    "Save"
+                  )
                 )
               )
             )
@@ -426,47 +427,62 @@ ui <-
               ),
               fluidRow(
                 column(
-                  width = 4,
-                  shinyjs::disabled(
-                    downloadButton(
-                      "report",
-                      "Download editable report",
-                      style = "width:100%; background-color: #204d74; color: white"
+                  width = 12,
+                  tags$span("Downloads", style = "font-size: 1rem; color: #051f3f; font-weight:bold"),
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 9,
+                  fluidRow(
+                    id = "download_reports",
+                    column(
+                      width = 4,
+                      shinyjs::disabled(
+                        downloadButton(
+                          "report",
+                          "Editable report",
+                          style = "width:100%; background-color: #204d74; color: white"
+                        )
+                      )
+                    ),
+                    column(
+                      width = 4,
+                      shinyjs::disabled(
+                        downloadButton(
+                          "pptreport",
+                          "PPT report",
+                          style = "width:100%; background-color: #204d74; color: white"
+                        )
+                      )
+                    ),
+                    column(
+                      width = 4,
+                      shinyjs::disabled(
+                        downloadButton(
+                          "download_missing",
+                          "Missingness report",
+                          style = "width:100%; background-color: #204d74; color: white"
+                        )
+                      )
                     )
                   )
                 ),
                 column(
-                  width = 4,
-                  shinyjs::disabled(
-                    downloadButton(
-                      "pptreport",
-                      "Download PPT report",
-                      style = "width:100%; background-color: #204d74; color: white"
-                    )
-                  )
-                ),
-                column(
-                  width = 4,
+                  id = "download_data_opt",
+                  width = 3,
                   shinyjs::disabled(
                     downloadButton(
                       "download_data_1",
-                      "Download Data",
+                      "Data",
                       style = "width:100%; background-color: #204d74; color: white"
                     )
                   )
                 )
-                # shiny::column(3,
-                #               shinyWidgets::materialSwitch(
-                #                 inputId = "show_dynamic_plot",
-                #                 label = "Show dynamic benchmark plot",
-                #                 status = "success",
-                #                 value = FALSE
-                #               )
-                # )
               ),
               shiny::fluidRow(
                 column(
-                  width = 12,
+                  width = 3,
                   prettyCheckbox(
                     inputId = "download_Opt",
                     label = "Download Advanced Report (~10min)",
@@ -476,6 +492,14 @@ ui <-
                   )
                 )
               )
+              # shiny::column(3,
+              #               shinyWidgets::materialSwitch(
+              #                 inputId = "show_dynamic_plot",
+              #                 label = "Show dynamic benchmark plot",
+              #                 status = "success",
+              #                 value = FALSE
+              #               )
+              # )
           ),
           ### Static Benchmarks ----
           bs4Card(
