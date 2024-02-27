@@ -248,7 +248,7 @@ ui <-
                   style = "display: flex; align-items: center; justify-content: center;",
                   shinyWidgets::materialSwitch(
                     inputId = "show_countries",
-                    label = tags$b("Show countries list"),
+                    label = tags$b("Show list of countries"),
                     value = FALSE,
                     status = "success"
                   )
