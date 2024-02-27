@@ -38,39 +38,57 @@
 guide_benchmark <- cicerone::Cicerone$
   new()$ 
   step(
-    "[data-id='country']",
+    "[data-id ='country']",
     title = "Base country",
-    description = "Choose the base country that you would like to analyze.",
+    description = "Choose the base country of interest. (For some analysis, you can select more than one.)",
     is_id = F
   )$
   step(
-    "[data-id='groups']",
+    "[data-id ='groups']",
     title = "Pre-defined groups",
-    description = "There are multiple ways to define the comparison group. First, the most direct way is to select a pre-defined group.",
+    description = "There are multiple ways to select the comparator countries. Here you can select one (or more) pre-defined group(s) (either as a comparator group itself or as a shortcut for selecting individual countries). When selecting more than one, it is the union (i.e., sum) of the groups that will be analyzed.",
     is_id = F
   )$
   step( 
     "show_countries_column",
-    title = "Manually edit",
-    description = "Second, if you have already selected one of the pre-defined groups, you can manually edit the countries included in this grouping.",
+    title = "List of countries",
+    description = "Here you can add and remove individual comparator countries. If you have already selected one or more the pre-defined groups, those countries will appear as selected, and you can manually add or remove.",
     is_id = T
   )$
   step( 
     "custom_grps_column",
     title = "Custom groups",
-    description = "Third, you may create an entirely custom grouping.",
+    description = "Alternative, you may create up to three custom groups of countries. This feature will additionally display in the Benchmarking graphs the median estimates of each custom group.",
+    is_id = T
+  )$
+  step( 
+    "input_buttons",
+    title = "Saving and loading Selection of Countries",
+    description = "You can save your selected inputs to return to at a future time: click “Save Selection of Countries” button to download a .rds file to your computer with that information. When you return to the dashboard, you can click “Load Selection of Countries” button and then “Browse” to select this same .rds file. Loading this .rds file will re-populate all of the selections that you previously made.",
     is_id = T
   )$
   step(
-    "[data-id='family']",
+    "[data-id ='family']",
     title = "Institutional cluster",
-    description = "Choose the data you would like to analyze. You may either choose a single institutional cluster or an overview that covers every cluster.",
+    description = "Choose the institutional cluster you would like to display. The overview displays the aggregate results at the institutional-cluster level. When selecting a specific institutional-cluster, the individual indicators/components will be displayed.",
     is_id = F
   )$
   step(
     "select",
     title = "Apply",
-    description = "Click on this box to load the resulting figures. Note that the button is enabled when the base country and at least 10 comparison countries are selected.",
+    description = "Click on this box to (re-)run the analysis and (re-)load the resulting graphs. Note that this has to be done for every new selection or option, including a different institutional cluster. This option is enabled when the base country and at least 10 comparison countries are selected.",
+    is_id = T
+  )$
+  step( 
+    "download_reports",
+    title = "Pre-populated reports",
+    description = "Download pre-populated Word or Power Point documents with the results. Note that you may select the “Download Advanced Report (~10 min)” box to receive more detailed information - including all dynamic graphs - which takes longer to produce and download.",
+    is_id = T
+  )$
+  step( 
+    "download_data_opt",
+    title = "Data used in graphs",
+    description = "Click the “Download Data” button to download a CSV file that contains the data needed to recreate the benchmarking graphs.",
     is_id = T
   )
  #step( 
@@ -91,9 +109,4 @@ guide_benchmark <- cicerone::Cicerone$
  #  description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut facilisis id purus vel eleifend. Ut vitae tellus in lectus fringilla.",
  #  is_id = F
  #)$
- #step( 
- #  "download_row",
- #  title = "Download options",
- #  description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut facilisis id purus vel eleifend. Ut vitae tellus in lectus fringilla.",
- #  is_id = T
- #)
+ 
