@@ -1340,7 +1340,7 @@ tabItem(
             collapsed = TRUE,
             title = "Why are certain indicators or institutional families not appearing in my benchmarking results?",
             p(
-              "TO COMPLETE"
+              "Indicators that are missing for the base country or exhibit low variance are dropped from the analysis. In some cases, such as for the SOE Governance family, this can result in dropping an entire institutional cluster."
           )),
           box(
             width = 11,
@@ -1356,7 +1356,7 @@ tabItem(
             collapsed = TRUE,
             title = "Why are certain indicators and clusters not included in the dynamic benchmarking?",
             p(
-              "TO COMPLETE."
+              "Compared to static benchmarking, dynamic benchmarking is more selective (or “demanding”) with respect to indicators, considering their panel characteristics. Hence, indicators that do not offer multiple measurements for the same country are excluded from the analysis – e.g., OECD PMR and PEFA, which consequently excludes the SOE Governance Institutions and Public Finance Institutions indicator clusters from dynamic benchmarking"
             )
           ),
           
@@ -1426,9 +1426,9 @@ tabItem(
             width = 11,
             status = "navy",
             collapsed = TRUE,
-            title = "Why are certain family-level averages missing when I download the data even if there is non-missing data on the indicators of that family?",
+            title = "Why are certain cluster averages missing when I download the data even if there is non-missing data on the indicators of that cluster?",
             p(
-              "A balanced sample of individual CTF scores is aggregated by family to create family-level CTF scores. For each institutional family, a “balanced” subset of countries with full coverage (i.e., non-missing data) across all indicators within each family is created. This ensures that each family-level aggregate score relies on the same set of indicators for every country, allowing for robust and methodically sound inferences. The CTF family-level score is computed via simple averaging of the indicators within each family. This family-level score captures the overall performance for a given institutional category relative to the “global frontier.” The drawback of this robust methodological aggregation decision is that the data requirement is higher. Several families in both the static and dynamic versions do not meet the data requirements for meaninful aggregation (i.e., the balanced sample is too small or empty), and thus CTF family scores are not computed. "
+              "A balanced sample of individual CTF scores is aggregated by cluster to create cluster-level CTF scores. For each institutional cluster, a “balanced” subset of countries with full coverage (i.e., non-missing data) across all indicators within each cluster is created. This ensures that each cluster-level aggregate score relies on the same set of indicators for every country, allowing for robust and methodically sound inferences. The CTF cluster-level score is computed via simple averaging of the indicators within each cluster. This cluster-level score captures the overall performance for a given institutional category relative to the “global frontier.” The drawback of this robust methodological aggregation decision is that the data requirement is higher. Several families in both the static and dynamic versions do not meet the data requirements for meaningful aggregation (i.e., the balanced sample is too small or empty), and thus CTF cluster scores are not computed."
             )
           ),
           
@@ -1464,9 +1464,17 @@ tabItem(
               The list of indicators used will be periodically reviewed in order to include new indicators that may be become available in the future. 
               As such, the CLIAR database is a "live tool".' 
             )
+          ),
+          box(
+            width = 11,
+            status = "navy",
+            collapsed = TRUE,
+            title = "How does CLIAR manage changes in the methodology of the construction of individual indicators used in the CLIAR database?",
+            p(
+              'CLIAR aims to keep consistent indicators. Hence, if specific indicators go through changes in their methodology, CLIAR will keep only those that are consistent, prioritizing the most recent ones. Some examples include PEFA and PMR indicators. If such change means a given indicator no longer meets the benchmarking criteria, then it is dropped from the benchmarking analysis.' 
+            )
           )
-
-
+  
         ) # Close FAQ tab
       )
     )
