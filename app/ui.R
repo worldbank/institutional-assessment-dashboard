@@ -421,7 +421,7 @@ ui <-
                   width = 6,
                   pickerInput(
                     "family",
-                    label = "Select institutional family",
+                    label = "Select institutional cluster",
                     choices = c("Overview", names(variable_list)),
                     selected = NULL
                   )
