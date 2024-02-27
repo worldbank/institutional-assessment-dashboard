@@ -1213,94 +1213,163 @@ ui <-
         tabItem(
           tabName = "data",
           
-          fluidRow(
-            
-            bs4Card(
-              width = 9,
-              collapsible = FALSE,
-              solidHeader = TRUE,
-              headerBorder = FALSE,
-              dataTableOutput("benchmark_datatable")
-            ),
-            
-            bs4Card(
-              
-              title = "Select information to display",
-              status = "success",
-              width = 3,
-              
-              pickerInput(
-                "countries_data",
-                label = "Select countries to include",
-                choices = c("All"),
-                selected = "All"
-              ),
-              
-              pickerInput(
-                "groups_data",
-                label = "Select groups to include",
-                choices = c("All", "None"),
-                selected = "All"
-              ),
-              
-              pickerInput(
-                "vars",
-                label = "Select institutional families to include",
-                choices = names(definitions),
-                selected = names(definitions),
-                multiple = TRUE,
-                options = list(`actions-box` = TRUE)
-              ),
-              
-              radioGroupButtons(
-                "data_source",
-                label = "Select a data source",
-                choices = c("Closeness to frontier (Static)",
-                            "Closeness to frontier (Dynamic)",
-                            "Original indicators"),
-                selected = "Closeness to frontier (Static)",
-                direction = "vertical",
-                justified = TRUE,
-                checkIcon = list(
-                  yes = icon("ok",
-                             lib = "glyphicon")
+          bs4Card(
+            title = "Data download",
+            status = "success",
+            solidHeader = TRUE,
+            width = 12,
+            collapsible = F,
+            fluidRow(
+              column(
+                width = 2.4,
+                shinyjs::disabled(
+                  downloadButton(
+                    "down_clust_ctf_stat",
+                    "CTF Static (Cluster-level aggregates only)",
+                    style = "width:100%; background-color: #204d74; color: white"
+                  )
                 )
               ),
-              
-              radioGroupButtons(
-                "data_value",
-                label = "Select information to show",
-                choices = c("Value"),
-                selected = "Value",
-                direction = "vertical",
-                justified = TRUE,
-                checkIcon = list(
-                  yes = icon("ok",
-                             lib = "glyphicon")
+              column(
+                width = 2.4,
+                shinyjs::disabled(
+                  downloadButton(
+                    "down_all_ctf_stat",
+                    "CTF Static (All indicators)",
+                    style = "width:100%; background-color: #204d74; color: white"
+                  )
                 )
               ),
-              
-              p(tags$b("Download data")),
-              
-              downloadButton(
-                "download_global_rds",
-                ".rds",
-                style = "width:100%; background-color: #204d74; color: white"
+              column(
+                width = 2.4,
+                shinyjs::disabled(
+                  downloadButton(
+                    "down_clust_ctf_dyn",
+                    "CTF Dynamic (Cluster-level aggregates only)",
+                    style = "width:100%; background-color: #204d74; color: white"
+                  )
+                )
               ),
-              
-              downloadButton(
-                "download_global_csv",
-                ".csv",
-                style = "width:100%; background-color: #204d74; color: white"
+              column(
+                width = 2.4,
+                shinyjs::disabled(
+                  downloadButton(
+                    "down_all_ctf_dyn",
+                    "CTF Dynamic (All indicators)",
+                    style = "width:100%; background-color: #204d74; color: white"
+                  )
+                )
               ),
-              
-              downloadButton(
-                "download_global_dta",
-                ".dta",
-                style = "width:100%; background-color: #204d74; color: white"
+              column(
+                width = 2.4,
+                shinyjs::disabled(
+                  downloadButton(
+                    "down_original",
+                    "Original indicators",
+                    style = "width:100%; background-color: #204d74; color: white"
+                  )
+                )
+              )
+            )
+          ),
+  
+          bs4Card(
+            title = "Interactive Data Access & Custom Download",
+            status = "success",
+            solidHeader = TRUE,
+            width = 12,
+            collapsible = F,
+            fluidRow(
+              column(
+                width = 8,
+                dataTableOutput("benchmark_datatable")
+              ),
+              column(
+                width = 4,
+                bs4Card(
+                  
+                  title = "Select information to display",
+                  status = "success",
+                  width = 12,
+                  collapsible = FALSE,
+                  
+                  pickerInput(
+                    "countries_data",
+                    label = "Select countries to include",
+                    choices = c("All"),
+                    selected = "All"
+                  ),
+                  
+                  pickerInput(
+                    "groups_data",
+                    label = "Select groups to include",
+                    choices = c("All", "None"),
+                    selected = "All"
+                  ),
+                  
+                  pickerInput(
+                    "vars",
+                    label = "Select institutional families to include",
+                    choices = names(definitions),
+                    selected = names(definitions),
+                    multiple = TRUE,
+                    options = list(`actions-box` = TRUE)
+                  ),
+                  
+                  radioGroupButtons(
+                    "data_source",
+                    label = "Select a data source",
+                    choices = c("Closeness to frontier (Static)",
+                                "Closeness to frontier (Dynamic)",
+                                "Original indicators"),
+                    selected = "Closeness to frontier (Static)",
+                    direction = "vertical",
+                    justified = TRUE,
+                    checkIcon = list(
+                      yes = icon("ok",
+                                 lib = "glyphicon")
+                    )
+                  ),
+                  
+                  shinyjs::hidden(
+                    radioGroupButtons(
+                      "data_value",
+                      label = "Select information to show",
+                      choices = c("Value"),
+                      selected = "Value",
+                      direction = "vertical",
+                      justified = TRUE,
+                      checkIcon = list(
+                        yes = icon("ok",
+                                   lib = "glyphicon")
+                      )
+                    )
+                  ),
+                  
+                  p(tags$b("Download data")),
+                  
+                  downloadButton(
+                    "download_global_rds",
+                    ".rds",
+                    style = "width:100%; background-color: #204d74; color: white"
+                  ),
+                  
+                  downloadButton(
+                    "download_global_csv",
+                    ".csv",
+                    style = "width:100%; background-color: #204d74; color: white"
+                  ),
+                  
+                  downloadButton(
+                    "download_global_dta",
+                    ".dta",
+                    style = "width:100%; background-color: #204d74; color: white"
+                  )
+                )
               )
             )
           )
+
         ),
         
         ## Methodology tab -------------------------------------------------------------
