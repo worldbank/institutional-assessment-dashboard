@@ -363,7 +363,7 @@ ui <-
               solidHeader = TRUE,
               width = 12,
               collapsible = TRUE,
-              collapsed = TRUE,
+              collapsed = FALSE,
               fluidRow(
                 column(
                   width = 6,
@@ -376,26 +376,35 @@ ui <-
                 column(width = 1),
                 column(
                   width = 5,
-                  prettyCheckbox(
-                    inputId = "benchmark_dots",
-                    label = "Show comparison countries",
-                    value = FALSE,
-                    icon = icon("check"),
-                    status = "success"
+                  div(
+                    id = "benchmark_dots_div",
+                    prettyCheckbox(
+                      inputId = "benchmark_dots",
+                      label = "Show comparison countries",
+                      value = FALSE,
+                      icon = icon("check"),
+                      status = "success"
+                    )
                   ),
-                  prettyCheckbox(
-                    inputId = "rank",
-                    label = "Show rank instead of value",
-                    value = FALSE,
-                    icon = icon("check"),
-                    status = "success"
+                  div(
+                    id = "rank_div",
+                    prettyCheckbox(
+                      inputId = "rank",
+                      label = "Show rank instead of value",
+                      value = FALSE,
+                      icon = icon("check"),
+                      status = "success"
+                    )
                   ),
-                  prettyCheckbox(
-                    inputId = "preset_order",
-                    label = "Rank indicators from best to worst",
-                    value = FALSE,
-                    icon = icon("check"),
-                    status = "success"
+                  div(
+                    id = "preset_order_div",
+                    prettyCheckbox(
+                      inputId = "preset_order",
+                      label = "Rank indicators from best to worst",
+                      value = FALSE,
+                      icon = icon("check"),
+                      status = "success"
+                    )
                   )
                 )
               )
@@ -444,6 +453,18 @@ ui <-
                           "Editable report",
                           style = "width:100%; background-color: #204d74; color: white"
                         )
+                      ),
+                      shiny::fluidRow(
+                        column(
+                          width = 12,
+                          prettyCheckbox(
+                            inputId = "download_Opt",
+                            label = "Advanced Report (~10min)",
+                            value = FALSE,
+                            icon = icon("check"),
+                            status = "success"
+                          )
+                        )
                       )
                     ),
                     column(
@@ -477,18 +498,6 @@ ui <-
                       "Data",
                       style = "width:100%; background-color: #204d74; color: white"
                     )
-                  )
-                )
-              ),
-              shiny::fluidRow(
-                column(
-                  width = 3,
-                  prettyCheckbox(
-                    inputId = "download_Opt",
-                    label = "Download Advanced Report (~10min)",
-                    value = FALSE,
-                    icon = icon("check"),
-                    status = "success"
                   )
                 )
               )

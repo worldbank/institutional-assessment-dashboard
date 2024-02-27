@@ -68,7 +68,7 @@ guide_benchmark <- cicerone::Cicerone$
     is_id = T
   )$
   step(
-    "[data-id ='family']",
+    "[data-id = 'family']",
     title = "Institutional cluster",
     description = "Choose the institutional cluster you would like to display. The overview displays the aggregate results at the institutional-cluster level. When selecting a specific institutional-cluster, the individual indicators/components will be displayed.",
     is_id = F
@@ -82,31 +82,37 @@ guide_benchmark <- cicerone::Cicerone$
   step( 
     "download_reports",
     title = "Pre-populated reports",
-    description = "Download pre-populated Word or Power Point documents with the results. Note that you may select the “Download Advanced Report (~10 min)” box to receive more detailed information - including all dynamic graphs - which takes longer to produce and download.",
+    description = "Download pre-populated Word or Power Point documents with the results. Note that you may select the “Advanced Report (~10 min)” box to receive more detailed information - including all dynamic graphs - which takes longer to produce and download.",
     is_id = T
   )$
   step( 
     "download_data_opt",
     title = "Data used in graphs",
-    description = "Click the “Download Data” button to download a CSV file that contains the data needed to recreate the benchmarking graphs.",
+    description = "Click the download “Data” button to download a CSV file that contains the data needed to recreate the benchmarking graphs.",
+    is_id = T
+  )$
+  step( 
+    "[data-id ='threshold']",
+    title = "Benchmarking Thresholds",
+    description = "The default benchmarking thresholds for weak, emerging and strong institutions are 25th and 50th percentiles. You can also select the “Terciles” option, which uses 33rd and 66th percentiles as thresholds instead.",
+    is_id = F
+  )$
+ step( 
+    "benchmark_dots_div",
+    title = "Show comparison countries",
+    description = "Select this option to show the comparison countries as white circles on the plots. You may hover over each circle to see the country name. Note that individual countries are represented by circles in the first example below. This shows the distribution of values for the comparison group.",
+    is_id = T
+  )$
+ step( 
+    "rank_div",
+    title = "Show rank instead of value",
+    description = "Select this option to change the x-axis of the static benchmarking plot to display rankings instead of the CTF value.",
+    is_id = T
+  )$
+  step( 
+    "preset_order_div",
+    title = "Rank indicators from best to worst",
+    description = "Select this option to change the ordering of the variables on the vertical axis of the figure. Ranking from best to worst will place the indicator for which the base country has the highest value first and the indicator with the lowest value last.",
     is_id = T
   )
- #step( 
- #  "benchmark_dots",
- #  title = "Show comparison countries",
- #  description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut facilisis id purus vel eleifend. Ut vitae tellus in lectus fringilla.",
- #  is_id = T
- #)$
- #step( 
- #  "rank",
- #  title = "Show rank instead of value",
- #  description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut facilisis id purus vel eleifend. Ut vitae tellus in lectus fringilla.",
- #  is_id = T
- #)$
- #step( 
- #  "[data-id='threshold']",
- #  title = "Benchmarking Thresholds",
- #  description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut facilisis id purus vel eleifend. Ut vitae tellus in lectus fringilla.",
- #  is_id = F
- #)$
  
