@@ -167,7 +167,9 @@ compute_family_average <- function(cliar_data, vars, type = "static", db_variabl
       across(all_of(grouping))
     ) |>
     summarise(
-      value = mean(value),
+      # we only compute family averages if all indicators are available
+      # there na.rm = FALSE
+      value = mean(value, na.rm = FALSE),
       .groups = "drop"
     )
 
