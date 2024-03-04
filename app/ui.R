@@ -390,103 +390,105 @@ ui <-
                 )
               )
             ),
+          
             ### Bench card 
-            #bs4Card(
-            #  title = "Benchmarking options",
-            #  status = "success",
-            #  solidHeader = TRUE,
-            #  width = 12,
-            #  collapsible = TRUE,
-            #  collapsed = FALSE,
-            #  fluidRow(
-            #    column(
-            #      width = 6,
-            #      pickerInput(
-            #        inputId = "threshold", 
-            #        label = helper(
-            #          shiny_tag = tags$b("Benchmarking Thresholds"),
-            #          type = "inline",
-            #          icon = "circle-question",
-            #          title = "Benchmarking Thresholds",
-            #          content = c(
-            #            "The default benchmarking thresholds for weak, emerging and strong institutions are 25th and 50th percentiles. You can also select the “Terciles” option, which uses 33rd and 66th percentiles as thresholds instead."
-            #          ),
-            #          buttonLabel = "Close",
-            #          fade = T,
-            #          size = "s"
-            #        ),
-            #        choices = c("Default","Terciles")
-            #      )
-            #    ),
-            #    column(width = 1),
-            #    column(
-            #      width = 5,
-            #      div(
-            #        id = "benchmark_dots_div",
-            #        prettyCheckbox(
-            #          inputId = "benchmark_dots",
-            #          label = helper(
-            #            shiny_tag = tags$b("Show comparison countries"),
-            #            type = "inline",
-            #            icon = "circle-question",
-            #            title = "Show comparison countries",
-            #            content = c(
-            #              "Select this option to show the comparison countries as white circles on the plots. You may hover over each circle to see the country name. Note that individual countries are represented by circles in the first example below. This shows the distribution of values for the comparison group."
-            #            ),
-            #            buttonLabel = "Close",
-            #            fade = T,
-            #            size = "s"
-            #          ),
-            #          value = FALSE,
-            #          icon = icon("check"),
-            #          status = "success"
-            #        )
-            #      ),
-            #      div(
-            #        id = "rank_div",
-            #        prettyCheckbox(
-            #          inputId = "rank",
-            #          label = helper(
-            #            shiny_tag = tags$b("Show rank instead of value"),
-            #            type = "inline",
-            #            icon = "circle-question",
-            #            title = "Show rank instead of value",
-            #            content = c(
-            #              "Select this option to change the x-axis of the static benchmarking plot to display rankings instead of the CTF value."
-            #            ),
-            #            buttonLabel = "Close",
-            #            fade = T,
-            #            size = "s"
-            #          ),
-            #          value = FALSE,
-            #          icon = icon("check"),
-            #          status = "success"
-            #        )
-            #      ),
-            #      div(
-            #        id = "preset_order_div",
-            #        prettyCheckbox(
-            #          inputId = "preset_order",
-            #          label = helper(
-            #            shiny_tag = tags$b("Rank indicators from best to worst"),
-            #            type = "inline",
-            #            icon = "circle-question",
-            #            title = "Rank indicators from best to worst",
-            #            content = c(
-            #              "Select this option to change the ordering of the variables on the vertical axis of the figure. Ranking from best to worst will place the indicator for which the base country has the highest value first and the indicator with the lowest value last."
-            #            ),
-            #            buttonLabel = "Close",
-            #            fade = T,
-            #            size = "s"
-            #          ),
-            #          value = FALSE,
-            #          icon = icon("check"),
-            #          status = "success"
-            #        )
-            #      )
-            #    )
-            #  )
-            #),
+            bs4Card(
+              title = "Benchmarking options",
+              status = "success",
+              solidHeader = TRUE,
+              width = 12,
+              collapsible = TRUE,
+              collapsed = FALSE,
+              fluidRow(
+                column(
+                  width = 6,
+                  pickerInput(
+                    inputId = "threshold", 
+                    label = helper(
+                      shiny_tag = tags$b("Benchmarking Thresholds"),
+                      type = "inline",
+                      icon = "circle-question",
+                      title = "Benchmarking Thresholds",
+                      content = c(
+                        "The default benchmarking thresholds for weak, emerging and strong institutions are 25th and 50th percentiles. You can also select the “Terciles” option, which uses 33rd and 66th percentiles as thresholds instead."
+                      ),
+                      buttonLabel = "Close",
+                      fade = T,
+                      size = "s"
+                    ),
+                    choices = c("Default","Terciles")
+                  )
+                ),
+                column(width = 1),
+                column(
+                  width = 5,
+                  div(
+                    id = "benchmark_dots_div",
+                    prettyCheckbox(
+                      inputId = "benchmark_dots",
+                      label = helper(
+                        shiny_tag = tags$b("Show comparison countries"),
+                        type = "inline",
+                        icon = "circle-question",
+                        title = "Show comparison countries",
+                        content = c(
+                          "Select this option to show the comparison countries as white circles on the plots. You may hover over each circle to see the country name. Note that individual countries are represented by circles in the first example below. This shows the distribution of values for the comparison group."
+                        ),
+                        buttonLabel = "Close",
+                        fade = T,
+                        size = "s"
+                      ),
+                      value = FALSE,
+                      icon = icon("check"),
+                      status = "success"
+                    )
+                  ),
+                  div(
+                    id = "rank_div",
+                    prettyCheckbox(
+                      inputId = "rank",
+                      label = helper(
+                        shiny_tag = tags$b("Show rank instead of value"),
+                        type = "inline",
+                        icon = "circle-question",
+                        title = "Show rank instead of value",
+                        content = c(
+                          "Select this option to change the x-axis of the static benchmarking plot to display rankings instead of the CTF value."
+                        ),
+                        buttonLabel = "Close",
+                        fade = T,
+                        size = "s"
+                      ),
+                      value = FALSE,
+                      icon = icon("check"),
+                      status = "success"
+                    )
+                  ),
+                  div(
+                    id = "preset_order_div",
+                    prettyCheckbox(
+                      inputId = "preset_order",
+                      label = helper(
+                        shiny_tag = tags$b("Rank indicators from best to worst"),
+                        type = "inline",
+                        icon = "circle-question",
+                        title = "Rank indicators from best to worst",
+                        content = c(
+                          "Select this option to change the ordering of the variables on the vertical axis of the figure. Ranking from best to worst will place the indicator for which the base country has the highest value first and the indicator with the lowest value last."
+                        ),
+                        buttonLabel = "Close",
+                        fade = T,
+                        size = "s"
+                      ),
+                      value = FALSE,
+                      icon = icon("check"),
+                      status = "success"
+                    )
+                  )
+                )
+              )
+            ),
+          
             ### Outputs card
             bs4Card(
               title = "Outputs",
@@ -610,184 +612,84 @@ ui <-
               #               )
               # )
           ),
+          
           ### Static Benchmarks ----
           bs4Card(
-            title = "Benchmarks",
-            status = "success",
-            solidHeader = TRUE,
-            width = 12,
+            title = "Static Benchmarks",
             collapsible = TRUE,
+            width = 12,
             
-            fluidRow(
-            
-              column(
-                width = 4,
-                tags$span("Options", style = "font-size: 22px; color: #051f3f; font-weight: bold"),
-                radioGroupButtons(
-                  inputId = "bench_option",
-                  choices = c("Static","Dynamic"),
-                  checkIcon = list(
-                    yes = icon("ok",
-                               lib = "glyphicon")),
-                  justified = TRUE
-                ),
-                pickerInput(
-                  inputId = "threshold", 
-                  label = helper(
-                    shiny_tag = tags$b("Benchmarking Thresholds"),
-                    type = "inline",
-                    icon = "circle-question",
-                    title = "Benchmarking Thresholds",
-                    content = c(
-                      "The default benchmarking thresholds for weak, emerging and strong institutions are 25th and 50th percentiles. You can also select the “Terciles” option, which uses 33rd and 66th percentiles as thresholds instead."
-                    ),
-                    buttonLabel = "Close",
-                    fade = T,
-                    size = "s"
-                  ),
-                  choices = c("Default","Terciles")
-                ),
-                div(
-                  id = "benchmark_dots_div",
-                  prettyCheckbox(
-                    inputId = "benchmark_dots",
-                    label = helper(
-                      shiny_tag = tags$b("Show comparison countries"),
-                      type = "inline",
-                      icon = "circle-question",
-                      title = "Show comparison countries",
-                      content = c(
-                        "Select this option to show the comparison countries as white circles on the plots. You may hover over each circle to see the country name. Note that individual countries are represented by circles in the first example below. This shows the distribution of values for the comparison group."
-                      ),
-                      buttonLabel = "Close",
-                      fade = T,
-                      size = "s"
-                    ),
-                    value = FALSE,
-                    icon = icon("check"),
-                    status = "success"
-                  )
-                ),
-                div(
-                  id = "rank_div",
-                  prettyCheckbox(
-                    inputId = "rank",
-                    label = helper(
-                      shiny_tag = tags$b("Show rank instead of value"),
-                      type = "inline",
-                      icon = "circle-question",
-                      title = "Show rank instead of value",
-                      content = c(
-                        "Select this option to change the x-axis of the static benchmarking plot to display rankings instead of the CTF value."
-                      ),
-                      buttonLabel = "Close",
-                      fade = T,
-                      size = "s"
-                    ),
-                    value = FALSE,
-                    icon = icon("check"),
-                    status = "success"
-                  )
-                ),
-                div(
-                  id = "preset_order_div",
-                  prettyCheckbox(
-                    inputId = "preset_order",
-                    label = helper(
-                      shiny_tag = tags$b("Rank indicators from best to worst"),
-                      type = "inline",
-                      icon = "circle-question",
-                      title = "Rank indicators from best to worst",
-                      content = c(
-                        "Select this option to change the ordering of the variables on the vertical axis of the figure. Ranking from best to worst will place the indicator for which the base country has the highest value first and the indicator with the lowest value last."
-                      ),
-                      buttonLabel = "Close",
-                      fade = T,
-                      size = "s"
-                    ),
-                    value = FALSE,
-                    icon = icon("check"),
-                    status = "success"
-                  )
+            conditionalPanel(
+              "input.select !== 0",
+              fluidRow(
+                
+                column(
+                  width = 12,
+                  plotlyOutput(
+                    "plot",
+                    height = paste0(plot_height * 1.5, "px")
+                  ) %>% shinycssloaders::withSpinner(color = "#051f3f", type = 8)
                 )
               ),
-            
-              column(
-                width = 8,
-                tags$span("Plot", style = "font-size: 22px; color: #051f3f; font-weight: bold"),
-                conditionalPanel(
-                  "input.select !== 0",
-                  fluidRow(
-                    column(
-                      width = 12,
-                      plotlyOutput(
-                        "plot",
-                        height = paste0(plot_height * 1.5, "px")
-                      ) %>% shinycssloaders::withSpinner(color = "#051f3f", type = 8)
-                    )
-                  ),
-                  fluidRow(
-                    shinyWidgets:: materialSwitch(
-                      inputId = "show_plot_notes",
-                      label = "Show notes",
-                      status = "success",
-                      value = FALSE
-                    )#,
-                    #column(width = 1),
-                    #shinyWidgets::materialSwitch(
-                    #  inputId = "show_dynamic_plot",
-                    #  label = "Show dynamic benchmark plot",
-                    #  status = "success",
-                    #  value = FALSE
-                    #)
-                  ),
+              fluidRow(
+                shinyWidgets:: materialSwitch(
+                  inputId = "show_plot_notes",
+                  label = "Show notes",
+                  status = "success",
+                  value = FALSE
+                ),
+                column(width = 1),
+                shinyWidgets::materialSwitch(
+                  inputId = "show_dynamic_plot",
+                  label = "Show dynamic benchmark plot",
+                  status = "success",
+                  value = FALSE
+                )
+              ),
+              
+              conditionalPanel(
+                "input.show_plot_notes !== false",
+                
+                fluidRow(
                   
-                  conditionalPanel(
-                    "input.show_plot_notes !== false",
-                    
-                    fluidRow(
-                      
-                      column(
-                        width = 12,
-                        htmlOutput(
-                          "plot_notes"
-                        )
-                      )
-                      
+                  column(
+                    width = 12,
+                    htmlOutput(
+                      "plot_notes"
                     )
                   )
+                  
                 )
               )
             )
-              
           ),
           
           ### Dynamic benchmark tab  -------------------------------------------------------
-          #bs4Card(
-          #  width = 12,
-          #  solidHeader = FALSE,
-          #  gradientColor = "primary",
-          #  title = "Dynamic Benchmarks",
-          #  collapsible = TRUE,
-          #  
-          #  
-          #  conditionalPanel(
-          #    "input.select !== 0 && input.show_dynamic_plot === true",
-          #    fluidRow(
-          #      
-          #      column(
-          #        width = 12,
-          #        plotlyOutput(
-          #          "dynamic_benchmark_plot",
-          #          height =  paste0(plot_height * 5, "px")
-          #        ) %>% shinycssloaders::withSpinner(color = "#051f3f", type = 8)
-          #      )
-          #      
-          #    )
-          #    
-          #  )
-          #  
-          #),
+          bs4Card(
+            width = 12,
+            solidHeader = FALSE,
+            gradientColor = "primary",
+            title = "Dynamic Benchmarks",
+            collapsible = TRUE,
+            
+            
+            conditionalPanel(
+              "input.select !== 0 && input.show_dynamic_plot === true",
+              fluidRow(
+                
+                column(
+                  width = 12,
+                  plotlyOutput(
+                    "dynamic_benchmark_plot",
+                    height =  paste0(plot_height * 5, "px")
+                  ) %>% shinycssloaders::withSpinner(color = "#051f3f", type = 8)
+                )
+                
+              )
+              
+            )
+            
+          ),
           
           bs4Card(
             title = "Indicator definitions",
