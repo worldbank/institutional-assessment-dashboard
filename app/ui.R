@@ -1185,7 +1185,8 @@ ui <-
             fluidRow(
               column(
                 width = 8,
-                dataTableOutput("benchmark_datatable")
+                dataTableOutput("benchmark_datatable") |>
+                  shinycssloaders::withSpinner(color = "#051f3f", type = 8)
               ),
               column(
                 width = 4,
