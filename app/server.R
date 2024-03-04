@@ -489,6 +489,24 @@ server <- function(input, output, session) {
     
   })
   
+  ## Disable and hide
+  shiny::observeEvent(input$create_custom_grps, {
+    if (input$create_custom_grps == TRUE) {
+      
+      shinyWidgets::updateMaterialSwitch(
+        session = session,
+        inputId = "show_countries",
+        value = FALSE
+      )
+      
+      shinyjs::hide(id = "show_countries")
+      
+    } else {
+      
+      shinyjs::show(id = "show_countries")
+      
+    }
+  })
   
   ## Turning on the "Show custom groups" switch shows the custom groups ui
   shiny::observeEvent(input$show_custom_grps, {
