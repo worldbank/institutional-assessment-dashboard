@@ -90,7 +90,7 @@ ui <-
             p("The CLIAR Benchmarking Dashboard value added is to provide a standard quantitative methodology to summarize information from a large set of country-level institutional indicators. It does so by providing a user-friendly interface with multiple visualizations of a country’s institutional profile based on a set of curated international indicators, highlighting a given country’s institutional strengths and weaknesses relative to a set of country comparators. 
               The findings can provide a structured, standardized, and up-to-date empirical guidance for further in-depth analysis in the specific areas of interest. This can inform and contribute the World Bank's engagement in a given country and complement other strategic and analytical country-level reports, such as Country Climate and Development Reports (CCDR), Country Economic Memorandums (CEM), Public Expenditure Reviews (PER), Country-Partnership Frameworks (CPF), among others."),
             p("For full details about the methodology behind the CLIAR Benchmarking, please find the Methodological paper in the Methodology tab. Users of this resource should cite this paper. Publications using the CLIAR data should include a citation of the CLIAR Dashboard as well as the original source(s) of the data used. Citation information for each component dataset is also included in the Methodology page."),
-            p("Disclaimer: The findings, interpretations, and conclusions expressed in CLIAR are a product of staff of the World Bank, but do not necessarily reflect the views of the World Bank and its affiliated organizations, or those of the Executive Directors of the World Bank or the governments they represent."),
+            p("Disclaimer: The findings, interpretations, and conclusions expressed in CLIAR are a product of staff of the World Bank, but do not necessarily reflect the views of the World Bank and its affiliated organizations, or those of the Executive Directors of the World Bank or the governments they represent. Moreover, country borders or names used and available in this dashboard do not necessarily reflect the World Bank Group's official position, and do not imply the expression of any opinion on the part of the World Bank, concerning the legal status of any country or territory or concerning the delimitation of frontiers or boundaries. The term country, used interchangeably with economy, does not imply political independence but refers to any territory for which authorities report separate social or economic statistics."),
             h3("How to use this dashboard"),
             p("This dashboard aims to enable its users to interact with the country-level benchmarking through the following tabs:"),
             tags$ul(
@@ -742,7 +742,6 @@ ui <-
                   choices = c("", countries),
                   selected = NULL,
                   multiple = FALSE
-                  
                 )
               ),
               
@@ -760,7 +759,24 @@ ui <-
                     `actions-box` = TRUE
                   )
                 )
+              ),   
+              column(
+                width = 5,
+                pickerInput(
+                  "vars_bar",
+                  label = "Select indicator",
+                  choices = variable_list_benchmarked,
+                  selected = NULL,
+                  options = list(
+                    # size = 20,
+                    `actions-box` = TRUE,
+                    `live-search` = TRUE,
+                    "max-options" = 3
+                  ),
+                  width = "100%"
+                )
               )
+              
             )
           ),
           
@@ -945,6 +961,7 @@ ui <-
             collapsible = TRUE,
             
             fluidRow(
+
               column(
                 width = 5,
                 pickerInput(
@@ -989,6 +1006,21 @@ ui <-
                     `live-search` = TRUE#,
                     # size = 21
                   )
+                )
+              ),
+              column(
+                width = 5,
+                pickerInput(
+                  "vars_trends",
+                  label = "Select indicator to visualize",
+                  choices = filtered_variable_list,
+                  selected = NULL,
+                  options = list(
+                    `live-search` = TRUE,
+                    # size = 21,
+                    title = "Click to select family or indicator"
+                  ),
+                  width = "100%"
                 )
               )
             )
@@ -1106,7 +1138,7 @@ ui <-
               plotlyOutput(
                 "map",
                 height = paste0(plot_height, "px")
-              )
+              ) %>% shinycssloaders::withSpinner(color = "#051f3f", type = 8)
             )
           )
         ),
@@ -1537,8 +1569,10 @@ ui <-
             collapsed = TRUE,
             title = "Why are certain indicators or institutional families not appearing in my benchmarking results?",
             p(
-              "TO COMPLETE"
-            )),
+
+              "Indicators that are missing for the base country or exhibit low variance are dropped from the analysis. In some cases, such as for the SOE Governance family, this can result in dropping an entire institutional cluster."
+          )),
+
           box(
             width = 11,
             status = "navy",
@@ -1553,7 +1587,7 @@ ui <-
             collapsed = TRUE,
             title = "Why are certain indicators and clusters not included in the dynamic benchmarking?",
             p(
-              "TO COMPLETE."
+              "Compared to static benchmarking, dynamic benchmarking is more selective (or “demanding”) with respect to indicators, considering their panel characteristics. Hence, indicators that do not offer multiple measurements for the same country are excluded from the analysis – e.g., OECD PMR and PEFA, which consequently excludes the SOE Governance Institutions and Public Finance Institutions indicator clusters from dynamic benchmarking"
             )
           ),
           
@@ -1623,9 +1657,9 @@ ui <-
             width = 11,
             status = "navy",
             collapsed = TRUE,
-            title = "Why are certain family-level averages missing when I download the data even if there is non-missing data on the indicators of that family?",
+            title = "Why are certain cluster averages missing when I download the data even if there is non-missing data on the indicators of that cluster?",
             p(
-              "A balanced sample of individual CTF scores is aggregated by family to create family-level CTF scores. For each institutional family, a “balanced” subset of countries with full coverage (i.e., non-missing data) across all indicators within each family is created. This ensures that each family-level aggregate score relies on the same set of indicators for every country, allowing for robust and methodically sound inferences. The CTF family-level score is computed via simple averaging of the indicators within each family. This family-level score captures the overall performance for a given institutional category relative to the “global frontier.” The drawback of this robust methodological aggregation decision is that the data requirement is higher. Several families in both the static and dynamic versions do not meet the data requirements for meaninful aggregation (i.e., the balanced sample is too small or empty), and thus CTF family scores are not computed. "
+              "A balanced sample of individual CTF scores is aggregated by cluster to create cluster-level CTF scores. For each institutional cluster, a “balanced” subset of countries with full coverage (i.e., non-missing data) across all indicators within each cluster is created. This ensures that each cluster-level aggregate score relies on the same set of indicators for every country, allowing for robust and methodically sound inferences. The CTF cluster-level score is computed via simple averaging of the indicators within each cluster. This cluster-level score captures the overall performance for a given institutional category relative to the “global frontier.” The drawback of this robust methodological aggregation decision is that the data requirement is higher. Several families in both the static and dynamic versions do not meet the data requirements for meaningful aggregation (i.e., the balanced sample is too small or empty), and thus CTF cluster scores are not computed."
             )
           ),
           
@@ -1661,9 +1695,16 @@ ui <-
               The list of indicators used will be periodically reviewed in order to include new indicators that may be become available in the future. 
               As such, the CLIAR database is a "live tool".' 
             )
+          ),
+          box(
+            width = 11,
+            status = "navy",
+            collapsed = TRUE,
+            title = "How does CLIAR manage changes in the methodology of the construction of individual indicators used in the CLIAR database?",
+            p(
+              'CLIAR aims to keep consistent indicators. Hence, if specific indicators go through changes in their methodology, CLIAR will keep only those that are consistent, prioritizing the most recent ones. Some examples include PEFA and PMR indicators. If such change means a given indicator no longer meets the benchmarking criteria, then it is dropped from the benchmarking analysis.' 
+            )
           )
-          
-          
         ) # Close FAQ tab
       )
     )

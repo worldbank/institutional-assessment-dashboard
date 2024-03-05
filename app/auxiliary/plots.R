@@ -29,7 +29,8 @@ static_plot <-
            dots = FALSE,
            note = NULL,
            threshold,
-           preset_order = FALSE) {
+           preset_order = FALSE,
+           report = FALSE) {
 
     data$var_name <- ifelse(grepl("Average", data$var_name, ignore.case = TRUE), toupper(data$var_name), data$var_name)
     
@@ -386,22 +387,55 @@ static_plot <-
           show.legend = TRUE
         ))
     }else {
-      plot <-
-        plot +
-        suppressWarnings(geom_point(
-          data = data %>% filter(country_name %in% base_country),
-          aes(
-            y = var_name,
-            x = var,
-            shape = country_name,
-            fill = status ,
-            text = text
-          ),
-          size = 3,
-          color = "gray0",
-          show.legend = TRUE
-        ))+ 
-        scale_shape_manual(values = 21:25)      
+      
+      if(report==TRUE){
+        
+        custom_levels <- c("Weak\n(bottom 25%)", "Emerging\n(25% - 50%)", "Strong\n(top 50%)")
+        
+        data$status <- factor(data$status, levels = custom_levels, ordered = TRUE)
+        
+        
+        plot <-
+          plot +
+          suppressWarnings(geom_point(
+            data = data %>% filter(country_name %in% base_country),
+            aes(
+              y = var_name,
+              x = var,
+              shape = country_name,
+              fill = status ,
+              text = text
+            ),
+            size = 3,
+            color = "gray0",
+            show.legend = TRUE
+          ))+
+          guides(fill=guide_legend(override.aes=list(shape=21)))+
+          scale_shape_manual(values = 21:25)+
+          guides(colour = guide_legend(order = 1), 
+                 shape = guide_legend(order = 2))
+      }else{
+        plot <-
+          plot +
+          suppressWarnings(geom_point(
+            data = data %>% filter(country_name %in% base_country),
+            aes(
+              y = var_name,
+              x = var,
+              shape = country_name,
+              fill = status ,
+              text = text
+            ),
+            size = 3,
+            color = "gray0",
+            show.legend = TRUE
+          ))+scale_shape_manual(values = 21:25)
+
+      }
+      
+      
+        #guides(fill=guide_legend(override.aes=list(shape=21)))#+
+        #scale_shape_manual(values = 21:25)      
         # scale_fill_manual(values= c("Weak\n(bottom 25%)" = "#D2222D",
         #                            "Emerging\n(25% - 50%)" = "#FFBF00",
         #                            "Strong\n(top 50%)" = "#238823"))+
@@ -810,6 +844,11 @@ static_plot_dyn <-
       
     }
     
+    
+    custom_levels <- c("Weak\n(bottom 25%)", "Emerging\n(25% - 50%)", "Strong\n(top 50%)")
+    
+    data$status <- factor(data$status, levels = custom_levels, ordered = TRUE)
+    
     ## add base country
     plot <-
       plot +
@@ -1117,14 +1156,14 @@ static_map <-
             "#579E47",
             "#009E73"
           ),
-          name = NULL,
+          name = "Original Scale",
           na.value = "#808080"
         )
     } else if (source == "ctf") {
       plot <-
         plot +
         scale_fill_manual(
-          name = NULL,
+          name = "CTF",
           values = c(
             "0.0 - 0.2" = "#D55E00",
             "0.2 - 0.4" = "#DD7C00",
@@ -1149,21 +1188,23 @@ interactive_map <-
     def <-
       definitions %>%
       filter(variable == var)
-
-    if (source == "ctf") {
-      leg_title <- "Closeness to\nfrontier"
-    } else  {
-      leg_title <- NULL
-    }
+  
+    
+    # if (source == "ctf") {
+    #   leg_title <- "Closeness to\nfrontier"
+    # }else{
+    #   leg_title <-NULL
+    # }
 
     x %>%
       ggplotly(tooltip = "text") %>%
       layout(
-        legend = list(
-          title = list(text = paste("<b>", leg_title, "</b>")),
-          y = 0.5
-        ),
-        margin = list(t = 75, b = 125),
+        # legend = list(
+        #   title = list(text = paste("<b>", leg_title, "</b>")),
+        #   y = 0.2
+        # ),
+
+        margin = list(t = 75, b = 200),
         xaxis = list(visible = FALSE),
         yaxis = list(visible = FALSE),
         annotations =
@@ -1191,8 +1232,9 @@ interactive_map <-
                      ),
                      note_chars
                    ),
+                   
                    str_wrap(
-                     "<b>Note:</b> The color illustrates the latest value of the indicator available for each country.",
+                     "<b>Note:</b> The color illustrates the latest value of the indicator available for each country.The data presented here for CTF is obtained by taking the average of the indicator for the period 2018-2022 and for original indicator, it is latest datapoint available.",
                      note_chars
                    ),
                    sep = "<br>"
@@ -1357,6 +1399,7 @@ trends_plot <- function(raw_data,
                paste(
                  str_wrap(
                    paste(
+                     "<b>Note:</b>,Data displayed in based on the original indicators<br>",
                      "<b>Definition:</b>",
                      def$description
                    ),
@@ -1513,12 +1556,6 @@ static_bar <-
           label = round(get(varname), 3)
         )
       ) +
-      geom_vline(
-        xintercept = 1,
-        linetype = "dashed",
-        color = "#238823",
-        size = 1
-      ) +
       theme_minimal() +
       theme(
         legend.position = "none",
@@ -1559,14 +1596,16 @@ interactive_bar <-
           title = list(text = '<b>Closeness to\nfrontier:</b>'),
           y = 0.5
         ),
-        margin = list(t = 75, b = 200),
+        margin = list(t = 75, b = 220),
         annotations =
           list(x = -.1,
                y = -.4,
                text = HTML(
                  paste(
+                   
                    str_wrap(
                      paste(
+                       "<b>Note:</b>,Data displayed is based on the CTF data. <br>",
                        "<b>Definition:</b>",
                        def$description
                      ),

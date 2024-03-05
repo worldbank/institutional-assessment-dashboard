@@ -164,7 +164,8 @@ params$family_data %>%
       str_wrap(note, 174),
       sep = "\n"
     ),
-    threshold = params$threshold
+    threshold = params$threshold,
+    report = TRUE
   )
 
 ```
@@ -253,7 +254,8 @@ families <-
             family,
             title = FALSE,
             note = source,
-            threshold = params$threshold
+            threshold = params$threshold,
+            report = TRUE
           )
         )
       )
