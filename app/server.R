@@ -4,9 +4,25 @@ server <- function(input, output, session) {
   # Handle inputs ======================================================================
   
   ## Hide save inputs button at onset
-  shinyjs::hide("save_inputs")
+  #shinyjs::hide("save_inputs")
   shinyjs::disable("preset_order")
   shinyjs::hide("benchmark_median")
+  
+  observe_helpers()
+  
+  # initialise then start the guide
+  start_tour <- FALSE
+  start_tour_bench <- FALSE
+  
+  observeEvent(input$start, {
+    guide_landing_page$init()$start()
+    start_tour <<- TRUE
+  })
+  
+  observeEvent(input$start_guide_bench, {
+    guide_benchmark$init()$start()
+    start_tour_bench <<- TRUE
+  })
   
   
   ## Base country ------------------------------------------------------------
@@ -473,6 +489,24 @@ server <- function(input, output, session) {
     
   })
   
+  ## Disable and hide
+  shiny::observeEvent(input$create_custom_grps, {
+    if (input$create_custom_grps == TRUE) {
+      
+      shinyWidgets::updateMaterialSwitch(
+        session = session,
+        inputId = "show_countries",
+        value = FALSE
+      )
+      
+      shinyjs::hide(id = "show_countries")
+      
+    } else {
+      
+      shinyjs::show(id = "show_countries")
+      
+    }
+  })
   
   ## Turning on the "Show custom groups" switch shows the custom groups ui
   shiny::observeEvent(input$show_custom_grps, {
@@ -883,21 +917,34 @@ server <- function(input, output, session) {
           "select",
           "Apply selection",
           icon = icon("check"),
-          class = "btn-success",
-          width = "100%"
+          status = "success",
+          width = "100%",
+          #shinyjs::show("save_inputs"),
+          shinyjs::enable("save_inputs")
         )
       } else {
         actionButton(
           "select",
           "Select a base country and at least 10 comparison countries to apply selection",
           icon = icon("triangle-exclamation"),
-          class = "btn-warning",
+          status = "warning",
           width = "100%",
           shinyjs::disable("report"),
           shinyjs::disable("pptreport"),
           shinyjs::disable("download_data_1"),
-          
-        )
+          shinyjs::disable("save_inputs")
+        ) #|> 
+          #helper(
+          #  type = "inline",
+          #  icon = "circle-question",
+          #  title = "Apply",
+          #  content = c(
+          #    "Click on this box to (re-)run the analysis and (re-)load the resulting graphs. Note that this has to be done for every new selection or option, including a different institutional cluster. This option is enabled when the base country and at least 10 comparison countries are selected."
+          #  ),
+          #  buttonLabel = "Close",
+          #  fade = T,
+          #  size = "s"
+          #)
       }
     })
   
@@ -2477,8 +2524,8 @@ server <- function(input, output, session) {
   
   # When 'apply selection' button is clicked, show the save button
   shiny::observeEvent(input$select, {
-    shinyjs::show("save_inputs")
-    shinyjs::enable("save_inputs")
+    #shinyjs::show("save_inputs")
+    #shinyjs::enable("save_inputs")
     shinyjs::show("download_data_1")
     shinyjs::enable("download_data_1")
     
