@@ -405,6 +405,13 @@ open_budget_clean <- open_budget |>
       "KHM",
       country_code
     )
+  ) |> 
+  # shift values one year earlier, to reflect year of measurement
+  # this holds starting in year = 2015
+  mutate(
+    year = if_else(
+      year >= 2015,  year - 1, year
+    )
   )
 
 # 13. Debt Transparency

@@ -14,11 +14,11 @@
 ## Calculate global closeness to frontier
 
 Closeness to frontier (CTF) is global, meaning that we identify the worst and best performance in the full sample (all countries). For each indicator $i$, we compare the last available value of indicator $i$ with the worst and best
-performance for indicator $i$ among all countries and in the last $y$ years (2013 - most recent data).^[In [the doing business report](https://www.doingbusiness.org/content/dam/doingBusiness/media/Annual-Reports/English/DB17-Chapters/DB17-DTF-and-DBRankings.pdf) they consider the last 5 years, but here for some indicators we have shorter time series].
+performance for indicator $i$ among all countries and in the last $y$ years (2013 - most recent data).^[In the [Doing Business report](https://www.doingbusiness.org/content/dam/doingBusiness/media/Annual-Reports/English/DB17-Chapters/DB17-DTF-and-DBRankings.pdf) they consider the last 5 years, but here for some indicators we have shorter time series.]
 
 ## Keep only data from after 2013
 
-Ideally, this will use data for the last 7 years in any given year
+Ideally, this will use data for the last 7 years in any given year.
 
 ```{r}
 #load in cleaned indicators from step 3
