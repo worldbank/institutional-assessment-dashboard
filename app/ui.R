@@ -1151,53 +1151,44 @@ ui <-
             fluidRow(
               column(
                 width = 2.4,
-                shinyjs::disabled(
                   downloadButton(
                     "down_clust_ctf_stat",
                     "CTF Static (Cluster-level aggregates only)",
                     style = "width:100%; background-color: #204d74; color: white"
                   )
-                )
+                
               ),
               column(
                 width = 2.4,
-                shinyjs::disabled(
                   downloadButton(
                     "down_all_ctf_stat",
                     "CTF Static (All indicators)",
                     style = "width:100%; background-color: #204d74; color: white"
                   )
-                )
               ),
               column(
                 width = 2.4,
-                shinyjs::disabled(
                   downloadButton(
                     "down_clust_ctf_dyn",
                     "CTF Dynamic (Cluster-level aggregates only)",
                     style = "width:100%; background-color: #204d74; color: white"
                   )
-                )
               ),
               column(
                 width = 2.4,
-                shinyjs::disabled(
                   downloadButton(
                     "down_all_ctf_dyn",
                     "CTF Dynamic (All indicators)",
                     style = "width:100%; background-color: #204d74; color: white"
                   )
-                )
               ),
               column(
                 width = 2.4,
-                shinyjs::disabled(
                   downloadButton(
                     "down_original",
                     "Original indicators",
                     style = "width:100%; background-color: #204d74; color: white"
                   )
-                )
               )
             )
           ),

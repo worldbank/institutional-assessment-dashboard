@@ -1985,19 +1985,13 @@ server <- function(input, output, session) {
       data <-
         if (input$data_source == "Closeness to frontier (Static)") {
 
-          raw_data %>%
-            select(country_code,country_name, income_group, region) %>%
-            distinct() %>%
-            left_join(global_data, by = c("country_code","country_name"))
+          global_data
 
         } else {
           if(input$data_source == "Closeness to frontier (Dynamic)"){
-          raw_data %>%
-              select(country_code,country_name, income_group, region) %>%
-              distinct() %>%
-              left_join(global_data_dyn, by = c("country_code","country_name"))
-
-            
+         
+            global_data_dyn
+ 
           }else{
             
             raw_data%>%
@@ -2201,6 +2195,120 @@ server <- function(input, output, session) {
         )
       }
     )
+  
+  #CTF Static (Cluster-level aggregates only)
+  output$down_clust_ctf_stat <-
+    downloadHandler(
+      filename = function() {
+        paste0("CTF Static (Cluster-level aggregates only) data.csv")
+      },
+      content = function(file) {
+        
+        show_modal_spinner(
+          color = "#17a2b8",
+          text = "Loading Data",
+        )
+        
+        on.exit(remove_modal_spinner())
+        
+        write_csv(
+          down_clust_ctf_stat_data,
+          file,
+          na = ""
+        )
+      }
+    )
+  
+  #CTF Static (All indicators)
+  output$down_all_ctf_stat <-
+    downloadHandler(
+      filename = function() {
+        paste0("CLIAR CTF Static (All indicators) data.csv")
+      },
+      content = function(file) {
+        
+        show_modal_spinner(
+          color = "#17a2b8",
+          text = "Loading Data",
+        )
+        
+        on.exit(remove_modal_spinner())
+        
+        write_csv(
+          global_data,
+          file,
+          na = ""
+        )
+      }
+    )
+  #CTF Dynamic (Cluster-level aggregates only) data
+  output$down_clust_ctf_dyn <-
+    downloadHandler(
+      filename = function() {
+        paste0("CTF Dynamic (Cluster-level aggregates only) data.csv")
+      },
+      content = function(file) {
+        
+        show_modal_spinner(
+          color = "#17a2b8",
+          text = "Loading Data",
+        )
+        
+        on.exit(remove_modal_spinner())
+        
+        write_csv(
+          down_clust_ctf_dyn_data,
+          file,
+          na = ""
+        )
+      }
+    )
+  #CTF Dynamic (All indicators)
+  output$down_all_ctf_dyn <-
+    downloadHandler(
+      filename = function() {
+        paste0("CLIAR CTF Dynamic (All indicators) data.csv")
+      },
+      content = function(file) {
+        
+        show_modal_spinner(
+          color = "#17a2b8",
+          text = "Loading Data",
+        )
+        
+        on.exit(remove_modal_spinner())
+        
+        write_csv(
+          global_data_dyn,
+          file,
+          na = ""
+        )
+      }
+    )
+  #Original indicators
+  output$down_original <-
+    downloadHandler(
+      filename = function() {
+        paste0("CLIAR Original indicators data.csv")
+      },
+      content = function(file) {
+        
+        show_modal_spinner(
+          color = "#17a2b8",
+          text = "Loading Data",
+        )
+        
+        on.exit(remove_modal_spinner())
+        
+        write_csv(
+          raw_data%>%
+            select(-ends_with("_avg")),
+          file,
+          na = ""
+        )
+      }
+    )
+  
   
   
   # Report ================================================================================
