@@ -12,6 +12,7 @@ params:
   data: NA
   family_data: NA
   data_dyn : NA
+  data_dyn_avg : NA
   family_data_dyn : NA
   rank: NA
   dots: NA
@@ -275,8 +276,10 @@ The dynamic analysis of institutions is performed on a basis of `r params$base_c
 
 
 ```{r,fig.height= 8,results = "asis"}
-params$data_dyn %>%
-    filter(str_detect(variable, "_avg"))%>%
+  params$data_dyn_avg%>%
+  filter(str_detect(variable, "_avg"))%>%
+  left_join(.,params$family_order,by = 'family_name')%>%
+  filter(Benchmark_dynamic_family_aggregate!='No')%>%
   static_plot_dyn(
     params$base_country,
     "Country overview",
@@ -294,7 +297,6 @@ params$data_dyn %>%
 
 ```
 
-### CLIAR Dynamic Benchmarking: For Each Family 
 
 ```{r dyn_each_fam}
 if(params$download_opt==TRUE){
@@ -305,7 +307,10 @@ families <-
   unlist
 
   if (length(families) > 0) {
-
+  
+  cat("### CLIAR Dynamic Benchmarking: For Each Family\n\n")
+  
+    
     family_names <-
       paste(families, collapse = ", ")
 

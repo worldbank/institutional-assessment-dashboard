@@ -10,7 +10,7 @@ missing_var <- function(data, base_country, country_list, comparison_countries, 
     data %>%
     ungroup() %>%
     filter(country_name %in% base_country) %>%
-    select(-(1:3)) %>%
+    select(-(1:5)) %>%
     summarise(across(everything(), ~ if_else(any(is.na(.)), NA, sum(., na.rm = TRUE)))) %>%
     select(where(is.na)) %>%
     distinct() %>%

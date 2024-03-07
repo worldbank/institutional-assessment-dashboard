@@ -1083,11 +1083,11 @@ server <- function(input, output, session) {
     eventReactive(
       input$select,
       {
-        
+        #browser()
         static_avg_data<-global_data%>%
           select(-matches("_avg"))
         
-        vars_static_avg_data <- names(static_avg_data)[4:length(static_avg_data)] 
+        vars_static_avg_data <- names(static_avg_data)[6:length(static_avg_data)] 
         
         static_avg <-compute_family_average(static_avg_data,vars_static_avg_data,"static",db_variables)
         
@@ -2070,7 +2070,7 @@ server <- function(input, output, session) {
           filter(country_group == 0) %>%
           mutate(
             across(
-              4:ncol(.),
+              6:ncol(.),
               ~ rank(desc(.), ties.method = "min")
             )
           )
@@ -2344,6 +2344,7 @@ server <- function(input, output, session) {
           data = data(),
           family_data = data_family(),
           data_dyn = data_dyn(),
+          data_dyn_avg = data_dyn_avg(),
           family_data_dyn = data_family_dyn(),
           rank = input$rank,
           definitions = definitions,

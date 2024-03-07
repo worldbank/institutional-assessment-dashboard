@@ -1,10 +1,10 @@
 family_data <- function(data, base_country, variable_names) {
-
+  #browser()
   na_indicators <-
     data %>%
     ungroup() %>%
     filter(country_name %in% base_country) %>%
-    select(-(1:3)) %>%
+    select(-(1:5)) %>%
     summarise(across(everything(), ~ if_else(any(is.na(.)), NA, sum(., na.rm = TRUE)))) %>%
     select(where(is.na)) %>%
     distinct() %>%
@@ -19,7 +19,7 @@ family_data <- function(data, base_country, variable_names) {
 
   dtf_family_level <-
     data %>%
-    pivot_longer(cols = 2:ncol(.),
+    pivot_longer(cols = 4:ncol(.),
                  names_to = "variable") %>%
     left_join(variable_names,
               by = "variable") %>%
