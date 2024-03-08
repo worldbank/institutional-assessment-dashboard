@@ -210,7 +210,24 @@ ui <-
             column(
               id = "input_buttons",
               width = 3,
-              tags$span("Selection of Countries", style = "font-size: 1rem; color: #051f3f; font-weight:bold"),
+              fluidRow(
+                column(
+                  width = 8,
+                  helper(
+                    shiny_tag = tags$span("Selection of Countries", style = "font-size: 1rem; color: #051f3f; font-weight:bold"),
+                    type = "inline",
+                    icon = "circle-question",
+                    title = "Saving and loading Selection of Countries",
+                    content = c(
+                      "You can save your selected inputs to return to at a future time: click “Save Selection of Countries” button to download a .rds file to your computer with that information. When you return to the dashboard, you can click “Load Selection of Countries” button and then “Browse” to select this same .rds file. Loading this .rds file will re-populate all of the selections that you previously made."
+                    ),
+                    buttonLabel = "Close",
+                    fade = T,
+                    size = "s"
+                  )
+                ),
+                column(4)
+              ),
               fluidRow(
                 ## Load inputs button
                 buttons_func(
