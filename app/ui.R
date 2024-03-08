@@ -537,8 +537,29 @@ ui <-
                 column(
                   width = 6,
                   style = "display: flex; align-items: center; justify-content: center;",
-                  uiOutput(
-                    "select_button"
+                  fluidRow(
+                    column(
+                      width = 10,
+                      uiOutput(
+                        "select_button"
+                      )
+                    ),
+                    column(
+                      width = 1,
+                      helper(
+                        shiny_tag = NULL,
+                        type = "inline",
+                        icon = "circle-question",
+                        title = "Apply",
+                        content = c(
+                          "Click on this box to (re-)run the analysis and (re-)load the resulting graphs. Note that this has to be done for every new selection or option, including a different institutional cluster. This option is enabled when the base country and at least 10 comparison countries are selected."
+                        ),
+                        buttonLabel = "Close",
+                        fade = T,
+                        size = "s"
+                      )
+                    ),
+                    column(1)
                   )
                 )
               ),
