@@ -534,8 +534,26 @@ ui <-
                     selected = NULL
                   )
                 ),
+                # Please do not delete the below button, though not being displayed. It has downstream impact on other process.
                 column(
-                  width = 6,
+                  width = 1,
+                  pickerInput(
+                    inputId = "benchmark_median",
+                    label = "Show group median",
+                    choices = append(
+                      "Comparison countries",
+                      group_list
+                    ),
+                    selected = NULL,
+                    multiple = TRUE,
+                    options = list(
+                      `live-search` = TRUE,
+                      "max-options" = 3
+                    )
+                  )
+                ),
+                column(
+                  width = 4,
                   style = "display: flex; align-items: center; justify-content: center;",
                   fluidRow(
                     column(
