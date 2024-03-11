@@ -768,58 +768,7 @@ server <- function(input, output, session) {
     ignoreNULL = FALSE
   )
   
-  
-  # 
-  # observeEvent(
-  #   input$vars_bar,
-  #   {
-  #     
-  #     var <-
-  #       db_variables %>%
-  #       filter(var_name == input$vars_bar) %>%
-  #       pull(variable)
-  #     
-  #     valid <-
-  #       global_data %>%
-  #       filter(
-  #         !is.na(get(var))
-  #       ) %>%
-  #       select(country_name) %>%
-  #       unique() %>%
-  #       unlist() %>%
-  #       unname()
-  #     
-  #     bar_countries <-
-  #       intersect(valid, countries)
-  #     
-  #     updatePickerInput(
-  #       session,
-  #       "country_bar",
-  #       choices = c(
-  #         "",
-  #         bar_countries
-  #       )
-  #     )
-  #     
-  #     updateCheckboxGroupButtons(
-  #       session,
-  #       "countries_bar",
-  #       choices = bar_countries,
-  #       checkIcon = list(
-  #         yes = icon(
-  #           "ok",
-  #           lib = "glyphicon"
-  #         )
-  #       )
-  #     )
-  #   },
-  #   ignoreNULL = TRUE
-  # )
-  
-  
-  
-  
-  
+
   # When custom groups are included and the group field is updated, append the countries to the initial list of countries
   # displayed
   observeEvent(
@@ -1876,54 +1825,6 @@ server <- function(input, output, session) {
   
   # Trends plot ===============================================================
   
-  # observeEvent(
-  #   input$vars_trends,
-  #   {
-  #     if (input$vars_trends != "") {
-  #       var <-
-  #         db_variables %>%
-  #         filter(var_name == input$vars_trends) %>%
-  #         pull(variable)
-  #       
-  #       valid <-
-  #         raw_data %>%
-  #         filter(
-  #           !is.na(get(var))
-  #         ) %>%
-  #         select(country_name) %>%
-  #         unique() %>%
-  #         unlist() %>%
-  #         unname()
-  #       
-  #       valid_countries <-
-  #         intersect(valid, countries)
-  #       
-  #       updatePickerInput(
-  #         session,
-  #         "country_trends",
-  #         choices = c(
-  #           "",
-  #           valid_countries
-  #         )
-  #       )
-  #       
-  #       updateCheckboxGroupButtons(
-  #         session,
-  #         "countries_trends",
-  #         choices = valid_countries,
-  #         checkIcon = list(
-  #           yes = icon(
-  #             "ok",
-  #             lib = "glyphicon"
-  #           )
-  #         )
-  #       )
-  #     }
-  #   },
-  #   ignoreNULL = TRUE
-  # )
-  # 
-  
   custom_df_trend <-  reactive({
     
     if(any(!input$group_trends %in% unlist(group_list))){
@@ -1938,9 +1839,9 @@ server <- function(input, output, session) {
   
   output$time_series <-
     renderPlotly({
-      
       shiny::req(input$country_trends)
       shiny::req(input$vars_trends)
+      validate(need(check_data(raw_data,input$country_trends,input$vars_trends) == FALSE,'Country Comparison is not available for this Indicator for the selected base country'))
       
       if (input$vars_trends != "") {
         var <-
