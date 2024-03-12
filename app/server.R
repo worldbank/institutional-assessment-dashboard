@@ -1032,13 +1032,13 @@ server <- function(input, output, session) {
     eventReactive(
       input$select,
       {
-        #browser()
+      
         static_avg_data<-global_data%>%
           select(-matches("_avg"))
         
         vars_static_avg_data <- names(static_avg_data)[6:length(static_avg_data)] 
         
-        static_avg <-compute_family_average(static_avg_data,vars_static_avg_data,"static",db_variables)
+        static_avg <-compute_family_average(static_avg_data,vars_static_avg_data,"static",db_variables,base_country(),input$countries)
         
         static_avg<- static_avg%>%
           select(-matches('NA'))
@@ -1089,7 +1089,7 @@ server <- function(input, output, session) {
         
         vars_dynamic_avg_data <- names(dynamic_avg_data)[6:length(dynamic_avg_data)] 
         
-        dynamic_avg <-compute_family_average(dynamic_avg_data,vars_dynamic_avg_data,"dynamic",db_variables)
+        dynamic_avg <-compute_family_average(dynamic_avg_data,vars_dynamic_avg_data,"dynamic",db_variables,base_country(),input$countries)
         
         dynamic_avg<- dynamic_avg%>%
           select(-matches('NA'))%>%
@@ -1137,7 +1137,8 @@ server <- function(input, output, session) {
         family_data(
           global_data,
           base_country(),
-          variable_names
+          variable_names,
+          input$countries
         ) %>%
           def_quantiles(
             base_country(),
@@ -1269,15 +1270,11 @@ server <- function(input, output, session) {
         input$select
         
         # browser()
-        
-        ## Important!
-        ## Shel added custom_df as an argument in the static_plot function to accommodate the custom groups
-        
-        
         isolate(
           
           
           if (input$family == "Overview") {
+            
             missing_variables <-
               global_data %>%
               missing_var(
@@ -1478,7 +1475,8 @@ server <- function(input, output, session) {
   
   output$dynamic_benchmark_plot <-
     renderPlotly({
-      tryCatch({
+#      tryCatch({
+
       validate(need(length(input$country) == 1,'Dynamic Benchmarking is available only when One base Country is selected'))
       validate(need(!(input$family %in% family_order$family_name[family_order$Benchmark_dynamic_indicator == "No"])," No Dynamic Benchmarking Plot available for this family."))
       if (length(input$countries) >= 10 && length(input$country) == 1) {
@@ -1578,12 +1576,12 @@ server <- function(input, output, session) {
         )
       }
       
-    }
-    , error = function(e) {
-    #   # If an error occurs, display a standard text message
-       showNotification('An error occurred. Data is missing for the selected base country.','',type = "error",duration = 10)
-       return()
-    })
+    # }
+    # , error = function(e) {
+    # #   # If an error occurs, display a standard text message
+    #    showNotification('An error occurred. Data is missing for the selected base country.','',type = "error",duration = 10)
+    #    return()
+    # })
       })%>%
     bindCache(input$country,  input$groups, input$family,input$benchmark_median,
               input$rank, input$benchmark_dots, input$preset_order, input$create_custom_grps,

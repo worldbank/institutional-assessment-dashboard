@@ -31,14 +31,17 @@ static_plot <-
            threshold,
            preset_order = FALSE,
            report = FALSE) {
+  
 
     data$var_name <- ifelse(grepl("Average", data$var_name, ignore.case = TRUE), toupper(data$var_name), data$var_name)
     
     if (threshold=="Default"){
       cutoff<-c(25,50)
+      custom_levels <- c("Weak\n(bottom 25%)", "Emerging\n(25% - 50%)", "Strong\n(top 50%)")
     }else if (threshold=="Terciles")
     {
       cutoff<-c(33,66)
+      custom_levels <- c("Weak\n(bottom 33%)", "Emerging\n(33% - 66%)", "Strong\n(top 34%)")
     }
 
     if(preset_order == TRUE){
@@ -50,8 +53,6 @@ static_plot <-
       
         base_country_df<-data%>%
           filter(country_name==base_country[1])
-        
-        custom_levels <- c("Weak\n(bottom 25%)", "Emerging\n(25% - 50%)", "Strong\n(top 50%)")
         
         base_country_df$status <- factor(base_country_df$status, levels = custom_levels, ordered = TRUE)
         if(rank==FALSE){
@@ -139,8 +140,8 @@ static_plot <-
         data %>%
         group_by(variable,nrank) %>%
         mutate(
-          q25 = cutoff[[1]]/100,
-          q50 = cutoff[[2]]/100,
+          q_cutoff1 = cutoff[[1]]/100,
+          q_cutoff2 = cutoff[[2]]/100,
           var = dtt,
           text = paste(
             "Rank:", nrank, "<br>",
@@ -161,7 +162,7 @@ static_plot <-
             y = var_name,
             yend = var_name,
             x = 0,
-            xend = q25
+            xend = q_cutoff1
           ),
           color = "#e47a81",
           size = 2,
@@ -178,8 +179,8 @@ static_plot <-
           aes(
             y = var_name,
             yend = var_name,
-            x = q25,
-            xend = q50
+            x = q_cutoff1,
+            xend = q_cutoff2
           ),
           color = "#ffd966",
           size = 2,
@@ -190,7 +191,7 @@ static_plot <-
           aes(
             y = var_name,
             yend = var_name,
-            x = q50,
+            x = q_cutoff2,
             xend = 1
           ),
           color = "#8ec18e",
@@ -390,8 +391,6 @@ static_plot <-
       
       if(report==TRUE){
         
-        custom_levels <- c("Weak\n(bottom 25%)", "Emerging\n(25% - 50%)", "Strong\n(top 50%)")
-        
         data$status <- factor(data$status, levels = custom_levels, ordered = TRUE)
         
         
@@ -467,14 +466,17 @@ static_plot_dyn <-
     threshold,
     preset_order = FALSE) {
     
+    #browser()
+    
     if (threshold=="Default"){
       cutoff<-c(25,50)
+      custom_levels <- c("Weak\n(bottom 25%)", "Emerging\n(25% - 50%)", "Strong\n(top 50%)")
     }else if (threshold=="Terciles")
     {
       cutoff<-c(33,66)
+      custom_levels <- c("Weak\n(bottom 33%)", "Emerging\n(33% - 66%)", "Strong\n(top 34%)")
     }
-    
-    
+
     
     if(preset_order == TRUE){
       
@@ -565,8 +567,8 @@ static_plot_dyn <-
       data <-
         data %>%
         mutate(
-          q25 = cutoff[[1]]/100,
-          q50 = cutoff[[2]]/100,
+          q_cutoff1 = cutoff[[1]]/100,
+          q_cutoff2 = cutoff[[2]]/100,
           var = dtt,
           text = paste(
             "Country:", country_name, "<br>",
@@ -628,7 +630,7 @@ static_plot_dyn <-
           x = year,
           xend = year,
           y = 0,
-          yend = q25
+          yend = q_cutoff1
         ),
         color = "#e47a81",
         size = 2,
@@ -639,8 +641,8 @@ static_plot_dyn <-
         aes(
           x = year,
           xend = year,
-          y = q25,
-          yend = q50
+          y = q_cutoff1,
+          yend = q_cutoff2
         ),
         color = "#ffd966",
         size = 2,
@@ -651,7 +653,7 @@ static_plot_dyn <-
         aes(
           x = year,
           xend = year,
-          y = q50,
+          y = q_cutoff2,
           yend = 1
         ),
         color = "#8ec18e",
@@ -845,8 +847,6 @@ static_plot_dyn <-
     }
     
     
-    custom_levels <- c("Weak\n(bottom 25%)", "Emerging\n(25% - 50%)", "Strong\n(top 50%)")
-    
     data$status <- factor(data$status, levels = custom_levels, ordered = TRUE)
     
     ## add base country
@@ -997,8 +997,7 @@ plot_notes_function <-
 
 interactive_plot <-
   function(x, tab_name, buttons,  plot_type) {
-    
-    if(lengths(variable_list[tab_name])>10 & plot_type=='dynamic'){
+    if(length(x$facet)>10 & plot_type=='dynamic'){
       plt_height = 3000
     }else if(plot_type=='dynamic') {
       plt_height = 1000

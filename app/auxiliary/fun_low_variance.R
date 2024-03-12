@@ -69,7 +69,7 @@ low_variance <- function(data, base_country, country_list, comparison_countries,
     mutate(
       dtt = percent_rank(value),
       q25 = quantile(value, c(0.25)),
-      q50 = quantile(value, c(0.5)),
+      q75 = quantile(value, c(0.75)),
       status = case_when(
         dtt <= .25 ~ "Weak\n(bottom 25%)",
         dtt > .25 & dtt <= .50 ~ "Emerging\n(25% - 50%)",
@@ -78,7 +78,7 @@ low_variance <- function(data, base_country, country_list, comparison_countries,
     ) %>%
     ungroup %>%
     rename(dtf = value) %>%
-    filter(country_name == base_country & q25==q50) %>%
+    filter(country_name == base_country & q25==q75) %>%
     select(variable) %>%
     unlist
 
@@ -171,7 +171,7 @@ low_variance_dyn <- function(data, base_country, country_list, comparison_countr
     mutate(
       dtt = percent_rank(value),
       q25 = quantile(value, c(0.25)),
-      q50 = quantile(value, c(0.5)),
+      q75 = quantile(value, c(0.75)),
       status = case_when(
         dtt <= .25 ~ "Weak\n(bottom 25%)",
         dtt > .25 & dtt <= .50 ~ "Emerging\n(25% - 50%)",
@@ -180,7 +180,7 @@ low_variance_dyn <- function(data, base_country, country_list, comparison_countr
     ) %>%
     ungroup %>%
     rename(dtf = value) %>%
-    filter(country_name == base_country & q25==q50) %>%
+    filter(country_name == base_country & q25==q75) %>%
     distinct(variable) %>%
     unlist
   

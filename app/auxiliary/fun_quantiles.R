@@ -1,5 +1,5 @@
 def_quantiles <- function(data, base_country, country_list, comparison_countries, vars, variable_names,threshold) {
-
+  
 # List all relevant countries
   comparison_list <-
     country_list %>%
@@ -73,8 +73,10 @@ if (threshold=="Default"){
     group_by(variable, var_name) %>%
     mutate(
       dtt = percent_rank(value),
-      q25 = quantile(value, c(cutoff[1]/100)),
-      q50 = quantile(value, c(cutoff[2]/100)),
+      q_lv_25 = quantile(value,c(0.25)),
+      q_lv_75 = quantile(value,c(0.75)),
+      q_cutoff1 = quantile(value, c(cutoff[1]/100)),
+      q_cutoff2 = quantile(value, c(cutoff[2]/100)),
       status = case_when(
         dtt <= cutoff[1]/100 ~ paste0("Weak\n(bottom ", cutoff[1],"%)"),
         dtt > cutoff[1]/100 & dtt <= cutoff[2]/100 ~ paste0("Emerging\n(",cutoff[1],"% - ",cutoff[2],"%)"),
@@ -88,7 +90,7 @@ if (threshold=="Default"){
   # Remove indicators where there is too little variance
   low_variance_indicators <-
     quantiles %>%
-    filter(country_name == base_country & q25==q50) %>%
+    filter(country_name == base_country & q_lv_25==q_lv_75) %>%
     select(variable) %>%
     unlist
   
@@ -179,8 +181,10 @@ def_quantiles_dyn <- function(data, base_country, country_list, comparison_count
     group_by(variable, var_name, year) %>%
     mutate(
       dtt = percent_rank(value),
-      q25 = quantile(value, c(cutoff[1]/100)),
-      q50 = quantile(value, c(cutoff[2]/100)),
+      q_lv_25 = quantile(value, c(0.25)),
+      q_lv_75 = quantile(value, c(0.75)),
+      q_cutoff1 = quantile(value, c(cutoff[1]/100)),
+      q_cutoff2 = quantile(value, c(cutoff[2]/100)),
       status = case_when(
         dtt <= cutoff[1]/100 ~ paste0("Weak\n(bottom ", cutoff[1],"%)"),
         dtt > cutoff[1]/100 & dtt <= cutoff[2]/100 ~ paste0("Emerging\n(",cutoff[1],"% - ",cutoff[2],"%)"),
@@ -191,7 +195,7 @@ def_quantiles_dyn <- function(data, base_country, country_list, comparison_count
     ungroup %>%
     rename(dtf = value) %>% 
     # Remove indicators where there is too little variance
-    mutate(todrop = ifelse(country_name == base_country & q25==q50, 1, 0)) %>% 
+    mutate(todrop = ifelse(country_name == base_country & q_lv_25==q_lv_75, 1, 0)) %>% 
     filter(todrop != 1) %>% 
     select(-todrop)
   
