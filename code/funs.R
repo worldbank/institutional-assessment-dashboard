@@ -183,3 +183,53 @@ compute_family_average <- function(cliar_data, vars, type = "static", db_variabl
 
   return(cliar_family_level)
 }
+
+compute_family_variance <- function(cliar_data, vars, type = "static", db_variables){
+  # this function generates family-level variances
+  # default is static
+  cliar_data_long <-
+    cliar_data %>%
+    pivot_longer(
+      all_of({{vars}}),
+      names_to = "variable"
+    ) %>%
+    select(-contains("gdp")) %>%
+    left_join(
+      db_variables %>%
+        select(variable, var_name, family_name, family_var),
+      by = "variable"
+    )
+
+  # only calculate family averages for relevant institutional clusters
+  if(type == "static"){
+    grouping <- c("country_code", "family_var")
+    id_cols <- c("country_code")
+  } else{
+    grouping = c("country_code", "year", "family_var")
+    id_cols <- c("country_code", "year")
+  }
+
+  cliar_family_level_long <- cliar_data_long |>
+    group_by(
+      across(all_of(grouping))
+    ) |>
+    summarise(
+      # we only compute statistics if all indicators are available
+      # there na.rm = FALSE
+      avg = mean(value, na.rm = FALSE),
+      var = var(value, na.rm = FALSE),
+      min = min(value, na.rm = FALSE),
+      max = max(value, na.rm = FALSE),
+      .groups = "drop"
+    )
+
+  cliar_family_level <- cliar_family_level_long |>
+    pivot_wider(
+      id_cols = all_of(id_cols),
+      names_from = family_var,
+      names_glue = "{family_var}_{.value}",
+      values_from = c(avg, var, min, max)
+    )
+
+  return(cliar_family_level)
+}
