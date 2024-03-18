@@ -402,7 +402,7 @@ static_plot <-
               y = var_name,
               x = var,
               shape = country_name,
-              fill = status ,
+              fill = status,
               text = text
             ),
             size = 3,
@@ -422,13 +422,17 @@ static_plot <-
               y = var_name,
               x = var,
               shape = country_name,
-              fill = status ,
+              fill = status,
               text = text
             ),
             size = 3,
             color = "gray0",
             show.legend = TRUE
-          ))+scale_shape_manual(values = 21:25)
+          ))+
+          guides(
+            fill=F
+          ) +
+          scale_shape_manual(values = 21:25)
 
       }
       
@@ -1010,8 +1014,35 @@ interactive_plot <-
         legend.position = "top"
       )
     
+    if(length(base_country>1)){
+      int_plot <- x %>%
+        ggplotly(tooltip = "text",height = plt_height ) %>%
+        add_trace(
+          data = data |> filter(country_name %in% base_country),
+          type = "scatter",
+          mode = "markers",
+          x = ~var,
+          y = ~var_name,
+          color = ~status,
+          colors = colors,
+          marker = list(size = 12, symbol = ~country_name),
+          showlegend = TRUE
+        ) |>
+        layout(
+          margin = list(l = 50, r = 50, t = 150, b = 150)
+        ) |>
+        config(
+          modeBarButtonsToRemove = buttons,
+          toImageButtonOptions= list(filename = paste0(tolower(stringr::str_replace_all(tab_name,"\\s","_"))),
+                                     width = 1100,
+                                     height =  1000)
+        )
+      
+    } else {
+      
     int_plot <- x %>%
       ggplotly(tooltip = "text",height = plt_height ) %>%
+
       layout(
         margin = list(l = 50, r = 50, t = 150, b = 150)#,
 
@@ -1022,6 +1053,7 @@ interactive_plot <-
           width = 1100,
           height =  1000)
       )
+    }
     
     
     if(plot_type == "dynamic"){
