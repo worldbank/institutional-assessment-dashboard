@@ -1025,7 +1025,7 @@ interactive_plot <-
           y = ~var_name,
           color = ~status,
           colors = colors,
-          marker = list(size = 12, symbol = ~country_name),
+          marker = list(size = 12, symbol = 0),
           showlegend = TRUE
         ) |>
         layout(
