@@ -135,8 +135,8 @@ knitr::include_graphics("www/families.png")
 The static analysis of `r params$base_country` institutions was performed on a basis of `r length(unique(na.omit(params$data$var_name)))` available indicators that are grouped in `r length(unique(na.omit(params$data$family_name)))` institutional clusters. 
 
 ```{r}
-temp<-params2$family_data%>%
-  filter(country_name %in% c(params2$base_country))%>%
+temp<-params$family_data%>%
+  filter(country_name %in% c(params$base_country))%>%
   mutate(flag = ifelse(dtf > 0.5, 1, 0))
 
 counts_category<-params$family_data%>%
