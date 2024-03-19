@@ -62,8 +62,8 @@ server <- function(input, output, session) {
   })
   
   
-  observeEvent(input$country,{
-    if(length(input$country)>1){
+  observeEvent(input$rank,{
+    if(input$rank==FALSE){
       shinyjs::disable("preset_order")
     }else{
       shinyjs::enable("preset_order")
