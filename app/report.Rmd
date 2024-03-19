@@ -324,7 +324,7 @@ families <-
         unlist
 
       data_dyn <-
-        params$data_dyn %>%
+        params$data_dyn_avg %>%
           filter(var_name %in% vars)
 
 

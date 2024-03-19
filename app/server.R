@@ -2240,7 +2240,7 @@ server <- function(input, output, session) {
         list(
           base_country = base_country(),
           comparison_countries = input$countries,
-          data = data(),
+          data = data_avg(),
           family_data = data_family(),
           data_dyn = data_dyn(),
           data_dyn_avg = data_dyn_avg(),
@@ -2320,7 +2320,7 @@ server <- function(input, output, session) {
           threshold = input$threshold
         )
       
-      plot2 <- data_dyn() %>%
+      plot2 <- data_dyn_avg() %>%
         filter(str_detect(variable, "_avg"))%>%
         static_plot_dyn(
           base_country()[1],
@@ -2374,7 +2374,7 @@ server <- function(input, output, session) {
             pull(variable) %>%
             unique()
           
-          plt_f<-data() %>%
+          plt_f<-data_avg() %>%
             filter(variable %in% fam_variable_names)%>%
             static_plot(
               base_country(),
@@ -2403,14 +2403,14 @@ server <- function(input, output, session) {
         }
       }
       
-      ppt<-ppt%>%
-        add_slide(master = "Custom Design")%>%
-        on_slide(index = slide_index) %>%
-        ph_with(value = "Dynamic Benchmarking : Overview", location = ph_location(left = 1, top = 0.4,width = 12))%>%
-        ph_with(value = plot2, location = ph_location(
-          left = 1.5, top = 1.2,
-          width = 10.04, height = 4.67, bg = "transparent"
-        ))
+      # ppt<-ppt%>%
+      #   add_slide(master = "Custom Design")%>%
+      #   on_slide(index = slide_index) %>%
+      #   ph_with(value = "Dynamic Benchmarking : Overview", location = ph_location(left = 1, top = 0.4,width = 12))%>%
+      #   ph_with(value = plot2, location = ph_location(
+      #     left = 1.5, top = 1.2,
+      #     width = 10.04, height = 4.67, bg = "transparent"
+      #   ))
       
       print(ppt, file)
     }
