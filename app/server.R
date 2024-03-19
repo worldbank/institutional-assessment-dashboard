@@ -499,11 +499,11 @@ server <- function(input, output, session) {
         value = FALSE
       )
       
-      shinyjs::hide(id = "show_countries")
+      shinyjs::disable(id = "show_countries")
       
     } else {
       
-      shinyjs::show(id = "show_countries")
+      shinyjs::enable(id = "show_countries")
       
     }
   })
