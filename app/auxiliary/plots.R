@@ -914,7 +914,6 @@ static_plot_dyn <-
 plot_notes_function <-
   function(y, z, tab_name, miss_var, plot_type, custom_df) {
     
-    
     if(!is.null(custom_df)){
       
       custom_grp_notes <- custom_df %>% 
@@ -943,11 +942,11 @@ plot_notes_function <-
       notes <-
         paste0(
           "Notes:<br><br>",
-          y,
+          paste(y,collapse = ","),
           " compared to ",
           str_wrap(paste(z, collapse = ", "), note_chars),".",
           custom_grp_notes,
-          "<br><br>The following indicators are not considered because base country has no information or because of low variance: ",
+          "<br><br>The following indicators are not considered because the base country (or countries) has no information or because of low variance: ",
           str_wrap(paste(miss_var, collapse = ", "), note_chars),
           "."
         )
@@ -980,7 +979,7 @@ plot_notes_function <-
       notes <-
         paste(
           notes,
-          "<br><br>Family-level closeness to frontier is calculated by taking the average closeness to frontier for the estimated indicators within each family."
+          "<br><br>Family-level closeness to frontier is calculated by taking the average closeness to frontier for the estimated indicators within each cluster"
         )
     }
     
