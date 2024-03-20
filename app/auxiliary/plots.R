@@ -979,7 +979,7 @@ plot_notes_function <-
       notes <-
         paste(
           notes,
-          "<br><br>Family-level closeness to frontier is calculated by taking the average closeness to frontier for the estimated indicators within each cluster"
+          "<br><br>Cluster-level closeness to frontier is calculated by taking the average closeness to frontier for the estimated indicators within each cluster."
         )
     }
     
