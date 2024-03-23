@@ -1368,10 +1368,7 @@ ui <-
             collapsed = TRUE,
             title = "Closeness to frontier",
             
-            p('The dashboard uses the “Closeness to Frontier"(CTF) methodology, which is adapted from the original Doing Business’s',
-              a("Distance to Frontier methodology",
-                href = "https://www.doingbusiness.org/content/dam/doingBusiness/media/Annual-Reports/English/DB17-Chapters/DB17-DTF-and-DBRankings.pdf"),
-              '. The CTF methodology allows to assess country’s performance across institutional indicators by comparing it with the “global frontier”, where the global frontier is the world’s best performer. For each indicator, a country’s performance is rescaled on a 0-1 scale using the linear transformation (worst–y)/(worst–frontier), where 1 represents the best performer and 0 the worst performer. The higher the score, the closer a country is to the best performer and the lower the score, the closer a country is to the worst performer, and more distant to the frontier. The best and worst performers are identified using available data from the global sample (i.e., considering all countries for which data is available), and using the relevant time period according to the benchmarking approach –i.e., whether it estimates the static (default) CTF benchmarking scores or dynamic CTF scores. In the static case, the average of the 2018-2022 period is used.'),
+            p('The dashboard uses a “Closeness to Frontier"(CTF) methodology. The CTF methodology allows to assess country’s performance across institutional indicators by comparing it with the “global frontier”, where the global frontier is the world’s best performer. For each indicator, a country’s performance is rescaled on a 0-1 scale using the linear transformation (worst–y)/(worst–frontier), where 1 represents the best performer and 0 the worst performer. The higher the score, the closer a country is to the best performer and the lower the score, the closer a country is to the worst performer, and more distant to the frontier. The best and worst performers are identified using available data from the global sample (i.e., considering all countries for which data is available), and using the relevant time period according to the benchmarking approach –i.e., whether it estimates the static (default) CTF benchmarking scores or dynamic CTF scores. In the static case, the average of the 2018-2022 period is used.'),
             p('For each institutional family, the CTF scores obtained for each indicator are aggregated through simple averaging into one CTF score at family level. This captures the overall performance for an institutional family relatively to the “global frontier”, while the performance across the indicators will help identify the most challenging areas for institutional strengthening.')
             
           ),
@@ -1512,17 +1509,6 @@ ui <-
               However, you can download the full database and augment it with additional indicators to customize your analysis.
               You can also get in touch with the CLIAR team (CLIAR@worldbank.org) indicating which data you would like to be added in the database, and for which cluster.
               Each request will be reviewed by a team of technical experts and if the indicator meets the selection criteria indicated in the methodological note (quality and coverage) it will be added during the next update round."
-            )
-          ),
-          
-          box(
-            width = 11,
-            status = "navy",
-            collapsed = TRUE,
-            title = "Is the “Closeness to Frontier” methodology the same one used in the “Doing Business Report”?",
-            p(
-              "The “Closeness to Frontier” is used in order to standardize indicators and make it possible to compare and aggregate them.
-              The resulting scores range between 0 and 1 and we labeled them “Closeness to Frontier” because higher values mean closer to the frontier, which is set at 1."
             )
           ),
           
