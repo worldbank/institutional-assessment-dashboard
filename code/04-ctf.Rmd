@@ -727,6 +727,9 @@ family_level_vars <- db_variables %>%
     variable = paste0(family_var, "_avg"),
     var_name = paste0(family_name, " Average"),
     var_level = "indicator",
+    description = "The cluster-level average is an unweighted average of the corresponding indicators of this cluster. See Methodological note for details on the inclusion criteria.",
+    description_short = "The cluster-level average is an unweighted average of the corresponding indicators for this cluster.",
+    source = "CLIAR",
     benchmarked_ctf = "Yes",
     rank_id = 1
   )
