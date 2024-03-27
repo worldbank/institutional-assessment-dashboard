@@ -32,6 +32,7 @@ static_plot <-
            preset_order = FALSE,
            report = FALSE) {
   
+    #browser()
 
     data$var_name <- ifelse(grepl("Average", data$var_name, ignore.case = TRUE), toupper(data$var_name), data$var_name)
     
@@ -198,13 +199,15 @@ static_plot <-
           size = 2,
           alpha = .3
         ) +
+      scale_y_discrete(labels = function(x) str_wrap(x, width = 20))+
         theme_minimal() +
         theme(
+          aspect.ratio = 1.6/1,
           legend.position = "top",
           panel.grid.minor = element_blank(),
           axis.ticks = element_blank(),
           axis.text = element_text(color = "black"),
-          axis.text.y = element_text(size = 12),
+          axis.text.y = element_text(size = 10),
           axis.text.x = element_text(size = 11),
           legend.box = "vertical",
           plot.caption = element_text(size = 8, hjust = 0),
@@ -1000,6 +1003,8 @@ interactive_plot <-
       plt_height = 3000
     }else if(plot_type=='dynamic') {
       plt_height = 1000
+    }else if(tab_name=='Overview'){
+      plt_height = 900
     }else{
       plt_height = 750
     }
@@ -1380,7 +1385,7 @@ trends_plot <- function(raw_data,
     theme(
       axis.text.x = element_text(angle = 90)
     )
-
+  
   ggplotly(
     static_plot,
     tooltip = "text"
