@@ -199,12 +199,7 @@ server <- function(input, output, session) {
     input$select,
     {
       if (!is.null(input$groups)) {
-        updatePickerInput(
-          session,
-          "groups_data",
-          choices = c("All", "Comparison groups only", "None")
-        )
-        
+
         updatePickerInput(
           session,
           "groups_bar",
