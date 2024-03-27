@@ -727,6 +727,9 @@ family_level_vars <- db_variables %>%
     variable = paste0(family_var, "_avg"),
     var_name = paste0(family_name, " Average"),
     var_level = "indicator",
+    description = "The cluster-level average is an unweighted average of the corresponding and included indicators of this cluster. See Methodological note for details on the inclusion criteria.",
+    description_short = "The cluster-level average is an unweighted average of the corresponding and included indicators for this cluster.",
+    source = "CLIAR",
     benchmarked_ctf = "Yes",
     rank_id = 1
   )
@@ -760,82 +763,28 @@ ctf_dynamic_complete <- ctf_dynamic_clean |>
   )
 ```
 
-## Confidence Intervals
+## Institutional Family-level Variance
+
+We compute the dispersion of our institutional family-level scores by country. For the static benchmarking, we provide three metrics:
+
+1. Minimum CTF scores for indicators in the same family, for a given country.
+2. Maximum CTF scores for indicators in the same family, for a given country.
+3. The variance of CTF scores for indicators in the same family, for a given country.
+
+In the case of the dynamic benchmarking we extend our analysis by specifying min-max and standard deviation for a given country and year.
 
 ```{r}
-std_err <- function(x){
-  sd(x, na.rm = TRUE)/sqrt(length(!is.na(x)))
-}
-
-# compute confidence intervals for each institutional family
-# for the static ctf
-ctf_confint_static <- ctf_complete |> 
-  select(
-    country_code,
-    country_name,
-    income_group,
-    region,
-    country_group,
-    ends_with("_avg")
-  ) |> 
-  mutate(
-    across(
-      ends_with("avg"),
-      ~ 1.96 * std_err(.),
-      .names = "{.col}_std_err"
-    ),
-    across(
-      ends_with("avg"),
-      ~ . + 1.96 * std_err(.),
-      .names = "{.col}_conf_int_upper"
-    ),
-    across(
-      ends_with("avg"),
-      ~ . - 1.96 * std_err(.),
-      .names = "{.col}_conf_int_lower"
-    )
-  ) %>%
-  select(
-    country_code:country_group,
-    everything()
+ctf_static_variance <- ctf_complete |> 
+  compute_family_variance(
+    vars_static_ctf,
+    db_variables = db_variables
   )
 
-# for the dynamic ctf
-ctf_confint_dynamic <- ctf_dynamic_complete |> 
-  filter(
-    year %in% seq(2016, max(year), 2)
-  ) |> 
-  select(
-    country_code,
-    country_name,
-    year,
-    income_group,
-    region,
-    country_group,
-    ends_with("_avg")
-  ) |> 
-  group_by(year) |> 
-  mutate(
-    across(
-      ends_with("avg"),
-      ~ 1.96 * std_err(.),
-      .names = "{.col}_std_err"
-    ),
-    across(
-      ends_with("avg"),
-      ~ . + 1.96 * std_err(.),
-      .names = "{.col}_conf_int_upper"
-    ),
-    across(
-      ends_with("avg"),
-      ~ . - 1.96 * std_err(.),
-      .names = "{.col}_conf_int_lower"
-    )
-  ) %>%
-  ungroup() |> 
-  select(
-    country_code:country_group,
-    everything()
+ctf_dynamic_variance <- ctf_dynamic_complete |> 
+  compute_family_variance(
+    vars_dynamic_ctf,
+    type = "dymamic", 
+    db_variables
   )
 ```
 
@@ -965,20 +914,20 @@ write_rds(
 )
 
 write_rds(
-  ctf_confint_static,
+  ctf_static_variance,
   here(
     "data",
     "output", 
-    "closeness_to_frontier_confint_static.rds"
+    "closeness_to_frontier_var_static.rds"
   )
 )
 
 write_rds(
-  ctf_confint_dynamic,
+  ctf_dynamic_variance,
   here(
     "data",
     "output", 
-    "closeness_to_frontier_confint_dynamic.rds"
+    "closeness_to_frontier_var_dynamic.rds"
   )
 )
 

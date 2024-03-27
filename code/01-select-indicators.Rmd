@@ -13,7 +13,6 @@ This list is filled by hand in Excel.
 db_variables <-
   read_excel(
     here(
-
       "data",
       "input",
       "cliar",
