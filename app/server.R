@@ -1639,6 +1639,18 @@ server <- function(input, output, session) {
     ignoreNULL = FALSE
   )
   
+  observeEvent(
+    input$vars_map,{
+      if(grepl("Average", input$vars_map)){
+        
+        disable(selector = "#value_map button:eq(1)")
+      }else{
+        enable(selector = "#value_map button:eq(1)")
+      }
+      
+      }
+    )
+  
   # observeEvent(
   #   input$vars_map,
   #   {
