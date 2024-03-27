@@ -1243,6 +1243,13 @@ ui <-
                     selected = "All"
                   ),
                   
+                  # pickerInput(
+                  #   "groups_data",
+                  #   label = "Select groups to include",
+                  #   choices = c("All", "None"),
+                  #   selected = "All"
+                  # ),
+                  
                   pickerInput(
                     "vars",
                     label = "Select institutional families to include",
