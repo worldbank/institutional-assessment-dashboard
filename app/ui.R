@@ -683,7 +683,7 @@ ui <-
                   width = 12,
                   plotlyOutput(
                     "plot",
-                    height = paste0(plot_height * 1.7, "px")
+                    height = paste0(plot_height * 1.9, "px")
                   ) %>% shinycssloaders::withSpinner(color = "#051f3f", type = 8)
                 )
               ),
