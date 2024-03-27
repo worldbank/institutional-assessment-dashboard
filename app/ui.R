@@ -85,8 +85,12 @@ ui <-
             
             br(),            
             p("Welcome to the Country Level Institutional Assessment and Review (CLIAR) Benchmarking Dashboard!"), 
-            p("The CLIAR Benchmarking Dashboard provides a standard quantitative methodology to summarize information from a large set of country-level institutional indicators."),
+            p("The World Bank recognizes institutional strengthening as key ingredient for progress of its members countries along income categories. While there are numerous diagnostic and assessment tools for specific functional areas such as public financial management and tax administration, there is no analytical tool for country-level institutional assessment."), 
+            p("The Country Level Institutional Assessment and Review (CLIAR) contributes to fill this gap via two distinct but complementary products: the (i) CLIAR Benchmarking and its Dashboard and the (ii) CLIAR Country Deep-Dive."),
+            p("The CLIAR Benchmarking Dashboard value added is to provide a standard quantitative methodology to summarize information from a large set of country-level institutional indicators. It does so by providing a user-friendly interface with multiple visualizations of a country’s institutional profile based on a set of curated international indicators, highlighting a given country’s institutional strengths and weaknesses relative to a set of country comparators. 
+              The findings can provide a structured, standardized, and up-to-date empirical guidance for further in-depth analysis in the specific areas of interest. This can inform and contribute the World Bank's engagement in a given country and complement other strategic and analytical country-level reports, such as Country Climate and Development Reports (CCDR), Country Economic Memorandums (CEM), Public Expenditure Reviews (PER), Country-Partnership Frameworks (CPF), among others."),
             p("For full details about the methodology behind the CLIAR Benchmarking, please find the Methodological paper in the Methodology tab. Users of this resource should cite this paper. Publications using the CLIAR data should include a citation of the CLIAR Dashboard as well as the original source(s) of the data used. Citation information for each component dataset is also included in the Methodology page."),
+            p("Disclaimer: The findings, interpretations, and conclusions expressed in CLIAR are a product of staff of the World Bank, but do not necessarily reflect the views of the World Bank and its affiliated organizations, or those of the Executive Directors of the World Bank or the governments they represent. Moreover, country borders or names used and available in this dashboard do not necessarily reflect the World Bank Group's official position, and do not imply the expression of any opinion on the part of the World Bank, concerning the legal status of any country or territory or concerning the delimitation of frontiers or boundaries. The term country, used interchangeably with economy, does not imply political independence but refers to any territory for which authorities report separate social or economic statistics."),
             h3("How to use this dashboard"),
             p("This dashboard aims to enable its users to interact with the country-level benchmarking through the following tabs:"),
             tags$ul(
@@ -151,9 +155,6 @@ ui <-
             )
           )
         ),
-
-       p("Disclaimer: The findings, interpretations, and conclusions expressed in CLIAR are a product of staff of the World Bank, but do not necessarily reflect the views of the World Bank and its affiliated organizations, or those of the Executive Directors of the World Bank or the governments they represent. Moreover, country borders or names used and available in this dashboard do not necessarily reflect the World Bank Group's official position, and do not imply the expression of any opinion on the part of the World Bank, concerning the legal status of any country or territory or concerning the delimitation of frontiers or boundaries. The term country, used interchangeably with economy, does not imply political independence but refers to any territory for which authorities report separate social or economic statistics."),
-
         
         ## Country benchmark tab -------------------------------------------------------
         tabItem(
@@ -1239,8 +1240,13 @@ ui <-
                   pickerInput(
                     "countries_data",
                     label = "Select countries to include",
-                    choices = c("All"),
-                    selected = "All"
+                    choices = c("All", "Base country only", "Base + comparison countries"),
+                    selected = "All",
+                    options = list(
+                      "All" = list(disabled = FALSE),
+                      "Base country only" = list(disabled = TRUE),
+                      "Base + comparison countries" = list(disabled = TRUE)
+                    )
                   ),
                   
                   # pickerInput(

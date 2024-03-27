@@ -222,7 +222,12 @@ server <- function(input, output, session) {
       updatePickerInput(
         session,
         "countries_data",
-        choices = c("All", "Base country only", "Base + comparison countries")
+        choices = c("All", "Base country only", "Base + comparison countries"),
+        options = list(
+          "All" = list(disabled = FALSE),
+          "Base country only" = list(disabled = FALSE),
+          "Base + comparison countries" = list(disabled = FALSE)
+        )
       )
       
       # Create report
