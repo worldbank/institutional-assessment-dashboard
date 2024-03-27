@@ -1900,14 +1900,14 @@ server <- function(input, output, session) {
           
         }
       
-      groups <-
-        if (input$groups_data == "All") {
-          all_groups
-        } else if (input$groups_data == "Comparison groups only" & input$groups != "") {
-          input$groups
-        } else {
-          ""
-        }
+      groups <- all_groups
+        # if (input$groups_data == "All") {
+        #   all_groups
+        # } else if (input$groups_data == "Comparison groups only" & input$groups != "") {
+        #   input$groups
+        # } else {
+        #   ""
+        # }
       
       selected_countries <-
         if (input$countries_data == "All") {
