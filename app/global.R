@@ -22,7 +22,9 @@ library(htmltools)
 library(officer)
 library(rvg)
 library(openxlsx)
-
+library(countrycode)
+library(cicerone)
+library(shinyhelper)
 
 options(dplyr.summarise.inform = FALSE)
 
@@ -62,6 +64,9 @@ source(here("auxiliary", "fun_publications.R"))
 
 # Modules
 source(here("modules", "mod_publications.R"))
+
+# Guide/help
+source(here("auxiliary", "guides.R"))
 
 # Data -------------------------------------------------------------
 
@@ -160,6 +165,21 @@ clean_country <-
     )
   )  
 
+
+down_clust_ctf_stat_data <- read_rds(
+  here(
+    "data",
+    "closeness_to_frontier_confint_static.rds"
+  )
+)
+
+down_clust_ctf_dyn_data <- read_rds(
+  here(
+    "data",
+    "closeness_to_frontier_confint_dynamic.rds"
+  )
+)
+
 for(i in 1:nrow(clean_country)){
   if (clean_country[i,'Clean_Names']!=""){
     country_list$country_name[country_list$country_name==clean_country[i,'Country']]=clean_country[i,'Clean_Names']
@@ -237,6 +257,20 @@ countries <-
   unique %>%
   sort
 
+# Get flags for each country
+country_flags_codes <- countrycode::countrycode(countries, "country.name.en", "ecb")
+
+# Match "West Bank and Gaza" code for flagcdn
+country_get_palestine <- c("West Bank and Gaza" = "PS")
+
+# Function to get flags with countries
+flags_with_countries <- mapply(function(country, code) {
+  flag_html <- tags$img(src = paste0(src = 'https://flagcdn.com/w20/', tolower(code), '.png'), alt = code)
+  label_html <- tags$span(country)
+  paste(flag_html, label_html, sep = " ")
+}, countries, ifelse(countries == "West Bank and Gaza", country_get_palestine["West Bank and Gaza"], countrycode::countrycode(countries, "country.name.en", "ecb")), SIMPLIFY = FALSE)
+
+
 extract_variables <-
   function(x) {
     db_variables %>%
@@ -249,9 +283,21 @@ extract_variables <-
 variable_list <-
   lapply(family_names$var_name, extract_variables)
 
-
-
 names(variable_list) <- family_names$var_name
+
+extract_variables_benchmarked <-
+  function(x) {
+    db_variables %>%
+      filter(
+        family_name == x, benchmarked_ctf=='Yes'
+      ) %>%
+      pull(var_name)
+  }
+
+variable_list_benchmarked <-
+  lapply(family_names$var_name, extract_variables_benchmarked)
+
+names(variable_list_benchmarked) <- family_names$var_name
 
 
 remove_average_items <- function(family) {

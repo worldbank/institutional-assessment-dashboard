@@ -16,6 +16,7 @@ buttons_func <- function(id, lab) {
     shinyWidgets::actionBttn(
       inputId = id,
       label = lab, 
+      icon = shiny::icon("upload"),
       style = "jelly",
       color = "primary",
       size = "sm"
