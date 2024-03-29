@@ -12,6 +12,7 @@ params:
   data: NA
   family_data: NA
   data_dyn : NA
+  data_dyn_avg : NA
   family_data_dyn : NA
   rank: NA
   dots: NA
@@ -136,7 +137,7 @@ The static analysis of `r params$base_country` institutions was performed on a b
 ```{r}
 temp<-params$family_data%>%
   filter(country_name %in% c(params$base_country))%>%
-  mutate(flag = ifelse(dtt > 0.5, 1, 0))
+  mutate(flag = ifelse(dtf > 0.5, 1, 0))
 
 counts_category<-params$family_data%>%
   filter(country_name %in% c(params$base_country))%>%
@@ -144,7 +145,7 @@ counts_category<-params$family_data%>%
   summarize(count = n(),VarNames = sapply(list(var_name), function(x) paste(x, collapse = ", ")))
 ```
 
-`r sum(temp$flag)` institutional families out of `r length(unique(na.omit(params$data$family_name)))` exhibit a proximity to the frontier greater than 0.5, which means that `r sum(temp$flag)` institutional clusters are closer to the world’s best performers. In relative terms, as shown in Figure below, scores for `r counts_category$count[counts_category$status=="Weak\n(bottom 25%)"]`  institutional clusters (`r counts_category$VarNames[counts_category$status=="Weak\n(bottom 25%)"]`) indicate weak performance, `r counts_category$count[counts_category$status=="Emerging\n(25% - 50%)"]`  of the clusters (`r counts_category$VarNames[counts_category$status=="Emerging\n(25% - 50%)"]`) are classified as ‘emerging’ and `r counts_category$count[counts_category$status=="Strong\n(top 50%)"]` clusters (`r counts_category$VarNames[counts_category$status=="Strong\n(top 50%)"]`) demonstrate a strong performance. 
+`r sum(temp$flag)` institutional families out of `r length(unique(na.omit(params$data$family_name)))` exhibit a proximity to the frontier greater than 0.5, which means that `r sum(temp$flag)` institutional clusters are closer to the world’s best performers. In relative terms, as shown in Figure below, scores for `r ifelse(length(counts_category$count[counts_category$status=="Weak\n(bottom 25%)"])==0,0,counts_category$count[counts_category$status=="Weak\n(bottom 25%)"])`  institutional clusters (`r ifelse(length(counts_category$VarNames[counts_category$status=="Weak\n(bottom 25%)"])==0,"none",counts_category$VarNames[counts_category$status=="Weak\n(bottom 25%)"])`) indicate weak performance, `r ifelse(length(counts_category$count[counts_category$status=="Emerging\n(25% - 50%)"])==0,0,counts_category$count[counts_category$status=="Emerging\n(25% - 50%)"])`  of the clusters (`r ifelse(length(counts_category$VarNames[counts_category$status=="Emerging\n(25% - 50%)"])==0,"none",counts_category$VarNames[counts_category$status=="Emerging\n(25% - 50%)"])`) are classified as ‘emerging’ and `r ifelse(length(counts_category$count[counts_category$status=="Strong\n(top 50%)"])==0,0,counts_category$count[counts_category$status=="Strong\n(top 50%)"])` clusters (`r ifelse(length(counts_category$VarNames[counts_category$status=="Strong\n(top 50%)"])==0,"none",counts_category$VarNames[counts_category$status=="Strong\n(top 50%)"])`) demonstrate a strong performance. 
 
 ## Country overview
 
@@ -164,7 +165,8 @@ params$family_data %>%
       str_wrap(note, 174),
       sep = "\n"
     ),
-    threshold = params$threshold
+    threshold = params$threshold,
+    report = TRUE
   )
 
 ```
@@ -253,7 +255,8 @@ families <-
             family,
             title = FALSE,
             note = source,
-            threshold = params$threshold
+            threshold = params$threshold,
+            report = TRUE
           )
         )
       )
@@ -273,8 +276,10 @@ The dynamic analysis of institutions is performed on a basis of `r params$base_c
 
 
 ```{r,fig.height= 8,results = "asis"}
-params$data_dyn %>%
-    filter(str_detect(variable, "_avg"))%>%
+  params$data_dyn_avg%>%
+  filter(str_detect(variable, "_avg"))%>%
+  left_join(.,params$family_order,by = 'family_name')%>%
+  filter(Benchmark_dynamic_family_aggregate!='No')%>%
   static_plot_dyn(
     params$base_country,
     "Country overview",
@@ -292,7 +297,6 @@ params$data_dyn %>%
 
 ```
 
-### CLIAR Dynamic Benchmarking: For Each Family 
 
 ```{r dyn_each_fam}
 if(params$download_opt==TRUE){
@@ -303,7 +307,10 @@ families <-
   unlist
 
   if (length(families) > 0) {
-
+  
+  cat("### CLIAR Dynamic Benchmarking: For Each Family\n\n")
+  
+    
     family_names <-
       paste(families, collapse = ", ")
 
@@ -317,7 +324,7 @@ families <-
         unlist
 
       data_dyn <-
-        params$data_dyn %>%
+        params$data_dyn_avg %>%
           filter(var_name %in% vars)
 
 
