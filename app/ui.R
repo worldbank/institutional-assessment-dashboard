@@ -90,7 +90,7 @@ ui <-
             
             p("For full details about the methodology behind the CLIAR Benchmarking, please find the Methodological paper in the Methodology tab. Users of this resource should cite this paper. Publications using the CLIAR data should include a citation of the CLIAR Dashboard as well as the original source(s) of the data used. Citation information for each component dataset is also included in the Methodology page."),
             h3("How to use this dashboard"),
-            p("This dashboard aims to enable its users to interact with the country-level benchmarking through the following tabs:"),
+            p("This dashboard enables its users to interact with the CLIAR benchmarking through the following tabs:"),
             tags$ul(
               tags$li(
                 "The ",
@@ -132,8 +132,8 @@ ui <-
               ),
               tags$li(
                 "The ",
-                tags$b("Terms of use and Disclaimer"),
-                "tab provides more information about the terms of use and disclaimer, as well as citation information."
+                tags$b("Terms of use and Disclaimers"),
+                "tab provides more information about the terms of use and disclaimers, as well as citation information."
               ),
               tags$li(
                 "The ",
