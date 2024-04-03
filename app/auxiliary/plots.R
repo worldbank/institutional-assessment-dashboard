@@ -155,6 +155,9 @@ static_plot <-
       x_lab <- "Rank"
     }
     
+    #Issue 283 - Remove Institutions keywork in y axis for plots
+    data$var_name <- gsub("Institutions", "", data$var_name)
+    
     plot <-
       ggplot() +
         geom_segment(
