@@ -1402,7 +1402,7 @@ trends_plot <- function(raw_data,
         title = list(text = '<b>Country:</b>'),
         y = 0.5
       ),
-      margin = list(l = 50, r = 150, t = 175, b = 200),
+      margin = list(l = 50, r = 150, t = 100, b = 300),
       annotations =
         list(x = 0, y = -0.5,
              text = HTML(
