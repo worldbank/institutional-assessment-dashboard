@@ -1326,6 +1326,10 @@ trends_plot <- function(raw_data,
         ) %>%
         rename(country_name = group) %>%
         mutate(country_name = paste(country_name, "average"))
+      
+      avg_df <- avg_df %>%
+        arrange(country_name, Year)
+      
     } else {
       NULL
     }
