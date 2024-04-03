@@ -1734,6 +1734,21 @@ server <- function(input, output, session) {
         return(is.na(indicator_val))
   }  
   
+  
+  check_spatial_data <-function(data,indicator){
+    
+    var <-
+      db_variables %>%
+      filter(var_name == indicator) %>%
+      pull(variable)
+    
+    indicator_val <-
+      data %>%
+      pull(paste0("value_",var))
+    
+    return(all(is.na(indicator_val)))
+  }  
+  
   output$bar_plot <-
     renderPlotly({
       
@@ -1810,6 +1825,8 @@ server <- function(input, output, session) {
   
   output$map <-
     renderPlotly({
+      
+      validate(need(check_spatial_data(spatial_data,input$vars_map) == FALSE,'Map is not available for this Indicator for the selected base country'))
       if (input$vars_map != "") {
         var_selected <-
           variable_names %>%
