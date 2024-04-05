@@ -1751,10 +1751,24 @@ server <- function(input, output, session) {
   
   output$bar_plot <-
     renderPlotly({
-      
+      #browser()
         validate(need(check_data(global_data,input$country_bar,input$vars_bar) == FALSE,'Country Comparison is not available for this Indicator for the selected base country'))
+      
+      if(input$value_bar == "ctf"){
+        data<-global_data
+      }
+      else{
+        data <-raw_data
+        
+        data <- data %>% 
+          select(-Year)%>%
+          group_by(country_code, country_name, income_group, region) %>%
+          fill(everything()) %>% 
+          slice(n())
+      }
+      
       static_bar(
-        global_data,
+        data,
         input$country_bar,
         input$countries_bar,
         input$groups_bar,

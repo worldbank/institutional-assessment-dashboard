@@ -809,7 +809,21 @@ ui <-
                   width = "100%"
                 )
               ),
-
+              column(
+                width = 3,
+                radioGroupButtons(
+                  "value_bar",
+                  label = "Select data source",
+                  choices = c(
+                    "Closeness to frontier" = "ctf",
+                    "Original indicator" = "raw"
+                  ),
+                  justified = TRUE,
+                  selected = "ctf",
+                  checkIcon = list(
+                    yes = icon("ok", lib = "glyphicon"))
+                )
+              )
             )
           ),
           
