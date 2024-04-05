@@ -61,10 +61,17 @@ static_plot <-
         }else{
           base_country_df <- base_country_df[order(base_country_df$status,base_country_df$dtt), ]
         }
+        
+
+        
         unique_indicators = base_country_df %>% 
             distinct(var_name) %>% 
             pull(var_name)
-      
+        
+        #Issue 283 - Remove Institutions keywork in y axis for plots
+        data$var_name <- gsub("Institutions", "", data$var_name)
+        unique_indicators <- gsub("Institutions","",unique_indicators)
+        
         data$var_name <-
           factor(
             data$var_name,
@@ -82,6 +89,12 @@ static_plot <-
         distinct(var_name, rank_id) %>% 
         arrange(desc(rank_id)) %>% 
         pull(var_name)
+      
+      #Issue 283 - Remove Institutions keywork in y axis for plots
+      
+      data$var_name <- gsub("Institutions", "", data$var_name)
+      unique_indicators <- gsub("Institutions","",unique_indicators)
+      
       
       data$var_name <-
         factor(
@@ -154,10 +167,7 @@ static_plot <-
       
       x_lab <- "Rank"
     }
-    
-    #Issue 283 - Remove Institutions keywork in y axis for plots
-    data$var_name <- gsub("Institutions", "", data$var_name)
-    
+
     plot <-
       ggplot() +
         geom_segment(
@@ -217,7 +227,7 @@ static_plot <-
           plot.caption.position =  "plot"
         ) +
         labs(
-          y = NULL,
+          y = tab_name,
           x = x_lab,
           fill = NULL,
           shape = NULL,
