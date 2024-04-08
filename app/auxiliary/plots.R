@@ -1618,7 +1618,7 @@ interactive_bar <-
         ),
         margin = list(t = 75, b = 220),
         annotations =
-          list(x = -.1,
+          list(x = -.6,
                y = -.4,
                text = HTML(
                  paste(
