@@ -430,8 +430,12 @@ static_plot <-
             ),
             size = 3,
             color = "gray0",
-            show.legend = TRUE
-          ))+scale_shape_manual(values = 21:25)
+            show.legend = FALSE
+          ))+
+          scale_shape_manual(values = 21:25) +
+          guides(
+            fill=F
+          )
 
       }
       
@@ -1009,48 +1013,49 @@ interactive_plot <-
       plt_height = 750
     }
     
-    x <- x +
-      theme(
-        legend.position = "top"
-      )
+    plotly_plot <- ggplotly(x)
     
-    int_plot <- x %>%
-      ggplotly(tooltip = "text",height = plt_height ) %>%
-      layout(
-        margin = list(l = 50, r = 50, t = 150, b = 150)#,
-
-      ) %>%
-      config(
-        modeBarButtonsToRemove = buttons,
-        toImageButtonOptions= list(filename = paste0(tolower(stringr::str_replace_all(tab_name,"\\s","_"))),
-          width = 1100,
-          height =  1000)
-      )
+    plotly_plot$x$data[[5]]$showlegend <- FALSE
+    plotly_plot$x$data[[6]]$showlegend <- FALSE
+    plotly_plot$x$data[[7]]$showlegend <- FALSE
+    plotly_plot$x$data[[8]]$showlegend <- FALSE
+    plotly_plot$x$data[[9]]$showlegend <- FALSE
     
     
-    if(plot_type == "dynamic"){
-      
-      int_plot <- int_plot %>% 
-        layout(
-                    legend = list(
-                     orientation = "h",xanchor = "center", x = 0.5
-                    )
-        )
-    }
+    plotly_plot <- plotly_plot |>
+      add_trace(
+        data = data |> filter(country_name %in% base_country),
+        type = "scatter",
+        mode = "markers",
+        x = ~var,
+        y = ~var_name,
+        color = ~status,
+        colors = colors,
+        marker = list(size = 12, symbol = 0),
+        showlegend = TRUE
+      ) |>
+      add_trace(
+        data = data |> filter(country_name %in% base_country),
+        type = "scatter",
+        mode = 'markers',
+        x = ~var, 
+        y = ~var_name,
+        name = base_country[1],
+        marker= list(symbol=100, color='black', fill='transparent', size = 12),
+        showlegend = TRUE
+      ) |>
+      add_trace(
+        data = data |> filter(country_name %in% base_country),
+        type = "scatter",
+        mode = 'markers',
+        x = ~var, 
+        y = ~var_name,
+        name = base_country[2],
+        marker= list(symbol=101, color='black', fill='transparent', size = 12),
+        showlegend = TRUE
+      ) 
     
-    ## Solution to remove ",1" that appears on the legend
-    ## https://stackoverflow.com/questions/49133395/strange-formatting-of-legend-in-ggplotly-in-r
-    
-    for (i in 1:length(int_plot$x$data)){
-      if (!is.null(int_plot$x$data[[i]]$name)){
-        int_plot$x$data[[i]]$name =  gsub("^\\(","",str_split(int_plot$x$data[[i]]$name,",")[[1]][1])
-      }
-
-    }
-
-    int_plot <- clean_plotly_legend(int_plot)
-    
-    return(int_plot)
+    return(plotly_plot)
     
   }
 
