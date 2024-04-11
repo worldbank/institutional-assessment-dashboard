@@ -1308,6 +1308,7 @@ server <- function(input, output, session) {
                 preset_order = input$preset_order
               ) %>%
               interactive_plot(
+                base_country(),
                 input$family,
                 plotly_remove_buttons,
                 "static"
@@ -1346,6 +1347,7 @@ server <- function(input, output, session) {
                 preset_order = input$preset_order
               ) %>%
               interactive_plot(
+                base_country(),
                 input$family,
                 plotly_remove_buttons,
                 "static"

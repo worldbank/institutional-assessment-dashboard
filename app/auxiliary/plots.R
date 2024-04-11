@@ -39,8 +39,7 @@ static_plot <-
     if (threshold=="Default"){
       cutoff<-c(25,50)
       custom_levels <- c("Weak\n(bottom 25%)", "Emerging\n(25% - 50%)", "Strong\n(top 50%)")
-    }else if (threshold=="Terciles")
-    {
+    } else if (threshold=="Terciles") {
       cutoff<-c(33,66)
       custom_levels <- c("Weak\n(bottom 33%)", "Emerging\n(33% - 66%)", "Strong\n(top 34%)")
     }
@@ -417,6 +416,9 @@ static_plot <-
           guides(colour = guide_legend(order = 1), 
                  shape = guide_legend(order = 2))
       }else{
+        # multi countries ----
+        data$status <- factor(data$status, levels = custom_levels, ordered = TRUE)
+        
         plot <-
           plot +
           suppressWarnings(geom_point(
@@ -430,23 +432,22 @@ static_plot <-
             ),
             size = 3,
             color = "gray0",
-            show.legend = FALSE
+            show.legend = TRUE
           ))+
-          scale_shape_manual(values = 21:25) +
+          scale_shape_manual(values = 21:25)+
+          scale_fill_manual(values = colors) +
           guides(
-            fill=F
+            fill=guide_legend(override.aes=list(shape=21)),
+            color = guide_legend(order = 1), 
+            shape = guide_legend(order = 2)
           )
-
       }
-      
-      
         #guides(fill=guide_legend(override.aes=list(shape=21)))#+
         #scale_shape_manual(values = 21:25)      
         # scale_fill_manual(values= c("Weak\n(bottom 25%)" = "#D2222D",
         #                            "Emerging\n(25% - 50%)" = "#FFBF00",
         #                            "Strong\n(top 50%)" = "#238823"))+
         # guides(fill=guide_legend(override.aes=list(shape=21)))
-
     }
     
     
@@ -977,11 +978,7 @@ plot_notes_function <-
         )
       
     }
-    
-    
 
-    
-    
     if (tab_name == "Overview") {
       notes <-
         paste(
@@ -990,18 +987,16 @@ plot_notes_function <-
         )
     }
     
-    
     if(plot_type == "dynamic"){
       notes = NULL
     }
-
     
-   return(shiny::HTML(notes)) 
+    return(shiny::HTML(notes)) 
     
   }
 
 interactive_plot <-
-  function(x, tab_name, buttons,  plot_type) {
+  function(x, base_country, tab_name, buttons,  plot_type) {
     if(length(x$facet)>10 & plot_type=='dynamic'){
       plt_height = 3000
     }else if(plot_type=='dynamic') {
@@ -1012,6 +1007,8 @@ interactive_plot <-
       plt_height = 750
     }
     
+    #browser()
+
     int_plot <- x %>%
       ggplotly(tooltip = "text",height = plt_height ) %>%
       layout(
@@ -1025,42 +1022,45 @@ interactive_plot <-
                                    height =  1000)
       )
     
-    if(length(base_country>1)){
+    if (length(base_country) > 1){
       
+      # add fill legend/trace
       int_plot <- int_plot |>
         add_trace(
-          data = data |> filter(country_name %in% base_country),
+          #data = x$plot_env$data |> filter(country_name %in% base_country),
           type = "scatter",
           mode = "markers",
-          x = ~var,
-          y = ~var_name,
-          color = ~status,
-          colors = colors,
-          marker = list(size = 12, symbol = 0),
+          #x = ~var,
+          #y = ~var_name,
+          color = c("Weak\n(bottom 25%)","Emerging\n(25% - 50%)","Strong\n(top 50%)"),
+          colors = c("#FFBF00","#238823","#D2222D"),
+          marker = list(size = 16, symbol = 14),
           showlegend = TRUE
-        ) |>
-        add_trace(
-          data = data |> filter(country_name %in% base_country),
-          type = "scatter",
-          mode = 'markers',
-          x = ~var, 
-          y = ~var_name,
-          name = base_country[1],
-          marker= list(symbol=100, color='black', fill='transparent', size = 12),
-          showlegend = TRUE
-        ) |>
-        add_trace(
-          data = data |> filter(country_name %in% base_country),
-          type = "scatter",
-          mode = 'markers',
-          x = ~var, 
-          y = ~var_name,
-          name = base_country[2],
-          marker= list(symbol=101, color='black', fill='transparent', size = 12),
-          showlegend = TRUE
-        ) 
-    }
+        )
       
+      # match symbols with ggplot values
+      symbols <- c(100, 101, 102, 105, 106)  
+      
+      # loop over each base country and add a legend/trace for it
+      for (i in seq_along(base_country)) {
+        
+        int_plot <- int_plot |>
+          add_trace(
+            data = x$plot_env$data |> filter(country_name %in% base_country[i]),
+            type = "scatter",
+            mode = "markers",
+            x = ~var,
+            y = ~var_name,
+            name = base_country[i],
+            marker = list(symbol = symbols[i], color = 'black', fill = 'transparent', size = 14),
+            showlegend = TRUE
+          )
+        
+      }
+      
+      
+    }
+    
     if(plot_type == "dynamic"){
       
       int_plot <- int_plot %>% 
@@ -1070,21 +1070,20 @@ interactive_plot <-
           )
         )
     }
-      
+    
     ## Solution to remove ",1" that appears on the legend
     ## https://stackoverflow.com/questions/49133395/strange-formatting-of-legend-in-ggplotly-in-r
     
     for (i in 1:length(int_plot$x$data)){
-      
       if (!is.null(int_plot$x$data[[i]]$name)){
         int_plot$x$data[[i]]$name =  gsub("^\\(","",str_split(int_plot$x$data[[i]]$name,",")[[1]][1])
       }
       
     }
-      
+    
     int_plot <- clean_plotly_legend(int_plot)
     
-    if(length(base_country>1)){
+    if (length(base_country) > 1){
       
       for (i in 1:length(int_plot$x$data)){
         if (!is.null(int_plot$x$data[[i]]$showlegend)){
