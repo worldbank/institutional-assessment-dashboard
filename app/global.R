@@ -262,13 +262,19 @@ country_flags_codes <- countrycode::countrycode(countries, "country.name.en", "e
 
 # Match "West Bank and Gaza" code for flagcdn
 country_get_palestine <- c("West Bank and Gaza" = "PS")
+country_get_channel <- c("Channel Islands" = "JE")
 
 # Function to get flags with countries
 flags_with_countries <- mapply(function(country, code) {
   flag_html <- tags$img(src = paste0(src = 'https://flagcdn.com/w20/', tolower(code), '.png'), alt = code)
   label_html <- tags$span(country)
   paste(flag_html, label_html, sep = " ")
-}, countries, ifelse(countries == "West Bank and Gaza", country_get_palestine["West Bank and Gaza"], countrycode::countrycode(countries, "country.name.en", "ecb")), SIMPLIFY = FALSE)
+}, countries, 
+case_when(
+  countries == "West Bank and Gaza" ~ country_get_palestine["West Bank and Gaza"], 
+  countries == "Channel Islands" ~ country_get_channel["Channel Islands"], 
+  TRUE ~ countrycode::countrycode(countries, "country.name.en", "ecb")
+), SIMPLIFY = FALSE)
 
 
 extract_variables <-
