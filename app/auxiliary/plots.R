@@ -913,12 +913,14 @@ static_plot_dyn <-
     
     
     ### create the plot
-    plot <- plot +
-      facet_wrap(~var_name, ncol = 2, 
-        labeller = labeller(var_name = plot_titles),
-        shrink = FALSE, scales = sc) +
-      theme(strip.text = element_text(face = "bold", size = 10),panel.spacing = unit(5, "lines"))
     
+    plot +
+      facet_wrap(~var_name, ncol = 2, 
+                 labeller = labeller(var_name = plot_titles),
+                 shrink = FALSE, scales = sc) +
+      theme(strip.text = element_text(face = "bold", size = 8),
+            panel.spacing.x = unit(1, "lines"),
+            panel.spacing.y = unit(3, "lines"))
     
    ## fix facets
    # plot <- fixfacets(figure = plot, facets = names(plot_titles), domain_offset = 0.16) 
