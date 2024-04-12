@@ -1472,7 +1472,29 @@ server <- function(input, output, session) {
          })
   
   
+  shiny::observeEvent(input$family, {
+    
+    shiny::req(input$family)
+    
+    if (input$family == "Overview") {
+      choice <- na.omit(family_order$family_name[family_order$Benchmark_dynamic_family_aggregate != "No"])
+    } else {
+      choice <- c(paste0(input$family,' Average'),na.omit(db_variables$var_name[db_variables$family_name==input$family & db_variables$benchmark_dynamic_indicator == "Yes" ]))
+    }
+    
+    updatePickerInput(
+      session, 
+      inputId =  "dyn_indicator",
+      choices = choice
+      
+      
+    )
+  })
   
+  
+  shiny::observeEvent(input$dyn_indicator, {
+    shiny::req(input$dyn_indicator)
+    #browser()
   output$dynamic_benchmark_plot <-
     renderPlotly({
 #      tryCatch({
@@ -1483,8 +1505,9 @@ server <- function(input, output, session) {
         
         isolate(
           if (input$family == "Overview") {
+            
             missing_variables <-
-              global_data_dyn %>%
+              global_data_dyn%>%
               missing_var_dyn(
                 base_country()[1],
                 country_list,
@@ -1506,6 +1529,7 @@ server <- function(input, output, session) {
               filter(str_detect(variable, "_avg"))%>%
               left_join(.,family_order,by = 'family_name')%>%
               filter(Benchmark_dynamic_family_aggregate!='No')%>%
+              filter(family_name == input$dyn_indicator)%>%
               static_plot_dyn(
                 base_country(),
                 input$family,
@@ -1541,8 +1565,9 @@ server <- function(input, output, session) {
               .$var_name
             
             missing_variables <- c(missing_variables, low_variance_variables)
-            
-            plot_data <-data_dyn_avg() 
+            browser()
+            plot_data <-data_dyn_avg()%>% 
+                  filter(var_name == input$dyn_indicator)
             
             plot_data_1  <- plot_data %>%
               filter(str_detect(variable, "_avg"))%>%

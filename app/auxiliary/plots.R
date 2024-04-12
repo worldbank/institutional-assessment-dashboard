@@ -709,11 +709,17 @@ static_plot_dyn <-
           labels = c("Worst ranked", "Middle of ranking","Top ranked")
         )
     }
+    plot_titles_df <- data %>%
+      filter(var_name %in% vars & country_name == base_country) %>%
+      distinct(var_name, delta, new_labels)
+    
+    
+    plot_titles <- unique(plot_titles_df$new_labels)
     
     if (title) {
       plot <-
         plot +
-        labs(title = paste0("<b>", tab_name, "</b>"))
+        labs(title = plot_titles)
     }
     
     if (dots) {
@@ -891,38 +897,38 @@ static_plot_dyn <-
       )
     
     
-    ## Facet the plot
+    # ## Facet the plot
+    # 
+    # ### number of columns will depend on the number of variables
+    # n_col = ifelse(length(unique(data$var_name)) <= 3, 1, 2)
+    # 
+    # 
+    # # sc = ifelse(length(unique(data$var_name)) <= 6, "free_x", "fixed")
+    # sc = "free"
+    # 
+    # ### instead of having the var name as the titles, we want to append the delta on it.
+    # ### Delta was calculated at the beginning before any plot was generated
+    # 
+    #   plot_titles_df <- data %>%
+    #     filter(var_name %in% vars & country_name == base_country) %>%
+    #     distinct(var_name, delta, new_labels)
+    # 
+    # 
+    # plot_titles <- unique(plot_titles_df$new_labels)
+    # names(plot_titles) <- unique(plot_titles_df$var_name)
+    # 
+    # 
+    # ### create the plot
+    # plot <- plot +
+    #   facet_wrap(~var_name, ncol = 2,
+    #     labeller = labeller(var_name = plot_titles),
+    #     shrink = FALSE, scales = sc) +
+    #   theme(strip.text = element_text(face = "bold", size = 10),panel.spacing = unit(5, "lines"))
 
-    ### number of columns will depend on the number of variables  
-    n_col = ifelse(length(unique(data$var_name)) <= 3, 1, 2)
-      
-    
-    # sc = ifelse(length(unique(data$var_name)) <= 6, "free_x", "fixed")
-    sc = "free"
-    
-    ### instead of having the var name as the titles, we want to append the delta on it.
-    ### Delta was calculated at the beginning before any plot was generated
-    
-      plot_titles_df <- data %>% 
-        filter(var_name %in% vars & country_name == base_country) %>% 
-        distinct(var_name, delta, new_labels)
 
-    
-    plot_titles <- unique(plot_titles_df$new_labels)
-    names(plot_titles) <- unique(plot_titles_df$var_name)
-    
-    
-    ### create the plot
-    plot <- plot +
-      facet_wrap(~var_name, ncol = 2, 
-        labeller = labeller(var_name = plot_titles),
-        shrink = FALSE, scales = sc) +
-      theme(strip.text = element_text(face = "bold", size = 10),panel.spacing = unit(5, "lines"))
-    
-    
    ## fix facets
-   # plot <- fixfacets(figure = plot, facets = names(plot_titles), domain_offset = 0.16) 
-   
+   # plot <- fixfacets(figure = plot, facets = names(plot_titles), domain_offset = 0.16)
+
     return(plot)
   }
 
@@ -1015,7 +1021,7 @@ interactive_plot <-
     if(length(x$facet)>10 & plot_type=='dynamic'){
       plt_height = 3000
     }else if(plot_type=='dynamic') {
-      plt_height = 1000
+      plt_height = 600
     }else if(tab_name=='Overview'){
       plt_height = 900
     }else{
@@ -1041,15 +1047,15 @@ interactive_plot <-
       )
     
     
-    if(plot_type == "dynamic"){
-      
-      int_plot <- int_plot %>% 
-        layout(
-                    legend = list(
-                     orientation = "h",xanchor = "center", x = 0.5
-                    )
-        )
-    }
+    # if(plot_type == "dynamic"){
+    #   
+    #   int_plot <- int_plot %>% 
+    #     layout(
+    #                 legend = list(
+    #                  orientation = "h",xanchor = "center", x = 0.5
+    #                 )
+    #     )
+    # }
     
     ## Solution to remove ",1" that appears on the legend
     ## https://stackoverflow.com/questions/49133395/strange-formatting-of-legend-in-ggplotly-in-r
@@ -1912,3 +1918,7 @@ annotations =
     align = 'left',
     font = list(size = note_size)
   )
+
+
+
+

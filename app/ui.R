@@ -722,16 +722,35 @@ ui <-
             title = "Dynamic Benchmarks",
             collapsible = TRUE,
             
-            
             conditionalPanel(
               "input.select !== 0 && output.plot!=null",
+              
+              fluidRow(
+                column(
+                  width = 6,
+                  pickerInput(
+                    inputId = "dyn_indicator",
+                    label = "Select  Indicator",
+                    choices = append(
+                      "Indicators",
+                      group_list
+                    ),
+                    selected = NULL,
+                    multiple = FALSE,
+                    options = list(
+                      `live-search` = TRUE,
+                      "max-options" = 3
+                    )
+                  )
+                )
+              ),
               fluidRow(
                 
                 column(
                   width = 11,
                   plotlyOutput(
                     "dynamic_benchmark_plot",
-                    height =  paste0(plot_height * 5, "px")
+                    height =  paste0(1.2*plot_height , "px")
                   ) %>% shinycssloaders::withSpinner(color = "#051f3f", type = 8)
                 )
                 
