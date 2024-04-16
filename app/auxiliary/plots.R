@@ -914,7 +914,7 @@ static_plot_dyn <-
     
     ### create the plot
     
-    plot +
+    plot <- plot +
       facet_wrap(~var_name, ncol = 2, 
                  labeller = labeller(var_name = plot_titles),
                  shrink = FALSE, scales = sc) +
