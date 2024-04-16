@@ -75,7 +75,7 @@ ui <-
           tabName = "home",
           
           bs4Card(
-            width = 11,
+            width = 12,
             status = "navy",
             solidHeader = TRUE,
             title =
@@ -252,7 +252,7 @@ ui <-
               title = "Comparator countries",              
               status = "success",
               solidHeader = TRUE,
-              width = 11,
+              width = 12,
               collapsible = TRUE,
               
               shiny::fluidRow(
@@ -333,7 +333,7 @@ ui <-
                 
                 fluidRow(
                   column(
-                    width = 11,
+                    width = 12,
                     shinyWidgets::materialSwitch(
                        inputId = "show_custom_grps",
                        label = tags$b("Show custom groups"),
@@ -344,7 +344,7 @@ ui <-
                 ),
                 #fluidRow(
                 #  column(
-                #    width = 11,
+                #    width = 12,
                 #    tags$p(HTML("<strong>NOTE:</strong> Currently custom groups are not allowed when displaying ranks instead of values, when ranking from best to worst, or when doing the dynamic benchmark."))
                 #  )
                 #),
@@ -373,7 +373,7 @@ ui <-
                     )
                   ),
                   column(
-                    width = 11,
+                    width = 12,
                     conditionalPanel(
                       "input.custom_grps_count >= 1",
                       uiOutput("custom_grps")
@@ -389,7 +389,7 @@ ui <-
                 
                 fluidRow(
                   column(
-                    width = 11,
+                    width = 12,
                     checkboxGroupButtons(
                       inputId = "countries",
                       individual = TRUE,
@@ -413,7 +413,7 @@ ui <-
               title = "Benchmarking options",
               status = "success",
               solidHeader = TRUE,
-              width = 11,
+              width = 12,
               collapsible = TRUE,
               collapsed = FALSE,
               fluidRow(
@@ -511,7 +511,7 @@ ui <-
               title = "Outputs",
               status = "success",
               solidHeader = TRUE,
-              width = 11,
+              width = 12,
               collapsible = TRUE,
               fluidRow(
                 column(
@@ -614,7 +614,7 @@ ui <-
                       ),
                       shiny::fluidRow(
                         column(
-                          width = 11,
+                          width = 12,
                           prettyCheckbox(
                             inputId = "download_Opt",
                             label = "Advanced Report (~10min)",
@@ -673,14 +673,14 @@ ui <-
           bs4Card(
             title = "Static Benchmarks",
             collapsible = TRUE,
-            width = 11,
+            width = 12,
             
             conditionalPanel(
               "input.select !== 0",
               fluidRow(
                 
                 column(
-                  width = 11,
+                  width = 12,
                   plotlyOutput(
                     "plot",
                     height = paste0(plot_height * 1.9, "px")
@@ -703,7 +703,7 @@ ui <-
                 fluidRow(
                   
                   column(
-                    width = 11,
+                    width = 12,
                     htmlOutput(
                       "plot_notes"
                     )
@@ -716,7 +716,7 @@ ui <-
           
           ### Dynamic benchmark tab  -------------------------------------------------------
           bs4Card(
-            width = 11,
+            width = 12,
             solidHeader = FALSE,
             gradientColor = "primary",
             title = "Dynamic Benchmarks",
@@ -728,10 +728,10 @@ ui <-
               fluidRow(
                 
                 column(
-                  width = 11,
+                  width = 12,
                   plotlyOutput(
                     "dynamic_benchmark_plot",
-                    height =  paste0(plot_height * 5, "px")
+                    height =  paste0(plot_height * 3, "px")
                   ) %>% shinycssloaders::withSpinner(color = "#051f3f", type = 8)
                 )
                 
@@ -747,7 +747,7 @@ ui <-
             collapsed = TRUE,
             status = "secondary",
             solidHeader = TRUE,
-            width = 11,
+            width = 12,
             
             tableOutput('definition')
           )
@@ -763,7 +763,7 @@ ui <-
             title = "Select information to display",
             status = "success",
             solidHeader = TRUE,
-            width = 11,
+            width = 12,
             
             fluidRow(
         
@@ -829,7 +829,7 @@ ui <-
           
           bs4Card(
             title = "Select individual comparison countries",
-            width = 11,
+            width = 12,
             status = "success",
             collapsed = TRUE,
             
@@ -851,7 +851,7 @@ ui <-
             'input.country_bar !== "" && input.vars_bar != null',
             
             bs4Card(
-              width = 11,
+              width = 12,
               solidHeader = FALSE,
               gradientColor = "primary",
               collapsible = FALSE,
@@ -873,7 +873,7 @@ ui <-
             title = "Select indicators to visualize",
             status = "success",
             solidHeader = TRUE,
-            width = 11,
+            width = 12,
             
             fluidRow(
               
@@ -961,7 +961,7 @@ ui <-
           
           bs4Card(
             title = "Select individual comparison countries",
-            width = 11,
+            width = 12,
             status = "success",
             collapsed = TRUE,
             
@@ -981,7 +981,7 @@ ui <-
             'input.y_scatter !== ""',
             
             bs4Card(
-              width = 11,
+              width = 12,
               solidHeader = FALSE,
               gradientColor = "primary",
               collapsible = FALSE,
@@ -1001,7 +1001,7 @@ ui <-
           tabName = "trends",
           
           box(
-            width = 11,
+            width = 12,
             solidHeader = TRUE,
             title = "Select indicator to visualize",
             status = "success",
@@ -1059,7 +1059,7 @@ ui <-
           
           bs4Card(
             title = "Select individual comparison countries",
-            width = 11,
+            width = 12,
             status = "success",
             collapsed = TRUE,
             
@@ -1079,7 +1079,7 @@ ui <-
             'input.vars_trends !== null && input.country_trends != ""',
             
             bs4Card(
-              width = 11,
+              width = 12,
               solidHeader = FALSE,
               gradientColor = "primary",
               collapsible = FALSE,
@@ -1099,7 +1099,7 @@ ui <-
           tabName = "world_map",
           
           box(
-            width = 11,
+            width = 12,
             solidHeader = TRUE,
             title = "Select information to display",
             status = "success",
@@ -1161,7 +1161,7 @@ ui <-
             "input.vars_map !== ''",
             
             bs4Card(
-              width = 11,
+              width = 12,
               solidHeader = FALSE,
               gradientColor = "primary",
               collapsible = FALSE,
@@ -1183,7 +1183,7 @@ ui <-
             title = "Data download",
             status = "success",
             solidHeader = TRUE,
-            width = 11,
+            width = 12,
             collapsible = F,
             fluidRow(
               column(
@@ -1234,7 +1234,7 @@ ui <-
             title = "Interactive Data Access & Custom Download",
             status = "success",
             solidHeader = TRUE,
-            width = 11,
+            width = 12,
             collapsible = F,
             fluidRow(
               column(
@@ -1248,7 +1248,7 @@ ui <-
                   
                   title = "Select information to display",
                   status = "success",
-                  width = 11,
+                  width = 12,
                   collapsible = FALSE,
                   
                   pickerInput(
@@ -1341,7 +1341,7 @@ ui <-
           tabName = "methodology",
           
           box(
-            width = 11,
+            width = 12,
             status = "navy",
             title = "Institutional families",
             
@@ -1383,7 +1383,7 @@ ui <-
           ),
           
           box(
-            width = 11,
+            width = 12,
             status = "navy",
             collapsed = TRUE,
             title = "Closeness to frontier",
@@ -1394,7 +1394,7 @@ ui <-
           ),
           
           box(
-            width = 11,
+            width = 12,
             status = "navy",
             collapsed = TRUE,
             title = "Percentile analysis and comparator countries",
@@ -1408,7 +1408,7 @@ ui <-
           ),
           
           box(
-            width = 11,
+            width = 12,
             status = "navy",
             collapsed = TRUE,
             title ="Country group definitions",
@@ -1447,7 +1447,7 @@ ui <-
           
           
           box(
-            width = 11,
+            width = 12,
             status = "navy",
             title = "List of indicators",
             
@@ -1459,7 +1459,7 @@ ui <-
           ),
           
           box(
-            width = 11,
+            width = 12,
             status = "navy",
             title = "Where can I find additional information on the methodology?",
             downloadButton("download_metho",
@@ -1481,7 +1481,7 @@ ui <-
           tabName = "terms",
           
           box(
-            width = 11,
+            width = 12,
             status = "navy",
             collapsible = FALSE,
             title = "Terms of use and Disclaimer",
@@ -1507,7 +1507,7 @@ ui <-
           tabName = "faq",
           
           box(
-            width = 11,
+            width = 12,
             status = "navy",
             collapsed = TRUE,
             title = "Does the CLIAR Benchmarking collect new data on governance and institutions?",
@@ -1520,7 +1520,7 @@ ui <-
           
           
           box(
-            width = 11,
+            width = 12,
             status = "navy",
             collapsed = TRUE,
             title = "Can I add my own indicators to the dashboard and run the analysis including these indicators? ",
@@ -1533,7 +1533,7 @@ ui <-
           ),
           
           box(
-            width = 11,
+            width = 12,
             status = "navy",
             collapsed = TRUE,
             title = "What does the traffic coloring mean? Is there a methodological foundation?",
@@ -1549,7 +1549,7 @@ ui <-
             )
           ),
           box(
-            width = 11,
+            width = 12,
             status = "navy",
             collapsed = TRUE,
             title = "Why the length of the bar is different? Why a red bar is longer than another red bar, if they are both red?",
@@ -1566,7 +1566,7 @@ ui <-
             )
           ),
           box(
-            width = 11,
+            width = 12,
             status = "navy",
             collapsed = TRUE,
             title = "What is the difference between the static and dynamic benchmarking?",
@@ -1577,7 +1577,7 @@ ui <-
           ),
           
           box(
-            width = 11,
+            width = 12,
             status = "navy",
             collapsed = TRUE,
             title = "Why are certain indicators or institutional families not appearing in my benchmarking results?",
@@ -1587,7 +1587,7 @@ ui <-
           )),
 
           box(
-            width = 11,
+            width = 12,
             status = "navy",
             collapsed = TRUE,
             title = "Can I change in the dashboard the time period over which the benchmarking is applied?",
@@ -1595,7 +1595,7 @@ ui <-
               "The Dashboard does not offer that functionality, but such customized analyzed could be performed by downloading the data from the dashboard."
             )
           ), box(
-            width = 11,
+            width = 12,
             status = "navy",
             collapsed = TRUE,
             title = "Why are certain indicators and clusters not included in the dynamic benchmarking?",
@@ -1606,7 +1606,7 @@ ui <-
           
           
           box(
-            width = 11,
+            width = 12,
             status = "navy",
             collapsed = TRUE,
             title = "How do you deal with missing data for certain indicators and for certain countries?",
@@ -1629,7 +1629,7 @@ ui <-
           ),
           
           box(
-            width = 11,
+            width = 12,
             status = "navy",
             collapsed = TRUE,
             title = "Why do I have to choose at least 10 comparator countries for the benchmarking analysis?",
@@ -1644,7 +1644,7 @@ ui <-
           ),
           
           box(
-            width = 11,
+            width = 12,
             status = "navy",
             collapsed = TRUE,
             title = "How do you choose the comparator countries/groups?",
@@ -1656,7 +1656,7 @@ ui <-
           ),
           
           box(
-            width = 11,
+            width = 12,
             status = "navy",
             collapsed = TRUE,
             title = "Can I download the raw data for my own research/analytical purposes?",
@@ -1667,7 +1667,7 @@ ui <-
           ),
           
           box(
-            width = 11,
+            width = 12,
             status = "navy",
             collapsed = TRUE,
             title = "Why are certain cluster averages missing when I download the data even if there is non-missing data on the indicators of that cluster?",
@@ -1678,7 +1678,7 @@ ui <-
           
           
           box(
-            width = 11,
+            width = 12,
             status = "navy",
             collapsed = TRUE,
             title = "How often is the CLIAR data updated? How do I know that the CLIAR data uses the latest available data?",
@@ -1695,7 +1695,7 @@ ui <-
           ),
           
           box(
-            width = 11,
+            width = 12,
             status = "navy",
             collapsed = TRUE,
             title = "How were the indicators included in the CLIAR Benchmarking selected?",
@@ -1710,7 +1710,7 @@ ui <-
             )
           ),
           box(
-            width = 11,
+            width = 12,
             status = "navy",
             collapsed = TRUE,
             title = "How does CLIAR manage changes in the methodology of the construction of individual indicators used in the CLIAR database?",
