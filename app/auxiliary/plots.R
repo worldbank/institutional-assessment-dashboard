@@ -1014,7 +1014,6 @@ plot_notes_function <-
 
 interactive_plot <-
   function(x, tab_name, buttons,  plot_type) {
-    browser()
     if(tab_name=='Justice Institutions' & plot_type=='dynamic'){
       plt_height = 3000
     }else if(plot_type=='dynamic') {
@@ -1071,21 +1070,21 @@ interactive_plot <-
     
 
     
-    names_lst <- names(int_plot$x$layout)
-    names_lst <- names_lst[grep("yaxis",names_lst)]
-    if(length(names_lst)>2){
-      nrows = ceiling(length(names_lst)/2)
-      height_gap = (nrows-1)*0.1182804
-      height_plt = (1-height_gap)/nrows
-      height_start = 1
-      for(i in seq(1,length(names_lst),1)){
-        int_plot$x$layout[[names_lst[i]]][['domain']] <-c(max(0,height_start-height_plt),height_start)
-        int_plot$x$layout$annotations[[i+1]][['y']] <- height_start
-        if((i+1)%%2 ==1){
-          height_start <-height_start-height_plt-0.1182804
-        }
-      }
-    }
+    # names_lst <- names(int_plot$x$layout)
+    # names_lst <- names_lst[grep("yaxis",names_lst)]
+    # if(length(names_lst)>2){
+    #   nrows = ceiling(length(names_lst)/2)
+    #   height_gap = (nrows-1)*0.1182804
+    #   height_plt = (1-height_gap)/nrows
+    #   height_start = 1
+    #   for(i in seq(1,length(names_lst),1)){
+    #     int_plot$x$layout[[names_lst[i]]][['domain']] <-c(max(0,height_start-height_plt),height_start)
+    #     int_plot$x$layout$annotations[[i+1]][['y']] <- height_start
+    #     if((i+1)%%2 ==1){
+    #       height_start <-height_start-height_plt-0.1182804
+    #     }
+    #   }
+    # }
     
     return(int_plot)
     
