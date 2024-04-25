@@ -683,7 +683,7 @@ ui <-
                   width = 12,
                   plotlyOutput(
                     "plot",
-                    height = paste0(plot_height * 1.9, "px")
+                    height = paste0(plot_height * 3, "px")
                   ) %>% shinycssloaders::withSpinner(color = "#051f3f", type = 8)
                 )
               ),
@@ -721,8 +721,13 @@ ui <-
             gradientColor = "primary",
             title = "Dynamic Benchmarks",
             collapsible = TRUE,
-            
-            
+            tags$style("
+                #dynamic_benchmark_plot {
+                  height: 100%;
+                  overflow-y: scroll;
+                }
+              "),
+
             conditionalPanel(
               "input.select !== 0 && output.plot!=null",
               fluidRow(
@@ -731,7 +736,8 @@ ui <-
                   width = 12,
                   plotlyOutput(
                     "dynamic_benchmark_plot",
-                    height =  paste0(plot_height * 3, "px")
+                    height =  paste0(plot_height * 4, "px"),
+                    
                   ) %>% shinycssloaders::withSpinner(color = "#051f3f", type = 8)
                 )
                 

@@ -1014,14 +1014,15 @@ plot_notes_function <-
 
 interactive_plot <-
   function(x, tab_name, buttons,  plot_type) {
-
-    if(length(x$facet)>10 & plot_type=='dynamic'){
+    browser()
+    if(tab_name=='Justice Institutions' & plot_type=='dynamic'){
       plt_height = 3000
     }else if(plot_type=='dynamic') {
       plt_height = 1200
-    }else if(tab_name=='Overview'){
-      plt_height = 900
-    }else if(tab_name=='Service Delivery Institutions'){
+    }else if(tab_name=='Service Delivery Institutions' | tab_name=='Justice Institutions'){
+      plt_height = 1200
+    }
+    else if(tab_name=='Overview'){
       plt_height = 900
     }else{
       plt_height = 750
