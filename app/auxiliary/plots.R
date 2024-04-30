@@ -167,7 +167,14 @@ static_plot <-
       
       x_lab <- "Rank"
     }
-
+    
+    if(report==FALSE){
+      aspect_ratio = 1.6/1
+    }else{
+      aspect_ratio = 1
+    }
+    
+    #browser()
     plot <-
       ggplot() +
         geom_segment(
@@ -211,11 +218,10 @@ static_plot <-
           color = "#8ec18e",
           size = 2,
           alpha = .3
-        ) +
-      scale_y_discrete(labels = function(x) str_wrap(x, width = 20))+
+        )+ 
         theme_minimal() +
         theme(
-          aspect.ratio = 1.6/1,
+          #aspect.ratio = aspect_ratio,
           legend.position = "top",
           panel.grid.minor = element_blank(),
           axis.ticks = element_blank(),
@@ -236,6 +242,12 @@ static_plot <-
       scale_fill_manual(
         values = colors
       )
+        
+    if(report==FALSE){
+      plot <-plot+
+        scale_y_discrete(labels = function(x) str_wrap(x, width = 20))
+    }      
+        
 
     
     if (rank) {

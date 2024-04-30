@@ -2360,7 +2360,8 @@ server <- function(input, output, session) {
           dots = input$benchmark_dots,
           custom_df = custom_df,
           title = FALSE,
-          threshold = input$threshold
+          threshold = input$threshold,
+          report = TRUE
         )
       
       plot2 <- data_dyn_avg() %>%
@@ -2428,7 +2429,8 @@ server <- function(input, output, session) {
               custom_df = custom_df(),
               threshold = input$threshold,
               preset_order = input$preset_order,
-              title = FALSE
+              title = FALSE,
+              report = TRUE
             )
           
           plt_f<-dml(ggobj = plt_f)
