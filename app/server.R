@@ -2344,7 +2344,7 @@ server <- function(input, output, session) {
       if (input$create_custom_grps == TRUE) {
         
         custom_df <- custom_grps_df()[custom_grps_df()$Grp %in% input$benchmark_median &
-                                        custom_grps_df()$Countries %in% input$countries]
+                                        custom_grps_df()$Countries %in% input$countries,]
       } else {
         custom_df <- NULL
       }
