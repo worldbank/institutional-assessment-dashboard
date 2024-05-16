@@ -85,10 +85,20 @@ static_plot <-
         left_join(., db_variables %>% select(variable, rank_id),
           by = "variable")
       
-      unique_indicators = data %>% 
-        distinct(var_name, rank_id) %>% 
-        arrange(desc(rank_id)) %>% 
-        pull(var_name)
+      # Family Ordering
+      if(tab_name== "Country overview")
+      {
+        unique_indicators <-family_order%>%
+          arrange(family_order) %>% 
+          pull(family_name)
+      }else{
+        unique_indicators <- data %>% 
+          distinct(var_name, rank_id) %>% 
+          arrange(desc(rank_id)) %>% 
+          pull(var_name)
+        
+      }
+      
       
       #Issue 283 - Remove Institutions keywork in y axis for plots
       
@@ -375,29 +385,30 @@ static_plot <-
           median_data %>%
           bind_rows(countries)
       }
-
-      plot <-
-        plot +
-        suppressWarnings(geom_point(
-          data = median_data,
-          aes(
-            y = var_name,
-            x = value,
-            shape = country_name,
-            text = paste(
-              "Group:", country_name,"<br>",
-              "Median closeness to frontier:", round(value, 3)
-            )
-          ),
-          alpha = .5,
-          color = "black",
-          fill = "white",
-          size = 3
-        )) +
-        scale_shape_manual(
-          values = 22:25 #,
-          #lab = NULL
-        )
+      # Custom Group Point needs to be excluded in the plot . Issue #294 
+      
+      # plot <-
+      #   plot +
+      #   suppressWarnings(geom_point(
+      #     data = median_data,
+      #     aes(
+      #       y = var_name,
+      #       x = value,
+      #       shape = country_name,
+      #       text = paste(
+      #         "Group:", country_name,"<br>",
+      #         "Median closeness to frontier:", round(value, 3)
+      #       )
+      #     ),
+      #     alpha = .5,
+      #     color = "black",
+      #     fill = "white",
+      #     size = 3
+      #   )) +
+      #   scale_shape_manual(
+      #     values = 22:25 #,
+      #     #lab = NULL
+      #   )
     }
     if (length(base_country)==1){
       plot <-
