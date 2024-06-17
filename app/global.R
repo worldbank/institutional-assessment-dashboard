@@ -299,6 +299,9 @@ variable_list_benchmarked <-
 
 names(variable_list_benchmarked) <- family_names$var_name
 
+# Exclude Monetary Stability - #296
+variable_list_benchmarked$`Public Finance Institutions` <- variable_list_benchmarked$`Public Finance Institutions` [variable_list_benchmarked$`Public Finance Institutions`  != "Monetary stability"]
+
 
 remove_average_items <- function(family) {
   family_filtered <- family[!grepl("Average", family)]
