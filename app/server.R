@@ -2314,7 +2314,7 @@ server <- function(input, output, session) {
           db_variables = db_variables
         )
       
-      browser()
+      #browser()
       
       rmarkdown::render(
         tempReport,
