@@ -1,0 +1,425 @@
+---
+output: 
+  #word_document: default
+  #html_document: rmarkdown::github_document
+  #bookdown::pdf_document2: 
+  pdf_document:
+    toc: true
+    toc_depth: 2
+    number_sections: true
+    fig_caption: true
+    latex_engine: xelatex
+    highlight: tango
+    extra_dependencies: ["float"]
+mainfont: Roboto Condensed
+lang: en
+fontsize: 11pt
+geometry: margin=1in
+urlcolor: blue
+linkcolor: blue
+editor_options: 
+  chunk_output_type: console
+params: 
+    region: NA
+title: "`r paste0('CLIAR Regional Profile Report: ', params$region)`"
+author: ""  
+date: |
+ | \textcolor[RGB]{0,35,69}{\textbf{`r format(Sys.time(), '%Y-%m-%d')`}}
+header-includes: 
+  \usepackage{titling}
+  \usepackage{graphicx}
+  \usepackage{color}
+  \usepackage{fontspec}
+  \pretitle{
+    \begin{center}
+    \includegraphics[width=7in]{cliar.png}\LARGE\\
+  }
+  \usepackage{background}
+  \backgroundsetup{
+    scale=1,
+    color=black,
+    opacity=1,
+    angle=0,
+    position=current page.south,
+    hshift=8cm,
+    vshift=2cm,
+    contents={\includegraphics[height=1cm]{wb-logo.jpg}}
+  }
+---
+
+```{r setup,  include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, fig.pos = "H", out.extra = "")
+
+packages <- c("tidyverse","here","knitr","sf","ggtext","showtext","ggflags","ggbeeswarm","countrycode")
+pacman::p_load(packages,character.only = TRUE)
+
+font_add_google("Roboto Condensed")
+showtext_auto()
+options(scipen=999, dplyr.summarise.inform = FALSE)
+
+#params <- list(region = "Latin America & Caribbean")
+
+# viz id ----
+id_colors <- list(
+  primary = "#002244"
+)
+
+threshold <- "Default"
+
+ if (threshold=="Default"){
+      cutoff<-c(25,50)
+      custom_levels <- c("Weak\n(bottom 25%)", "Emerging\n(25% - 50%)", "Strong\n(top 50%)")
+    } else if (threshold=="Terciles")
+    {
+      cutoff<-c(33,66)
+      custom_levels <- c("Weak\n(bottom 33%)", "Emerging\n(33% - 66%)", "Strong\n(top 34%)")
+    }
+
+if (cutoff[[1]]==25){
+  colors <-
+    c(
+      "Weak\n(bottom 25%)" = "#D2222D",
+      "Emerging\n(25% - 50%)" = "#FFBF00",
+      "Strong\n(top 50%)" = "#238823"
+    )
+  } else if (cutoff[[1]]==33){
+    colors <-c(
+      "Weak\n(bottom 33%)" = "#D2222D",
+      "Emerging\n(33% - 66%)" = "#FFBF00",
+      "Strong\n(top 34%)" = "#238823"
+    )
+  }
+
+status_order <- c(
+  "Strong\n(top 50%)",
+  "Emerging\n(25% - 50%)",
+  "Weak\n(bottom 25%)"
+)
+
+# data ----
+income_class <- read_csv2(
+  here(
+   "regional_profile/data/class_income_fy24.csv"
+  )
+) 
+
+country_flags_codes <- countrycode::codelist
+
+data <- read_csv2(
+  here(
+    "regional_profile/data/countries_vs_region.csv"
+  )
+) |>
+  filter(
+    comparison_group == params$region
+  ) |>
+  left_join(
+    income_class |> select(country_code, country, income_group), by = c("country_name" = "country")
+  ) |> 
+  filter(!is.na(var_name)) |>
+  relocate(comparison_group, base_country, country_code, country_name, income_group) |>
+  left_join(
+    country_flags_codes |> select(genc3c,ecb),
+    by = c("country_code" = "genc3c")
+  ) |>
+  relocate(ecb, .after = country_code) |>
+  mutate(
+    ecb = tolower(ecb),
+    ecb = case_when(
+      country_name == "West Bank and Gaza" ~ "ps",
+      country_name == "Kosovo" ~ "xk",
+      TRUE ~ ecb
+    )
+  )
+
+countries_sf <- read_rds(
+  here(
+   "regional_profile/data/countries_sf.rds"
+  )
+) |>
+  mutate(
+    group_selected = ifelse(country_code %in% data$country_code, "Y", "N")
+  )
+
+region_countries <- data |>
+  pull(country_name) |>
+  unique()
+
+if(length(region_countries) < 25){flag_size <- 7.7}
+if(length(region_countries) >= 25 & length(region_countries < 30)){flag_size <- 6.25}
+if(length(region_countries) >= 30 & length(region_countries < 35)){flag_size <- 5.25}
+if(length(region_countries) >= 35 & length(region_countries < 50)){flag_size <- 5}
+if(length(region_countries) >= 50){flag_size <- 4}
+
+point_size <- flag_size * 1.1
+status_size <- flag_size * 1.4
+
+map_disclaimer <- 
+  paste0(
+    str_wrap(
+      "Disclaimer: Country borders or names do not necessarily reflect the World Bank Group's official position.
+      This map is for illustrative purposes and does not imply the expression of any opinion on the part of the World Bank,
+      concerning the legal status of any country or territory or concerning the delimitation of frontiers or boundaries.",
+      175
+    )
+  )
+
+  
+```
+
+\newpage
+
+# Introduction
+
+This regional profile for **`r params$region`** is based on the **CLIAR Dashboard data**. The group is composed of the following **`r paste(length(region_countries))` countries**:
+
+```{r countries_flags, fig.cap=NULL, fig.height = 5, fig.width = 9, warning=F}
+
+data_plot <- 
+  data |> 
+  distinct(country_name, ecb) |>
+  arrange(country_name) |>
+  mutate(
+    rank = row_number(),   
+    row = (rank - 1) %/% 5 + 1, 
+    column = (rank - 1) %% 5 + 1 
+  )
+
+ggplot(data = data_plot) +
+  scale_x_continuous(
+    expand = c(0, 1)
+  ) +
+  scale_y_continuous(
+    expand = c(0, 1)
+  ) +
+  labs(
+    title = NULL,
+    y = NULL,
+    x = NULL,
+    fill = NULL,
+    shape = NULL
+  ) +
+  geom_point(
+    aes(
+      x = column,
+      y = -row,  
+    ),
+    shape = 21,
+    size = 9.5,
+    fill = id_colors$primary
+  ) +
+  ggflags::geom_flag(
+    aes(
+      x = column,
+      y = -row,  
+      country = ecb
+    ),
+    size = 8.5
+  ) +
+  geom_text(
+    aes(
+      x = column,
+      y = -row - 0.4,
+      label = country_name,
+    ),
+    size = 3.5,
+    vjust = 1,
+    hjust = 0.5,
+    color = id_colors$primary,
+    family = "Roboto Condensed"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text = element_blank(),
+    axis.ticks = element_blank(),
+    panel.grid = element_blank()
+  )
+
+```
+
+```{r map_region, fig.cap="Featured countries of the group", fig.height = 3, warning=F}
+
+countries_sf |>
+  ggplot() +
+  geom_sf(
+    aes(
+      fill = group_selected,
+      color = group_selected
+    ),
+    stroke = 0.01
+  ) +
+  scale_fill_manual(
+    values = c("grey85",id_colors$primary),
+  ) +
+  scale_color_manual(
+    values = c("grey80","white")
+  ) +
+  labs(
+    title = paste0(params$region, " countries"),
+    fill = NULL,
+    caption = map_disclaimer
+  ) +
+  theme(
+    text = element_text(color = id_colors$primary, family = 'Roboto Condensed'),
+    plot.title =  element_text(hjust = 0.5, face = 'bold', margin = margin(t = 5, r = 0, b = 5, l = 0)),
+    plot.caption = element_text(hjust = 0.5, size = 6.5),
+    plot.caption.position =  "plot",
+    plot.background = element_rect(fill = NA, colour=NA),
+    
+    panel.background = element_rect(fill = NA, colour=NA),
+    panel.border = element_rect(fill=NA, colour = NA),
+    panel.grid = element_blank(),
+    
+    legend.position="none",
+    
+    axis.ticks = element_blank(),
+    axis.text = element_blank()
+  )
+
+
+```
+
+# What is CLIAR?
+
+The **Country Level Institutional Assessment and Review (CLIAR)** is a methodological framework to make the Bank’s institutional diagnostic work and policy dialogue at the country level more integrated and data-driven. The aim of CLIAR’s institutional analysis is to support the World Bank’s policy dialogue with counterparts and help identify entry-points and priorities for institutional reform.
+
+The **CLIAR Benchmarking** is a quick and accessible methodology that quantitatively assesses the strengths and weaknesses of a country’s institutional dimensions against a set of comparator countries. A set of curated institutional indicators are aggregated institutional clusters so to empirically map the institutional capital across substantive issue areas.
+  
+#  Group Overview
+
+```{r countries_region, fig.cap="Group countries overview static CTF", fig.height = 6.5, fig.width = 9, warning=F}
+
+data_plot <- 
+  data |>
+  filter(base_country == country_name) |>
+  group_by(var_name) |>
+  mutate(
+    rank = rank(-dtt, ties.method = "random")
+  ) |>
+  ungroup()
+
+annotation_data <- data.frame(
+  x = 2.25,
+  xend = 1.3,
+  y = -0.25,
+  yend = 0.3
+)
+
+ggplot() +
+  geom_vline(xintercept = 1, size = 2, color = "#8ec18e") +
+  geom_vline(xintercept = max(data_plot$rank), size = 2, color = "#e47a81") +
+  geom_point(
+    data = data_plot,
+    aes(
+      y = reorder(var_name, desc(var_name)),
+      x = rank,
+      fill = factor(status, levels = status_order)
+    ),
+    shape = 21,
+    size = status_size,
+    color = "transparent"
+  )  +
+  geom_point(
+    data = data_plot,
+    aes(
+      y = var_name,
+      x = rank
+    ),
+    shape = 21,
+    size = point_size,
+    color = id_colors$primary
+  )  +
+  scale_fill_manual(
+    values = colors
+  ) +
+  scale_y_discrete(
+    labels = function(x) str_wrap(x, width = 30)
+  ) +
+  scale_x_continuous(
+    limits = c(1,max(data_plot$rank)),
+    breaks = seq(1, max(data_plot$rank), by = 4), 
+    expand = c(0,1)
+  ) +
+  labs(
+    title = paste0("Overview by Institutional Clusters"),
+    y = NULL,
+    x = "Closeness to Frontier Rank",
+    fill = NULL,
+    shape = NULL
+  ) +
+  ggflags::geom_flag(
+    data = data_plot,
+    aes(
+      y = var_name,
+      x = rank,
+      country = ecb
+    ),
+    size = flag_size
+  ) +
+  geom_curve(
+    data = annotation_data,
+    aes(x = x, y = y, xend = xend, yend = yend),
+    curvature = -.2, 
+    arrow = arrow(length = unit(1.5, "mm")),
+    color = id_colors$primary
+  ) +
+  geom_text(
+    data = annotation_data,
+    aes(x = x + 0.1, y = y),
+    hjust = "left",
+    label = "Countries with the best performance",
+    size = 3,
+    family = "Roboto Condensed",
+    color = id_colors$primary
+  ) +
+  coord_cartesian(clip = "off") +
+  theme(
+    text = element_text(color = id_colors$primary, family = 'Roboto Condensed'),
+    plot.title =  element_text(size = 14, hjust = 0.5, face = 'bold', margin = margin(t = 5, r = 0, b = 5, l = 0)),
+    plot.caption = element_text(size = 6.5, hjust = 0),
+    plot.caption.position =  "plot",
+    plot.background = element_rect(fill = NA, colour=NA),
+    
+    panel.background = element_rect(fill = NA, colour=NA),
+    panel.border = element_rect(fill=NA, colour = NA),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    
+    legend.position="top",
+    legend.key.size = unit(0.5,"line"),
+    legend.text = element_text(size=9, hjust = 0.5),
+    legend.title = element_text(size=9, margin = margin(t = 0, r = 0, b = 0, l = 0)),
+    legend.background = element_rect(fill = NA),
+    
+    strip.background = element_rect(fill=NA),
+    strip.text = element_text(size = 9),
+    
+    axis.ticks = element_blank(),
+    axis.title.x = element_text(size = 12, face = "bold", margin = margin(t = 15, r = 0, b = 5, l = 0)),
+    axis.text.y = element_text(size = 10, color = id_colors$primary),
+    axis.text.x = element_text(size = 8, color = id_colors$primary),
+    legend.box = "vertical"
+  )
+
+```
+
+# Institutional Clusters
+
+```{r chunk_2}
+
+##  Region compared within the region at the indicator level 
+
+# Dynamic CTF 
+
+## How the region has evolved compared to the world (this is for the clusters with dynamic data)
+
+## How have countries within the region evolved over time and which indicators drove that change
+
+# Other data
+
+## Potential additional graphs using data that is region specific and non-scored clusters.
+
+```
+
