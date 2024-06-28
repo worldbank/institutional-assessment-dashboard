@@ -39,7 +39,6 @@ source(here("regional_profile/aux", "fun_quantiles.R"))
 source(here("regional_profile/aux", "fun_family_data.R"))
 source(here("regional_profile/aux", "fun_missing_var.R"))
 source(here("regional_profile/aux", "fun_low_variance.R"))
-source(here("regional_profile/aux", "plots.R"))
 
 global_data <-
   read_rds(
@@ -203,12 +202,13 @@ check_quantiles <- function(column) {
   }
 }  
 
-write_rds(
-  spatial_data |> select(country_code),
-  here("regional_profile/data/countries_sf.rds")
-)
+#write_rds(
+#  spatial_data |> select(country_code),
+#  here("regional_profile/data/countries_sf.rds")
+#)
 
-# COUNTRIES / REGION / OVERVIEW -------------------------------------------------------------------------------
+# Countries x Region ----------------------------------------------------------------------
+## OVERVIEW -------------------------------------------------------------------------------
 
 #comparison_group <- "High income"
 #base_country <- "Antigua and Barbuda"
@@ -375,15 +375,15 @@ bind_data <- bind_data |>
   filter(dtf <= 1)
 
 ## export data ----
-write_csv2(
-  bind_data,
-  here(
-    "regional_profile/data",
-    paste0(
-      "countries_vs_region.csv"
-    )
-  )
-)
+#write_csv2(
+#  bind_data,
+#  here(
+#    "regional_profile/data",
+#    paste0(
+#      "countries_vs_region.csv"
+#    )
+#  )
+#)
 
 #write_rds(
 #  bind_data,
@@ -394,3 +394,237 @@ write_csv2(
 #    )
 #  )
 #)
+
+## CLUSTERS -------------------------------------------------------------------------------
+
+#family <- "Labor and Social Protection Institutions"
+#comparison_group <- "Latin America & Caribbean"
+#base_country <- "Brazil"
+
+threshold <- "Default"
+
+if (threshold=="Default"){
+  cutoff<-c(25,50)
+}else if (threshold=="Terciles")
+{
+  cutoff<-c(33,66)
+}
+
+bind_data <- tibble()
+
+for (k in family_names$var_name){
+
+  family <- k
+  
+  cat("\n",family,"\n\n")
+  
+  for(i in country_groups$group_name){
+    #for(i in "High income"){
+    
+    comparison_group <- i
+    
+    cat("\n",comparison_group,"\n\n")
+    
+    group_countries <- 
+      country_list |>
+      filter(group == comparison_group) |>
+      pull(country_name)
+    
+    for(j in group_countries) {
+      #for(j in "Antigua and Barbuda") {
+      
+      base_country <- j
+      
+      #cat(base_country, "\n")
+      
+      comparison_countries <-
+        country_list %>%
+        filter(group %in% comparison_group) %>%
+        select(country_name) %>%
+        unique() %>%
+        filter(country_name != base_country) %>%
+        pluck(1)
+      
+      vars <-
+        if (family == "Overview") {
+          vars_all
+        } else {
+          variable_names |>
+            filter(family_name == family) |>
+            pull(variable) |>
+            unique()
+        }
+      
+      na_indicators <-
+        global_data %>%
+        ungroup() %>%
+        filter(country_name %in% base_country) %>%
+        select(-(1:5)) %>%
+        summarise(across(everything(), ~ if_else(any(is.na(.)), NA, sum(., na.rm = TRUE)))) %>%
+        select(where(is.na)) %>%
+        distinct() %>%
+        names 
+      
+      # List final relevant variables: those selected, minus those missing
+      variables <-
+        setdiff(vars, na_indicators) %>%
+        intersect(names(global_data))
+      
+      # List specific family variables missing
+      missing_variables <-
+        vars[vars %in% na_indicators] %>%
+        data.frame() %>%
+        rename("variable"=".") %>%
+        left_join(variable_names %>% select(variable,var_name), by = "variable") %>%
+        filter(!is.na(var_name)) %>%
+        .$var_name
+      
+      # This is the relevant data to be used
+      low_variance_variables <-
+        global_data %>%
+        ungroup() %>%
+        
+        # Keep only the base and comparison countries
+        filter(
+          (country_name %in% comparison_countries) | (country_name == base_country)
+        ) %>%
+        
+        # Keep only selected, non-missing indicators
+        select(
+          country_name,
+          all_of(variables)
+        )
+      
+      if (ncol(low_variance_variables) > 1){
+        
+        low_variance_variables <-
+          low_variance_variables %>%
+          # Make long per indicator
+          pivot_longer(
+            cols = all_of(variables),
+            names_to = "variable"
+          ) %>%
+          
+          #remove wdi_nygdppcapppkd variable 
+          #filter(value <= 1) %>%
+          
+          # Add variables definition and family
+          left_join(
+            variable_names,
+            by = "variable"
+          ) %>%
+          
+          # Remove missing values
+          filter(!is.na(value)) %>%
+          
+          # Calculate relevant indicators
+          group_by(variable, var_name) %>%
+          mutate(
+            dtt = percent_rank(value),
+            q25 = quantile(value, c(0.25)),
+            q75 = quantile(value, c(0.75)),
+            status = case_when(
+              dtt <= .25 ~ "Weak\n(bottom 25%)",
+              dtt > .25 & dtt <= .50 ~ "Emerging\n(25% - 50%)",
+              dtt > .50 ~ "Strong\n(top 50%)"
+            )
+          ) %>%
+          ungroup %>%
+          rename(dtf = value) %>%
+          filter(country_name == base_country & q25==q75) %>%
+          select(variable) %>%
+          unlist %>%
+          data.frame() %>%
+          rename("variable" = ".") %>%
+          left_join(variable_names %>% select(variable, var_name), by = "variable") %>%
+          .$var_name
+        
+        missing_variables <- c(missing_variables, low_variance_variables)
+        
+        static_avg_data <-
+          global_data |>
+          select(-matches("_avg"))
+        
+        vars_static_avg_data <- names(static_avg_data)[6:length(static_avg_data)] 
+        
+        static_avg <- 
+          compute_family_average(
+            static_avg_data,
+            vars_static_avg_data,
+            "static",
+            db_variables,
+            base_country,
+            comparison_countries
+          ) |>
+          select(-matches('NA'))
+        
+        data <-
+          static_avg_data |>
+          left_join(static_avg, by='country_code') |>
+          ungroup() |>
+          filter(
+            country_name %in% c(base_country, comparison_countries)
+          ) |>
+          select(
+            country_name,
+            any_of(variables)
+          ) |>
+          # Make long per indicator
+          pivot_longer(
+            cols = any_of(variables),
+            names_to = "variable"
+          ) |>
+          # Add variables definition and family
+          left_join(
+            variable_names,
+            by = "variable"
+          ) |>
+          filter(!is.na(value)) |>
+          # Calculate relevant indicators
+          group_by(variable, var_name) |>
+          mutate(
+            dtt = percent_rank(value),
+            q_lv_25 = quantile(value,c(0.25)),
+            q_lv_75 = quantile(value,c(0.75)),
+            q_cutoff1 = quantile(value, c(cutoff[1]/100)),
+            q_cutoff2 = quantile(value, c(cutoff[2]/100)),
+            status = case_when(
+              dtt <= cutoff[1]/100 ~ paste0("Weak\n(bottom ", cutoff[1],"%)"),
+              dtt > cutoff[1]/100 & dtt <= cutoff[2]/100 ~ paste0("Emerging\n(",cutoff[1],"% - ",cutoff[2],"%)"),
+              dtt > cutoff[2]/100 ~ paste0("Strong\n(top ",100-cutoff[2],"%)")
+            ),
+            nrank = min_rank(-value)
+          ) |>
+          ungroup() |>
+          rename(dtf = value) |>
+          filter(variable %in% vars) |>
+          mutate(
+            base_country = paste0(base_country),
+            comparison_group = paste0(comparison_group)
+          ) |>
+          relocate(comparison_group,base_country) 
+        
+        # bind with other base country comparison
+        bind_data <- bind_rows(bind_data, data)
+        
+      }
+      
+    }
+    
+  }
+  
+}
+
+bind_data <- bind_data |>
+  filter(dtf <= 1)
+
+## export data ----
+write_csv2(
+  bind_data,
+  here(
+    "regional_profile/data",
+    paste0(
+      "countries_vs_region_clusters.csv"
+    )
+  )
+)
