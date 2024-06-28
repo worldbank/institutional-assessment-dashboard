@@ -50,7 +50,7 @@ header-includes:
 ```{r setup,  include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, fig.pos = "H", out.extra = "")
 
-packages <- c("tidyverse","here","knitr","sf","ggtext","showtext","ggflags","ggbeeswarm","countrycode")
+packages <- c("tidyverse","here","knitr","sf","ggtext","showtext","ggflags","ggbeeswarm","countrycode","geomtextpath")
 pacman::p_load(packages,character.only = TRUE)
 
 font_add_google("Roboto Condensed")
@@ -410,6 +410,122 @@ ggplot() +
 \newpage
 
 # Institutional Clusters
+
+```{r clusters_radar, fig.cap="Digital and Data Institutions static CTF", fig.height = 7.5, fig.width = 9, warning=F}
+
+data_plot <- bind_data |>
+  filter(comparison_group == "Latin America & Caribbean") |>
+  filter(family_name == "Digital and Data Institutions") |>
+  filter(base_country == country_name) |>
+  group_by(var_name) |>
+  mutate(
+    rank = rank(-dtt, ties.method = "random")
+  ) |>
+  ungroup()
+
+max_text_length <- 25
+
+ordem <- c(
+  #str_wrap("Digital and Data Institutions Average", max_text_length),
+  str_wrap("Censuses and Surveys", max_text_length),
+  str_wrap("Core Government Systems Index (CGSI)", max_text_length),
+  str_wrap("GovTech Enablers Index (GTEI)", max_text_length),
+  str_wrap("Public Service Delivery Index (PSDI)", max_text_length),
+  str_wrap("Standards and Methods", max_text_length)
+)
+
+ggplot(
+  data_plot |> filter(country_name == "Brazil") |> filter(!grepl("Average", var_name)),
+  aes(
+    x = factor(str_wrap(var_name, max_text_length), levels = ordem),
+    y = dtf,
+    fill = status,
+    group = var_name,
+    label = paste0(round(dtf,2))
+  )
+) +
+  geom_hline(
+    aes(yintercept = y), 
+    data.frame(y = c(0.25,0.5,0.75,1)),
+    color = id_colors$primary,
+    linewidth = 0.15,
+    linetype = 1
+  ) + 
+  geom_bar(stat = "identity", color = "white", width = 0.8, alpha = 0.85, position = position_stack()) +
+  geom_text(
+    family = "Roboto Condensed", color = id_colors$primary, size = 3.5, nudge_y = 0.15,
+    stat="identity"
+  ) +
+  #geom_vline(
+  #  xintercept = 1:6 - 0.5, 
+  #  color = id_colors$primary,
+  #  linewidth = 0.25
+  #) +
+  geom_hline(
+    aes(yintercept = 0), 
+    color = id_colors$primary,
+    linewidth = 0.5
+  ) +
+  coord_curvedpolar(clip = "off") +
+  scale_y_continuous(
+    limits = c(-0.3, 1.2),
+    expand = c(0, 0.25),
+    breaks = c(0.25,0.5,0.75)
+  ) + 
+  scale_fill_manual(
+    values = colors,
+    name = NULL
+  ) +
+  #scale_fill_stepsn(
+  #  "Índice de Prosperidade das Cidades",
+  #  limits = c(0,100),
+  #  breaks = c(40,50,60,70,80),
+  #  values = scales::rescale(c(0,40,50,60,70,80,100)),
+  #  colours = cores_cpi
+  #) +
+  facet_wrap(~country_name, ncol = 3) +
+  #guides(
+  #  fill = guide_colorsteps(
+  #    barwidth = 15, barheight = .4, title.position = "top", title.hjust = .5, 
+  #    even.steps = FALSE,
+  #    show.limits = T
+  #  )
+  #) +
+  labs(
+    title = "Digital and Data Institutions"
+  ) +
+    theme(
+    text = element_text(color = id_colors$primary, family = 'Roboto Condensed'),
+    plot.title =  element_text(size = 14, hjust = 0.5, face = 'bold', margin = margin(t = 5, r = 0, b = 5, l = 0)),
+    plot.caption = element_text(size = 6.5, hjust = 0),
+    plot.caption.position =  "plot",
+    plot.background = element_rect(fill = NA, colour=NA),
+    
+    panel.background = element_rect(fill = NA, colour=NA),
+    panel.border = element_rect(fill=NA, colour = NA),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    
+    legend.position="top",
+    legend.key.size = unit(1,"line"),
+    legend.text = element_text(size=9, hjust = 0.5),
+    legend.title = element_text(size=9, margin = margin(t = 0, r = 0, b = 0, l = 0)),
+    legend.background = element_rect(fill = NA),
+    
+    strip.background = element_rect(fill=NA),
+    strip.text = element_text(size = 12, color = id_colors$primary, face = "bold"),
+    
+    axis.ticks = element_blank(),
+    axis.title = element_blank(),
+    axis.text.y = element_blank(),
+    axis.text.x = element_text(size = 10, color = id_colors$primary, margin = margin(t = 0, r = 0, b = 0, l = 0)),
+    legend.box = "vertical"
+  )
+
+
+```
 
 ```{r chunk_2}
 
