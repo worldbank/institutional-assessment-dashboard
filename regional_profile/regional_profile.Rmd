@@ -279,6 +279,8 @@ countries_sf |>
 
 ```
 
+\newpage
+
 # What is CLIAR?
 
 The **Country Level Institutional Assessment and Review (CLIAR)** is a methodological framework to make the Bank’s institutional diagnostic work and policy dialogue at the country level more integrated and data-driven. The aim of CLIAR’s institutional analysis is to support the World Bank’s policy dialogue with counterparts and help identify entry-points and priorities for institutional reform.
@@ -287,7 +289,7 @@ The **CLIAR Benchmarking** is a quick and accessible methodology that quantitati
   
 #  Group Overview
 
-```{r countries_region, fig.cap="Group countries overview static CTF", fig.height = 6.5, fig.width = 9, warning=F}
+```{r countries_region, fig.cap="Group countries overview static CTF", fig.height = 7, fig.width = 9, warning=F}
 
 data_plot <- 
   data |>
@@ -343,7 +345,7 @@ ggplot() +
   labs(
     title = paste0("Overview by Institutional Clusters"),
     y = NULL,
-    x = "Closeness to Frontier Rank",
+    x = "Performance ranking in comparison",
     fill = NULL,
     shape = NULL
   ) +
@@ -367,7 +369,7 @@ ggplot() +
     data = annotation_data,
     aes(x = x + 0.1, y = y),
     hjust = "left",
-    label = "Countries with the best performance",
+    label = str_wrap("Countries with the best performance when compared to the group",35),
     size = 3,
     family = "Roboto Condensed",
     color = id_colors$primary
@@ -397,13 +399,15 @@ ggplot() +
     strip.text = element_text(size = 9),
     
     axis.ticks = element_blank(),
-    axis.title.x = element_text(size = 12, face = "bold", margin = margin(t = 15, r = 0, b = 5, l = 0)),
+    axis.title.x = element_text(size = 12, face = "bold", margin = margin(t = 10, r = 0, b = 5, l = 0)),
     axis.text.y = element_text(size = 10, color = id_colors$primary),
-    axis.text.x = element_text(size = 8, color = id_colors$primary),
+    axis.text.x = element_text(size = 8, color = id_colors$primary, margin = margin(t = 20, r = 0, b = 5, l = 0)),
     legend.box = "vertical"
   )
 
 ```
+
+\newpage
 
 # Institutional Clusters
 
