@@ -132,6 +132,33 @@ data <- read_csv2(
     )
   )
 
+data_clusters <- read_csv2(
+  here(
+    "regional_profile/data/countries_vs_region_clusters.csv"
+  )
+) |>
+  filter(
+    comparison_group == params$region
+  ) |>
+  left_join(
+    income_class |> select(country_code, country, income_group), by = c("country_name" = "country")
+  ) |> 
+  #filter(!is.na(var_name)) |>
+  relocate(comparison_group, base_country, country_code, country_name, income_group) |>
+  left_join(
+    country_flags_codes |> select(genc3c,ecb),
+    by = c("country_code" = "genc3c")
+  ) |>
+  relocate(ecb, .after = country_code) |>
+  mutate(
+    ecb = tolower(ecb),
+    ecb = case_when(
+      country_name == "West Bank and Gaza" ~ "ps",
+      country_name == "Kosovo" ~ "xk",
+      TRUE ~ ecb
+    )
+  )
+
 countries_sf <- read_rds(
   here(
    "regional_profile/data/countries_sf.rds"
@@ -391,17 +418,17 @@ ggplot() +
     
     legend.position="top",
     legend.key.size = unit(0.5,"line"),
-    legend.text = element_text(size=9, hjust = 0.5),
-    legend.title = element_text(size=9, margin = margin(t = 0, r = 0, b = 0, l = 0)),
+    legend.text = element_text(size=10, hjust = 0.5),
+    legend.title = element_text(size=10, margin = margin(t = 0, r = 0, b = 0, l = 0)),
     legend.background = element_rect(fill = NA),
     
     strip.background = element_rect(fill=NA),
-    strip.text = element_text(size = 9),
+    strip.text = element_text(size = 10),
     
     axis.ticks = element_blank(),
     axis.title.x = element_text(size = 12, face = "bold", margin = margin(t = 10, r = 0, b = 5, l = 0)),
     axis.text.y = element_text(size = 10, color = id_colors$primary),
-    axis.text.x = element_text(size = 8, color = id_colors$primary, margin = margin(t = 20, r = 0, b = 5, l = 0)),
+    axis.text.x = element_text(size = 9, color = id_colors$primary, margin = margin(t = 20, r = 0, b = 5, l = 0)),
     legend.box = "vertical"
   )
 
@@ -411,19 +438,14 @@ ggplot() +
 
 # Institutional Clusters
 
-```{r clusters_radar, fig.cap="Digital and Data Institutions static CTF", fig.height = 7.5, fig.width = 9, warning=F}
+```{r clusters_radar, fig.cap="Digital and Data Institutions static CTF", fig.height = 8, fig.width = 10, warning=F}
 
-data_plot <- bind_data |>
-  filter(comparison_group == "Latin America & Caribbean") |>
+data_plot <- data_clusters |>
+  filter(comparison_group == params$region) |>
   filter(family_name == "Digital and Data Institutions") |>
-  filter(base_country == country_name) |>
-  group_by(var_name) |>
-  mutate(
-    rank = rank(-dtt, ties.method = "random")
-  ) |>
-  ungroup()
+  filter(base_country == country_name)
 
-max_text_length <- 25
+max_text_length <- 22
 
 ordem <- c(
   #str_wrap("Digital and Data Institutions Average", max_text_length),
@@ -434,69 +456,102 @@ ordem <- c(
   str_wrap("Standards and Methods", max_text_length)
 )
 
+center_flag <- data |>
+  filter(country_name %in% data_plot$country_name) |>
+  select(
+    country_name, ecb
+  )|>
+  unique() |>
+  mutate(
+  var_name = NA,
+  dtf = 0,
+  status = NA,
+  x = 0,
+  y = 0
+)
+
 ggplot(
-  data_plot |> filter(country_name == "Brazil") |> filter(!grepl("Average", var_name)),
+  data_plot |> filter(!grepl("Average", var_name)),
   aes(
     x = factor(str_wrap(var_name, max_text_length), levels = ordem),
     y = dtf,
-    fill = status,
-    group = var_name,
-    label = paste0(round(dtf,2))
+    fill = factor(status, levels = status_order),
+    group = var_name#,
+    #label = paste0(round(dtf,2))
   )
 ) +
-  geom_hline(
-    aes(yintercept = y), 
-    data.frame(y = c(0.25,0.5,0.75,1)),
-    color = id_colors$primary,
-    linewidth = 0.15,
-    linetype = 1
-  ) + 
-  geom_bar(stat = "identity", color = "white", width = 0.8, alpha = 0.85, position = position_stack()) +
-  geom_text(
-    family = "Roboto Condensed", color = id_colors$primary, size = 3.5, nudge_y = 0.15,
-    stat="identity"
+  #geom_hline(
+  #  aes(yintercept = y), 
+  #  data.frame(y = c(1)),
+  #  color = id_colors$primary,
+  #  linewidth = 0.05,
+  #  linetype = 1
+  #) +
+  geom_bar(
+    stat = "identity", 
+    color = "white", 
+    width = 0.9, 
+    alpha = 1, 
+    position = position_stack()
   ) +
+  geom_point(
+    data = center_flag,
+    aes(
+      x = ordem[1], 
+      y = -0.2
+    ),
+    size = 6.5,
+    fill = id_colors$primary,
+    shape = 21
+  ) +
+  ggflags::geom_flag(
+    data = center_flag,
+    aes(
+      x = ordem[1], 
+      y = -0.2, 
+      country = ecb
+    ),
+    size = 5.5
+  ) +
+  #geom_text(
+  #  family = "Roboto Condensed", 
+  #  color = id_colors$primary, 
+  #  size = 3.5, 
+  #  nudge_y = -0.2,
+  #  fontface="bold",
+  #  stat="identity"
+  #) +
   #geom_vline(
   #  xintercept = 1:6 - 0.5, 
   #  color = id_colors$primary,
   #  linewidth = 0.25
   #) +
-  geom_hline(
-    aes(yintercept = 0), 
-    color = id_colors$primary,
-    linewidth = 0.5
-  ) +
+  #geom_hline(
+  #  aes(yintercept = 0), 
+  #  color = id_colors$primary,
+  #  linewidth = 1
+  #) +
   coord_curvedpolar(clip = "off") +
   scale_y_continuous(
-    limits = c(-0.3, 1.2),
-    expand = c(0, 0.25),
-    breaks = c(0.25,0.5,0.75)
+    limits = c(-0.2, 1),
+    expand = c(0, 0),
+    breaks = c(0.5)
   ) + 
   scale_fill_manual(
+    na.translate = F,
     values = colors,
     name = NULL
   ) +
-  #scale_fill_stepsn(
-  #  "Índice de Prosperidade das Cidades",
-  #  limits = c(0,100),
-  #  breaks = c(40,50,60,70,80),
-  #  values = scales::rescale(c(0,40,50,60,70,80,100)),
-  #  colours = cores_cpi
-  #) +
-  facet_wrap(~country_name, ncol = 3) +
-  #guides(
-  #  fill = guide_colorsteps(
-  #    barwidth = 15, barheight = .4, title.position = "top", title.hjust = .5, 
-  #    even.steps = FALSE,
-  #    show.limits = T
-  #  )
-  #) +
+  scale_x_discrete(
+    limits = ordem
+  ) +
+  facet_wrap(~str_wrap(country_name, 15), ncol = 8) +
   labs(
     title = "Digital and Data Institutions"
   ) +
     theme(
     text = element_text(color = id_colors$primary, family = 'Roboto Condensed'),
-    plot.title =  element_text(size = 14, hjust = 0.5, face = 'bold', margin = margin(t = 5, r = 0, b = 5, l = 0)),
+    plot.title =  element_text(size = 18, hjust = 0.5, face = 'bold', margin = margin(t = 5, r = 0, b = 5, l = 0)),
     plot.caption = element_text(size = 6.5, hjust = 0),
     plot.caption.position =  "plot",
     plot.background = element_rect(fill = NA, colour=NA),
@@ -509,19 +564,19 @@ ggplot(
     panel.grid.minor.x = element_blank(),
     
     legend.position="top",
-    legend.key.size = unit(1,"line"),
-    legend.text = element_text(size=9, hjust = 0.5),
-    legend.title = element_text(size=9, margin = margin(t = 0, r = 0, b = 0, l = 0)),
+    #legend.key.size = unit(0.75,"line"),
+    legend.text = element_text(size=12, hjust = 0.5),
+    legend.title = element_text(size=12, margin = margin(t = 0, r = 0, b = 0, l = 0)),
     legend.background = element_rect(fill = NA),
+    legend.box = "vertical",
     
     strip.background = element_rect(fill=NA),
-    strip.text = element_text(size = 12, color = id_colors$primary, face = "bold"),
+    strip.text = element_text(size = 12, color = id_colors$primary),
     
     axis.ticks = element_blank(),
     axis.title = element_blank(),
     axis.text.y = element_blank(),
-    axis.text.x = element_text(size = 10, color = id_colors$primary, margin = margin(t = 0, r = 0, b = 0, l = 0)),
-    legend.box = "vertical"
+    axis.text.x = element_blank()
   )
 
 
