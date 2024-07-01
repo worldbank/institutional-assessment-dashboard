@@ -13,7 +13,6 @@ render_subject <- function(file_region_name) {
   )
 }
 
-
 country_groups <-
   read_rds(
     here(
@@ -34,10 +33,4 @@ for(region in group_list$Region){
   cat("Rendering", region,"report...\n")
   render_subject(region)
 }
-
-for(region in c("Latin America & Caribbean")){
-  cat("Rendering", region,"report...\n")
-  render_subject(region)
-}
-
 
