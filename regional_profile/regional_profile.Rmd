@@ -50,14 +50,14 @@ header-includes:
 ```{r setup,  include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, fig.pos = "H", out.extra = "")
 
-packages <- c("tidyverse","here","knitr","sf","ggtext","showtext","ggflags","ggbeeswarm","countrycode","geomtextpath","patchwork")
+packages <- c("tidyverse","here","knitr","sf","ggtext","showtext","ggflags","countrycode","geomtextpath","patchwork","ggbeeswarm")
 pacman::p_load(packages,character.only = TRUE)
 
 font_add_google("Roboto Condensed")
 showtext_auto()
 options(scipen=999, dplyr.summarise.inform = FALSE)
 
-#params <- list(region = "Arab World")
+#params <- list(region = "Latin America & Caribbean")
 
 # viz id ----
 id_colors <- list(
@@ -597,6 +597,106 @@ countries_plot <-
   plot_theme
 
 how_to_plot / countries_plot + plot_layout(heights = c(2, 3))
+
+```
+
+
+```{r climate_violin, fig.cap="Climate Change and Environment Institutions static CTF", fig.height=14, fig.width=12, fig.dpi=600, warning=F}
+
+family <- "Climate Change and Environment Institutions"
+
+data_plot <- 
+  data_clusters |>
+  filter(comparison_group == params$region) |>
+  filter(family_name == family) |>
+  filter(base_country == country_name) |>
+  filter(!grepl("Average", var_name))
+
+ind_order <- 
+  data_plot |> 
+  arrange(var_name) |> 
+  pull(var_name) |> 
+  unique()
+
+avg_dtf <- data_plot %>%
+  group_by(var_name) %>%
+  summarize(avg_dtf = mean(dtf)) %>%
+  arrange(avg_dtf)
+
+data_plot$var_name <- factor(data_plot$var_name, levels = avg_dtf$var_name)
+
+data_plot <- data_plot %>%
+  left_join(avg_dtf, by = "var_name")
+
+ggplot( 
+  data = data_plot |> filter(!is.na(income_group)),
+  aes(x=reorder(var_name, dtf), y=dtf, fill = avg_dtf)
+  ) +
+  geom_hline(linewidth=0.75, color = id_colors$primary, yintercept = c(0,1)) +
+  geom_violin(width=1.25, size=0.3) +
+  scale_x_discrete(
+    limits = ind_order,
+    labels = function(x) str_wrap(x, width = 25)
+  ) +
+  geom_point(
+    size = 6,
+    fill = id_colors$primary,
+    color = "transparent",
+    shape = 21
+  ) +
+  ggflags::geom_flag(
+    aes(
+      country = ecb
+    ),
+    size = 5
+  ) +
+  labs(
+    y = "Closeness to frontier",
+    x = ""
+  ) +
+  scale_fill_gradient2(
+    low = "#D2222D", mid = "#FFBF00", high = "#238823",
+    midpoint = 0.5,
+    limits = c(0, 1),
+    name = "Average CTF",
+    breaks = c(0,0.5,1)
+    #labels = c("Low", "Medium", "High")
+  ) +
+  facet_wrap(~income_group, ncol = 3) +
+  coord_flip(clip = "off") +
+  theme(
+    text = element_text(color = id_colors$primary, family = 'Roboto Condensed'),
+    plot.title =  element_text(
+      size = 18, 
+      hjust = 0.5, 
+      face = 'bold', 
+      margin = margin(t = 0, r = 0, b = 10, l = 0)
+    ),
+    plot.background = element_rect(fill = NA, colour=NA),
+    
+    panel.background = element_rect(fill = NA, colour=NA),
+    panel.border = element_rect(fill=NA, colour = NA),
+    panel.grid.major.x = element_line(colour="grey85", linewidth = 0.25, linetype = "dotted"),
+    panel.grid.minor.y = element_blank(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    
+    legend.position="top",
+    #legend.key = element_rect(fill = "white", colour = "black"),
+    legend.text = element_text(size=10, hjust = 0.5),
+    legend.title = element_text(size=10, hjust = 0.5,margin = margin(t = 0, r = 0, b = 5, l = 0)),
+    legend.background = element_rect(fill = NA),
+    legend.box = "vertical",
+    legend.title.position = "top",
+    
+    strip.background = element_rect(fill=NA),
+    strip.text = element_text(size = 12, color = id_colors$primary),
+    
+    axis.ticks = element_blank(),
+    #axis.title = element_blank(),
+    #axis.text.y = element_blank(),
+    axis.text.y = element_text(size = 12, color = id_colors$primary)
+  )
 
 ```
 
@@ -2208,6 +2308,11 @@ countries_plot <-
 how_to_plot / countries_plot + plot_layout(heights = c(1, 3))
 
 ```
+
+
+
+
+
 
 
 
