@@ -50,7 +50,7 @@ header-includes:
 ```{r setup,  include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, fig.pos = "H", out.extra = "")
 
-packages <- c("tidyverse","here","knitr","sf","ggtext","showtext","ggflags","ggbeeswarm","countrycode","geomtextpath")
+packages <- c("tidyverse","here","knitr","sf","ggtext","showtext","ggflags","ggbeeswarm","countrycode","geomtextpath","patchwork")
 pacman::p_load(packages,character.only = TRUE)
 
 font_add_google("Roboto Condensed")
@@ -181,17 +181,6 @@ if(length(region_countries) >= 50){flag_size <- 4}
 point_size <- flag_size * 1.1
 status_size <- flag_size * 1.4
 
-map_disclaimer <- 
-  paste0(
-    str_wrap(
-      "Disclaimer: Country borders or names do not necessarily reflect the World Bank Group's official position.
-      This map is for illustrative purposes and does not imply the expression of any opinion on the part of the World Bank,
-      concerning the legal status of any country or territory or concerning the delimitation of frontiers or boundaries.",
-      175
-    )
-  )
-
-  
 ```
 
 \newpage
@@ -284,13 +273,19 @@ countries_sf |>
   labs(
     title = paste0(params$region, " countries"),
     fill = NULL,
-    caption = map_disclaimer
+    caption = paste0(
+      str_wrap(
+        "Disclaimer: Country borders or names do not necessarily reflect the World Bank Group's official position.
+        This map is for illustrative purposes and does not imply the expression of any opinion on the part of the World Bank,
+        concerning the legal status of any country or territory or concerning the delimitation of frontiers or boundaries.",
+        175
+      )
+    )
   ) +
   theme(
     text = element_text(color = id_colors$primary, family = 'Roboto Condensed'),
-    plot.title =  element_text(hjust = 0.5, face = 'bold', margin = margin(t = 5, r = 0, b = 5, l = 0)),
-    plot.caption = element_text(hjust = 0.5, size = 6.5),
-    plot.caption.position =  "plot",
+    plot.title =  element_text(hjust = 0.5, face = 'bold', margin = margin(t = 0, r = 0, b = 5, l = 0)),
+    plot.caption = element_text(size = 6.5, hjust = 0.5),
     plot.background = element_rect(fill = NA, colour=NA),
     
     panel.background = element_rect(fill = NA, colour=NA),
@@ -438,14 +433,42 @@ ggplot() +
 
 # Institutional Clusters
 
-```{r clusters_radar, fig.cap="Digital and Data Institutions static CTF", fig.height = 8, fig.width = 10, warning=F}
+```{r clusters_radar, fig.cap="Digital and Data Institutions static CTF", fig.height=13, fig.width=12, fig.dpi=600, warning=F}
+
+plot_theme <- theme(
+    text = element_text(color = id_colors$primary, family = 'Roboto Condensed'),
+    plot.title =  element_text(size = 18, hjust = 0.5, face = 'bold', margin = margin(t = 0, r = 0, b = 5, l = 0)),
+    plot.background = element_rect(fill = NA, colour=NA),
+    
+    panel.background = element_rect(fill = NA, colour=NA),
+    panel.border = element_rect(fill=NA, colour = NA),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    
+    legend.position="top",
+    #legend.key.size = unit(0.75,"line"),
+    legend.text = element_text(size=14, hjust = 0.5),
+    legend.title = element_text(size=14, margin = margin(t = 10, r = 0, b = 0, l = 0)),
+    legend.background = element_rect(fill = NA),
+    legend.box = "vertical",
+    
+    strip.background = element_rect(fill=NA),
+    strip.text = element_text(size = 12, color = id_colors$primary),
+    
+    axis.ticks = element_blank(),
+    axis.title = element_blank(),
+    axis.text.y = element_blank(),
+    axis.text.x = element_blank()
+  )
 
 data_plot <- data_clusters |>
   filter(comparison_group == params$region) |>
   filter(family_name == "Digital and Data Institutions") |>
   filter(base_country == country_name)
 
-max_text_length <- 22
+max_text_length <- 16
 
 ordem <- c(
   #str_wrap("Digital and Data Institutions Average", max_text_length),
@@ -455,6 +478,46 @@ ordem <- c(
   str_wrap("Public Service Delivery Index (PSDI)", max_text_length),
   str_wrap("Standards and Methods", max_text_length)
 )
+
+how_to_plot <- 
+  ggplot(
+    data = 
+      data_plot |>
+      select(var_name) |>
+      filter(!grepl("Average", var_name)) |>
+      unique() |>
+      mutate(dtf = runif(n(), min = 0.85, max = 1))
+  ) +
+  geom_bar(
+    aes(
+      x = factor(str_wrap(var_name, max_text_length), levels = ordem),
+      y = dtf
+    ),
+    stat = "identity", 
+    color = "white", 
+    width = 0.9, 
+    alpha = 0.5, 
+    position = position_stack(),
+    fill = "black"
+  ) +
+  coord_curvedpolar(clip = "off") +
+  scale_y_continuous(
+    limits = c(-0.2, 1.2),
+    expand = c(0, 0),
+    breaks = c(0.5)
+  ) + 
+  scale_x_discrete(
+    limits = ordem
+  ) +
+  labs(
+    title = "Digital and Data Institutions",
+    caption = paste0("<b> How to read:</b> Each part represents an indicator. The size represents the CTF value and the color indicates the status compared to the group.")
+  ) +
+  plot_theme +
+  theme(
+    axis.text.x = element_text(size = 12, color = "black", vjust = 0.5),
+    plot.caption = element_markdown(size = 14, hjust = 0.5)
+  )
 
 center_flag <- data |>
   filter(country_name %in% data_plot$country_name) |>
@@ -470,7 +533,7 @@ center_flag <- data |>
   y = 0
 )
 
-ggplot(
+countries_plot <- ggplot(
   data_plot |> filter(!grepl("Average", var_name)),
   aes(
     x = factor(str_wrap(var_name, max_text_length), levels = ordem),
@@ -547,38 +610,11 @@ ggplot(
   ) +
   facet_wrap(~str_wrap(country_name, 15), ncol = 8) +
   labs(
-    title = "Digital and Data Institutions"
+    title = NULL
   ) +
-    theme(
-    text = element_text(color = id_colors$primary, family = 'Roboto Condensed'),
-    plot.title =  element_text(size = 18, hjust = 0.5, face = 'bold', margin = margin(t = 5, r = 0, b = 5, l = 0)),
-    plot.caption = element_text(size = 6.5, hjust = 0),
-    plot.caption.position =  "plot",
-    plot.background = element_rect(fill = NA, colour=NA),
-    
-    panel.background = element_rect(fill = NA, colour=NA),
-    panel.border = element_rect(fill=NA, colour = NA),
-    panel.grid.major.y = element_blank(),
-    panel.grid.minor.y = element_blank(),
-    panel.grid.major.x = element_blank(),
-    panel.grid.minor.x = element_blank(),
-    
-    legend.position="top",
-    #legend.key.size = unit(0.75,"line"),
-    legend.text = element_text(size=12, hjust = 0.5),
-    legend.title = element_text(size=12, margin = margin(t = 0, r = 0, b = 0, l = 0)),
-    legend.background = element_rect(fill = NA),
-    legend.box = "vertical",
-    
-    strip.background = element_rect(fill=NA),
-    strip.text = element_text(size = 12, color = id_colors$primary),
-    
-    axis.ticks = element_blank(),
-    axis.title = element_blank(),
-    axis.text.y = element_blank(),
-    axis.text.x = element_blank()
-  )
+  plot_theme
 
+how_to_plot / countries_plot + plot_layout(heights = c(1, 3))
 
 ```
 
