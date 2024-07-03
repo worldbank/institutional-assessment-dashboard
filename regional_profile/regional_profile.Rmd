@@ -57,7 +57,8 @@ font_add_google("Roboto Condensed")
 showtext_auto()
 options(scipen=999, dplyr.summarise.inform = FALSE)
 
-#params <- list(region = "Latin America & Caribbean")
+#  params <- list(region = "Latin America & Caribbean")
+source(here("regional_profile/aux", "fun_plots.R"))
 
 # viz id ----
 id_colors <- list(
@@ -136,6 +137,11 @@ data <- read_csv2(
       country_name == "West Bank and Gaza" ~ "ps",
       country_name == "Kosovo" ~ "xk",
       TRUE ~ ecb
+    ),
+    status = case_when(
+      status == "Strong\n(top 50%)" ~ "Strong (top 50%)",
+      status == "Emerging\n(25% - 50%)" ~ "Emerging (25% - 50%)",
+      status == "Weak\n(bottom 25%)" ~ "Weak (bottom 25%)"
     )
   )
 
@@ -163,6 +169,11 @@ data_clusters <- read_csv2(
       country_name == "West Bank and Gaza" ~ "ps",
       country_name == "Kosovo" ~ "xk",
       TRUE ~ ecb
+    ),
+     status = case_when(
+      status == "Strong\n(top 50%)" ~ "Strong (top 50%)",
+      status == "Emerging\n(25% - 50%)" ~ "Emerging (25% - 50%)",
+      status == "Weak\n(bottom 25%)" ~ "Weak (bottom 25%)"
     )
   )
 
@@ -448,7 +459,7 @@ ggplot() +
     aes(x = x + 0.1, y = y),
     hjust = "left",
     label = str_wrap("Countries with the best performance when compared to the group",35),
-    size = 4,
+    size = 4.5,
     family = "Roboto Condensed",
     color = id_colors$primary
   ) +
@@ -469,17 +480,17 @@ ggplot() +
     
     legend.position="top",
     legend.key.size = unit(0.5,"line"),
-    legend.text = element_text(size=11, hjust = 0.5),
-    legend.title = element_text(size=11, margin = margin(t = 0, r = 0, b = 0, l = 0)),
+    legend.text = element_text(size=16, hjust = 0.5),
+    legend.title = element_text(size=16, margin = margin(t = 0, r = 0, b = 0, l = 0)),
     legend.background = element_rect(fill = NA),
     
     strip.background = element_rect(fill=NA),
     strip.text = element_text(size = 10),
     
     axis.ticks = element_blank(),
-    axis.title.x = element_text(size = 14, face = "bold", margin = margin(t = 10, r = 0, b = 5, l = 0)),
+    axis.title.x = element_text(size = 18, face = "bold", margin = margin(t = 10, r = 0, b = 5, l = 0)),
     axis.text.y = element_text(size = 14, color = id_colors$primary),
-    axis.text.x = element_text(size = 11, color = id_colors$primary, margin = margin(t = 20, r = 0, b = 5, l = 0)),
+    axis.text.x = element_text(size = 12, color = id_colors$primary, margin = margin(t = 20, r = 0, b = 5, l = 0)),
     legend.box = "vertical"
   )
 
@@ -622,128 +633,11 @@ how_to_plot / countries_plot + plot_layout(heights = c(2, 3))
 ```
 
 
-```{r climate_violin, fig.cap="Climate Change and Environment Institutions static CTF", fig.height=10, fig.width=16, fig.dpi=600, warning=F}
+```{r climate_violin, fig.cap="Climate Change and Environment Institutions static CTF", fig.height=14, fig.width=16, fig.dpi=600, warning=F}
 
 family <- "Climate Change and Environment Institutions"
 
-data_plot <- 
-  data_clusters |>
-  filter(comparison_group == params$region) |>
-  filter(family_name == family) |>
-  filter(base_country == country_name) |>
-  filter(!grepl("Average", var_name)) |>
-  filter(!is.na(income_group))
-
-ind_order <- 
-  data_plot |> 
-  arrange(var_name) |> 
-  pull(var_name) |> 
-  unique()
-
-avg_dtf <- data_plot %>%
-  group_by(income_group, var_name) %>%
-  summarise(
-    avg_dtf = mean(dtf),
-    median_dtf = median(dtf)
-  ) %>%
-  arrange(median_dtf)
-
-#data_plot$var_name <- factor(data_plot$var_name, levels = avg_dtf$var_name)
-
-data_plot <- data_plot %>%
-  left_join(avg_dtf, by = c("income_group","var_name"))
-
-ggplot(
-  data = data_plot,
-  aes(
-    x = reorder(var_name, dtf),
-    y = dtf,
-    fill = median_dtf,
-    group = var_name
-  )
-) +
-  geom_hline(linewidth = 0.75, color = id_colors$primary, yintercept = c(0, 1)) +
-  geom_violin(width = 1.5, size = 0.5) +
-  scale_x_discrete(
-    limits = levels(data_plot$var_name),
-    labels = function(x) str_wrap(x, width = 35)
-  ) +
-  geom_point(
-    size = 7,
-    fill = id_colors$primary,
-    color = "transparent",
-    shape = 21
-  ) +
-  ggflags::geom_flag(
-    aes(
-      country = ecb
-    ),
-    size = 5.5
-  ) +
-  labs(
-    y = "Closeness to frontier",
-    x = ""
-  ) +
-  #scale_fill_gradient2(
-  #  low = "#D2222D", mid = "#FFBF00", high = "#238823",
-  #  midpoint = 0.5,
-  #  limits = c(0, 1),
-  #  name = "Average CTF",
-  #  breaks = c(0, 0.5, 1)
-  #  # labels = c("Low", "Medium", "High")
-  #) +
-   scale_fill_stepsn(
-    "Median CTF",
-    limits = c(0,1),
-    breaks = c(0.25,0.5),
-    values = scales::rescale(c(0,0.25,0.5,1)),
-    colours = c(
-      "#D2222D", "#FFBF00", "#238823"
-    )
-  ) +
-  guides(
-    fill = guide_colorsteps(
-      barwidth = 14, barheight = .5, title.position = "top", title.hjust = .5, 
-      even.steps = FALSE,
-      show.limits = T
-    )
-  ) +
-  facet_wrap(
-    ~factor(
-      income_group,
-      levels = income_order
-    ),
-    ncol = length(unique(data_plot$income_group))
-  ) +
-  coord_flip(clip = "off") +
-  theme(
-    text = element_text(color = id_colors$primary, family = 'Roboto Condensed'),
-    plot.title = element_text(
-      size = 18,
-      hjust = 0.5,
-      face = 'bold',
-      margin = margin(t = 0, r = 0, b = 10, l = 0)
-    ),
-    plot.background = element_rect(fill = NA, colour = NA),
-    panel.background = element_rect(fill = NA, colour = NA),
-    panel.border = element_rect(fill = NA, colour = NA),
-    panel.grid.major.x = element_line(colour = "grey85", linewidth = 0.25, linetype = "dotted"),
-    panel.grid.minor.y = element_blank(),
-    panel.grid.major.y = element_blank(),
-    panel.grid.minor.x = element_blank(),
-    legend.position = "top",
-    legend.text = element_text(size = 16, hjust = 0.5),
-    legend.title = element_text(size = 18, hjust = 0.5, margin = margin(t = 0, r = 0, b = 5, l = 0)),
-    legend.background = element_rect(fill = NA),
-    legend.box = "vertical",
-    legend.title.position = "top",
-    strip.background = element_rect(fill = NA),
-    strip.text = element_text(size = 16, color = id_colors$primary, face = "bold"),
-    axis.ticks = element_blank(),
-    axis.title.x = element_text(face = 'bold', size = 16, margin = margin(t = 10, r = 0, b = 0, l = 0)),
-    axis.text.y = element_text(size = 14, color = id_colors$primary),
-    axis.text.x = element_text(color = id_colors$primary, size = 14)
-  )
+violin_plot(data_clusters, family, params$region)
 
 ```
 
@@ -880,128 +774,11 @@ how_to_plot / countries_plot + plot_layout(heights = c(2, 3))
 
 ```
 
-```{r service_violin, fig.cap="Service Delivery Institutions static CTF", fig.height=10, fig.width=16, fig.dpi=600, warning=F}
+```{r service_violin, fig.cap="Service Delivery Institutions static CTF", fig.height=14, fig.width=16, fig.dpi=600, warning=F}
 
 family <- "Service Delivery Institutions"
 
-data_plot <- 
-  data_clusters |>
-  filter(comparison_group == params$region) |>
-  filter(family_name == family) |>
-  filter(base_country == country_name) |>
-  filter(!grepl("Average", var_name)) |>
-  filter(!is.na(income_group))
-
-ind_order <- 
-  data_plot |> 
-  arrange(var_name) |> 
-  pull(var_name) |> 
-  unique()
-
-avg_dtf <- data_plot %>%
-  group_by(income_group, var_name) %>%
-  summarise(
-    avg_dtf = mean(dtf),
-    median_dtf = median(dtf)
-  ) %>%
-  arrange(median_dtf)
-
-#data_plot$var_name <- factor(data_plot$var_name, levels = avg_dtf$var_name)
-
-data_plot <- data_plot %>%
-  left_join(avg_dtf, by = c("income_group","var_name"))
-
-ggplot(
-  data = data_plot,
-  aes(
-    x = reorder(var_name, dtf),
-    y = dtf,
-    fill = median_dtf,
-    group = var_name
-  )
-) +
-  geom_hline(linewidth = 0.75, color = id_colors$primary, yintercept = c(0, 1)) +
-  geom_violin(width = 1.5, size = 0.5) +
-  scale_x_discrete(
-    limits = levels(data_plot$var_name),
-    labels = function(x) str_wrap(x, width = 35)
-  ) +
-  geom_point(
-    size = 7,
-    fill = id_colors$primary,
-    color = "transparent",
-    shape = 21
-  ) +
-  ggflags::geom_flag(
-    aes(
-      country = ecb
-    ),
-    size = 5.5
-  ) +
-  labs(
-    y = "Closeness to frontier",
-    x = ""
-  ) +
-  #scale_fill_gradient2(
-  #  low = "#D2222D", mid = "#FFBF00", high = "#238823",
-  #  midpoint = 0.5,
-  #  limits = c(0, 1),
-  #  name = "Average CTF",
-  #  breaks = c(0, 0.5, 1)
-  #  # labels = c("Low", "Medium", "High")
-  #) +
-   scale_fill_stepsn(
-    "Median CTF",
-    limits = c(0,1),
-    breaks = c(0.25,0.5),
-    values = scales::rescale(c(0,0.25,0.5,1)),
-    colours = c(
-      "#D2222D", "#FFBF00", "#238823"
-    )
-  ) +
-  guides(
-    fill = guide_colorsteps(
-      barwidth = 14, barheight = .5, title.position = "top", title.hjust = .5, 
-      even.steps = FALSE,
-      show.limits = T
-    )
-  ) +
-  facet_wrap(
-    ~factor(
-      income_group,
-      levels = income_order
-    ),
-    ncol = length(unique(data_plot$income_group))
-  ) +
-  coord_flip(clip = "off") +
-  theme(
-    text = element_text(color = id_colors$primary, family = 'Roboto Condensed'),
-    plot.title = element_text(
-      size = 18,
-      hjust = 0.5,
-      face = 'bold',
-      margin = margin(t = 0, r = 0, b = 10, l = 0)
-    ),
-    plot.background = element_rect(fill = NA, colour = NA),
-    panel.background = element_rect(fill = NA, colour = NA),
-    panel.border = element_rect(fill = NA, colour = NA),
-    panel.grid.major.x = element_line(colour = "grey85", linewidth = 0.25, linetype = "dotted"),
-    panel.grid.minor.y = element_blank(),
-    panel.grid.major.y = element_blank(),
-    panel.grid.minor.x = element_blank(),
-    legend.position = "top",
-    legend.text = element_text(size = 16, hjust = 0.5),
-    legend.title = element_text(size = 18, hjust = 0.5, margin = margin(t = 0, r = 0, b = 5, l = 0)),
-    legend.background = element_rect(fill = NA),
-    legend.box = "vertical",
-    legend.title.position = "top",
-    strip.background = element_rect(fill = NA),
-    strip.text = element_text(size = 16, color = id_colors$primary, face = "bold"),
-    axis.ticks = element_blank(),
-    axis.title.x = element_text(face = 'bold', size = 16, margin = margin(t = 10, r = 0, b = 0, l = 0)),
-    axis.text.y = element_text(size = 14, color = id_colors$primary),
-    axis.text.x = element_text(color = id_colors$primary, size = 14)
-  )
+violin_plot(data_clusters, family, params$region)
 
 ```
 
@@ -1138,128 +915,11 @@ how_to_plot / countries_plot + plot_layout(heights = c(1, 3))
 
 ```
 
-```{r labor_violin, fig.cap="Labor and Social Protection Institutions static CTF", fig.height=10, fig.width=16, fig.dpi=600, warning=F}
+```{r labor_violin, fig.cap="Labor and Social Protection Institutions static CTF", fig.height=14, fig.width=16, fig.dpi=600, warning=F}
 
 family <- "Labor and Social Protection Institutions"
 
-data_plot <- 
-  data_clusters |>
-  filter(comparison_group == params$region) |>
-  filter(family_name == family) |>
-  filter(base_country == country_name) |>
-  filter(!grepl("Average", var_name)) |>
-  filter(!is.na(income_group))
-
-ind_order <- 
-  data_plot |> 
-  arrange(var_name) |> 
-  pull(var_name) |> 
-  unique()
-
-avg_dtf <- data_plot %>%
-  group_by(income_group, var_name) %>%
-  summarise(
-    avg_dtf = mean(dtf),
-    median_dtf = median(dtf)
-  ) %>%
-  arrange(median_dtf)
-
-#data_plot$var_name <- factor(data_plot$var_name, levels = avg_dtf$var_name)
-
-data_plot <- data_plot %>%
-  left_join(avg_dtf, by = c("income_group","var_name"))
-
-ggplot(
-  data = data_plot,
-  aes(
-    x = reorder(var_name, dtf),
-    y = dtf,
-    fill = median_dtf,
-    group = var_name
-  )
-) +
-  geom_hline(linewidth = 0.75, color = id_colors$primary, yintercept = c(0, 1)) +
-  geom_violin(width = 1.5, size = 0.5) +
-  scale_x_discrete(
-    limits = levels(data_plot$var_name),
-    labels = function(x) str_wrap(x, width = 35)
-  ) +
-  geom_point(
-    size = 7,
-    fill = id_colors$primary,
-    color = "transparent",
-    shape = 21
-  ) +
-  ggflags::geom_flag(
-    aes(
-      country = ecb
-    ),
-    size = 5.5
-  ) +
-  labs(
-    y = "Closeness to frontier",
-    x = ""
-  ) +
-  #scale_fill_gradient2(
-  #  low = "#D2222D", mid = "#FFBF00", high = "#238823",
-  #  midpoint = 0.5,
-  #  limits = c(0, 1),
-  #  name = "Average CTF",
-  #  breaks = c(0, 0.5, 1)
-  #  # labels = c("Low", "Medium", "High")
-  #) +
-   scale_fill_stepsn(
-    "Median CTF",
-    limits = c(0,1),
-    breaks = c(0.25,0.5),
-    values = scales::rescale(c(0,0.25,0.5,1)),
-    colours = c(
-      "#D2222D", "#FFBF00", "#238823"
-    )
-  ) +
-  guides(
-    fill = guide_colorsteps(
-      barwidth = 14, barheight = .5, title.position = "top", title.hjust = .5, 
-      even.steps = FALSE,
-      show.limits = T
-    )
-  ) +
-  facet_wrap(
-    ~factor(
-      income_group,
-      levels = income_order
-    ),
-    ncol = length(unique(data_plot$income_group))
-  ) +
-  coord_flip(clip = "off") +
-  theme(
-    text = element_text(color = id_colors$primary, family = 'Roboto Condensed'),
-    plot.title = element_text(
-      size = 18,
-      hjust = 0.5,
-      face = 'bold',
-      margin = margin(t = 0, r = 0, b = 10, l = 0)
-    ),
-    plot.background = element_rect(fill = NA, colour = NA),
-    panel.background = element_rect(fill = NA, colour = NA),
-    panel.border = element_rect(fill = NA, colour = NA),
-    panel.grid.major.x = element_line(colour = "grey85", linewidth = 0.25, linetype = "dotted"),
-    panel.grid.minor.y = element_blank(),
-    panel.grid.major.y = element_blank(),
-    panel.grid.minor.x = element_blank(),
-    legend.position = "top",
-    legend.text = element_text(size = 16, hjust = 0.5),
-    legend.title = element_text(size = 18, hjust = 0.5, margin = margin(t = 0, r = 0, b = 5, l = 0)),
-    legend.background = element_rect(fill = NA),
-    legend.box = "vertical",
-    legend.title.position = "top",
-    strip.background = element_rect(fill = NA),
-    strip.text = element_text(size = 16, color = id_colors$primary, face = "bold"),
-    axis.ticks = element_blank(),
-    axis.title.x = element_text(face = 'bold', size = 16, margin = margin(t = 10, r = 0, b = 0, l = 0)),
-    axis.text.y = element_text(size = 14, color = id_colors$primary),
-    axis.text.x = element_text(color = id_colors$primary, size = 14)
-  )
+violin_plot(data_clusters, family, params$region)
 
 ```
 
@@ -1400,128 +1060,11 @@ if(nrow(data_plot)>0){
 
 ```
 
-```{r soe_violin, fig.cap="SOE Corporate Governance static CTF", fig.height=10, fig.width=16, fig.dpi=600, warning=F}
+```{r soe_violin, fig.cap="SOE Corporate Governance static CTF", fig.height=14, fig.width=16, fig.dpi=600, warning=F}
 
 family <- "SOE Corporate Governance"
 
-data_plot <- 
-  data_clusters |>
-  filter(comparison_group == params$region) |>
-  filter(family_name == family) |>
-  filter(base_country == country_name) |>
-  filter(!grepl("Average", var_name)) |>
-  filter(!is.na(income_group))
-
-ind_order <- 
-  data_plot |> 
-  arrange(var_name) |> 
-  pull(var_name) |> 
-  unique()
-
-avg_dtf <- data_plot %>%
-  group_by(income_group, var_name) %>%
-  summarise(
-    avg_dtf = mean(dtf),
-    median_dtf = median(dtf)
-  ) %>%
-  arrange(median_dtf)
-
-#data_plot$var_name <- factor(data_plot$var_name, levels = avg_dtf$var_name)
-
-data_plot <- data_plot %>%
-  left_join(avg_dtf, by = c("income_group","var_name"))
-
-ggplot(
-  data = data_plot,
-  aes(
-    x = reorder(var_name, dtf),
-    y = dtf,
-    fill = median_dtf,
-    group = var_name
-  )
-) +
-  geom_hline(linewidth = 0.75, color = id_colors$primary, yintercept = c(0, 1)) +
-  geom_violin(width = 1.5, size = 0.5) +
-  scale_x_discrete(
-    limits = levels(data_plot$var_name),
-    labels = function(x) str_wrap(x, width = 35)
-  ) +
-  geom_point(
-    size = 7,
-    fill = id_colors$primary,
-    color = "transparent",
-    shape = 21
-  ) +
-  ggflags::geom_flag(
-    aes(
-      country = ecb
-    ),
-    size = 5.5
-  ) +
-  labs(
-    y = "Closeness to frontier",
-    x = ""
-  ) +
-  #scale_fill_gradient2(
-  #  low = "#D2222D", mid = "#FFBF00", high = "#238823",
-  #  midpoint = 0.5,
-  #  limits = c(0, 1),
-  #  name = "Average CTF",
-  #  breaks = c(0, 0.5, 1)
-  #  # labels = c("Low", "Medium", "High")
-  #) +
-   scale_fill_stepsn(
-    "Median CTF",
-    limits = c(0,1),
-    breaks = c(0.25,0.5),
-    values = scales::rescale(c(0,0.25,0.5,1)),
-    colours = c(
-      "#D2222D", "#FFBF00", "#238823"
-    )
-  ) +
-  guides(
-    fill = guide_colorsteps(
-      barwidth = 14, barheight = .5, title.position = "top", title.hjust = .5, 
-      even.steps = FALSE,
-      show.limits = T
-    )
-  ) +
-  facet_wrap(
-    ~factor(
-      income_group,
-      levels = income_order
-    ),
-    ncol = length(unique(data_plot$income_group))
-  ) +
-  coord_flip(clip = "off") +
-  theme(
-    text = element_text(color = id_colors$primary, family = 'Roboto Condensed'),
-    plot.title = element_text(
-      size = 18,
-      hjust = 0.5,
-      face = 'bold',
-      margin = margin(t = 0, r = 0, b = 10, l = 0)
-    ),
-    plot.background = element_rect(fill = NA, colour = NA),
-    panel.background = element_rect(fill = NA, colour = NA),
-    panel.border = element_rect(fill = NA, colour = NA),
-    panel.grid.major.x = element_line(colour = "grey85", linewidth = 0.25, linetype = "dotted"),
-    panel.grid.minor.y = element_blank(),
-    panel.grid.major.y = element_blank(),
-    panel.grid.minor.x = element_blank(),
-    legend.position = "top",
-    legend.text = element_text(size = 16, hjust = 0.5),
-    legend.title = element_text(size = 18, hjust = 0.5, margin = margin(t = 0, r = 0, b = 5, l = 0)),
-    legend.background = element_rect(fill = NA),
-    legend.box = "vertical",
-    legend.title.position = "top",
-    strip.background = element_rect(fill = NA),
-    strip.text = element_text(size = 16, color = id_colors$primary, face = "bold"),
-    axis.ticks = element_blank(),
-    axis.title.x = element_text(face = 'bold', size = 16, margin = margin(t = 10, r = 0, b = 0, l = 0)),
-    axis.text.y = element_text(size = 14, color = id_colors$primary),
-    axis.text.x = element_text(color = id_colors$primary, size = 14)
-  )
+violin_plot(data_clusters, family, params$region)
 
 ```
 
@@ -1659,128 +1202,11 @@ how_to_plot / countries_plot + plot_layout(heights = c(1, 3))
 
 ```
 
-```{r busi_violin, fig.cap="Business Environment static CTF", fig.height=10, fig.width=16, fig.dpi=600, warning=F}
+```{r busi_violin, fig.cap="Business Environment static CTF", fig.height=14, fig.width=16, fig.dpi=600, warning=F}
 
 family <- "Business Environment"
 
-data_plot <- 
-  data_clusters |>
-  filter(comparison_group == params$region) |>
-  filter(family_name == family) |>
-  filter(base_country == country_name) |>
-  filter(!grepl("Average", var_name)) |>
-  filter(!is.na(income_group))
-
-ind_order <- 
-  data_plot |> 
-  arrange(var_name) |> 
-  pull(var_name) |> 
-  unique()
-
-avg_dtf <- data_plot %>%
-  group_by(income_group, var_name) %>%
-  summarise(
-    avg_dtf = mean(dtf),
-    median_dtf = median(dtf)
-  ) %>%
-  arrange(median_dtf)
-
-#data_plot$var_name <- factor(data_plot$var_name, levels = avg_dtf$var_name)
-
-data_plot <- data_plot %>%
-  left_join(avg_dtf, by = c("income_group","var_name"))
-
-ggplot(
-  data = data_plot,
-  aes(
-    x = reorder(var_name, dtf),
-    y = dtf,
-    fill = median_dtf,
-    group = var_name
-  )
-) +
-  geom_hline(linewidth = 0.75, color = id_colors$primary, yintercept = c(0, 1)) +
-  geom_violin(width = 1.5, size = 0.5) +
-  scale_x_discrete(
-    limits = levels(data_plot$var_name),
-    labels = function(x) str_wrap(x, width = 35)
-  ) +
-  geom_point(
-    size = 7,
-    fill = id_colors$primary,
-    color = "transparent",
-    shape = 21
-  ) +
-  ggflags::geom_flag(
-    aes(
-      country = ecb
-    ),
-    size = 5.5
-  ) +
-  labs(
-    y = "Closeness to frontier",
-    x = ""
-  ) +
-  #scale_fill_gradient2(
-  #  low = "#D2222D", mid = "#FFBF00", high = "#238823",
-  #  midpoint = 0.5,
-  #  limits = c(0, 1),
-  #  name = "Average CTF",
-  #  breaks = c(0, 0.5, 1)
-  #  # labels = c("Low", "Medium", "High")
-  #) +
-   scale_fill_stepsn(
-    "Median CTF",
-    limits = c(0,1),
-    breaks = c(0.25,0.5),
-    values = scales::rescale(c(0,0.25,0.5,1)),
-    colours = c(
-      "#D2222D", "#FFBF00", "#238823"
-    )
-  ) +
-  guides(
-    fill = guide_colorsteps(
-      barwidth = 14, barheight = .5, title.position = "top", title.hjust = .5, 
-      even.steps = FALSE,
-      show.limits = T
-    )
-  ) +
-  facet_wrap(
-    ~factor(
-      income_group,
-      levels = income_order
-    ),
-    ncol = length(unique(data_plot$income_group))
-  ) +
-  coord_flip(clip = "off") +
-  theme(
-    text = element_text(color = id_colors$primary, family = 'Roboto Condensed'),
-    plot.title = element_text(
-      size = 18,
-      hjust = 0.5,
-      face = 'bold',
-      margin = margin(t = 0, r = 0, b = 10, l = 0)
-    ),
-    plot.background = element_rect(fill = NA, colour = NA),
-    panel.background = element_rect(fill = NA, colour = NA),
-    panel.border = element_rect(fill = NA, colour = NA),
-    panel.grid.major.x = element_line(colour = "grey85", linewidth = 0.25, linetype = "dotted"),
-    panel.grid.minor.y = element_blank(),
-    panel.grid.major.y = element_blank(),
-    panel.grid.minor.x = element_blank(),
-    legend.position = "top",
-    legend.text = element_text(size = 16, hjust = 0.5),
-    legend.title = element_text(size = 18, hjust = 0.5, margin = margin(t = 0, r = 0, b = 5, l = 0)),
-    legend.background = element_rect(fill = NA),
-    legend.box = "vertical",
-    legend.title.position = "top",
-    strip.background = element_rect(fill = NA),
-    strip.text = element_text(size = 16, color = id_colors$primary, face = "bold"),
-    axis.ticks = element_blank(),
-    axis.title.x = element_text(face = 'bold', size = 16, margin = margin(t = 10, r = 0, b = 0, l = 0)),
-    axis.text.y = element_text(size = 14, color = id_colors$primary),
-    axis.text.x = element_text(color = id_colors$primary, size = 14)
-  )
+violin_plot(data_clusters, family, params$region)
 
 ```
 
@@ -1917,128 +1343,11 @@ how_to_plot / countries_plot + plot_layout(heights = c(1, 3))
 
 ```
 
-```{r digi_violin, fig.cap="Digital and Data Institutions static CTF", fig.height=10, fig.width=16, fig.dpi=600, warning=F}
+```{r digi_violin, fig.cap="Digital and Data Institutions static CTF", fig.height=14, fig.width=16, fig.dpi=600, warning=F}
 
 family <- "Digital and Data Institutions"
 
-data_plot <- 
-  data_clusters |>
-  filter(comparison_group == params$region) |>
-  filter(family_name == family) |>
-  filter(base_country == country_name) |>
-  filter(!grepl("Average", var_name)) |>
-  filter(!is.na(income_group))
-
-ind_order <- 
-  data_plot |> 
-  arrange(var_name) |> 
-  pull(var_name) |> 
-  unique()
-
-avg_dtf <- data_plot %>%
-  group_by(income_group, var_name) %>%
-  summarise(
-    avg_dtf = mean(dtf),
-    median_dtf = median(dtf)
-  ) %>%
-  arrange(median_dtf)
-
-#data_plot$var_name <- factor(data_plot$var_name, levels = avg_dtf$var_name)
-
-data_plot <- data_plot %>%
-  left_join(avg_dtf, by = c("income_group","var_name"))
-
-ggplot(
-  data = data_plot,
-  aes(
-    x = reorder(var_name, dtf),
-    y = dtf,
-    fill = median_dtf,
-    group = var_name
-  )
-) +
-  geom_hline(linewidth = 0.75, color = id_colors$primary, yintercept = c(0, 1)) +
-  geom_violin(width = 1.5, size = 0.5) +
-  scale_x_discrete(
-    limits = levels(data_plot$var_name),
-    labels = function(x) str_wrap(x, width = 35)
-  ) +
-  geom_point(
-    size = 7,
-    fill = id_colors$primary,
-    color = "transparent",
-    shape = 21
-  ) +
-  ggflags::geom_flag(
-    aes(
-      country = ecb
-    ),
-    size = 5.5
-  ) +
-  labs(
-    y = "Closeness to frontier",
-    x = ""
-  ) +
-  #scale_fill_gradient2(
-  #  low = "#D2222D", mid = "#FFBF00", high = "#238823",
-  #  midpoint = 0.5,
-  #  limits = c(0, 1),
-  #  name = "Average CTF",
-  #  breaks = c(0, 0.5, 1)
-  #  # labels = c("Low", "Medium", "High")
-  #) +
-   scale_fill_stepsn(
-    "Median CTF",
-    limits = c(0,1),
-    breaks = c(0.25,0.5),
-    values = scales::rescale(c(0,0.25,0.5,1)),
-    colours = c(
-      "#D2222D", "#FFBF00", "#238823"
-    )
-  ) +
-  guides(
-    fill = guide_colorsteps(
-      barwidth = 14, barheight = .5, title.position = "top", title.hjust = .5, 
-      even.steps = FALSE,
-      show.limits = T
-    )
-  ) +
-  facet_wrap(
-    ~factor(
-      income_group,
-      levels = income_order
-    ),
-    ncol = length(unique(data_plot$income_group))
-  ) +
-  coord_flip(clip = "off") +
-  theme(
-    text = element_text(color = id_colors$primary, family = 'Roboto Condensed'),
-    plot.title = element_text(
-      size = 18,
-      hjust = 0.5,
-      face = 'bold',
-      margin = margin(t = 0, r = 0, b = 10, l = 0)
-    ),
-    plot.background = element_rect(fill = NA, colour = NA),
-    panel.background = element_rect(fill = NA, colour = NA),
-    panel.border = element_rect(fill = NA, colour = NA),
-    panel.grid.major.x = element_line(colour = "grey85", linewidth = 0.25, linetype = "dotted"),
-    panel.grid.minor.y = element_blank(),
-    panel.grid.major.y = element_blank(),
-    panel.grid.minor.x = element_blank(),
-    legend.position = "top",
-    legend.text = element_text(size = 16, hjust = 0.5),
-    legend.title = element_text(size = 18, hjust = 0.5, margin = margin(t = 0, r = 0, b = 5, l = 0)),
-    legend.background = element_rect(fill = NA),
-    legend.box = "vertical",
-    legend.title.position = "top",
-    strip.background = element_rect(fill = NA),
-    strip.text = element_text(size = 16, color = id_colors$primary, face = "bold"),
-    axis.ticks = element_blank(),
-    axis.title.x = element_text(face = 'bold', size = 16, margin = margin(t = 10, r = 0, b = 0, l = 0)),
-    axis.text.y = element_text(size = 14, color = id_colors$primary),
-    axis.text.x = element_text(color = id_colors$primary, size = 14)
-  )
+violin_plot(data_clusters, family, params$region)
 
 ```
 
@@ -2177,131 +1486,13 @@ how_to_plot / countries_plot + plot_layout(heights = c(1, 3))
 ```
 
 
-```{r human_violin, fig.cap="Public Human Resource Management Institutions static CTF", fig.height=10, fig.width=16, fig.dpi=600, warning=F}
+```{r human_violin, fig.cap="Public Human Resource Management Institutions static CTF", fig.height=14, fig.width=16, fig.dpi=600, warning=F}
 
 family <- "Public Human Resource Management Institutions"
 
-data_plot <- 
-  data_clusters |>
-  filter(comparison_group == params$region) |>
-  filter(family_name == family) |>
-  filter(base_country == country_name) |>
-  filter(!grepl("Average", var_name)) |>
-  filter(!is.na(income_group))
-
-ind_order <- 
-  data_plot |> 
-  arrange(var_name) |> 
-  pull(var_name) |> 
-  unique()
-
-avg_dtf <- data_plot %>%
-  group_by(income_group, var_name) %>%
-  summarise(
-    avg_dtf = mean(dtf),
-    median_dtf = median(dtf)
-  ) %>%
-  arrange(median_dtf)
-
-#data_plot$var_name <- factor(data_plot$var_name, levels = avg_dtf$var_name)
-
-data_plot <- data_plot %>%
-  left_join(avg_dtf, by = c("income_group","var_name"))
-
-ggplot(
-  data = data_plot,
-  aes(
-    x = reorder(var_name, dtf),
-    y = dtf,
-    fill = median_dtf,
-    group = var_name
-  )
-) +
-  geom_hline(linewidth = 0.75, color = id_colors$primary, yintercept = c(0, 1)) +
-  geom_violin(width = 1.5, size = 0.5) +
-  scale_x_discrete(
-    limits = levels(data_plot$var_name),
-    labels = function(x) str_wrap(x, width = 35)
-  ) +
-  geom_point(
-    size = 7,
-    fill = id_colors$primary,
-    color = "transparent",
-    shape = 21
-  ) +
-  ggflags::geom_flag(
-    aes(
-      country = ecb
-    ),
-    size = 5.5
-  ) +
-  labs(
-    y = "Closeness to frontier",
-    x = ""
-  ) +
-  #scale_fill_gradient2(
-  #  low = "#D2222D", mid = "#FFBF00", high = "#238823",
-  #  midpoint = 0.5,
-  #  limits = c(0, 1),
-  #  name = "Average CTF",
-  #  breaks = c(0, 0.5, 1)
-  #  # labels = c("Low", "Medium", "High")
-  #) +
-   scale_fill_stepsn(
-    "Median CTF",
-    limits = c(0,1),
-    breaks = c(0.25,0.5),
-    values = scales::rescale(c(0,0.25,0.5,1)),
-    colours = c(
-      "#D2222D", "#FFBF00", "#238823"
-    )
-  ) +
-  guides(
-    fill = guide_colorsteps(
-      barwidth = 14, barheight = .5, title.position = "top", title.hjust = .5, 
-      even.steps = FALSE,
-      show.limits = T
-    )
-  ) +
-  facet_wrap(
-    ~factor(
-      income_group,
-      levels = income_order
-    ),
-    ncol = length(unique(data_plot$income_group))
-  ) +
-  coord_flip(clip = "off") +
-  theme(
-    text = element_text(color = id_colors$primary, family = 'Roboto Condensed'),
-    plot.title = element_text(
-      size = 18,
-      hjust = 0.5,
-      face = 'bold',
-      margin = margin(t = 0, r = 0, b = 10, l = 0)
-    ),
-    plot.background = element_rect(fill = NA, colour = NA),
-    panel.background = element_rect(fill = NA, colour = NA),
-    panel.border = element_rect(fill = NA, colour = NA),
-    panel.grid.major.x = element_line(colour = "grey85", linewidth = 0.25, linetype = "dotted"),
-    panel.grid.minor.y = element_blank(),
-    panel.grid.major.y = element_blank(),
-    panel.grid.minor.x = element_blank(),
-    legend.position = "top",
-    legend.text = element_text(size = 16, hjust = 0.5),
-    legend.title = element_text(size = 18, hjust = 0.5, margin = margin(t = 0, r = 0, b = 5, l = 0)),
-    legend.background = element_rect(fill = NA),
-    legend.box = "vertical",
-    legend.title.position = "top",
-    strip.background = element_rect(fill = NA),
-    strip.text = element_text(size = 16, color = id_colors$primary, face = "bold"),
-    axis.ticks = element_blank(),
-    axis.title.x = element_text(face = 'bold', size = 16, margin = margin(t = 10, r = 0, b = 0, l = 0)),
-    axis.text.y = element_text(size = 14, color = id_colors$primary),
-    axis.text.x = element_text(color = id_colors$primary, size = 14)
-  )
+violin_plot(data_clusters, family, params$region)
 
 ```
-
 
 ## Public Finance Institutions
 
@@ -2437,128 +1628,11 @@ how_to_plot / countries_plot + plot_layout(heights = c(1, 2))
 ```
 
 
-```{r finance_violin, fig.cap="Public Finance Institutions static CTF", fig.height=10, fig.width=16, fig.dpi=600, warning=F}
+```{r finance_violin, fig.cap="Public Finance Institutions static CTF", fig.height=14, fig.width=16, fig.dpi=600, warning=F}
 
 family <- "Public Finance Institutions"
 
-data_plot <- 
-  data_clusters |>
-  filter(comparison_group == params$region) |>
-  filter(family_name == family) |>
-  filter(base_country == country_name) |>
-  filter(!grepl("Average", var_name)) |>
-  filter(!is.na(income_group))
-
-ind_order <- 
-  data_plot |> 
-  arrange(var_name) |> 
-  pull(var_name) |> 
-  unique()
-
-avg_dtf <- data_plot %>%
-  group_by(income_group, var_name) %>%
-  summarise(
-    avg_dtf = mean(dtf),
-    median_dtf = median(dtf)
-  ) %>%
-  arrange(median_dtf)
-
-#data_plot$var_name <- factor(data_plot$var_name, levels = avg_dtf$var_name)
-
-data_plot <- data_plot %>%
-  left_join(avg_dtf, by = c("income_group","var_name"))
-
-ggplot(
-  data = data_plot,
-  aes(
-    x = reorder(var_name, dtf),
-    y = dtf,
-    fill = median_dtf,
-    group = var_name
-  )
-) +
-  geom_hline(linewidth = 0.75, color = id_colors$primary, yintercept = c(0, 1)) +
-  geom_violin(width = 1.5, size = 0.5) +
-  scale_x_discrete(
-    limits = levels(data_plot$var_name),
-    labels = function(x) str_wrap(x, width = 35)
-  ) +
-  geom_point(
-    size = 7,
-    fill = id_colors$primary,
-    color = "transparent",
-    shape = 21
-  ) +
-  ggflags::geom_flag(
-    aes(
-      country = ecb
-    ),
-    size = 5.5
-  ) +
-  labs(
-    y = "Closeness to frontier",
-    x = ""
-  ) +
-  #scale_fill_gradient2(
-  #  low = "#D2222D", mid = "#FFBF00", high = "#238823",
-  #  midpoint = 0.5,
-  #  limits = c(0, 1),
-  #  name = "Average CTF",
-  #  breaks = c(0, 0.5, 1)
-  #  # labels = c("Low", "Medium", "High")
-  #) +
-   scale_fill_stepsn(
-    "Median CTF",
-    limits = c(0,1),
-    breaks = c(0.25,0.5),
-    values = scales::rescale(c(0,0.25,0.5,1)),
-    colours = c(
-      "#D2222D", "#FFBF00", "#238823"
-    )
-  ) +
-  guides(
-    fill = guide_colorsteps(
-      barwidth = 14, barheight = .5, title.position = "top", title.hjust = .5, 
-      even.steps = FALSE,
-      show.limits = T
-    )
-  ) +
-  facet_wrap(
-    ~factor(
-      income_group,
-      levels = income_order
-    ),
-    ncol = length(unique(data_plot$income_group))
-  ) +
-  coord_flip(clip = "off") +
-  theme(
-    text = element_text(color = id_colors$primary, family = 'Roboto Condensed'),
-    plot.title = element_text(
-      size = 18,
-      hjust = 0.5,
-      face = 'bold',
-      margin = margin(t = 0, r = 0, b = 10, l = 0)
-    ),
-    plot.background = element_rect(fill = NA, colour = NA),
-    panel.background = element_rect(fill = NA, colour = NA),
-    panel.border = element_rect(fill = NA, colour = NA),
-    panel.grid.major.x = element_line(colour = "grey85", linewidth = 0.25, linetype = "dotted"),
-    panel.grid.minor.y = element_blank(),
-    panel.grid.major.y = element_blank(),
-    panel.grid.minor.x = element_blank(),
-    legend.position = "top",
-    legend.text = element_text(size = 16, hjust = 0.5),
-    legend.title = element_text(size = 18, hjust = 0.5, margin = margin(t = 0, r = 0, b = 5, l = 0)),
-    legend.background = element_rect(fill = NA),
-    legend.box = "vertical",
-    legend.title.position = "top",
-    strip.background = element_rect(fill = NA),
-    strip.text = element_text(size = 16, color = id_colors$primary, face = "bold"),
-    axis.ticks = element_blank(),
-    axis.title.x = element_text(face = 'bold', size = 16, margin = margin(t = 10, r = 0, b = 0, l = 0)),
-    axis.text.y = element_text(size = 14, color = id_colors$primary),
-    axis.text.x = element_text(color = id_colors$primary, size = 14)
-  )
+violin_plot(data_clusters, family, params$region)
 
 ```
 
@@ -2696,128 +1770,11 @@ how_to_plot / countries_plot + plot_layout(heights = c(2, 3))
 
 ```
 
-```{r just_violin, fig.cap="Justice Institutions static CTF", fig.height=10, fig.width=16, fig.dpi=600, warning=F}
+```{r just_violin, fig.cap="Justice Institutions static CTF", fig.height=14, fig.width=16, fig.dpi=600, warning=F}
 
 family <- "Justice Institutions"
 
-data_plot <- 
-  data_clusters |>
-  filter(comparison_group == params$region) |>
-  filter(family_name == family) |>
-  filter(base_country == country_name) |>
-  filter(!grepl("Average", var_name)) |>
-  filter(!is.na(income_group))
-
-ind_order <- 
-  data_plot |> 
-  arrange(var_name) |> 
-  pull(var_name) |> 
-  unique()
-
-avg_dtf <- data_plot %>%
-  group_by(income_group, var_name) %>%
-  summarise(
-    avg_dtf = mean(dtf),
-    median_dtf = median(dtf)
-  ) %>%
-  arrange(median_dtf)
-
-#data_plot$var_name <- factor(data_plot$var_name, levels = avg_dtf$var_name)
-
-data_plot <- data_plot %>%
-  left_join(avg_dtf, by = c("income_group","var_name"))
-
-ggplot(
-  data = data_plot,
-  aes(
-    x = reorder(var_name, dtf),
-    y = dtf,
-    fill = median_dtf,
-    group = var_name
-  )
-) +
-  geom_hline(linewidth = 0.75, color = id_colors$primary, yintercept = c(0, 1)) +
-  geom_violin(width = 1.5, size = 0.5) +
-  scale_x_discrete(
-    limits = levels(data_plot$var_name),
-    labels = function(x) str_wrap(x, width = 35)
-  ) +
-  geom_point(
-    size = 7,
-    fill = id_colors$primary,
-    color = "transparent",
-    shape = 21
-  ) +
-  ggflags::geom_flag(
-    aes(
-      country = ecb
-    ),
-    size = 5.5
-  ) +
-  labs(
-    y = "Closeness to frontier",
-    x = ""
-  ) +
-  #scale_fill_gradient2(
-  #  low = "#D2222D", mid = "#FFBF00", high = "#238823",
-  #  midpoint = 0.5,
-  #  limits = c(0, 1),
-  #  name = "Average CTF",
-  #  breaks = c(0, 0.5, 1)
-  #  # labels = c("Low", "Medium", "High")
-  #) +
-   scale_fill_stepsn(
-    "Median CTF",
-    limits = c(0,1),
-    breaks = c(0.25,0.5),
-    values = scales::rescale(c(0,0.25,0.5,1)),
-    colours = c(
-      "#D2222D", "#FFBF00", "#238823"
-    )
-  ) +
-  guides(
-    fill = guide_colorsteps(
-      barwidth = 14, barheight = .5, title.position = "top", title.hjust = .5, 
-      even.steps = FALSE,
-      show.limits = T
-    )
-  ) +
-  facet_wrap(
-    ~factor(
-      income_group,
-      levels = income_order
-    ),
-    ncol = length(unique(data_plot$income_group))
-  ) +
-  coord_flip(clip = "off") +
-  theme(
-    text = element_text(color = id_colors$primary, family = 'Roboto Condensed'),
-    plot.title = element_text(
-      size = 18,
-      hjust = 0.5,
-      face = 'bold',
-      margin = margin(t = 0, r = 0, b = 10, l = 0)
-    ),
-    plot.background = element_rect(fill = NA, colour = NA),
-    panel.background = element_rect(fill = NA, colour = NA),
-    panel.border = element_rect(fill = NA, colour = NA),
-    panel.grid.major.x = element_line(colour = "grey85", linewidth = 0.25, linetype = "dotted"),
-    panel.grid.minor.y = element_blank(),
-    panel.grid.major.y = element_blank(),
-    panel.grid.minor.x = element_blank(),
-    legend.position = "top",
-    legend.text = element_text(size = 16, hjust = 0.5),
-    legend.title = element_text(size = 18, hjust = 0.5, margin = margin(t = 0, r = 0, b = 5, l = 0)),
-    legend.background = element_rect(fill = NA),
-    legend.box = "vertical",
-    legend.title.position = "top",
-    strip.background = element_rect(fill = NA),
-    strip.text = element_text(size = 16, color = id_colors$primary, face = "bold"),
-    axis.ticks = element_blank(),
-    axis.title.x = element_text(face = 'bold', size = 16, margin = margin(t = 10, r = 0, b = 0, l = 0)),
-    axis.text.y = element_text(size = 14, color = id_colors$primary),
-    axis.text.x = element_text(color = id_colors$primary, size = 14)
-  )
+violin_plot(data_clusters, family, params$region)
 
 ```
 
@@ -2954,128 +1911,11 @@ how_to_plot / countries_plot + plot_layout(heights = c(1, 3))
 
 ```
 
-```{r transp_violin, fig.cap="Transparency and Accountability Institutions static CTF", fig.height=10, fig.width=16, fig.dpi=600, warning=F}
+```{r transp_violin, fig.cap="Transparency and Accountability Institutions static CTF", fig.height=14, fig.width=16, fig.dpi=600, warning=F}
 
 family <- "Transparency and Accountability Institutions"
 
-data_plot <- 
-  data_clusters |>
-  filter(comparison_group == params$region) |>
-  filter(family_name == family) |>
-  filter(base_country == country_name) |>
-  filter(!grepl("Average", var_name)) |>
-  filter(!is.na(income_group))
-
-ind_order <- 
-  data_plot |> 
-  arrange(var_name) |> 
-  pull(var_name) |> 
-  unique()
-
-avg_dtf <- data_plot %>%
-  group_by(income_group, var_name) %>%
-  summarise(
-    avg_dtf = mean(dtf),
-    median_dtf = median(dtf)
-  ) %>%
-  arrange(median_dtf)
-
-#data_plot$var_name <- factor(data_plot$var_name, levels = avg_dtf$var_name)
-
-data_plot <- data_plot %>%
-  left_join(avg_dtf, by = c("income_group","var_name"))
-
-ggplot(
-  data = data_plot,
-  aes(
-    x = reorder(var_name, dtf),
-    y = dtf,
-    fill = median_dtf,
-    group = var_name
-  )
-) +
-  geom_hline(linewidth = 0.75, color = id_colors$primary, yintercept = c(0, 1)) +
-  geom_violin(width = 1.5, size = 0.5) +
-  scale_x_discrete(
-    limits = levels(data_plot$var_name),
-    labels = function(x) str_wrap(x, width = 35)
-  ) +
-  geom_point(
-    size = 7,
-    fill = id_colors$primary,
-    color = "transparent",
-    shape = 21
-  ) +
-  ggflags::geom_flag(
-    aes(
-      country = ecb
-    ),
-    size = 5.5
-  ) +
-  labs(
-    y = "Closeness to frontier",
-    x = ""
-  ) +
-  #scale_fill_gradient2(
-  #  low = "#D2222D", mid = "#FFBF00", high = "#238823",
-  #  midpoint = 0.5,
-  #  limits = c(0, 1),
-  #  name = "Average CTF",
-  #  breaks = c(0, 0.5, 1)
-  #  # labels = c("Low", "Medium", "High")
-  #) +
-   scale_fill_stepsn(
-    "Median CTF",
-    limits = c(0,1),
-    breaks = c(0.25,0.5),
-    values = scales::rescale(c(0,0.25,0.5,1)),
-    colours = c(
-      "#D2222D", "#FFBF00", "#238823"
-    )
-  ) +
-  guides(
-    fill = guide_colorsteps(
-      barwidth = 14, barheight = .5, title.position = "top", title.hjust = .5, 
-      even.steps = FALSE,
-      show.limits = T
-    )
-  ) +
-  facet_wrap(
-    ~factor(
-      income_group,
-      levels = income_order
-    ),
-    ncol = length(unique(data_plot$income_group))
-  ) +
-  coord_flip(clip = "off") +
-  theme(
-    text = element_text(color = id_colors$primary, family = 'Roboto Condensed'),
-    plot.title = element_text(
-      size = 18,
-      hjust = 0.5,
-      face = 'bold',
-      margin = margin(t = 0, r = 0, b = 10, l = 0)
-    ),
-    plot.background = element_rect(fill = NA, colour = NA),
-    panel.background = element_rect(fill = NA, colour = NA),
-    panel.border = element_rect(fill = NA, colour = NA),
-    panel.grid.major.x = element_line(colour = "grey85", linewidth = 0.25, linetype = "dotted"),
-    panel.grid.minor.y = element_blank(),
-    panel.grid.major.y = element_blank(),
-    panel.grid.minor.x = element_blank(),
-    legend.position = "top",
-    legend.text = element_text(size = 16, hjust = 0.5),
-    legend.title = element_text(size = 18, hjust = 0.5, margin = margin(t = 0, r = 0, b = 5, l = 0)),
-    legend.background = element_rect(fill = NA),
-    legend.box = "vertical",
-    legend.title.position = "top",
-    strip.background = element_rect(fill = NA),
-    strip.text = element_text(size = 16, color = id_colors$primary, face = "bold"),
-    axis.ticks = element_blank(),
-    axis.title.x = element_text(face = 'bold', size = 16, margin = margin(t = 10, r = 0, b = 0, l = 0)),
-    axis.text.y = element_text(size = 14, color = id_colors$primary),
-    axis.text.x = element_text(color = id_colors$primary, size = 14)
-  )
+violin_plot(data_clusters, family, params$region)
 
 ```
 
@@ -3213,128 +2053,11 @@ how_to_plot / countries_plot + plot_layout(heights = c(1, 3))
 ```
 
 
-```{r corruption_violin, fig.cap="Absence of Corruption static CTF", fig.height=10, fig.width=16, fig.dpi=600, warning=F}
+```{r corruption_violin, fig.cap="Absence of Corruption static CTF", fig.height=14, fig.width=16, fig.dpi=600, warning=F}
 
 family <- "Absence of Corruption"
 
-data_plot <- 
-  data_clusters |>
-  filter(comparison_group == params$region) |>
-  filter(family_name == family) |>
-  filter(base_country == country_name) |>
-  filter(!grepl("Average", var_name)) |>
-  filter(!is.na(income_group))
-
-ind_order <- 
-  data_plot |> 
-  arrange(var_name) |> 
-  pull(var_name) |> 
-  unique()
-
-avg_dtf <- data_plot %>%
-  group_by(income_group, var_name) %>%
-  summarise(
-    avg_dtf = mean(dtf),
-    median_dtf = median(dtf)
-  ) %>%
-  arrange(median_dtf)
-
-#data_plot$var_name <- factor(data_plot$var_name, levels = avg_dtf$var_name)
-
-data_plot <- data_plot %>%
-  left_join(avg_dtf, by = c("income_group","var_name"))
-
-ggplot(
-  data = data_plot,
-  aes(
-    x = reorder(var_name, dtf),
-    y = dtf,
-    fill = median_dtf,
-    group = var_name
-  )
-) +
-  geom_hline(linewidth = 0.75, color = id_colors$primary, yintercept = c(0, 1)) +
-  geom_violin(width = 1.5, size = 0.5) +
-  scale_x_discrete(
-    limits = levels(data_plot$var_name),
-    labels = function(x) str_wrap(x, width = 35)
-  ) +
-  geom_point(
-    size = 7,
-    fill = id_colors$primary,
-    color = "transparent",
-    shape = 21
-  ) +
-  ggflags::geom_flag(
-    aes(
-      country = ecb
-    ),
-    size = 5.5
-  ) +
-  labs(
-    y = "Closeness to frontier",
-    x = ""
-  ) +
-  #scale_fill_gradient2(
-  #  low = "#D2222D", mid = "#FFBF00", high = "#238823",
-  #  midpoint = 0.5,
-  #  limits = c(0, 1),
-  #  name = "Average CTF",
-  #  breaks = c(0, 0.5, 1)
-  #  # labels = c("Low", "Medium", "High")
-  #) +
-   scale_fill_stepsn(
-    "Median CTF",
-    limits = c(0,1),
-    breaks = c(0.25,0.5),
-    values = scales::rescale(c(0,0.25,0.5,1)),
-    colours = c(
-      "#D2222D", "#FFBF00", "#238823"
-    )
-  ) +
-  guides(
-    fill = guide_colorsteps(
-      barwidth = 14, barheight = .5, title.position = "top", title.hjust = .5, 
-      even.steps = FALSE,
-      show.limits = T
-    )
-  ) +
-  facet_wrap(
-    ~factor(
-      income_group,
-      levels = income_order
-    ),
-    ncol = length(unique(data_plot$income_group))
-  ) +
-  coord_flip(clip = "off") +
-  theme(
-    text = element_text(color = id_colors$primary, family = 'Roboto Condensed'),
-    plot.title = element_text(
-      size = 18,
-      hjust = 0.5,
-      face = 'bold',
-      margin = margin(t = 0, r = 0, b = 10, l = 0)
-    ),
-    plot.background = element_rect(fill = NA, colour = NA),
-    panel.background = element_rect(fill = NA, colour = NA),
-    panel.border = element_rect(fill = NA, colour = NA),
-    panel.grid.major.x = element_line(colour = "grey85", linewidth = 0.25, linetype = "dotted"),
-    panel.grid.minor.y = element_blank(),
-    panel.grid.major.y = element_blank(),
-    panel.grid.minor.x = element_blank(),
-    legend.position = "top",
-    legend.text = element_text(size = 16, hjust = 0.5),
-    legend.title = element_text(size = 18, hjust = 0.5, margin = margin(t = 0, r = 0, b = 5, l = 0)),
-    legend.background = element_rect(fill = NA),
-    legend.box = "vertical",
-    legend.title.position = "top",
-    strip.background = element_rect(fill = NA),
-    strip.text = element_text(size = 16, color = id_colors$primary, face = "bold"),
-    axis.ticks = element_blank(),
-    axis.title.x = element_text(face = 'bold', size = 16, margin = margin(t = 10, r = 0, b = 0, l = 0)),
-    axis.text.y = element_text(size = 14, color = id_colors$primary),
-    axis.text.x = element_text(color = id_colors$primary, size = 14)
-  )
+violin_plot(data_clusters, family, params$region)
 
 ```
 
@@ -3473,128 +2196,11 @@ how_to_plot / countries_plot + plot_layout(heights = c(2, 3))
 ```
 
 
-```{r social_violin, fig.cap="Social Institutions static CTF", fig.height=10, fig.width=16, fig.dpi=600, warning=F}
+```{r social_violin, fig.cap="Social Institutions static CTF", fig.height=14, fig.width=16, fig.dpi=600, warning=F}
 
 family <- "Social Institutions"
 
-data_plot <- 
-  data_clusters |>
-  filter(comparison_group == params$region) |>
-  filter(family_name == family) |>
-  filter(base_country == country_name) |>
-  filter(!grepl("Average", var_name)) |>
-  filter(!is.na(income_group))
-
-ind_order <- 
-  data_plot |> 
-  arrange(var_name) |> 
-  pull(var_name) |> 
-  unique()
-
-avg_dtf <- data_plot %>%
-  group_by(income_group, var_name) %>%
-  summarise(
-    avg_dtf = mean(dtf),
-    median_dtf = median(dtf)
-  ) %>%
-  arrange(median_dtf)
-
-#data_plot$var_name <- factor(data_plot$var_name, levels = avg_dtf$var_name)
-
-data_plot <- data_plot %>%
-  left_join(avg_dtf, by = c("income_group","var_name"))
-
-ggplot(
-  data = data_plot,
-  aes(
-    x = reorder(var_name, dtf),
-    y = dtf,
-    fill = median_dtf,
-    group = var_name
-  )
-) +
-  geom_hline(linewidth = 0.75, color = id_colors$primary, yintercept = c(0, 1)) +
-  geom_violin(width = 1.5, size = 0.5) +
-  scale_x_discrete(
-    limits = levels(data_plot$var_name),
-    labels = function(x) str_wrap(x, width = 35)
-  ) +
-  geom_point(
-    size = 7,
-    fill = id_colors$primary,
-    color = "transparent",
-    shape = 21
-  ) +
-  ggflags::geom_flag(
-    aes(
-      country = ecb
-    ),
-    size = 5.5
-  ) +
-  labs(
-    y = "Closeness to frontier",
-    x = ""
-  ) +
-  #scale_fill_gradient2(
-  #  low = "#D2222D", mid = "#FFBF00", high = "#238823",
-  #  midpoint = 0.5,
-  #  limits = c(0, 1),
-  #  name = "Average CTF",
-  #  breaks = c(0, 0.5, 1)
-  #  # labels = c("Low", "Medium", "High")
-  #) +
-   scale_fill_stepsn(
-    "Median CTF",
-    limits = c(0,1),
-    breaks = c(0.25,0.5),
-    values = scales::rescale(c(0,0.25,0.5,1)),
-    colours = c(
-      "#D2222D", "#FFBF00", "#238823"
-    )
-  ) +
-  guides(
-    fill = guide_colorsteps(
-      barwidth = 14, barheight = .5, title.position = "top", title.hjust = .5, 
-      even.steps = FALSE,
-      show.limits = T
-    )
-  ) +
-  facet_wrap(
-    ~factor(
-      income_group,
-      levels = income_order
-    ),
-    ncol = length(unique(data_plot$income_group))
-  ) +
-  coord_flip(clip = "off") +
-  theme(
-    text = element_text(color = id_colors$primary, family = 'Roboto Condensed'),
-    plot.title = element_text(
-      size = 18,
-      hjust = 0.5,
-      face = 'bold',
-      margin = margin(t = 0, r = 0, b = 10, l = 0)
-    ),
-    plot.background = element_rect(fill = NA, colour = NA),
-    panel.background = element_rect(fill = NA, colour = NA),
-    panel.border = element_rect(fill = NA, colour = NA),
-    panel.grid.major.x = element_line(colour = "grey85", linewidth = 0.25, linetype = "dotted"),
-    panel.grid.minor.y = element_blank(),
-    panel.grid.major.y = element_blank(),
-    panel.grid.minor.x = element_blank(),
-    legend.position = "top",
-    legend.text = element_text(size = 16, hjust = 0.5),
-    legend.title = element_text(size = 18, hjust = 0.5, margin = margin(t = 0, r = 0, b = 5, l = 0)),
-    legend.background = element_rect(fill = NA),
-    legend.box = "vertical",
-    legend.title.position = "top",
-    strip.background = element_rect(fill = NA),
-    strip.text = element_text(size = 16, color = id_colors$primary, face = "bold"),
-    axis.ticks = element_blank(),
-    axis.title.x = element_text(face = 'bold', size = 16, margin = margin(t = 10, r = 0, b = 0, l = 0)),
-    axis.text.y = element_text(size = 14, color = id_colors$primary),
-    axis.text.x = element_text(color = id_colors$primary, size = 14)
-  )
+violin_plot(data_clusters, family, params$region)
 
 ```
 
@@ -3733,130 +2339,21 @@ how_to_plot / countries_plot + plot_layout(heights = c(1, 3))
 ```
 
 
-```{r poli_violin, fig.cap="Political Institutions static CTF", fig.height=10, fig.width=16, fig.dpi=600, warning=F}
+```{r poli_violin, fig.cap="Political Institutions static CTF", fig.height=14, fig.width=16, fig.dpi=600, warning=F}
 
 family <- "Political Institutions"
 
-data_plot <- 
-  data_clusters |>
-  filter(comparison_group == params$region) |>
-  filter(family_name == family) |>
-  filter(base_country == country_name) |>
-  filter(!grepl("Average", var_name)) |>
-  filter(!is.na(income_group))
-
-ind_order <- 
-  data_plot |> 
-  arrange(var_name) |> 
-  pull(var_name) |> 
-  unique()
-
-avg_dtf <- data_plot %>%
-  group_by(income_group, var_name) %>%
-  summarise(
-    avg_dtf = mean(dtf),
-    median_dtf = median(dtf)
-  ) %>%
-  arrange(median_dtf)
-
-#data_plot$var_name <- factor(data_plot$var_name, levels = avg_dtf$var_name)
-
-data_plot <- data_plot %>%
-  left_join(avg_dtf, by = c("income_group","var_name"))
-
-ggplot(
-  data = data_plot,
-  aes(
-    x = reorder(var_name, dtf),
-    y = dtf,
-    fill = median_dtf,
-    group = var_name
-  )
-) +
-  geom_hline(linewidth = 0.75, color = id_colors$primary, yintercept = c(0, 1)) +
-  geom_violin(width = 1.5, size = 0.5) +
-  scale_x_discrete(
-    limits = levels(data_plot$var_name),
-    labels = function(x) str_wrap(x, width = 35)
-  ) +
-  geom_point(
-    size = 7,
-    fill = id_colors$primary,
-    color = "transparent",
-    shape = 21
-  ) +
-  ggflags::geom_flag(
-    aes(
-      country = ecb
-    ),
-    size = 5.5
-  ) +
-  labs(
-    y = "Closeness to frontier",
-    x = ""
-  ) +
-  #scale_fill_gradient2(
-  #  low = "#D2222D", mid = "#FFBF00", high = "#238823",
-  #  midpoint = 0.5,
-  #  limits = c(0, 1),
-  #  name = "Average CTF",
-  #  breaks = c(0, 0.5, 1)
-  #  # labels = c("Low", "Medium", "High")
-  #) +
-   scale_fill_stepsn(
-    "Median CTF",
-    limits = c(0,1),
-    breaks = c(0.25,0.5),
-    values = scales::rescale(c(0,0.25,0.5,1)),
-    colours = c(
-      "#D2222D", "#FFBF00", "#238823"
-    )
-  ) +
-  guides(
-    fill = guide_colorsteps(
-      barwidth = 14, barheight = .5, title.position = "top", title.hjust = .5, 
-      even.steps = FALSE,
-      show.limits = T
-    )
-  ) +
-  facet_wrap(
-    ~factor(
-      income_group,
-      levels = income_order
-    ),
-    ncol = length(unique(data_plot$income_group))
-  ) +
-  coord_flip(clip = "off") +
-  theme(
-    text = element_text(color = id_colors$primary, family = 'Roboto Condensed'),
-    plot.title = element_text(
-      size = 18,
-      hjust = 0.5,
-      face = 'bold',
-      margin = margin(t = 0, r = 0, b = 10, l = 0)
-    ),
-    plot.background = element_rect(fill = NA, colour = NA),
-    panel.background = element_rect(fill = NA, colour = NA),
-    panel.border = element_rect(fill = NA, colour = NA),
-    panel.grid.major.x = element_line(colour = "grey85", linewidth = 0.25, linetype = "dotted"),
-    panel.grid.minor.y = element_blank(),
-    panel.grid.major.y = element_blank(),
-    panel.grid.minor.x = element_blank(),
-    legend.position = "top",
-    legend.text = element_text(size = 16, hjust = 0.5),
-    legend.title = element_text(size = 18, hjust = 0.5, margin = margin(t = 0, r = 0, b = 5, l = 0)),
-    legend.background = element_rect(fill = NA),
-    legend.box = "vertical",
-    legend.title.position = "top",
-    strip.background = element_rect(fill = NA),
-    strip.text = element_text(size = 16, color = id_colors$primary, face = "bold"),
-    axis.ticks = element_blank(),
-    axis.title.x = element_text(face = 'bold', size = 16, margin = margin(t = 10, r = 0, b = 0, l = 0)),
-    axis.text.y = element_text(size = 14, color = id_colors$primary),
-    axis.text.x = element_text(color = id_colors$primary, size = 14)
-  )
+violin_plot(data_clusters, family, params$region)
 
 ```
+
+
+
+
+
+
+
+
 
 
 

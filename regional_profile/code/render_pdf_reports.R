@@ -1,4 +1,4 @@
-packages <- c("tidyverse","here","knitr","sf","ggtext","showtext")
+packages <- c("tidyverse","here","knitr","sf","ggtext","showtext","geomtextpath","patchwork")
 pacman::p_load(packages,character.only = TRUE)
 
 render_subject <- function(file_region_name) {
@@ -33,4 +33,3 @@ for(region in group_list$Region){
   cat("Rendering", region,"report...\n")
   render_subject(region)
 }
-
