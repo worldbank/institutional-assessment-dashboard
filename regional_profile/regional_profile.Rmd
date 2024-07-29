@@ -30,11 +30,11 @@ header-includes:
   \usepackage{graphicx}
   \usepackage{color}
   \usepackage{fontspec}
+  \usepackage{background}
   \pretitle{
     \begin{center}
     \includegraphics[width=7in]{cliar.png}\LARGE\\
   }
-  \usepackage{background}
   \backgroundsetup{
     scale=0.85,
     color=black,
@@ -57,7 +57,7 @@ font_add_google("Roboto Condensed")
 showtext_auto()
 options(scipen=999, dplyr.summarise.inform = FALSE)
 
-#  params <- list(region = "Latin America & Caribbean")
+# params <- list(region = "Latin America & Caribbean")
 source(here("regional_profile/aux", "fun_plots.R"))
 
 # viz id ----
@@ -219,7 +219,7 @@ plot_theme <- theme(
     plot.title =  element_text(
       size = 18, 
       hjust = 0.5, 
-      face = 'bold', 
+      #face = 'bold', 
       margin = margin(t = 0, r = 0, b = 10, l = 0)
     ),
     plot.background = element_rect(fill = NA, colour=NA),
@@ -230,6 +230,7 @@ plot_theme <- theme(
     panel.grid.minor.y = element_blank(),
     panel.grid.major.x = element_blank(),
     panel.grid.minor.x = element_blank(),
+     panel.spacing = unit(1, "lines"),
     
     legend.position="top",
     #legend.key = element_rect(fill = "white", colour = "black"),
@@ -240,12 +241,56 @@ plot_theme <- theme(
     
     strip.background = element_rect(fill=NA),
     strip.text = element_text(size = 11, color = id_colors$primary),
+
     
     axis.ticks = element_blank(),
     axis.title = element_blank(),
     axis.text.y = element_blank(),
     axis.text.x = element_blank()
   )
+
+plot_country_theme <- theme(
+    text = element_text(color = id_colors$primary, family = 'Roboto Condensed'),
+    plot.title =  element_text(
+      size = 18, 
+      hjust = 0.5, 
+      face = 'bold', 
+      margin = margin(t = 0, r = 0, b = 0, l = 0)
+    ),
+    plot.background = element_rect(fill = NA, colour=NA),
+    plot.margin = margin(t = 0, r = 0, b = 0, l = 0),
+    
+    panel.background = element_rect(fill = NA, colour=NA),
+    panel.border = element_rect(fill=NA, colour = NA),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    panel.spacing = unit(0, "lines"),
+    
+    legend.position="top",
+    #legend.key = element_rect(fill = "white", colour = "black"),
+    legend.text = element_text(size=20, hjust = 0.5),
+    legend.title = element_text(size=20, margin = margin(t = 10, r = 0, b = 0, l = 0)),
+    legend.background = element_rect(fill = NA),
+    legend.box = "vertical",
+    
+    strip.background = element_rect(fill=NA),
+    strip.text = element_text(size = ifelse(params$region=="Europe & Central Asia",12,14), color = id_colors$primary),
+    #strip.text = element_blank(),
+    
+    axis.ticks = element_blank(),
+    axis.title = element_blank(),
+    axis.text.y = element_blank(),
+    axis.text.x = element_blank()
+  )
+
+fig_asp <- 1.25
+fig_width <- 14
+
+wrap_labeller <- function(variable, value) {
+  return(str_wrap(as.character(value), width = 12))
+}
 
 ```
 
@@ -495,36 +540,35 @@ ggplot() +
   )
 
 ```
-\newpage
 
 # Institutional Clusters
 
-## Climate Change and Environment Institutions
+## Political Institutions
 
-```{r climate_radar, fig.cap="Climate Change and Environment Institutions static CTF", fig.height=12, fig.width=12, fig.dpi=600, warning=F}
+```{r political_radar, fig.cap=NULL, fig.width=fig_width, fig.asp = fig_asp, fig.dpi=600, warning=F, fig.align = "center"}
 
-family <- "Climate Change and Environment Institutions"
+family <- "Political Institutions"
 
 data_plot <- 
   data_clusters |>
   filter(comparison_group == params$region) |>
   filter(family_name == family) |>
-  filter(base_country == country_name) |>
-  filter(!grepl("Average", var_name))
+  filter(base_country == country_name) #|>
+  #filter(!grepl("Average", var_name))
 
-center_flag <- data |>
-  filter(country_name %in% data_plot$country_name) |>
-  select(
-    country_name, ecb
-  )|>
-  unique() |>
-  mutate(
-    var_name = NA,
-    dtf = 0,
-    status = NA,
-    x = 0,
-    y = 0
-  )
+#center_flag <- data |>
+#  filter(country_name %in% data_plot$country_name) |>
+#  select(
+#    country_name, ecb
+#  )|>
+#  unique() |>
+#  mutate(
+#    var_name = NA,
+#    dtf = 0,
+#    status = NA,
+#    x = 0,
+#    y = 0
+#  )
 
 ind_order <- 
   data_plot |> 
@@ -532,756 +576,74 @@ ind_order <-
   pull(var_name) |> 
   unique()
 
+average_elements <- ind_order[grep("Average", ind_order)]
+other_elements <- ind_order[!grepl("Average", ind_order)]
+
+ind_order <- c(average_elements, other_elements)
+
+country_order_avg <- 
+  data_plot |>
+  filter(grepl("Average", var_name)) |>
+  arrange(-dtf) |> 
+  pull(country_name)
+
+countries_no_avg <- 
+  data_plot |>
+  filter(!grepl("Average", var_name)) |>
+  filter(!country_name %in% country_order_avg) |> 
+  pull(country_name) |>
+  unique()
+
+country_order <- c(country_order_avg, countries_no_avg)
+
+data_plot <- data_plot |> 
+  mutate(country_name = factor(country_name, levels = country_order))
+
 how_to_plot <- 
   ggplot(
     data = 
       data_plot |>
       select(var_name) |>
       unique() |>
-      mutate(dtf = runif(n(), min = 0.85, max = 1))
+      mutate(
+        dtf = runif(n(), min = 0.8, max = 0.8),
+        avg_color = ifelse(grepl("Average", var_name), "avg", "ind")
+      ) 
   ) +
   geom_bar(
     aes(
       x = var_name,
-      y = dtf
-    ),
-    stat = "identity", 
-    color = "transparent", 
-    size = 0,
-    width = 0.85, 
-    alpha = 0.5, 
-    position = position_stack(),
-    fill = "black"
-  ) +
-  coord_curvedpolar(clip = "off") +
-  scale_y_continuous(
-    limits = c(-0.2, 1.2),
-    expand = c(0, 0),
-    breaks = c(0.5)
-  ) + 
-  scale_x_discrete(
-    limits = ind_order,
-    labels = function(x) str_wrap(x, width = 15)
-  ) +
-  labs(
-    title = NULL,
-    caption = paste0("<b> How to read:</b> Each part represents an indicator. The size represents the CTF value and the color indicates the status compared to the group.")
-  ) +
-  plot_theme +
-  theme(
-    axis.text.x = element_text(size = 8, color = "black", vjust = 0.5),
-    plot.caption = element_markdown(size = 14, hjust = 0.5, margin = margin(t = 5, r = 0, b = 10, l = 0))
-  )
-
-countries_plot <- 
-  ggplot(
-    data = data_plot
-  ) +
-  geom_bar(
-    aes(
-      x = factor(var_name, levels = ind_order),
       y = dtf,
-      fill = factor(status, levels = status_order)
+      fill = avg_color
     ),
     stat = "identity", 
     color = "transparent", 
     size = 0,
     width = 0.85, 
-    alpha = 1, 
     position = position_stack()
   ) +
-  geom_point(
-    data = center_flag,
-    aes(
-      x = ind_order[1], 
-      y = -0.2
-    ),
-    size = 6.25,
-    fill = id_colors$primary,
-    color = "transparent",
-    shape = 21
-  ) +
-  ggflags::geom_flag(
-    data = center_flag,
-    aes(
-      x = ind_order[1], 
-      y = -0.2, 
-      country = ecb
-    ),
-    size = 5
-  ) +
-  coord_curvedpolar(clip = "off") +
-  scale_y_continuous(
-    limits = c(-0.2, 1),
-    expand = c(0, 0),
-    breaks = c(0.5)
-  ) + 
-  scale_fill_manual(
-    na.translate = F,
-    values = colors,
-    name = NULL
-  ) +
-  scale_x_discrete(limits = ind_order) +
-  facet_wrap(~str_wrap(country_name, 15), ncol = 10) +
-  labs(
-    title = NULL
-  ) +
-  plot_theme
-
-how_to_plot / countries_plot + plot_layout(heights = c(2, 3))
-
-```
-
-
-```{r climate_violin, fig.cap="Climate Change and Environment Institutions static CTF", fig.height=14, fig.width=16, fig.dpi=600, warning=F}
-
-family <- "Climate Change and Environment Institutions"
-
-violin_plot(data_clusters, family, params$region)
-
-```
-
-## Service Delivery Institutions
-
-```{r service_radar, fig.cap="Service Delivery Institutions static CTF", fig.height=12, fig.width=12, fig.dpi=600, warning=F}
-
-family <- "Service Delivery Institutions"
-
-data_plot <- 
-  data_clusters |>
-  filter(comparison_group == params$region) |>
-  filter(family_name == family) |>
-  filter(base_country == country_name) |>
-  filter(!grepl("Average", var_name))
-
-center_flag <- data |>
-  filter(country_name %in% data_plot$country_name) |>
-  select(
-    country_name, ecb
-  )|>
-  unique() |>
-  mutate(
-    var_name = NA,
-    dtf = 0,
-    status = NA,
-    x = 0,
-    y = 0
-  )
-
-ind_order <- 
-  data_plot |> 
-  arrange(var_name) |> 
-  pull(var_name) |> 
-  unique()
-
-how_to_plot <- 
-  ggplot(
-    data = 
-      data_plot |>
-      select(var_name) |>
-      unique() |>
-      mutate(dtf = runif(n(), min = 0.85, max = 1))
-  ) +
-  geom_bar(
-    aes(
-      x = var_name,
-      y = dtf
-    ),
-    stat = "identity", 
-    color = "transparent", 
-    size = 0,
-    width = 0.85, 
-    alpha = 0.5, 
-    position = position_stack(),
-    fill = "black"
-  ) +
   coord_curvedpolar(clip = "off") +
   scale_y_continuous(
     limits = c(-0.2, 1.2),
     expand = c(0, 0),
     breaks = c(0.5)
-  ) + 
+  ) +
   scale_x_discrete(
     limits = ind_order,
-    labels = function(x) str_wrap(x, width = 15)
+    labels = function(x) str_wrap(x, width = 9, whitespace_only = F)
+  ) +
+  scale_fill_manual(values = c("avg" = "grey25", "ind" = "grey70")) + 
+  guides(
+    fill = F
   ) +
   labs(
-    title = NULL,
-    caption = paste0("<b> How to read:</b> Each part represents an indicator. The size represents the CTF value and the color indicates the status compared to the group.")
+    title = str_wrap("How to read: Each part represents an indicator. The size represents the CTF value and the color indicates the status compared to the group.", width = 40)
   ) +
   plot_theme +
   theme(
-    axis.text.x = element_text(size = 8, color = "black", vjust = 0.5),
-    plot.caption = element_markdown(size = 14, hjust = 0.5, margin = margin(t = 5, r = 0, b = 10, l = 0))
-  )
-
-countries_plot <- 
-  ggplot(
-    data = data_plot
-  ) +
-  geom_bar(
-    aes(
-      x = factor(var_name, levels = ind_order),
-      y = dtf,
-      fill = factor(status, levels = status_order)
-    ),
-    stat = "identity", 
-    color = "transparent", 
-    size = 0,
-    width = 0.85, 
-    alpha = 1, 
-    position = position_stack()
-  ) +
-  geom_point(
-    data = center_flag,
-    aes(
-      x = ind_order[1], 
-      y = -0.2
-    ),
-    size = 6.25,
-    fill = id_colors$primary,
-    color = "transparent",
-    shape = 21
-  ) +
-  ggflags::geom_flag(
-    data = center_flag,
-    aes(
-      x = ind_order[1], 
-      y = -0.2, 
-      country = ecb
-    ),
-    size = 5
-  ) +
-  coord_curvedpolar(clip = "off") +
-  scale_y_continuous(
-    limits = c(-0.2, 1),
-    expand = c(0, 0),
-    breaks = c(0.5)
-  ) + 
-  scale_fill_manual(
-    na.translate = F,
-    values = colors,
-    name = NULL
-  ) +
-  scale_x_discrete(limits = ind_order) +
-  facet_wrap(~str_wrap(country_name, 15), ncol = 10) +
-  labs(
-    title = NULL
-  ) +
-  plot_theme
-
-how_to_plot / countries_plot + plot_layout(heights = c(2, 3))
-
-```
-
-```{r service_violin, fig.cap="Service Delivery Institutions static CTF", fig.height=14, fig.width=16, fig.dpi=600, warning=F}
-
-family <- "Service Delivery Institutions"
-
-violin_plot(data_clusters, family, params$region)
-
-```
-
-## Labor and Social Protection Institutions
-
-```{r labor_radar, fig.cap="Labor and Social Protection Institutions static CTF", fig.height=12, fig.width=12, fig.dpi=600, warning=F}
-
-family <- "Labor and Social Protection Institutions"
-
-data_plot <- 
-  data_clusters |>
-  filter(comparison_group == params$region) |>
-  filter(family_name == family) |>
-  filter(base_country == country_name) |>
-  filter(!grepl("Average", var_name))
-
-center_flag <- data |>
-  filter(country_name %in% data_plot$country_name) |>
-  select(
-    country_name, ecb
-  )|>
-  unique() |>
-  mutate(
-    var_name = NA,
-    dtf = 0,
-    status = NA,
-    x = 0,
-    y = 0
-  )
-
-ind_order <- 
-  data_plot |> 
-  arrange(var_name) |> 
-  pull(var_name) |> 
-  unique()
-
-how_to_plot <- 
-  ggplot(
-    data = 
-      data_plot |>
-      select(var_name) |>
-      unique() |>
-      mutate(dtf = runif(n(), min = 0.85, max = 1))
-  ) +
-  geom_bar(
-    aes(
-      x = var_name,
-      y = dtf
-    ),
-    stat = "identity", 
-    color = "transparent", 
-    size = 0,
-    width = 0.85, 
-    alpha = 0.5, 
-    position = position_stack(),
-    fill = "black"
-  ) +
-  coord_curvedpolar(clip = "off") +
-  scale_y_continuous(
-    limits = c(-0.2, 1.2),
-    expand = c(0, 0),
-    breaks = c(0.5)
-  ) + 
-  scale_x_discrete(
-    limits = ind_order,
-    labels = function(x) str_wrap(x, width = 15)
-  ) +
-  labs(
-    title = NULL,
-    caption = paste0("<b> How to read:</b> Each part represents an indicator. The size represents the CTF value and the color indicates the status compared to the group.")
-  ) +
-  plot_theme +
-  theme(
-    axis.text.x = element_text(size = 9, color = "black", vjust = 0.5),
-    plot.caption = element_markdown(size = 14, hjust = 0.5, margin = margin(t = 5, r = 0, b = 10, l = 0))
-  )
-
-countries_plot <- 
-  ggplot(
-    data = data_plot
-  ) +
-  geom_bar(
-    aes(
-      x = factor(var_name, levels = ind_order),
-      y = dtf,
-      fill = factor(status, levels = status_order)
-    ),
-    stat = "identity", 
-    color = "transparent", 
-    size = 0,
-    width = 0.85, 
-    alpha = 1, 
-    position = position_stack()
-  ) +
-  geom_point(
-    data = center_flag,
-    aes(
-      x = ind_order[1], 
-      y = -0.2
-    ),
-    size = 6.25,
-    fill = id_colors$primary,
-    color = "transparent",
-    shape = 21
-  ) +
-  ggflags::geom_flag(
-    data = center_flag,
-    aes(
-      x = ind_order[1], 
-      y = -0.2, 
-      country = ecb
-    ),
-    size = 5
-  ) +
-  coord_curvedpolar(clip = "off") +
-  scale_y_continuous(
-    limits = c(-0.2, 1),
-    expand = c(0, 0),
-    breaks = c(0.5)
-  ) + 
-  scale_fill_manual(
-    na.translate = F,
-    values = colors,
-    name = NULL
-  ) +
-  scale_x_discrete(limits = ind_order) +
-  facet_wrap(~str_wrap(country_name, 15), ncol = 10) +
-  labs(
-    title = NULL
-  ) +
-  plot_theme
-
-how_to_plot / countries_plot + plot_layout(heights = c(1, 3))
-
-```
-
-```{r labor_violin, fig.cap="Labor and Social Protection Institutions static CTF", fig.height=14, fig.width=16, fig.dpi=600, warning=F}
-
-family <- "Labor and Social Protection Institutions"
-
-violin_plot(data_clusters, family, params$region)
-
-```
-
-## SOE Corporate Governance
-
-```{r soe_radar, fig.cap="Digital and Data Institutions static CTF", fig.height=12, fig.width=12, fig.dpi=600, warning=F}
-
-family <- "SOE Corporate Governance"
-
-data_plot <- 
-  data_clusters |>
-  filter(comparison_group == params$region) |>
-  filter(family_name == family) |>
-  filter(base_country == country_name) |>
-  filter(!grepl("Average", var_name))
-
-if(nrow(data_plot)>0){
-  
-  center_flag <- data |>
-    filter(country_name %in% data_plot$country_name) |>
-    select(
-      country_name, ecb
-    )|>
-    unique() |>
-    mutate(
-      var_name = NA,
-      dtf = 0,
-      status = NA,
-      x = 0,
-      y = 0
-    )
-  
-  ind_order <- 
-    data_plot |> 
-    arrange(var_name) |> 
-    pull(var_name) |> 
-    unique()
-  
-  how_to_plot <- 
-    ggplot(
-      data = 
-        data_plot |>
-        select(var_name) |>
-        unique() |>
-        mutate(dtf = runif(n(), min = 0.85, max = 1))
-    ) +
-    geom_bar(
-      aes(
-        x = var_name,
-        y = dtf
-      ),
-      stat = "identity", 
-      color = "transparent", 
-      size = 0,
-      width = 0.85, 
-      alpha = 0.5, 
-      position = position_stack(),
-      fill = "black"
-    ) +
-    coord_curvedpolar(clip = "off") +
-    scale_y_continuous(
-      limits = c(-0.2, 1.2),
-      expand = c(0, 0),
-      breaks = c(0.5)
-    ) + 
-    scale_x_discrete(
-      limits = ind_order,
-      labels = function(x) str_wrap(x, width = 15)
-    ) +
-    labs(
-      title = NULL,
-      caption = paste0("<b> How to read:</b> Each part represents an indicator. The size represents the CTF value and the color indicates the status compared to the group.")
-    ) +
-    plot_theme +
-    theme(
-      axis.text.x = element_text(size = 11, color = "black", vjust = 0.5),
-      plot.caption = element_markdown(size = 14, hjust = 0.5, margin = margin(t = 5, r = 0, b = 10, l = 0))
-    )
-  
-  countries_plot <- 
-    ggplot(
-      data = data_plot
-    ) +
-    geom_bar(
-      aes(
-        x = factor(var_name, levels = ind_order),
-        y = dtf,
-        fill = factor(status, levels = status_order)
-      ),
-      stat = "identity", 
-      color = "transparent", 
-      size = 0,
-      width = 0.85, 
-      alpha = 1, 
-      position = position_stack()
-    ) +
-    geom_point(
-      data = center_flag,
-      aes(
-        x = ind_order[1], 
-        y = -0.2
-      ),
-      size = 6.25,
-      fill = id_colors$primary,
-      color = "transparent",
-      shape = 21
-    ) +
-    ggflags::geom_flag(
-      data = center_flag,
-      aes(
-        x = ind_order[1], 
-        y = -0.2, 
-        country = ecb
-      ),
-      size = 5
-    ) +
-    coord_curvedpolar(clip = "off") +
-    scale_y_continuous(
-      limits = c(-0.2, 1),
-      expand = c(0, 0),
-      breaks = c(0.5)
-    ) + 
-    scale_fill_manual(
-      na.translate = F,
-      values = colors,
-      name = NULL
-    ) +
-    scale_x_discrete(limits = ind_order) +
-    facet_wrap(~str_wrap(country_name, 15), ncol = 10) +
-    labs(
-      title = NULL
-    ) +
-    plot_theme
-  
-  how_to_plot / countries_plot + plot_layout(heights = c(1, 3))
-  
-} else (paste0("No data available."))
-
-```
-
-```{r soe_violin, fig.cap="SOE Corporate Governance static CTF", fig.height=14, fig.width=16, fig.dpi=600, warning=F}
-
-family <- "SOE Corporate Governance"
-
-violin_plot(data_clusters, family, params$region)
-
-```
-
-
-## Business Environment
-
-```{r business_radar, fig.cap="Business Environment static CTF", fig.height=12, fig.width=12, fig.dpi=600, warning=F}
-
-family <- "Business Environment"
-
-data_plot <- 
-  data_clusters |>
-  filter(comparison_group == params$region) |>
-  filter(family_name == family) |>
-  filter(base_country == country_name) |>
-  filter(!grepl("Average", var_name))
-
-center_flag <- data |>
-  filter(country_name %in% data_plot$country_name) |>
-  select(
-    country_name, ecb
-  )|>
-  unique() |>
-  mutate(
-    var_name = NA,
-    dtf = 0,
-    status = NA,
-    x = 0,
-    y = 0
-  )
-
-ind_order <- 
-  data_plot |> 
-  arrange(var_name) |> 
-  pull(var_name) |> 
-  unique()
-
-how_to_plot <- 
-  ggplot(
-    data = 
-      data_plot |>
-      select(var_name) |>
-      unique() |>
-      mutate(dtf = runif(n(), min = 0.85, max = 1))
-  ) +
-  geom_bar(
-    aes(
-      x = var_name,
-      y = dtf
-    ),
-    stat = "identity", 
-    color = "transparent", 
-    size = 0,
-    width = 0.85, 
-    alpha = 0.5, 
-    position = position_stack(),
-    fill = "black"
-  ) +
-  coord_curvedpolar(clip = "off") +
-  scale_y_continuous(
-    limits = c(-0.2, 1.2),
-    expand = c(0, 0),
-    breaks = c(0.5)
-  ) + 
-  scale_x_discrete(
-    limits = ind_order,
-    labels = function(x) str_wrap(x, width = 14)
-  ) +
-  labs(
-    title = NULL,
-    caption = paste0("<b> How to read:</b> Each part represents an indicator. The size represents the CTF value and the color indicates the status compared to the group.")
-  ) +
-  plot_theme +
-  theme(
-    axis.text.x = element_text(size = 11, color = "black", vjust = 0.5),
-    plot.caption = element_markdown(size = 14, hjust = 0.5, margin = margin(t = 5, r = 0, b = 10, l = 0))
-  )
-
-countries_plot <- 
-  ggplot(
-    data = data_plot
-  ) +
-  geom_bar(
-    aes(
-      x = factor(var_name, levels = ind_order),
-      y = dtf,
-      fill = factor(status, levels = status_order)
-    ),
-    stat = "identity", 
-    color = "transparent", 
-    size = 0,
-    width = 0.85, 
-    alpha = 1, 
-    position = position_stack()
-  ) +
-  geom_point(
-    data = center_flag,
-    aes(
-      x = ind_order[1], 
-      y = -0.2
-    ),
-    size = 6.25,
-    fill = id_colors$primary,
-    color = "transparent",
-    shape = 21
-  ) +
-  ggflags::geom_flag(
-    data = center_flag,
-    aes(
-      x = ind_order[1], 
-      y = -0.2, 
-      country = ecb
-    ),
-    size = 5
-  ) +
-  coord_curvedpolar(clip = "off") +
-  scale_y_continuous(
-    limits = c(-0.2, 1),
-    expand = c(0, 0),
-    breaks = c(0.5)
-  ) + 
-  scale_fill_manual(
-    na.translate = F,
-    values = colors,
-    name = NULL
-  ) +
-  scale_x_discrete(limits = ind_order) +
-  facet_wrap(~str_wrap(country_name, 15), ncol = 10) +
-  labs(
-    title = NULL
-  ) +
-  plot_theme
-
-how_to_plot / countries_plot + plot_layout(heights = c(1, 3))
-
-```
-
-```{r busi_violin, fig.cap="Business Environment static CTF", fig.height=14, fig.width=16, fig.dpi=600, warning=F}
-
-family <- "Business Environment"
-
-violin_plot(data_clusters, family, params$region)
-
-```
-
-## Digital and Data Institutions
-
-```{r digital_radar, fig.cap="Digital and Data Institutions static CTF", fig.height=12, fig.width=12, fig.dpi=600, warning=F}
-
-family <- "Digital and Data Institutions"
-
-data_plot <- 
-  data_clusters |>
-  filter(comparison_group == params$region) |>
-  filter(family_name == family) |>
-  filter(base_country == country_name) |>
-  filter(!grepl("Average", var_name))
-
-center_flag <- data |>
-  filter(country_name %in% data_plot$country_name) |>
-  select(
-    country_name, ecb
-  )|>
-  unique() |>
-  mutate(
-    var_name = NA,
-    dtf = 0,
-    status = NA,
-    x = 0,
-    y = 0
-  )
-
-ind_order <- 
-  data_plot |> 
-  arrange(var_name) |> 
-  pull(var_name) |> 
-  unique()
-
-how_to_plot <- 
-  ggplot(
-    data = 
-      data_plot |>
-      select(var_name) |>
-      unique() |>
-      mutate(dtf = runif(n(), min = 0.85, max = 1))
-  ) +
-  geom_bar(
-    aes(
-      x = var_name,
-      y = dtf
-    ),
-    stat = "identity", 
-    color = "transparent", 
-    size = 0,
-    width = 0.85, 
-    alpha = 0.5, 
-    position = position_stack(),
-    fill = "black"
-  ) +
-  coord_curvedpolar(clip = "off") +
-  scale_y_continuous(
-    limits = c(-0.2, 1.2),
-    expand = c(0, 0),
-    breaks = c(0.5)
-  ) + 
-  scale_x_discrete(
-    limits = ind_order,
-    labels = function(x) str_wrap(x, width = 15)
-  ) +
-  labs(
-    title = NULL,
-    caption = paste0("<b> How to read:</b> Each part represents an indicator. The size represents the CTF value and the color indicates the status compared to the group.")
-  ) +
-  plot_theme +
-  theme(
+    plot.margin = margin(t = 0, r = 0, b = 0, l = 10),
     axis.text.x = element_text(size = 12, color = "black", vjust = 0.5),
-    plot.caption = element_markdown(size = 14, hjust = 0.5, margin = margin(t = 5, r = 0, b = 10, l = 0))
+    plot.title =  element_text(size = 16, hjust = 0, margin = margin(t = 0, r = 0, b = 50, l = 0))
   )
 
 countries_plot <- 
@@ -1301,26 +663,39 @@ countries_plot <-
     alpha = 1, 
     position = position_stack()
   ) +
-  geom_point(
-    data = center_flag,
-    aes(
-      x = ind_order[1], 
-      y = -0.2
-    ),
-    size = 6.25,
-    fill = id_colors$primary,
-    color = "transparent",
-    shape = 21
-  ) +
-  ggflags::geom_flag(
-    data = center_flag,
-    aes(
-      x = ind_order[1], 
-      y = -0.2, 
-      country = ecb
-    ),
-    size = 5
-  ) +
+  #geom_point(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2
+  #  ),
+  #  size = 6,
+  #  color = id_colors$primary,
+  #  fill = "transparent",
+  #  shape = 21,
+  #  stroke = 1.5
+  #) +
+  #geom_point(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2
+  #  ),
+  #  size = 7,
+  #  color = id_colors$primary,
+  #  fill = "transparent",
+  #  shape = 21,
+  #  stroke = 1.25
+  #) +
+  #ggflags::geom_flag(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2, 
+  #    country = ecb
+  #  ),
+  #  size = 6
+  #) +
   coord_curvedpolar(clip = "off") +
   scale_y_continuous(
     limits = c(-0.2, 1),
@@ -1333,51 +708,42 @@ countries_plot <-
     name = NULL
   ) +
   scale_x_discrete(limits = ind_order) +
-  facet_wrap(~str_wrap(country_name, 15), ncol = 10) +
+  facet_wrap(~country_name, ncol = 5, labeller = wrap_labeller) +
   labs(
     title = NULL
   ) +
-  plot_theme
+  plot_country_theme
 
-how_to_plot / countries_plot + plot_layout(heights = c(1, 3))
-
-```
-
-```{r digi_violin, fig.cap="Digital and Data Institutions static CTF", fig.height=14, fig.width=16, fig.dpi=600, warning=F}
-
-family <- "Digital and Data Institutions"
-
-violin_plot(data_clusters, family, params$region)
+free(how_to_plot) + free(countries_plot) + plot_layout(widths = c(1.5, 3.5))
 
 ```
 
+## Social Institutions
 
-## Public Human Resource Management Institutions
+```{r social_radar, fig.cap=NULL, fig.width=fig_width, fig.asp = fig_asp, fig.dpi=600, warning=F, fig.align = "center"}
 
-```{r human_radar, fig.cap="Public Human Resource Management Institutions static CTF", fig.height=12, fig.width=12, fig.dpi=600, warning=F}
-
-family <- "Public Human Resource Management Institutions"
+family <- "Social Institutions"
 
 data_plot <- 
   data_clusters |>
   filter(comparison_group == params$region) |>
   filter(family_name == family) |>
-  filter(base_country == country_name) |>
-  filter(!grepl("Average", var_name))
+  filter(base_country == country_name) #|>
+  #filter(!grepl("Average", var_name))
 
-center_flag <- data |>
-  filter(country_name %in% data_plot$country_name) |>
-  select(
-    country_name, ecb
-  )|>
-  unique() |>
-  mutate(
-    var_name = NA,
-    dtf = 0,
-    status = NA,
-    x = 0,
-    y = 0
-  )
+#center_flag <- data |>
+#  filter(country_name %in% data_plot$country_name) |>
+#  select(
+#    country_name, ecb
+#  )|>
+#  unique() |>
+#  mutate(
+#    var_name = NA,
+#    dtf = 0,
+#    status = NA,
+#    x = 0,
+#    y = 0
+#  )
 
 ind_order <- 
   data_plot |> 
@@ -1385,45 +751,78 @@ ind_order <-
   pull(var_name) |> 
   unique()
 
+average_elements <- ind_order[grep("Average", ind_order)]
+other_elements <- ind_order[!grepl("Average", ind_order)]
+
+ind_order <- c(average_elements, other_elements)
+
+country_order_avg <- 
+  data_plot |>
+  filter(grepl("Average", var_name)) |>
+  arrange(-dtf) |> 
+  pull(country_name)
+
+countries_no_avg <- 
+  data_plot |>
+  filter(!grepl("Average", var_name)) |>
+  filter(!country_name %in% country_order_avg) |> 
+  pull(country_name) |>
+  unique()
+
+country_order <- c(country_order_avg, countries_no_avg)
+
+wrap_labeller <- function(variable, value) {
+  return(str_wrap(as.character(value), width = 12))
+}
+
+data_plot <- data_plot |> 
+  mutate(country_name = factor(country_name, levels = country_order))
+
 how_to_plot <- 
   ggplot(
     data = 
       data_plot |>
       select(var_name) |>
       unique() |>
-      mutate(dtf = runif(n(), min = 0.85, max = 1))
+      mutate(
+        dtf = runif(n(), min = 0.8, max = 0.8),
+        avg_color = ifelse(grepl("Average", var_name), "avg", "ind")
+      ) 
   ) +
   geom_bar(
     aes(
       x = var_name,
-      y = dtf
+      y = dtf,
+      fill = avg_color
     ),
     stat = "identity", 
     color = "transparent", 
     size = 0,
     width = 0.85, 
-    alpha = 0.5, 
-    position = position_stack(),
-    fill = "black"
+    position = position_stack()
   ) +
   coord_curvedpolar(clip = "off") +
   scale_y_continuous(
     limits = c(-0.2, 1.2),
     expand = c(0, 0),
     breaks = c(0.5)
-  ) + 
+  ) +
   scale_x_discrete(
     limits = ind_order,
-    labels = function(x) str_wrap(x, width = 20)
+    labels = function(x) str_wrap(x, width = 10, whitespace_only = F)
+  ) +
+  scale_fill_manual(values = c("avg" = "grey25", "ind" = "grey70")) + 
+  guides(
+    fill = F
   ) +
   labs(
-    title = NULL,
-    caption = paste0("<b> How to read:</b> Each part represents an indicator. The size represents the CTF value and the color indicates the status compared to the group.")
+    title = str_wrap("How to read: Each part represents an indicator. The size represents the CTF value and the color indicates the status compared to the group.", width = 40)
   ) +
   plot_theme +
   theme(
-    axis.text.x = element_text(size = 10, color = "black", vjust = 0.5),
-    plot.caption = element_markdown(size = 14, hjust = 0.5, margin = margin(t = 5, r = 0, b = 10, l = 0))
+    plot.margin = margin(t = 0, r = 0, b = 0, l = 10),
+    axis.text.x = element_text(size = 11, color = "black", vjust = 0.5),
+    plot.title =  element_text(size = 16, hjust = 0, margin = margin(t = 0, r = 0, b = 50, l = 0))
   )
 
 countries_plot <- 
@@ -1443,26 +842,39 @@ countries_plot <-
     alpha = 1, 
     position = position_stack()
   ) +
-  geom_point(
-    data = center_flag,
-    aes(
-      x = ind_order[1], 
-      y = -0.2
-    ),
-    size = 6.25,
-    fill = id_colors$primary,
-    color = "transparent",
-    shape = 21
-  ) +
-  ggflags::geom_flag(
-    data = center_flag,
-    aes(
-      x = ind_order[1], 
-      y = -0.2, 
-      country = ecb
-    ),
-    size = 5
-  ) +
+  #geom_point(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2
+  #  ),
+  #  size = 6,
+  #  color = id_colors$primary,
+  #  fill = "transparent",
+  #  shape = 21,
+  #  stroke = 1.5
+  #) +
+  #geom_point(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2
+  #  ),
+  #  size = 7,
+  #  color = id_colors$primary,
+  #  fill = "transparent",
+  #  shape = 21,
+  #  stroke = 1.25
+  #) +
+  #ggflags::geom_flag(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2, 
+  #    country = ecb
+  #  ),
+  #  size = 6
+  #) +
   coord_curvedpolar(clip = "off") +
   scale_y_continuous(
     limits = c(-0.2, 1),
@@ -1475,28 +887,556 @@ countries_plot <-
     name = NULL
   ) +
   scale_x_discrete(limits = ind_order) +
-  facet_wrap(~str_wrap(country_name, 15), ncol = 10) +
+  facet_wrap(~country_name, ncol = 5, labeller = wrap_labeller) +
   labs(
     title = NULL
   ) +
-  plot_theme
+  plot_country_theme
 
-how_to_plot / countries_plot + plot_layout(heights = c(1, 3))
+free(how_to_plot) + free(countries_plot) + plot_layout(widths = c(2, 3.5))
 
 ```
 
+## Absence of Corruption
 
-```{r human_violin, fig.cap="Public Human Resource Management Institutions static CTF", fig.height=14, fig.width=16, fig.dpi=600, warning=F}
+```{r corruption, fig.cap=NULL, fig.width=fig_width, fig.asp = fig_asp, fig.dpi=600, warning=F, fig.align = "center"}
 
-family <- "Public Human Resource Management Institutions"
+family <- "Absence of Corruption"
 
-violin_plot(data_clusters, family, params$region)
+data_plot <- 
+  data_clusters |>
+  filter(comparison_group == params$region) |>
+  filter(family_name == family) |>
+  filter(base_country == country_name) #|>
+  #filter(!grepl("Average", var_name))
+
+#center_flag <- data |>
+#  filter(country_name %in% data_plot$country_name) |>
+#  select(
+#    country_name, ecb
+#  )|>
+#  unique() |>
+#  mutate(
+#    var_name = NA,
+#    dtf = 0,
+#    status = NA,
+#    x = 0,
+#    y = 0
+#  )
+
+ind_order <- 
+  data_plot |> 
+  arrange(var_name) |> 
+  pull(var_name) |> 
+  unique()
+
+average_elements <- ind_order[grep("Average", ind_order)]
+other_elements <- ind_order[!grepl("Average", ind_order)]
+
+ind_order <- c(average_elements, other_elements)
+
+country_order_avg <- 
+  data_plot |>
+  filter(grepl("Average", var_name)) |>
+  arrange(-dtf) |> 
+  pull(country_name)
+
+countries_no_avg <- 
+  data_plot |>
+  filter(!grepl("Average", var_name)) |>
+  filter(!country_name %in% country_order_avg) |> 
+  pull(country_name) |>
+  unique()
+
+country_order <- c(country_order_avg, countries_no_avg)
+
+wrap_labeller <- function(variable, value) {
+  return(str_wrap(as.character(value), width = 12))
+}
+
+data_plot <- data_plot |> 
+  mutate(country_name = factor(country_name, levels = country_order))
+
+how_to_plot <- 
+  ggplot(
+    data = 
+      data_plot |>
+      select(var_name) |>
+      unique() |>
+      mutate(
+        dtf = runif(n(), min = 0.8, max = 0.8),
+        avg_color = ifelse(grepl("Average", var_name), "avg", "ind")
+      ) 
+  ) +
+  geom_bar(
+    aes(
+      x = var_name,
+      y = dtf,
+      fill = avg_color
+    ),
+    stat = "identity", 
+    color = "transparent", 
+    size = 0,
+    width = 0.85, 
+    position = position_stack()
+  ) +
+  coord_curvedpolar(clip = "off") +
+  scale_y_continuous(
+    limits = c(-0.2, 1.2),
+    expand = c(0, 0),
+    breaks = c(0.5)
+  ) +
+  scale_x_discrete(
+    limits = ind_order,
+    labels = function(x) str_wrap(x, width = 20, whitespace_only = F)
+  ) +
+  scale_fill_manual(values = c("avg" = "grey25", "ind" = "grey70")) + 
+  guides(
+    fill = F
+  ) +
+  labs(
+    title = str_wrap("How to read: Each part represents an indicator. The size represents the CTF value and the color indicates the status compared to the group.", width = 40)
+  ) +
+  plot_theme +
+  theme(
+    plot.margin = margin(t = 0, r = 0, b = 0, l = 10),
+    axis.text.x = element_text(size = 13, color = "black", vjust = 0.5),
+    plot.title =  element_text(size = 16, hjust = 0, margin = margin(t = 0, r = 0, b = 50, l = 0))
+  )
+
+countries_plot <- 
+  ggplot(
+    data = data_plot
+  ) +
+  geom_bar(
+    aes(
+      x = factor(var_name, levels = ind_order),
+      y = dtf,
+      fill = factor(status, levels = status_order)
+    ),
+    stat = "identity", 
+    color = "transparent", 
+    size = 0,
+    width = 0.85, 
+    alpha = 1, 
+    position = position_stack()
+  ) +
+  #geom_point(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2
+  #  ),
+  #  size = 6,
+  #  color = id_colors$primary,
+  #  fill = "transparent",
+  #  shape = 21,
+  #  stroke = 1.5
+  #) +
+  #geom_point(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2
+  #  ),
+  #  size = 7,
+  #  color = id_colors$primary,
+  #  fill = "transparent",
+  #  shape = 21,
+  #  stroke = 1.25
+  #) +
+  #ggflags::geom_flag(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2, 
+  #    country = ecb
+  #  ),
+  #  size = 6
+  #) +
+  coord_curvedpolar(clip = "off") +
+  scale_y_continuous(
+    limits = c(-0.2, 1),
+    expand = c(0, 0),
+    breaks = c(0.5)
+  ) + 
+  scale_fill_manual(
+    na.translate = F,
+    values = colors,
+    name = NULL
+  ) +
+  scale_x_discrete(limits = ind_order) +
+  facet_wrap(~country_name, ncol = 5, labeller = wrap_labeller) +
+  labs(
+    title = NULL
+  ) +
+  plot_country_theme
+
+free(how_to_plot) + free(countries_plot) + plot_layout(widths = c(1.5, 3.5))
+
+```
+
+## Transparency and Accountability Institutions
+
+```{r transp_radar, fig.cap=NULL, fig.width=fig_width, fig.asp = fig_asp, fig.dpi=600, warning=F, fig.align = "center"}
+
+family <- "Transparency and Accountability Institutions"
+
+data_plot <- 
+  data_clusters |>
+  filter(comparison_group == params$region) |>
+  filter(family_name == family) |>
+  filter(base_country == country_name) #|>
+  #filter(!grepl("Average", var_name))
+
+#center_flag <- data |>
+#  filter(country_name %in% data_plot$country_name) |>
+#  select(
+#    country_name, ecb
+#  )|>
+#  unique() |>
+#  mutate(
+#    var_name = NA,
+#    dtf = 0,
+#    status = NA,
+#    x = 0,
+#    y = 0
+#  )
+
+ind_order <- 
+  data_plot |> 
+  arrange(var_name) |> 
+  pull(var_name) |> 
+  unique()
+
+average_elements <- ind_order[grep("Average", ind_order)]
+other_elements <- ind_order[!grepl("Average", ind_order)]
+
+ind_order <- c(average_elements, other_elements)
+
+country_order_avg <- 
+  data_plot |>
+  filter(grepl("Average", var_name)) |>
+  arrange(-dtf) |> 
+  pull(country_name)
+
+countries_no_avg <- 
+  data_plot |>
+  filter(!grepl("Average", var_name)) |>
+  filter(!country_name %in% country_order_avg) |> 
+  pull(country_name) |>
+  unique()
+
+country_order <- c(country_order_avg, countries_no_avg)
+
+data_plot <- data_plot |> 
+  mutate(country_name = factor(country_name, levels = country_order))
+
+how_to_plot <- 
+  ggplot(
+    data = 
+      data_plot |>
+      select(var_name) |>
+      unique() |>
+      mutate(
+        dtf = runif(n(), min = 0.8, max = 0.8),
+        avg_color = ifelse(grepl("Average", var_name), "avg", "ind")
+      ) 
+  ) +
+  geom_bar(
+    aes(
+      x = var_name,
+      y = dtf,
+      fill = avg_color
+    ),
+    stat = "identity", 
+    color = "transparent", 
+    size = 0,
+    width = 0.85, 
+    position = position_stack()
+  ) +
+  coord_curvedpolar(clip = "off") +
+  scale_y_continuous(
+    limits = c(-0.2, 1.2),
+    expand = c(0, 0),
+    breaks = c(0.5)
+  ) +
+  scale_x_discrete(
+    limits = ind_order,
+    labels = function(x) str_wrap(x, width = 9, whitespace_only = F)
+  ) +
+  scale_fill_manual(values = c("avg" = "grey25", "ind" = "grey70")) + 
+  guides(
+    fill = F
+  ) +
+  labs(
+    title = str_wrap("How to read: Each part represents an indicator. The size represents the CTF value and the color indicates the status compared to the group.", width = 40)
+  ) +
+  plot_theme +
+  theme(
+    plot.margin = margin(t = 0, r = 0, b = 0, l = 10),
+    axis.text.x = element_text(size = 13, color = "black", vjust = 0.5),
+    plot.title =  element_text(size = 16, hjust = 0, margin = margin(t = 0, r = 0, b = 50, l = 0))
+  )
+
+countries_plot <- 
+  ggplot(
+    data = data_plot
+  ) +
+  geom_bar(
+    aes(
+      x = factor(var_name, levels = ind_order),
+      y = dtf,
+      fill = factor(status, levels = status_order)
+    ),
+    stat = "identity", 
+    color = "transparent", 
+    size = 0,
+    width = 0.85, 
+    alpha = 1, 
+    position = position_stack()
+  ) +
+  #geom_point(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2
+  #  ),
+  #  size = 6,
+  #  color = id_colors$primary,
+  #  fill = "transparent",
+  #  shape = 21,
+  #  stroke = 1.5
+  #) +
+  #geom_point(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2
+  #  ),
+  #  size = 7,
+  #  color = id_colors$primary,
+  #  fill = "transparent",
+  #  shape = 21,
+  #  stroke = 1.25
+  #) +
+  #ggflags::geom_flag(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2, 
+  #    country = ecb
+  #  ),
+  #  size = 6
+  #) +
+  coord_curvedpolar(clip = "off") +
+  scale_y_continuous(
+    limits = c(-0.2, 1),
+    expand = c(0, 0),
+    breaks = c(0.5)
+  ) + 
+  scale_fill_manual(
+    na.translate = F,
+    values = colors,
+    name = NULL
+  ) +
+  scale_x_discrete(limits = ind_order) +
+  facet_wrap(~country_name, ncol = 5, labeller = wrap_labeller) +
+  labs(
+    title = NULL
+  ) +
+  plot_country_theme
+
+free(how_to_plot) + free(countries_plot) + plot_layout(widths = c(1.5, 3.5))
+
+```
+
+## Justice Institutions
+
+```{r just_radar, fig.cap=NULL, fig.width=fig_width, fig.asp = fig_asp, fig.dpi=600, warning=F, fig.align = "center"}
+
+family <- "Justice Institutions"
+
+data_plot <- 
+  data_clusters |>
+  filter(comparison_group == params$region) |>
+  filter(family_name == family) |>
+  filter(base_country == country_name) #|>
+  #filter(!grepl("Average", var_name))
+
+#center_flag <- data |>
+#  filter(country_name %in% data_plot$country_name) |>
+#  select(
+#    country_name, ecb
+#  )|>
+#  unique() |>
+#  mutate(
+#    var_name = NA,
+#    dtf = 0,
+#    status = NA,
+#    x = 0,
+#    y = 0
+#  )
+
+ind_order <- 
+  data_plot |> 
+  arrange(var_name) |> 
+  pull(var_name) |> 
+  unique()
+
+average_elements <- ind_order[grep("Average", ind_order)]
+other_elements <- ind_order[!grepl("Average", ind_order)]
+
+ind_order <- c(average_elements, other_elements)
+
+country_order_avg <- 
+  data_plot |>
+  filter(grepl("Average", var_name)) |>
+  arrange(-dtf) |> 
+  pull(country_name)
+
+countries_no_avg <- 
+  data_plot |>
+  filter(!grepl("Average", var_name)) |>
+  filter(!country_name %in% country_order_avg) |> 
+  pull(country_name) |>
+  unique()
+
+country_order <- c(country_order_avg, countries_no_avg)
+
+data_plot <- data_plot |> 
+  mutate(country_name = factor(country_name, levels = country_order))
+
+how_to_plot <- 
+  ggplot(
+    data = 
+      data_plot |>
+      select(var_name) |>
+      unique() |>
+      mutate(
+        dtf = runif(n(), min = 0.8, max = 0.8),
+        avg_color = ifelse(grepl("Average", var_name), "avg", "ind")
+      ) 
+  ) +
+  geom_bar(
+    aes(
+      x = var_name,
+      y = dtf,
+      fill = avg_color
+    ),
+    stat = "identity", 
+    color = "transparent", 
+    size = 0,
+    width = 0.85, 
+    position = position_stack()
+  ) +
+  coord_curvedpolar(clip = "off") +
+  scale_y_continuous(
+    limits = c(-0.2, 1.2),
+    expand = c(0, 0),
+    breaks = c(0.5)
+  ) +
+  scale_x_discrete(
+    limits = ind_order,
+    labels = function(x) str_wrap(x, width = 9, whitespace_only = F)
+  ) +
+  scale_fill_manual(values = c("avg" = "grey25", "ind" = "grey70")) + 
+  guides(
+    fill = F
+  ) +
+  labs(
+    title = str_wrap("How to read: Each part represents an indicator. The size represents the CTF value and the color indicates the status compared to the group.", width = 40)
+  ) +
+  plot_theme +
+  theme(
+    plot.margin = margin(t = 0, r = 0, b = 0, l = 10),
+    axis.text.x = element_text(size = 10, color = "black", vjust = 0.5),
+    plot.title =  element_text(size = 16, hjust = 0, margin = margin(t = 0, r = 0, b = 50, l = 0))
+  )
+
+countries_plot <- 
+  ggplot(
+    data = data_plot
+  ) +
+  geom_bar(
+    aes(
+      x = factor(var_name, levels = ind_order),
+      y = dtf,
+      fill = factor(status, levels = status_order)
+    ),
+    stat = "identity", 
+    color = "transparent", 
+    size = 0,
+    width = 0.85, 
+    alpha = 1, 
+    position = position_stack()
+  ) +
+  #geom_point(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2
+  #  ),
+  #  size = 6,
+  #  color = id_colors$primary,
+  #  fill = "transparent",
+  #  shape = 21,
+  #  stroke = 1.5
+  #) +
+  #geom_point(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2
+  #  ),
+  #  size = 7,
+  #  color = id_colors$primary,
+  #  fill = "transparent",
+  #  shape = 21,
+  #  stroke = 1.25
+  #) +
+  #ggflags::geom_flag(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2, 
+  #    country = ecb
+  #  ),
+  #  size = 6
+  #) +
+  coord_curvedpolar(clip = "off") +
+  scale_y_continuous(
+    limits = c(-0.2, 1),
+    expand = c(0, 0),
+    breaks = c(0.5)
+  ) + 
+  scale_fill_manual(
+    na.translate = F,
+    values = colors,
+    name = NULL
+  ) +
+  scale_x_discrete(limits = ind_order) +
+  facet_wrap(~country_name, ncol = 5, labeller = wrap_labeller) +
+  labs(
+    title = NULL
+  ) +
+  plot_country_theme
+
+free(how_to_plot) + free(countries_plot) + plot_layout(widths = c(2, 3))
+
+```
+
+```{r just_violin, fig.cap="Justice Institutions static CTF", fig.height=14, fig.width=16, fig.dpi=600, warning=F}
+
+#family <- "Justice Institutions"
+
+#violin_plot(data_clusters, family, params$region)
 
 ```
 
 ## Public Finance Institutions
 
-```{r finan_radar, fig.cap="Public Finance Institutions static CTF", fig.height=15, fig.width=12, fig.dpi=600, warning=F}
+```{r finan_radar, fig.cap=NULL, fig.width=fig_width, fig.asp = fig_asp, fig.dpi=600, warning=F, fig.align = "center"}
 
 family <- "Public Finance Institutions"
 
@@ -1504,22 +1444,22 @@ data_plot <-
   data_clusters |>
   filter(comparison_group == params$region) |>
   filter(family_name == family) |>
-  filter(base_country == country_name) |>
-  filter(!grepl("Average", var_name))
+  filter(base_country == country_name) #|>
+  #filter(!grepl("Average", var_name))
 
-center_flag <- data |>
-  filter(country_name %in% data_plot$country_name) |>
-  select(
-    country_name, ecb
-  )|>
-  unique() |>
-  mutate(
-    var_name = NA,
-    dtf = 0,
-    status = NA,
-    x = 0,
-    y = 0
-  )
+#center_flag <- data |>
+#  filter(country_name %in% data_plot$country_name) |>
+#  select(
+#    country_name, ecb
+#  )|>
+#  unique() |>
+#  mutate(
+#    var_name = NA,
+#    dtf = 0,
+#    status = NA,
+#    x = 0,
+#    y = 0
+#  )
 
 ind_order <- 
   data_plot |> 
@@ -1527,45 +1467,74 @@ ind_order <-
   pull(var_name) |> 
   unique()
 
+average_elements <- ind_order[grep("Average", ind_order)]
+other_elements <- ind_order[!grepl("Average", ind_order)]
+
+ind_order <- c(average_elements, other_elements)
+
+country_order_avg <- 
+  data_plot |>
+  filter(grepl("Average", var_name)) |>
+  arrange(-dtf) |> 
+  pull(country_name)
+
+countries_no_avg <- 
+  data_plot |>
+  filter(!grepl("Average", var_name)) |>
+  filter(!country_name %in% country_order_avg) |> 
+  pull(country_name) |>
+  unique()
+
+country_order <- c(country_order_avg, countries_no_avg)
+
+data_plot <- data_plot |> 
+  mutate(country_name = factor(country_name, levels = country_order))
+
 how_to_plot <- 
   ggplot(
     data = 
       data_plot |>
       select(var_name) |>
       unique() |>
-      mutate(dtf = runif(n(), min = 0.85, max = 1))
+      mutate(
+        dtf = runif(n(), min = 0.8, max = 0.8),
+        avg_color = ifelse(grepl("Average", var_name), "avg", "ind")
+      ) 
   ) +
   geom_bar(
     aes(
       x = var_name,
-      y = dtf
+      y = dtf,
+      fill = avg_color
     ),
     stat = "identity", 
     color = "transparent", 
     size = 0,
     width = 0.85, 
-    alpha = 0.5, 
-    position = position_stack(),
-    fill = "black"
+    position = position_stack()
   ) +
   coord_curvedpolar(clip = "off") +
   scale_y_continuous(
     limits = c(-0.2, 1.2),
     expand = c(0, 0),
     breaks = c(0.5)
-  ) + 
+  ) +
   scale_x_discrete(
     limits = ind_order,
-    labels = function(x) str_wrap(x, width = 8)
+    labels = function(x) str_wrap(x, width = 9, whitespace_only = F)
+  ) +
+  scale_fill_manual(values = c("avg" = "grey25", "ind" = "grey70")) + 
+  guides(
+    fill = F
   ) +
   labs(
-    title = NULL,
-    caption = paste0("<b> How to read:</b> Each part represents an indicator. The size represents the CTF value and the color indicates the status compared to the group.")
+    title = str_wrap("How to read: Each part represents an indicator. The size represents the CTF value and the color indicates the status compared to the group.", width = 40)
   ) +
   plot_theme +
   theme(
-    axis.text.x = element_text(size = 7, color = "black", vjust = 0.5),
-    plot.caption = element_markdown(size = 14, hjust = 0.5, margin = margin(t = 5, r = 0, b = 10, l = 0))
+    plot.margin = margin(t = 0, r = 0, b = 0, l = 10),
+    axis.text.x = element_text(size = 9, color = "black", vjust = 0.5),
+    plot.title =  element_text(size = 16, hjust = 0, margin = margin(t = 0, r = 0, b = 50, l = 0))
   )
 
 countries_plot <- 
@@ -1585,26 +1554,39 @@ countries_plot <-
     alpha = 1, 
     position = position_stack()
   ) +
-  geom_point(
-    data = center_flag,
-    aes(
-      x = ind_order[1], 
-      y = -0.2
-    ),
-    size = 6.25,
-    fill = id_colors$primary,
-    color = "transparent",
-    shape = 21
-  ) +
-  ggflags::geom_flag(
-    data = center_flag,
-    aes(
-      x = ind_order[1], 
-      y = -0.2, 
-      country = ecb
-    ),
-    size = 5
-  ) +
+  #geom_point(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2
+  #  ),
+  #  size = 6,
+  #  color = id_colors$primary,
+  #  fill = "transparent",
+  #  shape = 21,
+  #  stroke = 1.5
+  #) +
+  #geom_point(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2
+  #  ),
+  #  size = 7,
+  #  color = id_colors$primary,
+  #  fill = "transparent",
+  #  shape = 21,
+  #  stroke = 1.25
+  #) +
+  #ggflags::geom_flag(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2, 
+  #    country = ecb
+  #  ),
+  #  size = 6
+  #) +
   coord_curvedpolar(clip = "off") +
   scale_y_continuous(
     limits = c(-0.2, 1),
@@ -1617,52 +1599,51 @@ countries_plot <-
     name = NULL
   ) +
   scale_x_discrete(limits = ind_order) +
-  facet_wrap(~str_wrap(country_name, 15), ncol = 10) +
+  facet_wrap(~country_name, ncol = 5, labeller = wrap_labeller) +
   labs(
     title = NULL
   ) +
-  plot_theme
+  plot_country_theme
 
-how_to_plot / countries_plot + plot_layout(heights = c(1, 2))
+free(how_to_plot) + free(countries_plot) + plot_layout(widths = c(1, 1))
 
 ```
 
 
 ```{r finance_violin, fig.cap="Public Finance Institutions static CTF", fig.height=14, fig.width=16, fig.dpi=600, warning=F}
 
-family <- "Public Finance Institutions"
+#family <- "Public Finance Institutions"
 
-violin_plot(data_clusters, family, params$region)
+#violin_plot(data_clusters, family, params$region)
 
 ```
 
+## Public Human Resource Management Institutions
 
-## Justice Institutions
+```{r human_radar, fig.cap=NULL, fig.width=fig_width, fig.asp = fig_asp, fig.dpi=600, warning=F, fig.align = "center"}
 
-```{r just_radar, fig.cap="Justice Institutions static CTF", fig.height=12, fig.width=12, fig.dpi=600, warning=F}
-
-family <- "Justice Institutions"
+family <- "Public Human Resource Management Institutions"
 
 data_plot <- 
   data_clusters |>
   filter(comparison_group == params$region) |>
   filter(family_name == family) |>
-  filter(base_country == country_name) |>
-  filter(!grepl("Average", var_name))
+  filter(base_country == country_name) #|>
+  #filter(!grepl("Average", var_name))
 
-center_flag <- data |>
-  filter(country_name %in% data_plot$country_name) |>
-  select(
-    country_name, ecb
-  )|>
-  unique() |>
-  mutate(
-    var_name = NA,
-    dtf = 0,
-    status = NA,
-    x = 0,
-    y = 0
-  )
+#center_flag <- data |>
+#  filter(country_name %in% data_plot$country_name) |>
+#  select(
+#    country_name, ecb
+#  )|>
+#  unique() |>
+#  mutate(
+#    var_name = NA,
+#    dtf = 0,
+#    status = NA,
+#    x = 0,
+#    y = 0
+#  )
 
 ind_order <- 
   data_plot |> 
@@ -1670,45 +1651,1199 @@ ind_order <-
   pull(var_name) |> 
   unique()
 
+average_elements <- ind_order[grep("Average", ind_order)]
+other_elements <- ind_order[!grepl("Average", ind_order)]
+
+ind_order <- c(average_elements, other_elements)
+
+country_order_avg <- 
+  data_plot |>
+  filter(grepl("Average", var_name)) |>
+  arrange(-dtf) |> 
+  pull(country_name)
+
+countries_no_avg <- 
+  data_plot |>
+  filter(!grepl("Average", var_name)) |>
+  filter(!country_name %in% country_order_avg) |> 
+  pull(country_name) |>
+  unique()
+
+country_order <- c(country_order_avg, countries_no_avg)
+
+data_plot <- data_plot |> 
+  mutate(country_name = factor(country_name, levels = country_order))
+
 how_to_plot <- 
   ggplot(
     data = 
       data_plot |>
       select(var_name) |>
       unique() |>
-      mutate(dtf = runif(n(), min = 0.85, max = 1))
+      mutate(
+        dtf = runif(n(), min = 0.8, max = 0.8),
+        avg_color = ifelse(grepl("Average", var_name), "avg", "ind")
+      ) 
   ) +
   geom_bar(
     aes(
       x = var_name,
-      y = dtf
+      y = dtf,
+      fill = avg_color
     ),
     stat = "identity", 
     color = "transparent", 
     size = 0,
     width = 0.85, 
-    alpha = 0.5, 
-    position = position_stack(),
-    fill = "black"
+    position = position_stack()
   ) +
   coord_curvedpolar(clip = "off") +
   scale_y_continuous(
     limits = c(-0.2, 1.2),
     expand = c(0, 0),
     breaks = c(0.5)
-  ) + 
+  ) +
   scale_x_discrete(
     limits = ind_order,
-    labels = function(x) str_wrap(x, width = 12)
+    labels = function(x) str_wrap(x, width = 15, whitespace_only = F)
+  ) +
+  scale_fill_manual(values = c("avg" = "grey25", "ind" = "grey70")) + 
+  guides(
+    fill = F
   ) +
   labs(
-    title = NULL,
-    caption = paste0("<b> How to read:</b> Each part represents an indicator. The size represents the CTF value and the color indicates the status compared to the group.")
+    title = str_wrap("How to read: Each part represents an indicator. The size represents the CTF value and the color indicates the status compared to the group.", width = 40)
   ) +
   plot_theme +
   theme(
+    plot.margin = margin(t = 0, r = 0, b = 0, l = 10),
+    axis.text.x = element_text(size = 13, color = "black", vjust = 0.5),
+    plot.title =  element_text(size = 16, hjust = 0, margin = margin(t = 0, r = 0, b = 50, l = 0))
+  )
+
+countries_plot <- 
+  ggplot(
+    data = data_plot
+  ) +
+  geom_bar(
+    aes(
+      x = factor(var_name, levels = ind_order),
+      y = dtf,
+      fill = factor(status, levels = status_order)
+    ),
+    stat = "identity", 
+    color = "transparent", 
+    size = 0,
+    width = 0.85, 
+    alpha = 1, 
+    position = position_stack()
+  ) +
+  #geom_point(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2
+  #  ),
+  #  size = 6,
+  #  color = id_colors$primary,
+  #  fill = "transparent",
+  #  shape = 21,
+  #  stroke = 1.5
+  #) +
+  #geom_point(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2
+  #  ),
+  #  size = 7,
+  #  color = id_colors$primary,
+  #  fill = "transparent",
+  #  shape = 21,
+  #  stroke = 1.25
+  #) +
+  #ggflags::geom_flag(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2, 
+  #    country = ecb
+  #  ),
+  #  size = 6
+  #) +
+  coord_curvedpolar(clip = "off") +
+  scale_y_continuous(
+    limits = c(-0.2, 1),
+    expand = c(0, 0),
+    breaks = c(0.5)
+  ) + 
+  scale_fill_manual(
+    na.translate = F,
+    values = colors,
+    name = NULL
+  ) +
+  scale_x_discrete(limits = ind_order) +
+  facet_wrap(~country_name, ncol = 5, labeller = wrap_labeller) +
+  labs(
+    title = NULL
+  ) +
+  plot_country_theme
+
+free(how_to_plot) + free(countries_plot) + plot_layout(widths = c(1.5, 3.5))
+
+```
+
+
+```{r human_violin, fig.cap="Public Human Resource Management Institutions static CTF", fig.height=14, fig.width=16, fig.dpi=600, warning=F}
+
+#family <- "Public Human Resource Management Institutions"
+
+#violin_plot(data_clusters, family, params$region)
+
+```
+
+## Digital and Data Institutions
+
+```{r digital_radar, fig.cap=NULL, fig.width=fig_width, fig.asp = fig_asp, fig.dpi=600, warning=F, fig.align = "center"}
+
+family <- "Digital and Data Institutions"
+
+data_plot <- 
+  data_clusters |>
+  filter(comparison_group == params$region) |>
+  filter(family_name == family) |>
+  filter(base_country == country_name) #|>
+  #filter(!grepl("Average", var_name))
+
+#center_flag <- data |>
+#  filter(country_name %in% data_plot$country_name) |>
+#  select(
+#    country_name, ecb
+#  )|>
+#  unique() |>
+#  mutate(
+#    var_name = NA,
+#    dtf = 0,
+#    status = NA,
+#    x = 0,
+#    y = 0
+#  )
+
+ind_order <- 
+  data_plot |> 
+  arrange(var_name) |> 
+  pull(var_name) |> 
+  unique()
+
+average_elements <- ind_order[grep("Average", ind_order)]
+other_elements <- ind_order[!grepl("Average", ind_order)]
+
+ind_order <- c(average_elements, other_elements)
+
+country_order_avg <- 
+  data_plot |>
+  filter(grepl("Average", var_name)) |>
+  arrange(-dtf) |> 
+  pull(country_name)
+
+countries_no_avg <- 
+  data_plot |>
+  filter(!grepl("Average", var_name)) |>
+  filter(!country_name %in% country_order_avg) |> 
+  pull(country_name) |>
+  unique()
+
+country_order <- c(country_order_avg, countries_no_avg)
+
+data_plot <- data_plot |> 
+  mutate(country_name = factor(country_name, levels = country_order))
+
+how_to_plot <- 
+  ggplot(
+    data = 
+      data_plot |>
+      select(var_name) |>
+      unique() |>
+      mutate(
+        dtf = runif(n(), min = 0.8, max = 0.8),
+        avg_color = ifelse(grepl("Average", var_name), "avg", "ind")
+      ) 
+  ) +
+  geom_bar(
+    aes(
+      x = var_name,
+      y = dtf,
+      fill = avg_color
+    ),
+    stat = "identity", 
+    color = "transparent", 
+    size = 0,
+    width = 0.85, 
+    position = position_stack()
+  ) +
+  coord_curvedpolar(clip = "off") +
+  scale_y_continuous(
+    limits = c(-0.2, 1.2),
+    expand = c(0, 0),
+    breaks = c(0.5)
+  ) +
+  scale_x_discrete(
+    limits = ind_order,
+    labels = function(x) str_wrap(x, width = 15, whitespace_only = F)
+  ) +
+  scale_fill_manual(values = c("avg" = "grey25", "ind" = "grey70")) + 
+  guides(
+    fill = F
+  ) +
+  labs(
+    title = str_wrap("How to read: Each part represents an indicator. The size represents the CTF value and the color indicates the status compared to the group.", width = 40)
+  ) +
+  plot_theme +
+  theme(
+    plot.margin = margin(t = 0, r = 0, b = 0, l = 10),
+    axis.text.x = element_text(size = 13, color = "black", vjust = 0.5),
+    plot.title =  element_text(size = 16, hjust = 0, margin = margin(t = 0, r = 0, b = 50, l = 0))
+  )
+
+countries_plot <- 
+  ggplot(
+    data = data_plot
+  ) +
+  geom_bar(
+    aes(
+      x = factor(var_name, levels = ind_order),
+      y = dtf,
+      fill = factor(status, levels = status_order)
+    ),
+    stat = "identity", 
+    color = "transparent", 
+    size = 0,
+    width = 0.85, 
+    alpha = 1, 
+    position = position_stack()
+  ) +
+  #geom_point(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2
+  #  ),
+  #  size = 6,
+  #  color = id_colors$primary,
+  #  fill = "transparent",
+  #  shape = 21,
+  #  stroke = 1.5
+  #) +
+  #geom_point(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2
+  #  ),
+  #  size = 7,
+  #  color = id_colors$primary,
+  #  fill = "transparent",
+  #  shape = 21,
+  #  stroke = 1.25
+  #) +
+  #ggflags::geom_flag(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2, 
+  #    country = ecb
+  #  ),
+  #  size = 6
+  #) +
+  coord_curvedpolar(clip = "off") +
+  scale_y_continuous(
+    limits = c(-0.2, 1),
+    expand = c(0, 0),
+    breaks = c(0.5)
+  ) + 
+  scale_fill_manual(
+    na.translate = F,
+    values = colors,
+    name = NULL
+  ) +
+  scale_x_discrete(limits = ind_order) +
+  facet_wrap(~country_name, ncol = 5, labeller = wrap_labeller) +
+  labs(
+    title = NULL
+  ) +
+  plot_country_theme
+
+free(how_to_plot) + free(countries_plot) + plot_layout(widths = c(1.5, 3.5))
+
+```
+
+```{r digi_violin, fig.cap="Digital and Data Institutions static CTF", fig.height=14, fig.width=16, fig.dpi=600, warning=F}
+
+#family <- "Digital and Data Institutions"
+
+#violin_plot(data_clusters, family, params$region)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Business Environment
+
+```{r business_radar, fig.cap=NULL, fig.width=fig_width, fig.asp = fig_asp, fig.dpi=600, warning=F, fig.align = "center"}
+
+family <- "Business Environment"
+
+data_plot <- 
+  data_clusters |>
+  filter(comparison_group == params$region) |>
+  filter(family_name == family) |>
+  filter(base_country == country_name) #|>
+  #filter(!grepl("Average", var_name))
+
+#center_flag <- data |>
+#  filter(country_name %in% data_plot$country_name) |>
+#  select(
+#    country_name, ecb
+#  )|>
+#  unique() |>
+#  mutate(
+#    var_name = NA,
+#    dtf = 0,
+#    status = NA,
+#    x = 0,
+#    y = 0
+#  )
+
+ind_order <- 
+  data_plot |> 
+  arrange(var_name) |> 
+  pull(var_name) |> 
+  unique()
+
+average_elements <- ind_order[grep("Average", ind_order)]
+other_elements <- ind_order[!grepl("Average", ind_order)]
+
+ind_order <- c(average_elements, other_elements)
+
+country_order_avg <- 
+  data_plot |>
+  filter(grepl("Average", var_name)) |>
+  arrange(-dtf) |> 
+  pull(country_name)
+
+countries_no_avg <- 
+  data_plot |>
+  filter(!grepl("Average", var_name)) |>
+  filter(!country_name %in% country_order_avg) |> 
+  pull(country_name) |>
+  unique()
+
+country_order <- c(country_order_avg, countries_no_avg)
+
+data_plot <- data_plot |> 
+  mutate(country_name = factor(country_name, levels = country_order))
+
+how_to_plot <- 
+  ggplot(
+    data = 
+      data_plot |>
+      select(var_name) |>
+      unique() |>
+      mutate(
+        dtf = runif(n(), min = 0.8, max = 0.8),
+        avg_color = ifelse(grepl("Average", var_name), "avg", "ind")
+      ) 
+  ) +
+  geom_bar(
+    aes(
+      x = var_name,
+      y = dtf,
+      fill = avg_color
+    ),
+    stat = "identity", 
+    color = "transparent", 
+    size = 0,
+    width = 0.85, 
+    position = position_stack()
+  ) +
+  coord_curvedpolar(clip = "off") +
+  scale_y_continuous(
+    limits = c(-0.2, 1.2),
+    expand = c(0, 0),
+    breaks = c(0.5)
+  ) +
+  scale_x_discrete(
+    limits = ind_order,
+    labels = function(x) str_wrap(x, width = 9, whitespace_only = F)
+  ) +
+  scale_fill_manual(values = c("avg" = "grey25", "ind" = "grey70")) + 
+  guides(
+    fill = F
+  ) +
+  labs(
+    title = str_wrap("How to read: Each part represents an indicator. The size represents the CTF value and the color indicates the status compared to the group.", width = 40)
+  ) +
+  plot_theme +
+  theme(
+    plot.margin = margin(t = 0, r = 0, b = 0, l = 10),
+    axis.text.x = element_text(size = 13, color = "black", vjust = 0.5),
+    plot.title =  element_text(size = 16, hjust = 0, margin = margin(t = 0, r = 0, b = 50, l = 0))
+  )
+
+countries_plot <- 
+  ggplot(
+    data = data_plot
+  ) +
+  geom_bar(
+    aes(
+      x = factor(var_name, levels = ind_order),
+      y = dtf,
+      fill = factor(status, levels = status_order)
+    ),
+    stat = "identity", 
+    color = "transparent", 
+    size = 0,
+    width = 0.85, 
+    alpha = 1, 
+    position = position_stack()
+  ) +
+  #geom_point(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2
+  #  ),
+  #  size = 6,
+  #  color = id_colors$primary,
+  #  fill = "transparent",
+  #  shape = 21,
+  #  stroke = 1.5
+  #) +
+  #geom_point(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2
+  #  ),
+  #  size = 7,
+  #  color = id_colors$primary,
+  #  fill = "transparent",
+  #  shape = 21,
+  #  stroke = 1.25
+  #) +
+  #ggflags::geom_flag(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2, 
+  #    country = ecb
+  #  ),
+  #  size = 6
+  #) +
+  coord_curvedpolar(clip = "off") +
+  scale_y_continuous(
+    limits = c(-0.2, 1),
+    expand = c(0, 0),
+    breaks = c(0.5)
+  ) + 
+  scale_fill_manual(
+    na.translate = F,
+    values = colors,
+    name = NULL
+  ) +
+  scale_x_discrete(limits = ind_order) +
+  facet_wrap(~country_name, ncol = 5, labeller = wrap_labeller) +
+  labs(
+    title = NULL
+  ) +
+  plot_country_theme
+
+free(how_to_plot) + free(countries_plot) + plot_layout(widths = c(1.5, 3.5))
+
+```
+
+```{r busi_violin, fig.cap="Business Environment static CTF", fig.height=14, fig.width=16, fig.dpi=600, warning=F}
+
+#family <- "Business Environment"
+
+#violin_plot(data_clusters, family, params$region)
+
+```
+
+## SOE Corporate Governance
+
+```{r soe_radar, fig.cap=NULL, fig.width=fig_width, fig.asp = fig_asp, fig.dpi=600, warning=F, fig.align = "center"}
+
+family <- "SOE Corporate Governance"
+
+data_plot <- 
+  data_clusters |>
+  filter(comparison_group == params$region) |>
+  filter(family_name == family) |>
+  filter(base_country == country_name) #|>
+  #filter(!grepl("Average", var_name))
+
+if(nrow(data_plot)>0){
+
+#center_flag <- data |>
+#  filter(country_name %in% data_plot$country_name) |>
+#  select(
+#    country_name, ecb
+#  )|>
+#  unique() |>
+#  mutate(
+#    var_name = NA,
+#    dtf = 0,
+#    status = NA,
+#    x = 0,
+#    y = 0
+#  )
+
+ind_order <- 
+  data_plot |> 
+  arrange(var_name) |> 
+  pull(var_name) |> 
+  unique()
+
+average_elements <- ind_order[grep("Average", ind_order)]
+other_elements <- ind_order[!grepl("Average", ind_order)]
+
+ind_order <- c(average_elements, other_elements)
+
+country_order_avg <- 
+  data_plot |>
+  filter(grepl("Average", var_name)) |>
+  arrange(-dtf) |> 
+  pull(country_name)
+
+countries_no_avg <- 
+  data_plot |>
+  filter(!grepl("Average", var_name)) |>
+  filter(!country_name %in% country_order_avg) |> 
+  pull(country_name) |>
+  unique()
+
+country_order <- c(country_order_avg, countries_no_avg)
+
+data_plot <- data_plot |> 
+  mutate(country_name = factor(country_name, levels = country_order))
+
+how_to_plot <- 
+  ggplot(
+    data = 
+      data_plot |>
+      select(var_name) |>
+      unique() |>
+      mutate(
+        dtf = runif(n(), min = 0.8, max = 0.8),
+        avg_color = ifelse(grepl("Average", var_name), "avg", "ind")
+      ) 
+  ) +
+  geom_bar(
+    aes(
+      x = var_name,
+      y = dtf,
+      fill = avg_color
+    ),
+    stat = "identity", 
+    color = "transparent", 
+    size = 0,
+    width = 0.85, 
+    position = position_stack()
+  ) +
+  coord_curvedpolar(clip = "off") +
+  scale_y_continuous(
+    limits = c(-0.2, 1.2),
+    expand = c(0, 0),
+    breaks = c(0.5)
+  ) +
+  scale_x_discrete(
+    limits = ind_order,
+    labels = function(x) str_wrap(x, width = 15, whitespace_only = F)
+  ) +
+  scale_fill_manual(values = c("avg" = "grey25", "ind" = "grey70")) + 
+  guides(
+    fill = F
+  ) +
+  labs(
+    title = str_wrap("How to read: Each part represents an indicator. The size represents the CTF value and the color indicates the status compared to the group.", width = 40)
+  ) +
+  plot_theme +
+  theme(
+    plot.margin = margin(t = 0, r = 0, b = 0, l = 10),
+    axis.text.x = element_text(size = 13, color = "black", vjust = 0.5),
+    plot.title =  element_text(size = 16, hjust = 0, margin = margin(t = 0, r = 0, b = 50, l = 0))
+  )
+
+countries_plot <- 
+  ggplot(
+    data = data_plot
+  ) +
+  geom_bar(
+    aes(
+      x = factor(var_name, levels = ind_order),
+      y = dtf,
+      fill = factor(status, levels = status_order)
+    ),
+    stat = "identity", 
+    color = "transparent", 
+    size = 0,
+    width = 0.85, 
+    alpha = 1, 
+    position = position_stack()
+  ) +
+  #geom_point(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2
+  #  ),
+  #  size = 6,
+  #  color = id_colors$primary,
+  #  fill = "transparent",
+  #  shape = 21,
+  #  stroke = 1.5
+  #) +
+  #geom_point(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2
+  #  ),
+  #  size = 7,
+  #  color = id_colors$primary,
+  #  fill = "transparent",
+  #  shape = 21,
+  #  stroke = 1.25
+  #) +
+  #ggflags::geom_flag(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2, 
+  #    country = ecb
+  #  ),
+  #  size = 6
+  #) +
+  coord_curvedpolar(clip = "off") +
+  scale_y_continuous(
+    limits = c(-0.2, 1),
+    expand = c(0, 0),
+    breaks = c(0.5)
+  ) + 
+  scale_fill_manual(
+    na.translate = F,
+    values = colors,
+    name = NULL
+  ) +
+  scale_x_discrete(limits = ind_order) +
+  facet_wrap(~country_name, ncol = 5, labeller = wrap_labeller) +
+  labs(
+    title = NULL
+  ) +
+  plot_country_theme
+
+free(how_to_plot) + free(countries_plot) + plot_layout(widths = c(1.5, 3.5))
+
+} else (paste0("No data available."))
+
+```
+
+```{r soe_violin, fig.cap="SOE Corporate Governance static CTF", fig.height=14, fig.width=16, fig.dpi=600, warning=F}
+
+#family <- "SOE Corporate Governance"
+
+#violin_plot(data_clusters, family, params$region)
+
+```
+
+
+## Labor and Social Protection Institutions
+
+```{r labor_radar, fig.cap=NULL, fig.width=fig_width, fig.asp = fig_asp, fig.dpi=600, warning=F, fig.align = "center"}
+
+family <- "Labor and Social Protection Institutions"
+
+data_plot <- 
+  data_clusters |>
+  filter(comparison_group == params$region) |>
+  filter(family_name == family) |>
+  filter(base_country == country_name) #|>
+  #filter(!grepl("Average", var_name))
+
+#center_flag <- data |>
+#  filter(country_name %in% data_plot$country_name) |>
+#  select(
+#    country_name, ecb
+#  )|>
+#  unique() |>
+#  mutate(
+#    var_name = NA,
+#    dtf = 0,
+#    status = NA,
+#    x = 0,
+#    y = 0
+#  )
+
+ind_order <- 
+  data_plot |> 
+  arrange(var_name) |> 
+  pull(var_name) |> 
+  unique()
+
+average_elements <- ind_order[grep("Average", ind_order)]
+other_elements <- ind_order[!grepl("Average", ind_order)]
+
+ind_order <- c(average_elements, other_elements)
+
+country_order_avg <- 
+  data_plot |>
+  filter(grepl("Average", var_name)) |>
+  arrange(-dtf) |> 
+  pull(country_name)
+
+countries_no_avg <- 
+  data_plot |>
+  filter(!grepl("Average", var_name)) |>
+  filter(!country_name %in% country_order_avg) |> 
+  pull(country_name) |>
+  unique()
+
+country_order <- c(country_order_avg, countries_no_avg)
+
+data_plot <- data_plot |> 
+  mutate(country_name = factor(country_name, levels = country_order))
+
+how_to_plot <- 
+  ggplot(
+    data = 
+      data_plot |>
+      select(var_name) |>
+      unique() |>
+      mutate(
+        dtf = runif(n(), min = 0.8, max = 0.8),
+        avg_color = ifelse(grepl("Average", var_name), "avg", "ind")
+      ) 
+  ) +
+  geom_bar(
+    aes(
+      x = var_name,
+      y = dtf,
+      fill = avg_color
+    ),
+    stat = "identity", 
+    color = "transparent", 
+    size = 0,
+    width = 0.85, 
+    position = position_stack()
+  ) +
+  coord_curvedpolar(clip = "off") +
+  scale_y_continuous(
+    limits = c(-0.2, 1.2),
+    expand = c(0, 0),
+    breaks = c(0.5)
+  ) +
+  scale_x_discrete(
+    limits = ind_order,
+    labels = function(x) str_wrap(x, width = 15, whitespace_only = F)
+  ) +
+  scale_fill_manual(values = c("avg" = "grey25", "ind" = "grey70")) + 
+  guides(
+    fill = F
+  ) +
+  labs(
+    title = str_wrap("How to read: Each part represents an indicator. The size represents the CTF value and the color indicates the status compared to the group.", width = 40)
+  ) +
+  plot_theme +
+  theme(
+    plot.margin = margin(t = 0, r = 0, b = 0, l = 10),
+    axis.text.x = element_text(size = 13, color = "black", vjust = 0.5),
+    plot.title =  element_text(size = 16, hjust = 0, margin = margin(t = 0, r = 0, b = 50, l = 0))
+  )
+
+countries_plot <- 
+  ggplot(
+    data = data_plot
+  ) +
+  geom_bar(
+    aes(
+      x = factor(var_name, levels = ind_order),
+      y = dtf,
+      fill = factor(status, levels = status_order)
+    ),
+    stat = "identity", 
+    color = "transparent", 
+    size = 0,
+    width = 0.85, 
+    alpha = 1, 
+    position = position_stack()
+  ) +
+  #geom_point(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2
+  #  ),
+  #  size = 6,
+  #  color = id_colors$primary,
+  #  fill = "transparent",
+  #  shape = 21,
+  #  stroke = 1.5
+  #) +
+  #geom_point(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2
+  #  ),
+  #  size = 7,
+  #  color = id_colors$primary,
+  #  fill = "transparent",
+  #  shape = 21,
+  #  stroke = 1.25
+  #) +
+  #ggflags::geom_flag(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2, 
+  #    country = ecb
+  #  ),
+  #  size = 6
+  #) +
+  coord_curvedpolar(clip = "off") +
+  scale_y_continuous(
+    limits = c(-0.2, 1),
+    expand = c(0, 0),
+    breaks = c(0.5)
+  ) + 
+  scale_fill_manual(
+    na.translate = F,
+    values = colors,
+    name = NULL
+  ) +
+  scale_x_discrete(limits = ind_order) +
+  facet_wrap(~country_name, ncol = 5, labeller = wrap_labeller) +
+  labs(
+    title = NULL
+  ) +
+  plot_country_theme
+
+free(how_to_plot) + free(countries_plot) + plot_layout(widths = c(1.5, 3.5))
+
+```
+
+```{r labor_violin, fig.cap="Labor and Social Protection Institutions static CTF", fig.height=14, fig.width=16, fig.dpi=600, warning=F}
+
+#family <- "Labor and Social Protection Institutions"
+
+#violin_plot(data_clusters, family, params$region)
+
+```
+
+
+## Service Delivery Institutions
+
+```{r service_radar, fig.cap=NULL, fig.width=fig_width, fig.asp = fig_asp, fig.dpi=600, warning=F, fig.align = "center"}
+
+family <- "Service Delivery Institutions"
+
+data_plot <- 
+  data_clusters |>
+  filter(comparison_group == params$region) |>
+  filter(family_name == family) |>
+  filter(base_country == country_name) #|>
+  #filter(!grepl("Average", var_name))
+
+#center_flag <- data |>
+#  filter(country_name %in% data_plot$country_name) |>
+#  select(
+#    country_name, ecb
+#  )|>
+#  unique() |>
+#  mutate(
+#    var_name = NA,
+#    dtf = 0,
+#    status = NA,
+#    x = 0,
+#    y = 0
+#  )
+
+ind_order <- 
+  data_plot |> 
+  arrange(var_name) |> 
+  pull(var_name) |> 
+  unique()
+
+average_elements <- ind_order[grep("Average", ind_order)]
+other_elements <- ind_order[!grepl("Average", ind_order)]
+
+ind_order <- c(average_elements, other_elements)
+
+country_order_avg <- 
+  data_plot |>
+  filter(grepl("Average", var_name)) |>
+  arrange(-dtf) |> 
+  pull(country_name)
+
+countries_no_avg <- 
+  data_plot |>
+  filter(!grepl("Average", var_name)) |>
+  filter(!country_name %in% country_order_avg) |> 
+  pull(country_name) |>
+  unique()
+
+country_order <- c(country_order_avg, countries_no_avg)
+
+data_plot <- data_plot |> 
+  mutate(country_name = factor(country_name, levels = country_order))
+
+how_to_plot <- 
+  ggplot(
+    data = 
+      data_plot |>
+      select(var_name) |>
+      unique() |>
+      mutate(
+        dtf = runif(n(), min = 0.8, max = 0.8),
+        avg_color = ifelse(grepl("Average", var_name), "avg", "ind")
+      ) 
+  ) +
+  geom_bar(
+    aes(
+      x = var_name,
+      y = dtf,
+      fill = avg_color
+    ),
+    stat = "identity", 
+    color = "transparent", 
+    size = 0,
+    width = 0.85, 
+    position = position_stack()
+  ) +
+  coord_curvedpolar(clip = "off") +
+  scale_y_continuous(
+    limits = c(-0.2, 1.2),
+    expand = c(0, 0),
+    breaks = c(0.5)
+  ) +
+  scale_x_discrete(
+    limits = ind_order,
+    labels = function(x) str_wrap(x, width = 12, whitespace_only = F)
+  ) +
+  scale_fill_manual(values = c("avg" = "grey25", "ind" = "grey70")) + 
+  guides(
+    fill = F
+  ) +
+  labs(
+    title = str_wrap("How to read: Each part represents an indicator. The size represents the CTF value and the color indicates the status compared to the group.", width = 40)
+  ) +
+  plot_theme +
+  theme(
+    plot.margin = margin(t = 0, r = 0, b = 0, l = 10),
+    axis.text.x = element_text(size = 11, color = "black", vjust = 0.5),
+    plot.title =  element_text(size = 16, hjust = 0, margin = margin(t = 0, r = 0, b = 50, l = 0))
+  )
+
+countries_plot <- 
+  ggplot(
+    data = data_plot
+  ) +
+  geom_bar(
+    aes(
+      x = factor(var_name, levels = ind_order),
+      y = dtf,
+      fill = factor(status, levels = status_order)
+    ),
+    stat = "identity", 
+    color = "transparent", 
+    size = 0,
+    width = 0.85, 
+    alpha = 1, 
+    position = position_stack()
+  ) +
+  #geom_point(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2
+  #  ),
+  #  size = 6,
+  #  color = id_colors$primary,
+  #  fill = "transparent",
+  #  shape = 21,
+  #  stroke = 1.5
+  #) +
+  #geom_point(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2
+  #  ),
+  #  size = 7,
+  #  color = id_colors$primary,
+  #  fill = "transparent",
+  #  shape = 21,
+  #  stroke = 1.25
+  #) +
+  #ggflags::geom_flag(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2, 
+  #    country = ecb
+  #  ),
+  #  size = 6
+  #) +
+  coord_curvedpolar(clip = "off") +
+  scale_y_continuous(
+    limits = c(-0.2, 1),
+    expand = c(0, 0),
+    breaks = c(0.5)
+  ) + 
+  scale_fill_manual(
+    na.translate = F,
+    values = colors,
+    name = NULL
+  ) +
+  scale_x_discrete(limits = ind_order) +
+  facet_wrap(~country_name, ncol = 5, labeller = wrap_labeller) +
+  labs(
+    title = NULL
+  ) +
+  plot_country_theme
+
+free(how_to_plot) + free(countries_plot) + plot_layout(widths = c(1.5, 3.5))
+
+```
+
+```{r service_violin, fig.cap="Service Delivery Institutions static CTF", fig.height=14, fig.width=16, fig.dpi=600, warning=F}
+
+#family <- "Service Delivery Institutions"
+
+#violin_plot(data_clusters, family, params$region)
+
+```
+
+
+## Climate Change and Environment Institutions
+
+```{r climate_radar, fig.cap=NULL, fig.width=fig_width, fig.asp = fig_asp, fig.dpi=600, warning=F, fig.align = "center"}
+
+family <- "Climate Change and Environment Institutions"
+
+data_plot <- 
+  data_clusters |>
+  filter(comparison_group == params$region) |>
+  filter(family_name == family) |>
+  filter(base_country == country_name) #|>
+  #filter(!grepl("Average", var_name))
+
+#center_flag <- data |>
+#  filter(country_name %in% data_plot$country_name) |>
+#  select(
+#    country_name, ecb
+#  )|>
+#  unique() |>
+#  mutate(
+#    var_name = NA,
+#    dtf = 0,
+#    status = NA,
+#    x = 0,
+#    y = 0
+#  )
+
+ind_order <- 
+  data_plot |> 
+  arrange(var_name) |> 
+  pull(var_name) |> 
+  unique()
+
+average_elements <- ind_order[grep("Average", ind_order)]
+other_elements <- ind_order[!grepl("Average", ind_order)]
+
+ind_order <- c(average_elements, other_elements)
+
+country_order_avg <- 
+  data_plot |>
+  filter(grepl("Average", var_name)) |>
+  arrange(-dtf) |> 
+  pull(country_name)
+
+countries_no_avg <- 
+  data_plot |>
+  filter(!grepl("Average", var_name)) |>
+  filter(!country_name %in% country_order_avg) |> 
+  pull(country_name) |>
+  unique()
+
+country_order <- c(country_order_avg, countries_no_avg)
+
+data_plot <- data_plot |> 
+  mutate(country_name = factor(country_name, levels = country_order))
+
+how_to_plot <- 
+  ggplot(
+    data = 
+      data_plot |>
+      select(var_name) |>
+      unique() |>
+      mutate(
+        dtf = runif(n(), min = 0.8, max = 0.8),
+        avg_color = ifelse(grepl("Average", var_name), "avg", "ind")
+      ) 
+  ) +
+  geom_bar(
+    aes(
+      x = var_name,
+      y = dtf,
+      fill = avg_color
+    ),
+    stat = "identity", 
+    color = "transparent", 
+    size = 0,
+    width = 0.85, 
+    position = position_stack()
+  ) +
+  coord_curvedpolar(clip = "off") +
+  scale_y_continuous(
+    limits = c(-0.2, 1.2),
+    expand = c(0, 0),
+    breaks = c(0.5)
+  ) +
+  scale_x_discrete(
+    limits = ind_order,
+    labels = function(x) str_wrap(x, width = 9, whitespace_only = F)
+  ) +
+  scale_fill_manual(values = c("avg" = "grey25", "ind" = "grey70")) + 
+  guides(
+    fill = F
+  ) +
+  labs(
+    title = str_wrap("How to read: Each part represents an indicator. The size represents the CTF value and the color indicates the status compared to the group.", width = 40)
+  ) +
+  plot_theme +
+  theme(
+    plot.margin = margin(t = 0, r = 0, b = 0, l = 10),
     axis.text.x = element_text(size = 8, color = "black", vjust = 0.5),
-    plot.caption = element_markdown(size = 14, hjust = 0.5, margin = margin(t = 5, r = 0, b = 10, l = 0))
+    plot.title =  element_text(size = 16, hjust = 0, margin = margin(t = 0, r = 0, b = 50, l = 0))
   )
 
 countries_plot <- 
@@ -1728,26 +2863,39 @@ countries_plot <-
     alpha = 1, 
     position = position_stack()
   ) +
-  geom_point(
-    data = center_flag,
-    aes(
-      x = ind_order[1], 
-      y = -0.2
-    ),
-    size = 6.25,
-    fill = id_colors$primary,
-    color = "transparent",
-    shape = 21
-  ) +
-  ggflags::geom_flag(
-    data = center_flag,
-    aes(
-      x = ind_order[1], 
-      y = -0.2, 
-      country = ecb
-    ),
-    size = 5
-  ) +
+  #geom_point(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2
+  #  ),
+  #  size = 6,
+  #  color = id_colors$primary,
+  #  fill = "transparent",
+  #  shape = 21,
+  #  stroke = 1.5
+  #) +
+  #geom_point(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2
+  #  ),
+  #  size = 7,
+  #  color = id_colors$primary,
+  #  fill = "transparent",
+  #  shape = 21,
+  #  stroke = 1.25
+  #) +
+  #ggflags::geom_flag(
+  #  data = center_flag,
+  #  aes(
+  #    x = ind_order[1], 
+  #    y = -0.2, 
+  #    country = ecb
+  #  ),
+  #  size = 6
+  #) +
   coord_curvedpolar(clip = "off") +
   scale_y_continuous(
     limits = c(-0.2, 1),
@@ -1760,607 +2908,22 @@ countries_plot <-
     name = NULL
   ) +
   scale_x_discrete(limits = ind_order) +
-  facet_wrap(~str_wrap(country_name, 15), ncol = 10) +
+  facet_wrap(~country_name, ncol = 5, labeller = wrap_labeller) +
   labs(
     title = NULL
   ) +
-  plot_theme
+  plot_country_theme
 
-how_to_plot / countries_plot + plot_layout(heights = c(2, 3))
-
-```
-
-```{r just_violin, fig.cap="Justice Institutions static CTF", fig.height=14, fig.width=16, fig.dpi=600, warning=F}
-
-family <- "Justice Institutions"
-
-violin_plot(data_clusters, family, params$region)
-
-```
-
-## Transparency and Accountability Institutions
-
-```{r transp_radar, fig.cap="Transparency and Accountability Institutions static CTF", fig.height=12, fig.width=12, fig.dpi=600, warning=F}
-
-family <- "Transparency and Accountability Institutions"
-
-data_plot <- 
-  data_clusters |>
-  filter(comparison_group == params$region) |>
-  filter(family_name == family) |>
-  filter(base_country == country_name) |>
-  filter(!grepl("Average", var_name))
-
-center_flag <- data |>
-  filter(country_name %in% data_plot$country_name) |>
-  select(
-    country_name, ecb
-  )|>
-  unique() |>
-  mutate(
-    var_name = NA,
-    dtf = 0,
-    status = NA,
-    x = 0,
-    y = 0
-  )
-
-ind_order <- 
-  data_plot |> 
-  arrange(var_name) |> 
-  pull(var_name) |> 
-  unique()
-
-how_to_plot <- 
-  ggplot(
-    data = 
-      data_plot |>
-      select(var_name) |>
-      unique() |>
-      mutate(dtf = runif(n(), min = 0.85, max = 1))
-  ) +
-  geom_bar(
-    aes(
-      x = var_name,
-      y = dtf
-    ),
-    stat = "identity", 
-    color = "transparent", 
-    size = 0,
-    width = 0.85, 
-    alpha = 0.5, 
-    position = position_stack(),
-    fill = "black"
-  ) +
-  coord_curvedpolar(clip = "off") +
-  scale_y_continuous(
-    limits = c(-0.2, 1.2),
-    expand = c(0, 0),
-    breaks = c(0.5)
-  ) + 
-  scale_x_discrete(
-    limits = ind_order,
-    labels = function(x) str_wrap(x, width = 15)
-  ) +
-  labs(
-    title = NULL,
-    caption = paste0("<b> How to read:</b> Each part represents an indicator. The size represents the CTF value and the color indicates the status compared to the group.")
-  ) +
-  plot_theme +
-  theme(
-    axis.text.x = element_text(size = 12, color = "black", vjust = 0.5),
-    plot.caption = element_markdown(size = 14, hjust = 0.5, margin = margin(t = 5, r = 0, b = 10, l = 0))
-  )
-
-countries_plot <- 
-  ggplot(
-    data = data_plot
-  ) +
-  geom_bar(
-    aes(
-      x = factor(var_name, levels = ind_order),
-      y = dtf,
-      fill = factor(status, levels = status_order)
-    ),
-    stat = "identity", 
-    color = "transparent", 
-    size = 0,
-    width = 0.85, 
-    alpha = 1, 
-    position = position_stack()
-  ) +
-  geom_point(
-    data = center_flag,
-    aes(
-      x = ind_order[1], 
-      y = -0.2
-    ),
-    size = 6.25,
-    fill = id_colors$primary,
-    color = "transparent",
-    shape = 21
-  ) +
-  ggflags::geom_flag(
-    data = center_flag,
-    aes(
-      x = ind_order[1], 
-      y = -0.2, 
-      country = ecb
-    ),
-    size = 5
-  ) +
-  coord_curvedpolar(clip = "off") +
-  scale_y_continuous(
-    limits = c(-0.2, 1),
-    expand = c(0, 0),
-    breaks = c(0.5)
-  ) + 
-  scale_fill_manual(
-    na.translate = F,
-    values = colors,
-    name = NULL
-  ) +
-  scale_x_discrete(limits = ind_order) +
-  facet_wrap(~str_wrap(country_name, 15), ncol = 10) +
-  labs(
-    title = NULL
-  ) +
-  plot_theme
-
-how_to_plot / countries_plot + plot_layout(heights = c(1, 3))
-
-```
-
-```{r transp_violin, fig.cap="Transparency and Accountability Institutions static CTF", fig.height=14, fig.width=16, fig.dpi=600, warning=F}
-
-family <- "Transparency and Accountability Institutions"
-
-violin_plot(data_clusters, family, params$region)
-
-```
-
-## Absence of Corruption
-
-```{r corruption_radar, fig.cap="Absence of Corruption static CTF", fig.height=12, fig.width=12, fig.dpi=600, warning=F}
-
-family <- "Absence of Corruption"
-
-data_plot <- 
-  data_clusters |>
-  filter(comparison_group == params$region) |>
-  filter(family_name == family) |>
-  filter(base_country == country_name) |>
-  filter(!grepl("Average", var_name))
-
-center_flag <- data |>
-  filter(country_name %in% data_plot$country_name) |>
-  select(
-    country_name, ecb
-  )|>
-  unique() |>
-  mutate(
-    var_name = NA,
-    dtf = 0,
-    status = NA,
-    x = 0,
-    y = 0
-  )
-
-ind_order <- 
-  data_plot |> 
-  arrange(var_name) |> 
-  pull(var_name) |> 
-  unique()
-
-how_to_plot <- 
-  ggplot(
-    data = 
-      data_plot |>
-      select(var_name) |>
-      unique() |>
-      mutate(dtf = runif(n(), min = 0.85, max = 1))
-  ) +
-  geom_bar(
-    aes(
-      x = var_name,
-      y = dtf
-    ),
-    stat = "identity", 
-    color = "transparent", 
-    size = 0,
-    width = 0.85, 
-    alpha = 0.5, 
-    position = position_stack(),
-    fill = "black"
-  ) +
-  coord_curvedpolar(clip = "off") +
-  scale_y_continuous(
-    limits = c(-0.2, 1.2),
-    expand = c(0, 0),
-    breaks = c(0.5)
-  ) + 
-  scale_x_discrete(
-    limits = ind_order,
-    labels = function(x) str_wrap(x, width = 30)
-  ) +
-  labs(
-    title = NULL,
-    caption = paste0("<b> How to read:</b> Each part represents an indicator. The size represents the CTF value and the color indicates the status compared to the group.")
-  ) +
-  plot_theme +
-  theme(
-    axis.text.x = element_text(size = 12, color = "black", vjust = 0.5),
-    plot.caption = element_markdown(size = 14, hjust = 0.5, margin = margin(t = 5, r = 0, b = 10, l = 0))
-  )
-
-countries_plot <- 
-  ggplot(
-    data = data_plot
-  ) +
-  geom_bar(
-    aes(
-      x = factor(var_name, levels = ind_order),
-      y = dtf,
-      fill = factor(status, levels = status_order)
-    ),
-    stat = "identity", 
-    color = "transparent", 
-    size = 0,
-    width = 0.85, 
-    alpha = 1, 
-    position = position_stack()
-  ) +
-  geom_point(
-    data = center_flag,
-    aes(
-      x = ind_order[1], 
-      y = -0.2
-    ),
-    size = 6.25,
-    fill = id_colors$primary,
-    color = "transparent",
-    shape = 21
-  ) +
-  ggflags::geom_flag(
-    data = center_flag,
-    aes(
-      x = ind_order[1], 
-      y = -0.2, 
-      country = ecb
-    ),
-    size = 5
-  ) +
-  coord_curvedpolar(clip = "off") +
-  scale_y_continuous(
-    limits = c(-0.2, 1),
-    expand = c(0, 0),
-    breaks = c(0.5)
-  ) + 
-  scale_fill_manual(
-    na.translate = F,
-    values = colors,
-    name = NULL
-  ) +
-  scale_x_discrete(limits = ind_order) +
-  facet_wrap(~str_wrap(country_name, 15), ncol = 10) +
-  labs(
-    title = NULL
-  ) +
-  plot_theme
-
-how_to_plot / countries_plot + plot_layout(heights = c(1, 3))
+free(how_to_plot) + free(countries_plot) + plot_layout(widths = c(1.5, 3))
 
 ```
 
 
-```{r corruption_violin, fig.cap="Absence of Corruption static CTF", fig.height=14, fig.width=16, fig.dpi=600, warning=F}
+```{r climate_violin, fig.cap="Climate Change and Environment Institutions static CTF", fig.height=14, fig.width=16, fig.dpi=600, warning=F}
 
-family <- "Absence of Corruption"
+#family <- "Climate Change and Environment Institutions"
 
-violin_plot(data_clusters, family, params$region)
-
-```
-
-
-## Social Institutions
-
-```{r social_radar, fig.cap="Social Institutions static CTF", fig.height=12, fig.width=12, fig.dpi=600, warning=F}
-
-family <- "Social Institutions"
-
-data_plot <- 
-  data_clusters |>
-  filter(comparison_group == params$region) |>
-  filter(family_name == family) |>
-  filter(base_country == country_name) |>
-  filter(!grepl("Average", var_name))
-
-center_flag <- data |>
-  filter(country_name %in% data_plot$country_name) |>
-  select(
-    country_name, ecb
-  )|>
-  unique() |>
-  mutate(
-    var_name = NA,
-    dtf = 0,
-    status = NA,
-    x = 0,
-    y = 0
-  )
-
-ind_order <- 
-  data_plot |> 
-  arrange(var_name) |> 
-  pull(var_name) |> 
-  unique()
-
-how_to_plot <- 
-  ggplot(
-    data = 
-      data_plot |>
-      select(var_name) |>
-      unique() |>
-      mutate(dtf = runif(n(), min = 0.85, max = 1))
-  ) +
-  geom_bar(
-    aes(
-      x = var_name,
-      y = dtf
-    ),
-    stat = "identity", 
-    color = "transparent", 
-    size = 0,
-    width = 0.85, 
-    alpha = 0.5, 
-    position = position_stack(),
-    fill = "black"
-  ) +
-  coord_curvedpolar(clip = "off") +
-  scale_y_continuous(
-    limits = c(-0.2, 1.2),
-    expand = c(0, 0),
-    breaks = c(0.5)
-  ) + 
-  scale_x_discrete(
-    limits = ind_order,
-    labels = function(x) str_wrap(x, width = 12)
-  ) +
-  labs(
-    title = NULL,
-    caption = paste0("<b> How to read:</b> Each part represents an indicator. The size represents the CTF value and the color indicates the status compared to the group.")
-  ) +
-  plot_theme +
-  theme(
-    axis.text.x = element_text(size = 8, color = "black", vjust = 0.5),
-    plot.caption = element_markdown(size = 14, hjust = 0.5, margin = margin(t = 5, r = 0, b = 10, l = 0))
-  )
-
-countries_plot <- 
-  ggplot(
-    data = data_plot
-  ) +
-  geom_bar(
-    aes(
-      x = factor(var_name, levels = ind_order),
-      y = dtf,
-      fill = factor(status, levels = status_order)
-    ),
-    stat = "identity", 
-    color = "transparent", 
-    size = 0,
-    width = 0.85, 
-    alpha = 1, 
-    position = position_stack()
-  ) +
-  geom_point(
-    data = center_flag,
-    aes(
-      x = ind_order[1], 
-      y = -0.2
-    ),
-    size = 6.25,
-    fill = id_colors$primary,
-    color = "transparent",
-    shape = 21
-  ) +
-  ggflags::geom_flag(
-    data = center_flag,
-    aes(
-      x = ind_order[1], 
-      y = -0.2, 
-      country = ecb
-    ),
-    size = 5
-  ) +
-  coord_curvedpolar(clip = "off") +
-  scale_y_continuous(
-    limits = c(-0.2, 1),
-    expand = c(0, 0),
-    breaks = c(0.5)
-  ) + 
-  scale_fill_manual(
-    na.translate = F,
-    values = colors,
-    name = NULL
-  ) +
-  scale_x_discrete(limits = ind_order) +
-  facet_wrap(~str_wrap(country_name, 15), ncol = 10) +
-  labs(
-    title = NULL
-  ) +
-  plot_theme
-
-how_to_plot / countries_plot + plot_layout(heights = c(2, 3))
+#violin_plot(data_clusters, family, params$region)
 
 ```
-
-
-```{r social_violin, fig.cap="Social Institutions static CTF", fig.height=14, fig.width=16, fig.dpi=600, warning=F}
-
-family <- "Social Institutions"
-
-violin_plot(data_clusters, family, params$region)
-
-```
-
-
-## Political Institutions
-
-```{r political_radar, fig.cap="Political Institutions static CTF", fig.height=12, fig.width=12, fig.dpi=600, warning=F}
-
-family <- "Political Institutions"
-
-data_plot <- 
-  data_clusters |>
-  filter(comparison_group == params$region) |>
-  filter(family_name == family) |>
-  filter(base_country == country_name) |>
-  filter(!grepl("Average", var_name))
-
-center_flag <- data |>
-  filter(country_name %in% data_plot$country_name) |>
-  select(
-    country_name, ecb
-  )|>
-  unique() |>
-  mutate(
-    var_name = NA,
-    dtf = 0,
-    status = NA,
-    x = 0,
-    y = 0
-  )
-
-ind_order <- 
-  data_plot |> 
-  arrange(var_name) |> 
-  pull(var_name) |> 
-  unique()
-
-how_to_plot <- 
-  ggplot(
-    data = 
-      data_plot |>
-      select(var_name) |>
-      unique() |>
-      mutate(dtf = runif(n(), min = 0.85, max = 1))
-  ) +
-  geom_bar(
-    aes(
-      x = var_name,
-      y = dtf
-    ),
-    stat = "identity", 
-    color = "transparent", 
-    size = 0,
-    width = 0.85, 
-    alpha = 0.5, 
-    position = position_stack(),
-    fill = "black"
-  ) +
-  coord_curvedpolar(clip = "off") +
-  scale_y_continuous(
-    limits = c(-0.2, 1.2),
-    expand = c(0, 0),
-    breaks = c(0.5)
-  ) + 
-  scale_x_discrete(
-    limits = ind_order,
-    labels = function(x) str_wrap(x, width = 12)
-  ) +
-  labs(
-    title = NULL,
-    caption = paste0("<b> How to read:</b> Each part represents an indicator. The size represents the CTF value and the color indicates the status compared to the group.")
-  ) +
-  plot_theme +
-  theme(
-    axis.text.x = element_text(size = 8, color = "black", vjust = 0.5),
-    plot.caption = element_markdown(size = 14, hjust = 0.5, margin = margin(t = 5, r = 0, b = 10, l = 0))
-  )
-
-countries_plot <- 
-  ggplot(
-    data = data_plot
-  ) +
-  geom_bar(
-    aes(
-      x = factor(var_name, levels = ind_order),
-      y = dtf,
-      fill = factor(status, levels = status_order)
-    ),
-    stat = "identity", 
-    color = "transparent", 
-    size = 0,
-    width = 0.85, 
-    alpha = 1, 
-    position = position_stack()
-  ) +
-  geom_point(
-    data = center_flag,
-    aes(
-      x = ind_order[1], 
-      y = -0.2
-    ),
-    size = 6.25,
-    fill = id_colors$primary,
-    color = "transparent",
-    shape = 21
-  ) +
-  ggflags::geom_flag(
-    data = center_flag,
-    aes(
-      x = ind_order[1], 
-      y = -0.2, 
-      country = ecb
-    ),
-    size = 5
-  ) +
-  coord_curvedpolar(clip = "off") +
-  scale_y_continuous(
-    limits = c(-0.2, 1),
-    expand = c(0, 0),
-    breaks = c(0.5)
-  ) + 
-  scale_fill_manual(
-    na.translate = F,
-    values = colors,
-    name = NULL
-  ) +
-  scale_x_discrete(limits = ind_order) +
-  facet_wrap(~str_wrap(country_name, 15), ncol = 10) +
-  labs(
-    title = NULL
-  ) +
-  plot_theme
-
-how_to_plot / countries_plot + plot_layout(heights = c(1, 3))
-
-```
-
-
-```{r poli_violin, fig.cap="Political Institutions static CTF", fig.height=14, fig.width=16, fig.dpi=600, warning=F}
-
-family <- "Political Institutions"
-
-violin_plot(data_clusters, family, params$region)
-
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

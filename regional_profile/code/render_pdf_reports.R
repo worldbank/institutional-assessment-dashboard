@@ -29,7 +29,33 @@ group_list <-
     `Income` = country_groups %>% filter(group_category == "Income") %>% pull(group_name)
   )
 
-for(region in group_list$Region){
+#for(region in group_list$Region){
+#  cat("Rendering", region,"report...\n")
+#  render_subject(region)
+#}
+
+for(region in "Latin America & Caribbean"){
   cat("Rendering", region,"report...\n")
   render_subject(region)
 }
+
+for(region in c(
+ "Latin America & Caribbean",
+ "Europe & Central Asia"#,
+ #"Middle East & North Africa",
+ #"South Asia",
+ #"East Asia & Pacific",
+ #"Africa Eastern and Southern",
+ #"Africa Western and Central"
+)){
+  cat("Rendering", region,"report...\n")
+  render_subject(region)
+}
+
+
+
+
+
+
+
+
