@@ -447,7 +447,7 @@ ggplot() +
   geom_point(
     data = data_plot,
     aes(
-      y = factor(var_name, levels = family_order),
+      y = fct_rev(factor(var_name, levels = family_order)),
       x = rank,
       fill = factor(status, levels = status_order)
     ),
