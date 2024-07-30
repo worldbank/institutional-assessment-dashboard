@@ -40,13 +40,13 @@ for(region in "Latin America & Caribbean"){
 }
 
 for(region in c(
- #"Latin America & Caribbean",
- "Europe & Central Asia"#,
- #"Middle East & North Africa",
- #"South Asia",
- #"East Asia & Pacific",
- #"Africa Eastern and Southern",
- #"Africa Western and Central"
+ "Latin America & Caribbean",
+ "Europe & Central Asia",
+ "Middle East & North Africa",
+ "South Asia",
+ "East Asia & Pacific",
+ "Africa Eastern and Southern",
+ "Africa Western and Central"
 )){
   cat("Rendering", region,"report...\n")
   render_subject(region)

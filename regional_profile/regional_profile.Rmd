@@ -285,7 +285,7 @@ plot_country_theme <- theme(
     axis.text.x = element_blank()
   )
 
-fig_asp <- 1
+fig_asp <- 1.2
 fig_width <- 14
 
 wrap_labeller <- function(variable, value) {
@@ -570,6 +570,31 @@ data_plot <-
   filter(base_country == country_name) |>
   filter(!grepl("Average", var_name))
 
+data_avg <- data_plot |>
+  group_by(country_name) |>
+  summarise(value = mean(dtf)) |>
+  ungroup() |>
+  mutate(
+    dtt = percent_rank(value),
+    q_lv_25 = quantile(value,c(0.25)),
+    q_lv_75 = quantile(value,c(0.75)),
+    q_cutoff1 = quantile(value, c(cutoff[1]/100)),
+    q_cutoff2 = quantile(value, c(cutoff[2]/100)),
+    status = case_when(
+      dtt <= cutoff[1]/100 ~ paste0("Weak (bottom ", cutoff[1],"%)"),
+      dtt > cutoff[1]/100 & dtt <= cutoff[2]/100 ~ paste0("Emerging (",cutoff[1],"% - ",cutoff[2],"%)"),
+        dtt > cutoff[2]/100 ~ paste0("Strong (top ",100-cutoff[2],"%)")
+      ),
+      nrank = min_rank(-value)
+  ) |>
+  rename(dtf = value) |>
+  mutate(var_name = paste0(family, " Average"))
+
+data_plot <- bind_rows(
+  data_plot,
+  data_avg
+)
+
 #center_flag <- data |>
 #  filter(country_name %in% data_plot$country_name) |>
 #  select(
@@ -595,20 +620,20 @@ other_elements <- ind_order[!grepl("Average", ind_order)]
 
 ind_order <- c(average_elements, other_elements)
 
-#country_order_avg <- 
-#  data_plot |>
-#  filter(grepl("Average", var_name)) |>
-#  arrange(-dtf) |> 
-#  pull(country_name)
-#
-#countries_no_avg <- 
-#  data_plot |>
-#  filter(!grepl("Average", var_name)) |>
-#  filter(!country_name %in% country_order_avg) |> 
-#  pull(country_name) |>
-#  unique()
-#
-#country_order <- c(country_order_avg, countries_no_avg)
+country_order_avg <- 
+  data_plot |>
+  filter(grepl("Average", var_name)) |>
+  arrange(-dtf) |> 
+  pull(country_name)
+
+countries_no_avg <- 
+  data_plot |>
+  filter(!grepl("Average", var_name)) |>
+  filter(!country_name %in% country_order_avg) |> 
+  pull(country_name) |>
+  unique()
+
+country_order <- c(country_order_avg, countries_no_avg)
 
 data_plot <- data_plot |> 
   mutate(country_name = factor(country_name, levels = country_order))
@@ -742,8 +767,33 @@ data_plot <-
   data_clusters |>
   filter(comparison_group == params$region) |>
   filter(family_name == family) |>
-  filter(base_country == country_name) #|>
-  #filter(!grepl("Average", var_name))
+  filter(base_country == country_name) |>
+  filter(!grepl("Average", var_name))
+
+data_avg <- data_plot |>
+  group_by(country_name) |>
+  summarise(value = mean(dtf)) |>
+  ungroup() |>
+  mutate(
+    dtt = percent_rank(value),
+    q_lv_25 = quantile(value,c(0.25)),
+    q_lv_75 = quantile(value,c(0.75)),
+    q_cutoff1 = quantile(value, c(cutoff[1]/100)),
+    q_cutoff2 = quantile(value, c(cutoff[2]/100)),
+    status = case_when(
+      dtt <= cutoff[1]/100 ~ paste0("Weak (bottom ", cutoff[1],"%)"),
+      dtt > cutoff[1]/100 & dtt <= cutoff[2]/100 ~ paste0("Emerging (",cutoff[1],"% - ",cutoff[2],"%)"),
+        dtt > cutoff[2]/100 ~ paste0("Strong (top ",100-cutoff[2],"%)")
+      ),
+      nrank = min_rank(-value)
+  ) |>
+  rename(dtf = value) |>
+  mutate(var_name = paste0(family, " Average"))
+
+data_plot <- bind_rows(
+  data_plot,
+  data_avg
+)
 
 #center_flag <- data |>
 #  filter(country_name %in% data_plot$country_name) |>
@@ -921,8 +971,34 @@ data_plot <-
   data_clusters |>
   filter(comparison_group == params$region) |>
   filter(family_name == family) |>
-  filter(base_country == country_name) #|>
-  #filter(!grepl("Average", var_name))
+  filter(base_country == country_name) |>
+  filter(!grepl("Average", var_name))
+
+data_avg <- data_plot |>
+  group_by(country_name) |>
+  summarise(value = mean(dtf)) |>
+  ungroup() |>
+  mutate(
+    dtt = percent_rank(value),
+    q_lv_25 = quantile(value,c(0.25)),
+    q_lv_75 = quantile(value,c(0.75)),
+    q_cutoff1 = quantile(value, c(cutoff[1]/100)),
+    q_cutoff2 = quantile(value, c(cutoff[2]/100)),
+    status = case_when(
+      dtt <= cutoff[1]/100 ~ paste0("Weak (bottom ", cutoff[1],"%)"),
+      dtt > cutoff[1]/100 & dtt <= cutoff[2]/100 ~ paste0("Emerging (",cutoff[1],"% - ",cutoff[2],"%)"),
+        dtt > cutoff[2]/100 ~ paste0("Strong (top ",100-cutoff[2],"%)")
+      ),
+      nrank = min_rank(-value)
+  ) |>
+  rename(dtf = value) |>
+  mutate(var_name = paste0(family, " Average"))
+
+data_plot <- bind_rows(
+  data_plot,
+  data_avg
+)
+
 
 #center_flag <- data |>
 #  filter(country_name %in% data_plot$country_name) |>
@@ -1100,8 +1176,34 @@ data_plot <-
   data_clusters |>
   filter(comparison_group == params$region) |>
   filter(family_name == family) |>
-  filter(base_country == country_name) #|>
-  #filter(!grepl("Average", var_name))
+  filter(base_country == country_name) |>
+  filter(!grepl("Average", var_name))
+
+data_avg <- data_plot |>
+  group_by(country_name) |>
+  summarise(value = mean(dtf)) |>
+  ungroup() |>
+  mutate(
+    dtt = percent_rank(value),
+    q_lv_25 = quantile(value,c(0.25)),
+    q_lv_75 = quantile(value,c(0.75)),
+    q_cutoff1 = quantile(value, c(cutoff[1]/100)),
+    q_cutoff2 = quantile(value, c(cutoff[2]/100)),
+    status = case_when(
+      dtt <= cutoff[1]/100 ~ paste0("Weak (bottom ", cutoff[1],"%)"),
+      dtt > cutoff[1]/100 & dtt <= cutoff[2]/100 ~ paste0("Emerging (",cutoff[1],"% - ",cutoff[2],"%)"),
+        dtt > cutoff[2]/100 ~ paste0("Strong (top ",100-cutoff[2],"%)")
+      ),
+      nrank = min_rank(-value)
+  ) |>
+  rename(dtf = value) |>
+  mutate(var_name = paste0(family, " Average"))
+
+data_plot <- bind_rows(
+  data_plot,
+  data_avg
+)
+
 
 #center_flag <- data |>
 #  filter(country_name %in% data_plot$country_name) |>
@@ -1275,8 +1377,34 @@ data_plot <-
   data_clusters |>
   filter(comparison_group == params$region) |>
   filter(family_name == family) |>
-  filter(base_country == country_name) #|>
-  #filter(!grepl("Average", var_name))
+  filter(base_country == country_name) |>
+  filter(!grepl("Average", var_name))
+
+data_avg <- data_plot |>
+  group_by(country_name) |>
+  summarise(value = mean(dtf)) |>
+  ungroup() |>
+  mutate(
+    dtt = percent_rank(value),
+    q_lv_25 = quantile(value,c(0.25)),
+    q_lv_75 = quantile(value,c(0.75)),
+    q_cutoff1 = quantile(value, c(cutoff[1]/100)),
+    q_cutoff2 = quantile(value, c(cutoff[2]/100)),
+    status = case_when(
+      dtt <= cutoff[1]/100 ~ paste0("Weak (bottom ", cutoff[1],"%)"),
+      dtt > cutoff[1]/100 & dtt <= cutoff[2]/100 ~ paste0("Emerging (",cutoff[1],"% - ",cutoff[2],"%)"),
+        dtt > cutoff[2]/100 ~ paste0("Strong (top ",100-cutoff[2],"%)")
+      ),
+      nrank = min_rank(-value)
+  ) |>
+  rename(dtf = value) |>
+  mutate(var_name = paste0(family, " Average"))
+
+data_plot <- bind_rows(
+  data_plot,
+  data_avg
+)
+
 
 #center_flag <- data |>
 #  filter(country_name %in% data_plot$country_name) |>
@@ -1458,8 +1586,34 @@ data_plot <-
   data_clusters |>
   filter(comparison_group == params$region) |>
   filter(family_name == family) |>
-  filter(base_country == country_name) #|>
-  #filter(!grepl("Average", var_name))
+  filter(base_country == country_name) |>
+  filter(!grepl("Average", var_name))
+
+data_avg <- data_plot |>
+  group_by(country_name) |>
+  summarise(value = mean(dtf)) |>
+  ungroup() |>
+  mutate(
+    dtt = percent_rank(value),
+    q_lv_25 = quantile(value,c(0.25)),
+    q_lv_75 = quantile(value,c(0.75)),
+    q_cutoff1 = quantile(value, c(cutoff[1]/100)),
+    q_cutoff2 = quantile(value, c(cutoff[2]/100)),
+    status = case_when(
+      dtt <= cutoff[1]/100 ~ paste0("Weak (bottom ", cutoff[1],"%)"),
+      dtt > cutoff[1]/100 & dtt <= cutoff[2]/100 ~ paste0("Emerging (",cutoff[1],"% - ",cutoff[2],"%)"),
+        dtt > cutoff[2]/100 ~ paste0("Strong (top ",100-cutoff[2],"%)")
+      ),
+      nrank = min_rank(-value)
+  ) |>
+  rename(dtf = value) |>
+  mutate(var_name = paste0(family, " Average"))
+
+data_plot <- bind_rows(
+  data_plot,
+  data_avg
+)
+
 
 #center_flag <- data |>
 #  filter(country_name %in% data_plot$country_name) |>
@@ -1642,8 +1796,34 @@ data_plot <-
   data_clusters |>
   filter(comparison_group == params$region) |>
   filter(family_name == family) |>
-  filter(base_country == country_name) #|>
-  #filter(!grepl("Average", var_name))
+  filter(base_country == country_name) |>
+  filter(!grepl("Average", var_name))
+
+data_avg <- data_plot |>
+  group_by(country_name) |>
+  summarise(value = mean(dtf)) |>
+  ungroup() |>
+  mutate(
+    dtt = percent_rank(value),
+    q_lv_25 = quantile(value,c(0.25)),
+    q_lv_75 = quantile(value,c(0.75)),
+    q_cutoff1 = quantile(value, c(cutoff[1]/100)),
+    q_cutoff2 = quantile(value, c(cutoff[2]/100)),
+    status = case_when(
+      dtt <= cutoff[1]/100 ~ paste0("Weak (bottom ", cutoff[1],"%)"),
+      dtt > cutoff[1]/100 & dtt <= cutoff[2]/100 ~ paste0("Emerging (",cutoff[1],"% - ",cutoff[2],"%)"),
+        dtt > cutoff[2]/100 ~ paste0("Strong (top ",100-cutoff[2],"%)")
+      ),
+      nrank = min_rank(-value)
+  ) |>
+  rename(dtf = value) |>
+  mutate(var_name = paste0(family, " Average"))
+
+data_plot <- bind_rows(
+  data_plot,
+  data_avg
+)
+
 
 #center_flag <- data |>
 #  filter(country_name %in% data_plot$country_name) |>
@@ -1826,8 +2006,34 @@ data_plot <-
   data_clusters |>
   filter(comparison_group == params$region) |>
   filter(family_name == family) |>
-  filter(base_country == country_name) #|>
-  #filter(!grepl("Average", var_name))
+  filter(base_country == country_name) |>
+  filter(!grepl("Average", var_name))
+
+data_avg <- data_plot |>
+  group_by(country_name) |>
+  summarise(value = mean(dtf)) |>
+  ungroup() |>
+  mutate(
+    dtt = percent_rank(value),
+    q_lv_25 = quantile(value,c(0.25)),
+    q_lv_75 = quantile(value,c(0.75)),
+    q_cutoff1 = quantile(value, c(cutoff[1]/100)),
+    q_cutoff2 = quantile(value, c(cutoff[2]/100)),
+    status = case_when(
+      dtt <= cutoff[1]/100 ~ paste0("Weak (bottom ", cutoff[1],"%)"),
+      dtt > cutoff[1]/100 & dtt <= cutoff[2]/100 ~ paste0("Emerging (",cutoff[1],"% - ",cutoff[2],"%)"),
+        dtt > cutoff[2]/100 ~ paste0("Strong (top ",100-cutoff[2],"%)")
+      ),
+      nrank = min_rank(-value)
+  ) |>
+  rename(dtf = value) |>
+  mutate(var_name = paste0(family, " Average"))
+
+data_plot <- bind_rows(
+  data_plot,
+  data_avg
+)
+
 
 #center_flag <- data |>
 #  filter(country_name %in% data_plot$country_name) |>
@@ -2028,8 +2234,34 @@ data_plot <-
   data_clusters |>
   filter(comparison_group == params$region) |>
   filter(family_name == family) |>
-  filter(base_country == country_name) #|>
-  #filter(!grepl("Average", var_name))
+  filter(base_country == country_name) |>
+  filter(!grepl("Average", var_name))
+
+data_avg <- data_plot |>
+  group_by(country_name) |>
+  summarise(value = mean(dtf)) |>
+  ungroup() |>
+  mutate(
+    dtt = percent_rank(value),
+    q_lv_25 = quantile(value,c(0.25)),
+    q_lv_75 = quantile(value,c(0.75)),
+    q_cutoff1 = quantile(value, c(cutoff[1]/100)),
+    q_cutoff2 = quantile(value, c(cutoff[2]/100)),
+    status = case_when(
+      dtt <= cutoff[1]/100 ~ paste0("Weak (bottom ", cutoff[1],"%)"),
+      dtt > cutoff[1]/100 & dtt <= cutoff[2]/100 ~ paste0("Emerging (",cutoff[1],"% - ",cutoff[2],"%)"),
+        dtt > cutoff[2]/100 ~ paste0("Strong (top ",100-cutoff[2],"%)")
+      ),
+      nrank = min_rank(-value)
+  ) |>
+  rename(dtf = value) |>
+  mutate(var_name = paste0(family, " Average"))
+
+data_plot <- bind_rows(
+  data_plot,
+  data_avg
+)
+
 
 #center_flag <- data |>
 #  filter(country_name %in% data_plot$country_name) |>
@@ -2211,8 +2443,34 @@ data_plot <-
   data_clusters |>
   filter(comparison_group == params$region) |>
   filter(family_name == family) |>
-  filter(base_country == country_name) #|>
-  #filter(!grepl("Average", var_name))
+  filter(base_country == country_name) |>
+  filter(!grepl("Average", var_name))
+
+data_avg <- data_plot |>
+  group_by(country_name) |>
+  summarise(value = mean(dtf)) |>
+  ungroup() |>
+  mutate(
+    dtt = percent_rank(value),
+    q_lv_25 = quantile(value,c(0.25)),
+    q_lv_75 = quantile(value,c(0.75)),
+    q_cutoff1 = quantile(value, c(cutoff[1]/100)),
+    q_cutoff2 = quantile(value, c(cutoff[2]/100)),
+    status = case_when(
+      dtt <= cutoff[1]/100 ~ paste0("Weak (bottom ", cutoff[1],"%)"),
+      dtt > cutoff[1]/100 & dtt <= cutoff[2]/100 ~ paste0("Emerging (",cutoff[1],"% - ",cutoff[2],"%)"),
+        dtt > cutoff[2]/100 ~ paste0("Strong (top ",100-cutoff[2],"%)")
+      ),
+      nrank = min_rank(-value)
+  ) |>
+  rename(dtf = value) |>
+  mutate(var_name = paste0(family, " Average"))
+
+data_plot <- bind_rows(
+  data_plot,
+  data_avg
+)
+
 
 if(nrow(data_plot)>0){
 
@@ -2399,8 +2657,34 @@ data_plot <-
   data_clusters |>
   filter(comparison_group == params$region) |>
   filter(family_name == family) |>
-  filter(base_country == country_name) #|>
-  #filter(!grepl("Average", var_name))
+  filter(base_country == country_name) |>
+  filter(!grepl("Average", var_name))
+
+data_avg <- data_plot |>
+  group_by(country_name) |>
+  summarise(value = mean(dtf)) |>
+  ungroup() |>
+  mutate(
+    dtt = percent_rank(value),
+    q_lv_25 = quantile(value,c(0.25)),
+    q_lv_75 = quantile(value,c(0.75)),
+    q_cutoff1 = quantile(value, c(cutoff[1]/100)),
+    q_cutoff2 = quantile(value, c(cutoff[2]/100)),
+    status = case_when(
+      dtt <= cutoff[1]/100 ~ paste0("Weak (bottom ", cutoff[1],"%)"),
+      dtt > cutoff[1]/100 & dtt <= cutoff[2]/100 ~ paste0("Emerging (",cutoff[1],"% - ",cutoff[2],"%)"),
+        dtt > cutoff[2]/100 ~ paste0("Strong (top ",100-cutoff[2],"%)")
+      ),
+      nrank = min_rank(-value)
+  ) |>
+  rename(dtf = value) |>
+  mutate(var_name = paste0(family, " Average"))
+
+data_plot <- bind_rows(
+  data_plot,
+  data_avg
+)
+
 
 #center_flag <- data |>
 #  filter(country_name %in% data_plot$country_name) |>
@@ -2583,8 +2867,34 @@ data_plot <-
   data_clusters |>
   filter(comparison_group == params$region) |>
   filter(family_name == family) |>
-  filter(base_country == country_name) #|>
-  #filter(!grepl("Average", var_name))
+  filter(base_country == country_name) |>
+  filter(!grepl("Average", var_name))
+
+data_avg <- data_plot |>
+  group_by(country_name) |>
+  summarise(value = mean(dtf)) |>
+  ungroup() |>
+  mutate(
+    dtt = percent_rank(value),
+    q_lv_25 = quantile(value,c(0.25)),
+    q_lv_75 = quantile(value,c(0.75)),
+    q_cutoff1 = quantile(value, c(cutoff[1]/100)),
+    q_cutoff2 = quantile(value, c(cutoff[2]/100)),
+    status = case_when(
+      dtt <= cutoff[1]/100 ~ paste0("Weak (bottom ", cutoff[1],"%)"),
+      dtt > cutoff[1]/100 & dtt <= cutoff[2]/100 ~ paste0("Emerging (",cutoff[1],"% - ",cutoff[2],"%)"),
+        dtt > cutoff[2]/100 ~ paste0("Strong (top ",100-cutoff[2],"%)")
+      ),
+      nrank = min_rank(-value)
+  ) |>
+  rename(dtf = value) |>
+  mutate(var_name = paste0(family, " Average"))
+
+data_plot <- bind_rows(
+  data_plot,
+  data_avg
+)
+
 
 #center_flag <- data |>
 #  filter(country_name %in% data_plot$country_name) |>
@@ -2767,8 +3077,34 @@ data_plot <-
   data_clusters |>
   filter(comparison_group == params$region) |>
   filter(family_name == family) |>
-  filter(base_country == country_name) #|>
-  #filter(!grepl("Average", var_name))
+  filter(base_country == country_name) |>
+  filter(!grepl("Average", var_name))
+
+data_avg <- data_plot |>
+  group_by(country_name) |>
+  summarise(value = mean(dtf)) |>
+  ungroup() |>
+  mutate(
+    dtt = percent_rank(value),
+    q_lv_25 = quantile(value,c(0.25)),
+    q_lv_75 = quantile(value,c(0.75)),
+    q_cutoff1 = quantile(value, c(cutoff[1]/100)),
+    q_cutoff2 = quantile(value, c(cutoff[2]/100)),
+    status = case_when(
+      dtt <= cutoff[1]/100 ~ paste0("Weak (bottom ", cutoff[1],"%)"),
+      dtt > cutoff[1]/100 & dtt <= cutoff[2]/100 ~ paste0("Emerging (",cutoff[1],"% - ",cutoff[2],"%)"),
+        dtt > cutoff[2]/100 ~ paste0("Strong (top ",100-cutoff[2],"%)")
+      ),
+      nrank = min_rank(-value)
+  ) |>
+  rename(dtf = value) |>
+  mutate(var_name = paste0(family, " Average"))
+
+data_plot <- bind_rows(
+  data_plot,
+  data_avg
+)
+
 
 #center_flag <- data |>
 #  filter(country_name %in% data_plot$country_name) |>
