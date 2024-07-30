@@ -40,7 +40,7 @@ for(region in "Latin America & Caribbean"){
 }
 
 for(region in c(
- "Latin America & Caribbean",
+ #"Latin America & Caribbean",
  "Europe & Central Asia"#,
  #"Middle East & North Africa",
  #"South Asia",

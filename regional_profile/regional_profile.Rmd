@@ -276,7 +276,7 @@ plot_country_theme <- theme(
     legend.box = "vertical",
     
     strip.background = element_rect(fill=NA),
-    strip.text = element_text(size = ifelse(params$region=="Europe & Central Asia",12,14), color = id_colors$primary),
+    strip.text = element_text(size = ifelse(params$region=="Europe & Central Asia",11,14), color = id_colors$primary),
     #strip.text = element_blank(),
     
     axis.ticks = element_blank(),
@@ -285,7 +285,7 @@ plot_country_theme <- theme(
     axis.text.x = element_blank()
   )
 
-fig_asp <- 1.25
+fig_asp <- 1
 fig_width <- 14
 
 wrap_labeller <- function(variable, value) {
@@ -304,7 +304,7 @@ This regional profile for **`r params$region`** is based on the **CLIAR Dashboar
 
 data_plot <- 
   data |> 
-  distinct(country_name, ecb) |>
+  distinct(country_name, ecb, country_code) |>
   arrange(country_name) |>
   mutate(
     rank = row_number(),   
@@ -348,7 +348,7 @@ ggplot(data = data_plot) +
     aes(
       x = column,
       y = -row - 0.325,
-      label = str_wrap(country_name, 22),
+      label = str_wrap(paste0(country_name, " (",country_code,")"),22),
     ),
     size = 2.25,
     vjust = 1,
@@ -455,16 +455,18 @@ ggplot() +
     size = status_size,
     color = "transparent"
   )  +
-  geom_point(
-    data = data_plot,
-    aes(
-      y = var_name,
-      x = rank
-    ),
-    shape = 21,
-    size = point_size,
-    color = id_colors$primary
-  )  +
+  #geom_point(
+  #  data = data_plot,
+  #  aes(
+  #    y = fct_rev(factor(var_name, levels = family_order)),
+  #    x = rank
+  #  ),
+  #  shape = 21,
+  #  size = point_size,
+  #  fill = id_colors$primary,
+  #  stroke = 1,
+  #  color = "transparent"
+  #)  +
   scale_fill_manual(
     values = colors
   ) +
@@ -483,14 +485,26 @@ ggplot() +
     fill = NULL,
     shape = NULL
   ) +
-  ggflags::geom_flag(
+  #ggflags::geom_flag(
+  #  data = data_plot,
+  #  aes(
+  #    y = var_name,
+  #    x = rank,
+  #    country = ecb
+  #  ),
+  #  size = flag_size
+  #) +
+  geom_text(
     data = data_plot,
     aes(
-      y = var_name,
+      y = fct_rev(factor(var_name, levels = family_order)),
       x = rank,
-      country = ecb
+      label = country_code
     ),
-    size = flag_size
+    size = ifelse(params$region=="Europe & Central Asia",1.85,2.5),
+    color = "black",
+    vjust = 0.5,
+    fontface = "bold"
   ) +
   geom_curve(
     data = annotation_data,
@@ -553,8 +567,8 @@ data_plot <-
   data_clusters |>
   filter(comparison_group == params$region) |>
   filter(family_name == family) |>
-  filter(base_country == country_name) #|>
-  #filter(!grepl("Average", var_name))
+  filter(base_country == country_name) |>
+  filter(!grepl("Average", var_name))
 
 #center_flag <- data |>
 #  filter(country_name %in% data_plot$country_name) |>
@@ -581,20 +595,20 @@ other_elements <- ind_order[!grepl("Average", ind_order)]
 
 ind_order <- c(average_elements, other_elements)
 
-country_order_avg <- 
-  data_plot |>
-  filter(grepl("Average", var_name)) |>
-  arrange(-dtf) |> 
-  pull(country_name)
-
-countries_no_avg <- 
-  data_plot |>
-  filter(!grepl("Average", var_name)) |>
-  filter(!country_name %in% country_order_avg) |> 
-  pull(country_name) |>
-  unique()
-
-country_order <- c(country_order_avg, countries_no_avg)
+#country_order_avg <- 
+#  data_plot |>
+#  filter(grepl("Average", var_name)) |>
+#  arrange(-dtf) |> 
+#  pull(country_name)
+#
+#countries_no_avg <- 
+#  data_plot |>
+#  filter(!grepl("Average", var_name)) |>
+#  filter(!country_name %in% country_order_avg) |> 
+#  pull(country_name) |>
+#  unique()
+#
+#country_order <- c(country_order_avg, countries_no_avg)
 
 data_plot <- data_plot |> 
   mutate(country_name = factor(country_name, levels = country_order))
