@@ -1745,6 +1745,27 @@ server <- function(input, output, session) {
         return(is.na(indicator_val))
   }  
   
+  #FUNCTION FOR CHECKING COMPARISON COUNTRIES
+  
+  comp_check_data <- function(data, country, comp_countries, indicator) {
+  #Below is just based on the old check data function
+    var <- db_variables %>%
+      filter(var_name == indicator) %>%
+      pull(variable)
+    
+    #This modifies the data being pulled to only check the data within the comparison countries
+    comp_data <- data %>%
+      filter(country_name %in% comp_countries) %>%
+      select(country_name, var)
+    
+    # Check for NA values
+    any_na <- comp_data %>%
+      group_by(country_name) %>%
+      summarise(has_na = any(is.na(.data[[var]])), .groups = 'drop') %>%
+      pull(has_na)
+    
+    any(any_na)
+  }
   
   check_spatial_data <-function(data,indicator){
     
@@ -1763,8 +1784,17 @@ server <- function(input, output, session) {
   output$bar_plot <-
     renderPlotly({
       #browser()
+      #Base Check
         validate(need(check_data(global_data,input$country_bar,input$vars_bar) == FALSE,'Country Comparison is not available for this Indicator for the selected base country'))
-      
+      #Comparison Check
+      #This is to not run the comparison group validate check if no comparison countries were selected
+      if (!is.null(input$countries_bar)) 
+      {
+        #This runs the function to check if the comparison countries are valid for the given indicator
+        validate(need(comp_check_data(global_data, input$country_bar, input$countries_bar, input$vars_bar) == FALSE,
+                      'Country Comparison is not available for this Indicator with the selected comparison country'
+        ))
+      }
       if(input$value_bar == "ctf"){
         data<-global_data
       }
@@ -1894,7 +1924,15 @@ server <- function(input, output, session) {
       shiny::req(input$country_trends)
       shiny::req(input$vars_trends)
       validate(need(check_data(raw_data,input$country_trends,input$vars_trends) == FALSE,'Country Comparison is not available for this Indicator for the selected base country'))
-      
+      #This is to not run the comparison group validate check if no comparison countries were selected
+      if (!is.null(input$countries_trends)) 
+        
+      {
+        #This runs the function to check if the comparison countries are valid for the given indicator
+        validate(need(comp_check_data(global_data, input$country_bar, input$countries_trends, input$vars_bar) == FALSE,
+                      'Country Comparison is not available for this Indicator with the selected comparison country'
+        ))
+      }
       if (input$vars_trends != "") {
         var <-
           db_variables %>%
