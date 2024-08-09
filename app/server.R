@@ -1929,7 +1929,7 @@ server <- function(input, output, session) {
         
       {
         #This runs the function to check if the comparison countries are valid for the given indicator
-        validate(need(comp_check_data(global_data, input$country_bar, input$countries_trends, input$vars_bar) == FALSE,
+        validate(need(comp_check_data(raw_data, input$country_trends, input$countries_trends, input$vars_trends) == FALSE,
                       'Country Comparison is not available for this Indicator with the selected comparison country'
         ))
       }
