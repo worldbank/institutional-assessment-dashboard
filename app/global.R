@@ -165,21 +165,22 @@ clean_country <-
     )
   )  
 
-
-down_clust_ctf_stat_data <- read_rds(
-  here(
-    "data",
-    "closeness_to_frontier_confint_static.rds"
-  )
-)
-
-down_clust_ctf_dyn_data <- read_rds(
-  here(
-    "data",
-    "closeness_to_frontier_confint_dynamic.rds"
-  )
-)
-
+#THESE ARE NOT CURRENTLY IN USE. REMOVE LATER?
+#==========
+# down_clust_ctf_stat_data <- read_rds(
+#   here(
+#     "data",
+#     "closeness_to_frontier_confint_static.rds"
+#   )
+# )
+# 
+# down_clust_ctf_dyn_data <- read_rds(
+#   here(
+#     "data",
+#     "closeness_to_frontier_confint_dynamic.rds"
+#   )
+# )
+#==========
 for(i in 1:nrow(clean_country)){
   if (clean_country[i,'Clean_Names']!=""){
     country_list$country_name[country_list$country_name==clean_country[i,'Country']]=clean_country[i,'Clean_Names']
