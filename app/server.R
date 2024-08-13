@@ -677,7 +677,6 @@ server <- function(input, output, session) {
         ),
         selected = input$countries[!input$countries %in% unique(custom_grps_df()$Countries)]
       )
-      
       # updateCheckboxGroupButtons(
       #   session,
       #   "countries_bar",
@@ -691,7 +690,6 @@ server <- function(input, output, session) {
       #   ),
       #   selected = input$countries[!input$countries %in% unique(custom_grps_df()$Countries)]
       # )
-      
       updateCheckboxGroupButtons(
         session,
         "countries_scatter",
@@ -1709,7 +1707,7 @@ server <- function(input, output, session) {
     },
     ignoreNULL = FALSE
   )
-  
+
   
   # Bar plot ==================================================================
   # 
@@ -1728,45 +1726,95 @@ server <- function(input, output, session) {
     return(custom_df_bar)
     
   }) 
-  
-  
-  check_data <-function(data,country,indicator){
+  #Data Check Function (Base Country)
+  check_data <-function(data,country,indicator_1, indicator_2=NULL){
     
-        var <-
-          db_variables %>%
-          filter(var_name == indicator) %>%
-          pull(variable)
-
-        indicator_val <-
-          data %>%
+    #One variable scenario (used in bar and time trend)
+    if (is.null(indicator_2)){
+      #Establishes the variable (column) searched for
+      var <-
+        db_variables %>%
+        filter(var_name == indicator_1) %>%
+        pull(variable)
+      
+      #Establishes the base country (row) that is in use
+      indicator_val <-
+        data %>%
+        filter(country_name == country) %>%
+        pull(var)
+      
+      #Returns a boolean on whether or not the column is null for the selected indicator1
+      return(is.na(indicator_val))}
+    
+    #Two indicator scenario used in bivariate correlation
+    else{
+      
+      # Extracts the columns for the given indicators
+      vars <- db_variables %>%
+        filter(var_name %in% c(indicator_1, indicator_2)) %>%
+        pull(variable)
+      
+      # Checks that both indicators are in data
+      if (all(vars %in% names(data))) {
+        has_na <- data %>%
           filter(country_name == country) %>%
-          pull(var)
-          
-        return(is.na(indicator_val))
-  }  
+          select(all_of(vars)) %>%
+          summarise(across(everything(), ~ any(is.na(.)), .names = "has_na_{col}")) %>%
+          summarise(across(starts_with("has_na_"), any)) %>%
+          unlist() %>%
+          any()
+        
+        return(has_na)
+      } else {
+        # If any of the variables do not exist in dv_variables, this indicates missing data
+        return(TRUE)
+    }
+  }}  
   
-  #FUNCTION FOR CHECKING COMPARISON COUNTRIES
-  
-  comp_check_data <- function(data, country, comp_countries, indicator) {
+  #Data Check Function (Comparison Countries)
+  comp_check_data <- function(data, country, comp_countries, indicator_1, indicator_2=NULL) {
   #Below is just based on the old check data function
+    if (is.null(indicator_2)){
     var <- db_variables %>%
-      filter(var_name == indicator) %>%
+      filter(var_name == indicator_1) %>%
       pull(variable)
-    
+
     #This modifies the data being pulled to only check the data within the comparison countries
     comp_data <- data %>%
       filter(country_name %in% comp_countries) %>%
       select(country_name, var)
-    
+
     # Check for NA values
     any_na <- comp_data %>%
       group_by(country_name) %>%
       summarise(has_na = any(is.na(.data[[var]])), .groups = 'drop') %>%
       pull(has_na)
+  #Return True for any Missing Indicator data
+    any(any_na)}
     
-    any(any_na)
-  }
+    else{
+      vars <- db_variables %>%
+        filter(var_name %in% c(indicator_1, indicator_2)) %>%
+        pull(variable)
   
+      
+      # Filter data for comparison countries
+      comp_data <- data %>%
+        filter(country_name %in% comp_countries) %>%
+        select(country_name, all_of(vars))
+      
+      # Check for NA values in all specified columns.
+      any_na <- comp_data %>%
+        group_by(country_name) %>%
+        summarise(across(everything(), ~ any(is.na(.)), .names = "has_na_{col}"), .groups = 'drop') %>%
+        summarise(across(starts_with("has_na_"), any)) %>%
+        unlist() %>%
+        any()
+      
+      return(any_na)
+    }
+  }
+
   check_spatial_data <-function(data,indicator){
     
     var <-
@@ -1779,8 +1827,8 @@ server <- function(input, output, session) {
       pull(paste0("value_",var))
     
     return(all(is.na(indicator_val)))
-  }  
-  
+  } 
+ 
   output$bar_plot <-
     renderPlotly({
       #browser()
@@ -1850,12 +1898,22 @@ server <- function(input, output, session) {
   })
   
   output$scatter_plot <-
-    
     renderPlotly({
       
       shiny::req(input$y_scatter)
       shiny::req(input$x_scatter)
       
+      validate(need(check_data(global_data,input$country_scatter,input$y_scatter, input$x_scatter) == FALSE,
+                    'Country Comparison is not available for this Indicator for the selected base country'))
+      #Comparison Check
+      #This is to not run the comparison group validate check if no comparison countries were selected
+      if (!is.null(input$countries_scatter)) 
+      {
+        #This runs the function to check if the comparison countries are valid for the given indicator
+        validate(need(comp_check_data(global_data,input$country_scatter, input$countries_scatter, input$y_scatter, input$x_scatter) == FALSE,
+                      'Country Comparison is not available for these Indicators with the selected comparison country'))
+      }
+    
       static_scatter(
         global_data,
         input$country_scatter,
@@ -1926,7 +1984,6 @@ server <- function(input, output, session) {
       validate(need(check_data(raw_data,input$country_trends,input$vars_trends) == FALSE,'Country Comparison is not available for this Indicator for the selected base country'))
       #This is to not run the comparison group validate check if no comparison countries were selected
       if (!is.null(input$countries_trends)) 
-        
       {
         #This runs the function to check if the comparison countries are valid for the given indicator
         validate(need(comp_check_data(raw_data, input$country_trends, input$countries_trends, input$vars_trends) == FALSE,
@@ -1966,10 +2023,6 @@ server <- function(input, output, session) {
       
     )
   })
-  
-  
-  
-  
   
   browse_data <-
     reactive({
