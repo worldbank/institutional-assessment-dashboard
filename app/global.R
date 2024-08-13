@@ -59,6 +59,9 @@ source(here("auxiliary", "plots.R"))
 source(here("auxiliary", "clean_plotly_legend.R"))
 source(here("auxiliary", "fixfacets.R"))
 
+#Check data by indicator functions
+source(here("auxiliary", "fun_check_data.R"))
+
 # Function that displays publications
 source(here("auxiliary", "fun_publications.R"))
 
@@ -67,6 +70,7 @@ source(here("modules", "mod_publications.R"))
 
 # Guide/help
 source(here("auxiliary", "guides.R"))
+
 
 # Data -------------------------------------------------------------
 
