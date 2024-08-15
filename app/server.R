@@ -242,6 +242,11 @@ server <- function(input, output, session) {
         shinyjs::disable("pptreport")
       )
       toggleState(
+        id = "download_missing",
+        condition = input$select,
+        shinyjs::disable("download_missing")
+      )
+      toggleState(
         id = "download_data_1",
         condition = input$select,
         shinyjs::disable("download_data_1")
@@ -672,7 +677,6 @@ server <- function(input, output, session) {
         ),
         selected = input$countries[!input$countries %in% unique(custom_grps_df()$Countries)]
       )
-      
       # updateCheckboxGroupButtons(
       #   session,
       #   "countries_bar",
@@ -686,7 +690,6 @@ server <- function(input, output, session) {
       #   ),
       #   selected = input$countries[!input$countries %in% unique(custom_grps_df()$Countries)]
       # )
-      
       updateCheckboxGroupButtons(
         session,
         "countries_scatter",
@@ -880,6 +883,7 @@ server <- function(input, output, session) {
           width = "100%",
           shinyjs::disable("report"),
           shinyjs::disable("pptreport"),
+          shinyjs::disable('download_missing'),
           shinyjs::disable("download_data_1"),
           shinyjs::disable("save_inputs")
         ) #|> 
@@ -908,7 +912,12 @@ server <- function(input, output, session) {
       toggleState(
         id = "select",
         condition = length(input$countries) >= 10,
-        shinyjs::disable("pptpptreport"),
+        shinyjs::disable("pptreport"),
+      )
+      toggleState(
+        id = "select",
+        condition = length(input$countries) >= 10,
+        shinyjs::disable("download_missing"),
       )
       toggleState(
         id = "select",
@@ -1698,7 +1707,7 @@ server <- function(input, output, session) {
     },
     ignoreNULL = FALSE
   )
-  
+
   
   # Bar plot ==================================================================
   # 
@@ -1716,30 +1725,37 @@ server <- function(input, output, session) {
     
     return(custom_df_bar)
     
-  }) 
-  
-  
-  check_data <-function(data,country,indicator){
-    
-        var <-
-          db_variables %>%
-          filter(var_name == indicator) %>%
-          pull(variable)
-
-        indicator_val <-
-          data %>%
-          filter(country_name == country) %>%
-          pull(var)
-          
-        return(is.na(indicator_val))
-  }  
-  
+  })
+ 
   output$bar_plot <-
     renderPlotly({
-      
+      #browser()
+      #Base Check
         validate(need(check_data(global_data,input$country_bar,input$vars_bar) == FALSE,'Country Comparison is not available for this Indicator for the selected base country'))
+      #Comparison Check
+      #This is to not run the comparison group validate check if no comparison countries were selected
+      if (!is.null(input$countries_bar)) 
+      {
+        #This runs the function to check if the comparison countries are valid for the given indicator
+        validate(need(comp_check_data(global_data, input$country_bar, input$countries_bar, input$vars_bar) == FALSE,
+                      'Country Comparison is not available for this Indicator with the selected comparison country'
+        ))
+      }
+      if(input$value_bar == "ctf"){
+        data<-global_data
+      }
+      else{
+        data <-raw_data
+        
+        data <- data %>% 
+          select(-Year)%>%
+          group_by(country_code, country_name, income_group, region) %>%
+          fill(everything()) %>% 
+          slice(n())
+      }
+      
       static_bar(
-        global_data,
+        data,
         input$country_bar,
         input$countries_bar,
         input$groups_bar,
@@ -1780,12 +1796,22 @@ server <- function(input, output, session) {
   })
   
   output$scatter_plot <-
-    
     renderPlotly({
       
       shiny::req(input$y_scatter)
       shiny::req(input$x_scatter)
       
+      validate(need(check_data(global_data,input$country_scatter,input$y_scatter, input$x_scatter) == FALSE,
+                    'Country Comparison is not available for this Indicator for the selected base country'))
+      #Comparison Check
+      #This is to not run the comparison group validate check if no comparison countries were selected
+      if (!is.null(input$countries_scatter)) 
+      {
+        #This runs the function to check if the comparison countries are valid for the given indicator
+        validate(need(comp_check_data(global_data,input$country_scatter, input$countries_scatter, input$y_scatter, input$x_scatter) == FALSE,
+                      'Country Comparison is not available for these Indicators with the selected comparison country'))
+      }
+    
       static_scatter(
         global_data,
         input$country_scatter,
@@ -1810,6 +1836,8 @@ server <- function(input, output, session) {
   
   output$map <-
     renderPlotly({
+      
+      validate(need(check_spatial_data(spatial_data,input$vars_map) == FALSE,'Map is not available for this Indicator for the selected base country'))
       if (input$vars_map != "") {
         var_selected <-
           variable_names %>%
@@ -1852,7 +1880,14 @@ server <- function(input, output, session) {
       shiny::req(input$country_trends)
       shiny::req(input$vars_trends)
       validate(need(check_data(raw_data,input$country_trends,input$vars_trends) == FALSE,'Country Comparison is not available for this Indicator for the selected base country'))
-      
+      #This is to not run the comparison group validate check if no comparison countries were selected
+      if (!is.null(input$countries_trends)) 
+      {
+        #This runs the function to check if the comparison countries are valid for the given indicator
+        validate(need(comp_check_data(raw_data, input$country_trends, input$countries_trends, input$vars_trends) == FALSE,
+                      'Country Comparison is not available for this Indicator with the selected comparison country'
+        ))
+      }
       if (input$vars_trends != "") {
         var <-
           db_variables %>%
@@ -1886,10 +1921,6 @@ server <- function(input, output, session) {
       
     )
   })
-  
-  
-  
-  
   
   browse_data <-
     reactive({
@@ -2253,6 +2284,7 @@ server <- function(input, output, session) {
           base_country = base_country(),
           comparison_countries = input$countries,
           data = data_avg(),
+          wb_country_list = country_list,
           family_data = data_family(),
           data_dyn = data_dyn(),
           data_dyn_avg = data_dyn_avg(),
@@ -2266,7 +2298,72 @@ server <- function(input, output, session) {
           family_order = family_order,
           global_data = global_data,
           family_order = family_order,
-          download_opt = input$download_Opt
+          download_opt = input$download_Opt,
+          compiled_indicators = raw_data,
+          db_variables = db_variables
+        )
+      
+      #browser()
+      
+      rmarkdown::render(
+        tempReport,
+        output_file = file,
+        params = params,
+        envir = new.env(parent = globalenv()),
+        knit_root_dir = getwd()
+      )
+    }
+  )
+  
+  
+  # Missingness Report ================================================================================
+  
+  output$download_missing <- downloadHandler(
+    filename =
+      reactive(
+        paste0(
+          "Missing_data-",
+          base_country(),
+          ".docx"
+        )
+      ),
+    content = function(file) {
+      show_modal_spinner(
+        color = "#17a2b8",
+        text = "Compiling report",
+      )
+      
+      on.exit(remove_modal_spinner())
+      
+      tmp_dir <- tempdir()
+      
+      tempReport <- file.path(tmp_dir, "Missing_report.Rmd")
+      
+      file.copy("www/", tmp_dir, recursive = TRUE)
+      file.copy("Missing_report.Rmd", tempReport, overwrite = TRUE)
+      
+      params <-
+        list(
+          base_country = base_country(),
+          comparison_countries = input$countries,
+          data = data_avg(),
+          wb_country_list = country_list,
+          family_data = data_family(),
+          data_dyn = data_dyn(),
+          data_dyn_avg = data_dyn_avg(),
+          family_data_dyn = data_family_dyn(),
+          rank = input$rank,
+          definitions = definitions,
+          variable_names = variable_names,
+          dots = input$benchmark_dots,
+          group_median = input$benchmark_median,
+          threshold = input$threshold,
+          family_order = family_order,
+          global_data = global_data,
+          family_order = family_order,
+          download_opt = input$download_Opt,
+          compiled_indicators = raw_data,
+          db_variables = db_variables
         )
       
       #browser()
@@ -2313,7 +2410,7 @@ server <- function(input, output, session) {
       if (input$create_custom_grps == TRUE) {
         
         custom_df <- custom_grps_df()[custom_grps_df()$Grp %in% input$benchmark_median &
-                                        custom_grps_df()$Countries %in% input$countries]
+                                        custom_grps_df()$Countries %in% input$countries,]
       } else {
         custom_df <- NULL
       }
@@ -2329,7 +2426,8 @@ server <- function(input, output, session) {
           dots = input$benchmark_dots,
           custom_df = custom_df,
           title = FALSE,
-          threshold = input$threshold
+          threshold = input$threshold,
+          report = TRUE
         )
       
       plot2 <- data_dyn_avg() %>%
@@ -2397,7 +2495,8 @@ server <- function(input, output, session) {
               custom_df = custom_df(),
               threshold = input$threshold,
               preset_order = input$preset_order,
-              title = FALSE
+              title = FALSE,
+              report = TRUE
             )
           
           plt_f<-dml(ggobj = plt_f)
@@ -2499,9 +2598,9 @@ server <- function(input, output, session) {
   # Full methodology --------------------------------------------------------
   output$download_metho <-
     downloadHandler(
-      filename = "CLIAR-Methodological-Note_20220403.pdf",
+      filename = "CLIAR-Methodological-Note_20240501.pdf",
       content = function(file) {
-        file.copy("www/CLIAR-Methodological-Note_20220403.pdf", file)
+        file.copy("www/CLIAR-Methodological-Note_20240501.pdf", file)
       }
     )
   
