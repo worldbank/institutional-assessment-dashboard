@@ -1363,8 +1363,9 @@ server <- function(input, output, session) {
         )
       } #End If else
        }, error = function(e) {
-         # If an error occurs, display a standard text message
-         showNotification('An error occurred. Data is missing for the selected base country.','',type = "error",duration = 10)
+         showNotification(
+           'Data is missing for the selected base country or countries for the given indicator. Please try a different selection.','',
+           type = "message",duration = 30)
          return()
        })
       }) %>%
