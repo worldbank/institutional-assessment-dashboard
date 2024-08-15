@@ -71,6 +71,9 @@ source(here("modules", "mod_publications.R"))
 # Guide/help
 source(here("auxiliary", "guides.R"))
 
+#Use Bs4Dash Package post deprecation
+source(here("auxiliary","useBs4Dash.R"))
+
 
 # Data -------------------------------------------------------------
 
