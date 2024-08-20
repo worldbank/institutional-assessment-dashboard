@@ -258,12 +258,12 @@ server <- function(input, output, session) {
         "country_bar",
         selected = input$country
       )
-      
+  
       # updateCheckboxGroupButtons(
       #   session,
       #   "countries_bar",
       #   selected = input$countries
-      # )
+      #)
       
       # Bivariate correlation selection
       updatePickerInput(
@@ -1727,36 +1727,66 @@ server <- function(input, output, session) {
     return(custom_df_bar)
     
   })
- 
+  #================Reactive Menu Elements for Bar Chart
+  
+  # # Reactive expression to get dataset based on  user input
+  data <- reactive({
+    if (input$value_bar == "ctf") {
+      global_data
+    } else {
+      raw_data %>%
+        select(-Year) %>%
+        group_by(country_code, country_name, income_group, region) %>%
+        fill(everything()) %>%
+        slice(n())
+    }
+  })
+  
+  # Reactive expression to filter available comparison countries based on selected indicator
+  
+  filtered_countries_bar <- reactive({
+    req(input$vars_bar)  # Ensure the indicator is selected
+    
+    countries %>%
+      # Filter countries based on check_data function
+      .[!sapply(., function(country) check_data(data(), country, input$vars_bar))]
+  })
+  
+  
+  #Reactive Comparison Country Menu
+  observeEvent(
+    input$vars_bar,
+    {
+      available_countries_bar <- na.omit(filtered_countries_bar())
+      #Update Checkboxes
+      updateCheckboxGroupButtons(
+        session,
+        "countries_bar",
+        choices = available_countries_bar,
+        checkIcon = list(
+          yes = icon("ok",
+                     lib = "glyphicon",
+                     style = "color: #00000"
+          )
+        ),
+        #Maintains Selected Comparison Countries
+        # selected = intersect(input$countries_bar, available_countries_bar)
+        selected= input$countries_bar
+      )
+    })
+  
+  #=============================
+  
   output$bar_plot <-
+    
     renderPlotly({
       #browser()
-      #Base Check
+      #Base Country Check
         validate(need(check_data(global_data,input$country_bar,input$vars_bar) == FALSE,'Country Comparison is not available for this Indicator for the selected base country'))
-      #Comparison Check
-      #This is to not run the comparison group validate check if no comparison countries were selected
-      if (!is.null(input$countries_bar)) 
-      {
-        #This runs the function to check if the comparison countries are valid for the given indicator
-        validate(need(comp_check_data(global_data, input$country_bar, input$countries_bar, input$vars_bar) == FALSE,
-                      'Country Comparison is not available for this Indicator with the selected comparison country'
-        ))
-      }
-      if(input$value_bar == "ctf"){
-        data<-global_data
-      }
-      else{
-        data <-raw_data
-        
-        data <- data %>% 
-          select(-Year)%>%
-          group_by(country_code, country_name, income_group, region) %>%
-          fill(everything()) %>% 
-          slice(n())
-      }
-      
+
+      #== Bar Plot Creation
       static_bar(
-        data,
+        data(),
         input$country_bar,
         input$countries_bar,
         input$groups_bar,
@@ -1770,6 +1800,9 @@ server <- function(input, output, session) {
           plotly_remove_buttons
         )
     })
+
+      
+      
   
   # Scatter plot ============================================================
   
@@ -1795,7 +1828,36 @@ server <- function(input, output, session) {
     return(high_group_df)
     
   })
+  # Reactive expression to filter available comparison countries based on selected indicator
   
+  filtered_countries_scatter <- reactive({
+    req(input$y_scatter, input$x_scatter)  # Ensure the indicator is selected
+    
+    countries %>%
+      # Filter countries based on check_data function
+      .[!sapply(., function(country) check_data(global_data, country, input$y_scatter,input$x_scatter))]
+  })
+  
+  #Reactive Comparison Country Menu
+  observeEvent(
+    list(input$country_scatter, input$x_scatter),
+    {
+      available_countries_scatter <- na.omit(filtered_countries_scatter())
+      #Update Checkboxes
+      updateCheckboxGroupButtons(
+        session,
+        "countries_scatter",
+        choices = available_countries_scatter,
+        checkIcon = list(
+          yes = icon("ok",
+                     lib = "glyphicon",
+                     style = "color: #00000"
+          )
+        ),
+        #Maintains Selected Comparison Countries
+        selected = intersect(input$countries_scatter, available_countries_scatter)
+      )
+    })
   output$scatter_plot <-
     renderPlotly({
       
@@ -1804,14 +1866,7 @@ server <- function(input, output, session) {
       
       validate(need(check_data(global_data,input$country_scatter,input$y_scatter, input$x_scatter) == FALSE,
                     'Country Comparison is not available for this Indicator for the selected base country'))
-      #Comparison Check
-      #This is to not run the comparison group validate check if no comparison countries were selected
-      if (!is.null(input$countries_scatter)) 
-      {
-        #This runs the function to check if the comparison countries are valid for the given indicator
-        validate(need(comp_check_data(global_data,input$country_scatter, input$countries_scatter, input$y_scatter, input$x_scatter) == FALSE,
-                      'Country Comparison is not available for these Indicators with the selected comparison country'))
-      }
+      #===================
     
       static_scatter(
         global_data,
@@ -1875,26 +1930,49 @@ server <- function(input, output, session) {
     return(custom_df_trend)
     
   }) 
+  #========== REACTIVE MENU ITEMS-Trends
+  filtered_countries_trends <- reactive({
+    req(input$vars_trends)  # Ensure the indicator is selected
+    
+    countries %>%
+      # Filter countries based on check_data function
+      .[!sapply(., function(country) check_data(raw_data, country, input$vars_trends))]
+  })
   
+  
+  observeEvent(
+    list(input$country_trends, input$vars_trends),
+    {
+      available_countries_trends <- na.omit(filtered_countries_trends())
+      
+      #Update Checkboxes
+      updateCheckboxGroupButtons(
+        session,
+        "countries_trends",
+        choices = available_countries_trends,
+        checkIcon = list(
+          yes = icon("ok",
+                     lib = "glyphicon",
+                     style = "color: #00000"
+          )
+        ),
+        #Maintains Selected Comparison Countries
+        selected = intersect(input$countries_trends, available_countries_trends)
+      )
+    })
+  #==============
   output$time_series <-
     renderPlotly({
       shiny::req(input$country_trends)
       shiny::req(input$vars_trends)
       validate(need(check_data(raw_data,input$country_trends,input$vars_trends) == FALSE,'Country Comparison is not available for this Indicator for the selected base country'))
-      #This is to not run the comparison group validate check if no comparison countries were selected
-      if (!is.null(input$countries_trends)) 
-      {
-        #This runs the function to check if the comparison countries are valid for the given indicator
-        validate(need(comp_check_data(raw_data, input$country_trends, input$countries_trends, input$vars_trends) == FALSE,
-                      'Country Comparison is not available for this Indicator with the selected comparison country'
-        ))
-      }
+#This if condition establishes var, which is used in the plot
       if (input$vars_trends != "") {
         var <-
           db_variables %>%
           filter(var_name == input$vars_trends) %>%
           pull(variable)
-        
+    #===== Trend Plot:
         trends_plot(
           raw_data,
           var,
@@ -1908,18 +1986,18 @@ server <- function(input, output, session) {
         )
       }
     })
-  
-  
+  #=========================
+  # 
   shiny::observeEvent(input$y_scatter, {
-    
+
     shiny::req(input$y_scatter)
-    
+
     updatePickerInput(
-      session, 
+      session,
       inputId =  "x_scatter",
       choices = x_scatter_choices(input$y_scatter)
-      
-      
+
+
     )
   })
   

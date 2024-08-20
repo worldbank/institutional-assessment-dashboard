@@ -46,52 +46,6 @@ check_data <-function(data,country,indicator_1, indicator_2=NULL){
       return(TRUE)
   }
 }}
-
-#==================================
-#This function checks data for comparison countries in time trend, bar plot, and scatterplot
-comp_check_data <- function(data, country, comp_countries, indicator_1, indicator_2=NULL) {
-#Below is just based on the old check data function
-  if (is.null(indicator_2)){
-  var <- db_variables %>%
-    filter(var_name == indicator_1) %>%
-    pull(variable)
-
-  #This modifies the data being pulled to only check the data within the comparison countries
-  comp_data <- data %>%
-    filter(country_name %in% comp_countries) %>%
-    select(country_name, var)
-
-  # Check for NA values
-  any_na <- comp_data %>%
-    group_by(country_name) %>%
-    summarise(has_na = any(is.na(.data[[var]])), .groups = 'drop') %>%
-    pull(has_na)
-#Return True for any Missing Indicator data
-  any(any_na)}
-
-  else{
-    vars <- db_variables %>%
-      filter(var_name %in% c(indicator_1, indicator_2)) %>%
-      pull(variable)
-
-
-    # Filter data for comparison countries
-    comp_data <- data %>%
-      filter(country_name %in% comp_countries) %>%
-      select(country_name, all_of(vars))
-
-    # Check for NA values in all specified columns.
-    any_na <- comp_data %>%
-      group_by(country_name) %>%
-      summarise(across(everything(), ~ any(is.na(.)), .names = "has_na_{col}"), .groups = 'drop') %>%
-      summarise(across(starts_with("has_na_"), any)) %>%
-      unlist() %>%
-      any()
-
-    return(any_na)
-  }
-}
-
 #==============================
 #This Function checks data for the map section
 
