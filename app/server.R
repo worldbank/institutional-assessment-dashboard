@@ -1930,7 +1930,7 @@ server <- function(input, output, session) {
     return(custom_df_trend)
     
   }) 
-  #========== REACTIVE MENU ITEMS-Trends
+  #=== REACTIVE Comparison Country MENU ITEMS-Trends
   filtered_countries_trends <- reactive({
     req(input$vars_trends)  # Ensure the indicator is selected
     
@@ -1960,7 +1960,7 @@ server <- function(input, output, session) {
         selected = intersect(input$countries_trends, available_countries_trends)
       )
     })
-  #==============
+  #============== Time Trends Output
   output$time_series <-
     renderPlotly({
       shiny::req(input$country_trends)
@@ -2000,122 +2000,90 @@ server <- function(input, output, session) {
 
     )
   })
-  
-  browse_data <-
-    reactive({
-      data <-
-        if (input$data_source == "Closeness to frontier (Static)") {
-
-          global_data
-
-        } else {
-          if(input$data_source == "Closeness to frontier (Dynamic)"){
-         
-            global_data_dyn
- 
-          }else{
-            
-            raw_data%>%
-              select(-ends_with("_avg"))
-            
-          }
-          
-        }
-      
-      groups <- all_groups
-        # if (input$groups_data == "All") {
-        #   all_groups
-        # } else if (input$groups_data == "Comparison groups only" & input$groups != "") {
-        #   input$groups
-        # } else {
-        #   ""
-        # }
-      
-      selected_countries <-
-        if (input$countries_data == "All") {
-          countries
-        } else if (input$countries_data == "Base country only") {
-          input$country
-        } else if (input$countries_data == "Base + comparison countries") {
-          c(input$country, input$countries)
-        }
-      
-      vars <-
-        variable_names %>%
-        filter(
-          family_name %in% input$vars,
-          var_level == "indicator"
-        ) %>%
-        select(variable) %>%
-        unlist()
-      
-      if (input$data_source == "Closeness to frontier (Static)") {
-        vars_table <- c("country_name", "country_code", "country_group","income_group","region",vars)
-      }else{
-        if(input$data_source == "Closeness to frontier (Dynamic)"){
-          vars_table <- c("country_name", "country_code", "country_group","income_group","region", "year", vars)
-        } else {
-          vars_table <- names(data)
-        }
-      }
-      
-      
-      vars_table <- unname(vars_table)
-      
-      data <-
+#=====================REACTIVE pre_download_data:
+  #This creates a reactive pre-download version of the dataset for the user
+  pre_download_data <- reactive({
+    # browser()
+    # Step 1: Select Data Based input$data_source
+    data <- switch(
+      input$data_source,
+      "Closeness to frontier (Static)" = global_data,
+      "Closeness to frontier (Dynamic)" = global_data_dyn,
+      "Original indicators" = raw_data %>% select(-ends_with("_avg"))
+    )
+    # Step 2: Determine Groups
+    groups <- all_groups
+    #Step 3: Deal with Selected Countries
+    selected_countries <- switch(
+      input$countries_data,
+      "All" = countries,
+      "Base country only" = input$country,
+      "Base + comparison countries" = c(input$country, input$countries)
+    )
+    
+    # Step 4: Pull Vars 
+    vars <- variable_names %>%
+      filter(family_name %in% input$vars, var_level == "indicator") %>%
+      pull(variable)
+    
+    # Step 5: Determine Variables Table for Selection
+    vars_table <- switch(
+      input$data_source,
+      "Closeness to frontier (Static)" = c("country_name", "country_code", "country_group", "income_group", "region", vars),
+      "Closeness to frontier (Dynamic)" = c("country_name", "country_code", "country_group", "income_group", "region", "year", vars),
+      #For the raw dataset
+      names(data)
+    )
+    vars_table <- unname(vars_table)
+    
+    # Step 6: Process Data (to ensure formatting)
+    data <- data %>%
+      filter(country_name %in% c(selected_countries, groups)) %>%
+      ungroup() %>%
+      mutate(across(where(is.numeric), round, 3)) %>%
+      select(any_of(vars_table))
+    # Step 7: Rename Columns
+    data <- data %>%
+      setnames(
+        old = as.character(variable_names$variable),
+        new = as.character(variable_names$var_name),
+        skip_absent = TRUE
+      )
+    # Step 8: Handle Rank selection 
+    if (input$data_value == "Rank") {
+      data1 <-
         data %>%
-        filter(
-          country_name %in% c(selected_countries, groups)
-        ) %>%
-        ungroup() %>%
+        filter(country_group == 0) %>%
         mutate(
           across(
-            where(is.numeric),
-            round, 3
+            6:ncol(.),
+            ~ rank(desc(.), ties.method = "min")
           )
-        ) %>%
-        select(any_of(vars_table))
-      
-      data <-
-        data %>%
-        setnames(
-          .,
-          as.character(variable_names$variable),
-          as.character(variable_names$var_name),
-          skip_absent = TRUE
         )
       
-      if (input$data_value == "Rank") {
-        data1 <-
-          data %>%
-          filter(country_group == 0) %>%
-          mutate(
-            across(
-              6:ncol(.),
-              ~ rank(desc(.), ties.method = "min")
-            )
-          )
-        
-        # data2<-data %>%
-        #   filter(country_group == 1) %>%
-        #   mutate(
-        #     across(
-        #       4:ncol(.),
-        #       ~ dense_rank(desc(.))
-        #     )
-        #   )
-        
-        data <- data1
-      }
+      #LEGACY COMMENTVV
       
-      return(data)
-    })
-  
+      # data2<-data %>%
+      #   filter(country_group == 1) %>%
+      #   mutate(
+      #     across(
+      #       4:ncol(.),
+      #       ~ dense_rank(desc(.))
+      #     )
+      #   )
+      
+      data <- data1
+    }
+    
+    return(data)
+    
+  })
+#================================ Download Page Outputs
   output$benchmark_datatable <-
     DT::renderDataTable(
       server = FALSE,
       datatable(
-        browse_data()%>%
+        pre_download_data()%>%
           setnames(
             .,
             as.character(db_variables$variable),
@@ -2151,16 +2119,9 @@ server <- function(input, output, session) {
         
         on.exit(remove_modal_spinner())
         
-        write_rds(
-          browse_data() %>%
-            setnames(
-              .,
-              as.character(db_variables$var_name),
-              as.character(db_variables$variable),
-              skip_absent = TRUE
-            ),
-          file
-        )
+        write_rds( 
+          rds_prep(pre_download_data()),
+          file)
       }
     )
   
@@ -2180,10 +2141,9 @@ server <- function(input, output, session) {
         on.exit(remove_modal_spinner())
         
         write_csv(
-          browse_data(),
+          pre_download_data(),
           file,
-          na = ""
-        )
+          na = "")
       }
     )
   
@@ -2202,18 +2162,9 @@ server <- function(input, output, session) {
         
         on.exit(remove_modal_spinner())
         
-        write_dta(
-          browse_data() %>%
-            setnames(
-              .,
-              as.character(db_variables$var_name),
-              substr(as.character(db_variables$variable),1,32),
-              skip_absent = TRUE
-            )%>%
-            rename_all(~ ifelse(nchar(.) > 32, str_sub(., end = 32), .))
-          ,
-          file
-        )
+        write_dta( 
+          dta_prep(pre_download_data()),
+          file)
       }
     )
   
@@ -2613,21 +2564,21 @@ server <- function(input, output, session) {
   
   output$definition <-
     renderTable({
-      
-      shiny::req(input$family) ## very crucial. As the app reads the family from the input file, 
+
+      shiny::req(input$family) ## very crucial. As the app reads the family from the input file,
       # we don't want it to display "Warning: Error in if: argument is of length zero". This happens during transitions.
       # This line ensures that the table is only displayed when family is not NULL. It's null when we
       # transition from the default "Overview" to the family saved in the setup file.
-      
+
       variables <- db_variables %>%
         filter(var_level == "indicator" & benchmarked_ctf == 'Yes' & family_var != 'vars_other')
-      
+
       if (input$family != "Overview") {
         variables <-
           variables %>%
           filter(family_name == input$family)
       }
-      
+
       variables %>%
         select(
           Indicator = var_name,
@@ -2635,9 +2586,9 @@ server <- function(input, output, session) {
           Description = description,
           Source = source
         )
-      
+
     })
-  
+
   output$definition_bar <-
     renderTable({
       variables <-
@@ -2652,8 +2603,9 @@ server <- function(input, output, session) {
           Source = source
         )
     })
-  
-  
+
+
+ #======================================= 
   # Download csv with definitions
   output$download_indicators <-
     downloadHandler(
