@@ -61,9 +61,9 @@ oecd_pmr <- read_dta(
 )
 
 spi <- read_csv(
-  here("data", "input", "spi", "spi_index.csv")
+  here("data", "input", "spi", "2024", "SPI_index_labelled.csv")
 ) |> 
-  clean_names()
+  clean_names() 
 
 aspire <- read_dta(
   here("data", "input", "aspire", "ASPIRE performance indicators.dta")
@@ -73,12 +73,16 @@ rise <- read_dta(
   here("data", "input", "rise", "RISE_20102021.dta")
 )
 
-wdi <- read_dta(
+wdix <- read_dta(
   here("data", "input", "wdi", "WDI_19902022_CLIAR.dta")
 )
 
-vdem <- read_dta(
-  here("data", "input", "vdem", "VDEM_1990_2022.dta")
+wdi <- read_dta(
+  here("data", "input", "wdi", "2024", "wdi_19902023.dta")
+)
+
+vdem <- read_csv(
+  here("data", "input", "vdem", "2024", "vdem_19902023.csv.gz")
 )
 
 heritage <- read_dta(
@@ -297,7 +301,14 @@ oecd_epl_clean <- oecd_epl_regular_clean |>
 
 # SPI.DIM4.1.CEN.INDEX	SPI.DIM4.1.SVY.INDEX Dimension 5.2: Standards and Methods
 # SPI.DIM5.2.INDEX
-spi_clean <- spi |> 
+spi_clean <- spi %>%
+slice(-1)|> 
+  mutate(
+    spi_dim4_1_cen_index = as.numeric(spi_dim4_1_cen_index),
+    spi_dim4_1_svy_index = as.numeric(spi_dim4_1_svy_index),
+    spi_dim5_2_index = as.numeric(spi_dim5_2_index),
+    date = as.numeric(date) # Relevant cols as numeric
+  ) |> 
   rowwise() |> 
   # generate an average index of the census and survey indexes
   mutate(
@@ -355,16 +366,43 @@ rise_clean <- rise |>
   clean_names()
 
 # 8. wdi data
-wdi_clean <- wdi |> 
-  clean_names() |> 
-  select(-countryname)
+# wdi_clean <- wdix |> 
+#   clean_names() |> 
+#   select(-countryname)
+
+wdi_clean <- wdi |>
+  rename(
+    country_name = countryname,
+    country_code = countrycode
+  ) |>
+  rename_with(
+    ~ str_to_upper(.) %>% 
+      str_replace_all("^WDI_", "WDI_"), 
+      starts_with("wdi_")
+  )
+
+columns_to_drop <- c(
+  "country_name",
+  "WDI_DCODATOTLGNZS",
+  "WDI_DTDODPVLXGNZS",
+  "WDI_PERSIALLSIADQPOPTOT",
+  "WDI_PERALLSPADQPOPTOT",
+  "WDI_PERSAALLSAADQPOPTOT",
+  "WDI_PERSIALLSICOVPOPTOT",
+  "WDI_PERSIALLSICOVQ1TOT",
+  "WDI_PERALLSPCOVPOPTOT",
+  "WDI_PERSAALLSACOVQ1TOT",
+  "WDI_SHMEDCMHWP3",
+  "WDI_SIPOVMDIM",
+  "WDI_SIPOVMDIMXQ"
+)
+
+# Drop the specified columns
+wdi_clean <- wdi_clean |>
+  select(-all_of(columns_to_drop))
 
 # 9. vdem
-vdem_clean <- vdem |> 
-  clean_names() |> 
-  # remove duplicate entries for west-bank and gaza
-  distinct(country_code, year, .keep_all = TRUE) |> 
-  select(-country_name)
+vdem_clean <- vdem 
 
 # 10. heritage
 heritage_clean <- heritage |> 
@@ -515,6 +553,44 @@ cliar_indicators <- cliar_indicators %>%
   )
 ```
 
+
+```{r wdi drama}
+# Extract column names
+wdi_clean_cols <- colnames(wdi_clean)
+wdix_cols <- colnames(wdix)
+
+# Identify extra columns
+extra_wdi_clean_cols <- setdiff(wdi_clean_cols, wdix_cols)
+extra_wdix_cols <- setdiff(wdix_cols, wdi_clean_cols)
+
+# Identify common columns to compare names
+common_cols <- intersect(wdi_clean_cols, wdix_cols)
+
+# Example of comparing names (assuming some columns might have slight differences)
+library(dplyr)
+
+# Rename columns in wdi_clean and wdix to lower case for comparison
+wdi_clean_renamed <- wdi_clean %>%
+  rename_with(~ tolower(gsub(" ", "_", .)))
+
+wdix_renamed <- wdix %>%
+  rename_with(~ tolower(gsub(" ", "_", .)))
+
+# Compare common columns in a case-insensitive manner
+diff_names <- setdiff(tolower(common_cols), tolower(gsub(" ", "_", wdix_cols)))
+
+# Print results
+print("Extra columns in wdi_clean:")
+print(extra_wdi_clean_cols)
+
+print("Extra columns in wdix:")
+print(extra_wdix_cols)
+
+print("Differences in column names for common columns:")
+print(diff_names)
+```
+
+
 ## 4. Data Quality Control: Indicator Selection
 
 Verify that the indicators are selected correctly. To do this, take the non-removed indicators from the metadata file as the indicators from combined dataset created in step 5 and ensure they have the same contents by using an anti-join in both directions. Re-select indicators to ensure that only the indicators in metadata and v2 id cols are in data.
@@ -527,7 +603,7 @@ db_variables_indicators <- db_variables |>
   )
 
 # only retain indicators contained in metadata + id cols
-cliar_indicators <- cliar_indicators |> 
+cliar_indicators <- cliar_indicators %>%  
   # add country names
   left_join(
     wb_country_list |> 
@@ -542,9 +618,9 @@ cliar_indicators <- cliar_indicators |>
   )
 
 cliar_indicators_id <- cliar_indicators |> 
-  colnames() %>% 
+  colnames()|> 
   tibble(
-    variable = .
+    variable = colnames(cliar_indicators)
   )
 
 test_that(
@@ -605,7 +681,8 @@ cliar_indicators_clean <- cliar_indicators |>
   left_join(
     cliar_family_level,
     by = c("country_code", "year")
-  )
+  ) %>% 
+  filter(!country_code %in% c("DDR", "YMD")) # Filter 2 rows
 ```
 
 ## 6. Data Quality Control: verify country_code and country_name consistency
@@ -630,6 +707,28 @@ test_that(
       0
   )
 )
+
+
+
+
+##################
+# # Identify unmatched rows
+# unmatched_rows <- cliar_indicators_clean %>%
+#   distinct(country_code, country_name) %>%
+#   anti_join(
+#     wb_country_list %>%
+#       distinct(country_code, country_name),
+#     by = c("country_code", "country_name")
+#   )
+# 
+# # Print unmatched rows
+# print("Unmatched rows in cliar_indicators_clean:")
+# print(unmatched_rows)
+# # DDR & YMD 
+# # GERMANY (EAST) DEMOCRATIC REPUBLIC should be DEU
+# # YEMEN, SOUTH (ADEN) should be YEM
+
+##################
 
 # b. verify that cliar has distinct country-year
 test_that(
