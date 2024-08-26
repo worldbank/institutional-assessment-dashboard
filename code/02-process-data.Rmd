@@ -85,8 +85,12 @@ vdem <- read_csv(
   here("data", "input", "vdem", "2024", "vdem_19902023.csv.gz")
 )
 
-heritage <- read_dta(
+heritagex <- read_dta(
   here("data", "input", "heritage", "heritage20122022.dta")
+)
+
+heritage <- read_dta(
+  here("data", "input", "heritage", "2024", "heritage20122024.dta")
 )
 
 open_budget <- list.files(
@@ -143,8 +147,12 @@ country_income_and_region <- read_xlsx(
       country_code != "PRK"
   )
 
-wbl <- read_dta(
+wblx <- read_dta(
   here("data", "input", "wbl", "WBL_19902022_CLIAR.dta")
+)
+
+wbl <- read_dta(
+  here("data", "input", "wbl", "WBL_19902023_CLIAR.dta")
 )
 
 # note that North America is not included in this list
@@ -366,9 +374,12 @@ rise_clean <- rise |>
   clean_names()
 
 # 8. wdi data
-# wdi_clean <- wdix |> 
-#   clean_names() |> 
-#   select(-countryname)
+wdix_clean <- wdix |>
+  clean_names() |>
+  select(-countryname) |>
+   rename_with(
+    ~ str_to_lower(.) ) 
+  
 
 wdi_clean <- wdi |>
   rename(
@@ -376,8 +387,8 @@ wdi_clean <- wdi |>
     country_code = countrycode
   ) |>
   rename_with(
-    ~ str_to_upper(.) %>% 
-      str_replace_all("^WDI_", "WDI_"), 
+    ~ str_to_lower(.) %>% 
+      str_replace_all("^wdi_", "wdi_"), 
       starts_with("wdi_")
   )
 
@@ -385,17 +396,19 @@ columns_to_drop <- c(
   "country_name",
   "WDI_DCODATOTLGNZS",
   "WDI_DTDODPVLXGNZS",
-  "WDI_PERSIALLSIADQPOPTOT",
-  "WDI_PERALLSPADQPOPTOT",
-  "WDI_PERSAALLSAADQPOPTOT",
-  "WDI_PERSIALLSICOVPOPTOT",
-  "WDI_PERSIALLSICOVQ1TOT",
-  "WDI_PERALLSPCOVPOPTOT",
-  "WDI_PERSAALLSACOVQ1TOT",
-  "WDI_SHMEDCMHWP3",
+  # "WDI_PERSIALLSIADQPOPTOT",
+  # "WDI_PERALLSPADQPOPTOT",
+  # "WDI_PERSAALLSAADQPOPTOT",
+  # "WDI_PERSIALLSICOVPOPTOT",
+  # "WDI_PERSIALLSICOVQ1TOT",
+  # "WDI_PERALLSPCOVPOPTOT",
+  # "WDI_PERSAALLSACOVQ1TOT",
+  # "WDI_SHMEDCMHWP3",
   "WDI_SIPOVMDIM",
   "WDI_SIPOVMDIMXQ"
 )
+
+columns_to_drop <- tolower(columns_to_drop)
 
 # Drop the specified columns
 wdi_clean <- wdi_clean |>
@@ -554,10 +567,10 @@ cliar_indicators <- cliar_indicators %>%
 ```
 
 
-```{r wdi drama}
+```{r wdi rename db_variables convention}
 # Extract column names
 wdi_clean_cols <- colnames(wdi_clean)
-wdix_cols <- colnames(wdix)
+wdix_cols <- colnames(wdix_clean)
 
 # Identify extra columns
 extra_wdi_clean_cols <- setdiff(wdi_clean_cols, wdix_cols)
@@ -566,8 +579,6 @@ extra_wdix_cols <- setdiff(wdix_cols, wdi_clean_cols)
 # Identify common columns to compare names
 common_cols <- intersect(wdi_clean_cols, wdix_cols)
 
-# Example of comparing names (assuming some columns might have slight differences)
-library(dplyr)
 
 # Rename columns in wdi_clean and wdix to lower case for comparison
 wdi_clean_renamed <- wdi_clean %>%
@@ -588,6 +599,19 @@ print(extra_wdix_cols)
 
 print("Differences in column names for common columns:")
 print(diff_names)
+
+###
+# RESULTS
+# > print(extra_wdi_clean_cols)
+# [1] "wdi_persiallsiadqpoptot" "wdi_perallspadqpoptot"   "wdi_persaallsaadqpoptot" "wdi_persiallsicovpoptot"
+# [5] "wdi_persiallsicovq1tot"  "wdi_perallspcovpoptot"   "wdi_persaallsacovq1tot"  "wdi_shmedcmhwp3"        
+# > print("Extra columns in wdix:")
+# [1] "Extra columns in wdix:"
+# > print(extra_wdix_cols)
+# [1] "wdi_seadtlitrfezs" "wdi_seadtlitrmazs" "wdi_seadtlitrzs"   "wdi_shdynmort"     "wdi_shstaanvczs"   "wdi_shstammrt"    
+# [7] "wdi_spdynamrtfe"   "wdi_spdynamrtma" 
+
+
 ```
 
 

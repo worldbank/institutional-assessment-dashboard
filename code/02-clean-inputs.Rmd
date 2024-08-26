@@ -29,7 +29,7 @@ library(countrycode)
 library(purrr)
 library(vdemdata) # R Package version: ?
 library(WDI) # R Package version: ?
-library(RStata)
+library(RStata) # Do files
 ```
 
 
@@ -53,25 +53,13 @@ options("RStata.StataVersion" = 18)
 
 stata("/data/input/heritage/clean heritage.do")
 
-aspire <- read_dta(
-  here("data", "input", "aspire", "ASPIRE performance indicators.dta")
+
+heritage <- read_dta(
+  here("data", "input", "heritage", "2024", "heritage20122024.dta")
 )
 
-
-fraser <- read_csv(
-  here("data", "input", "fraser", "fraser.csv")
-) |>
-  clean_names()
-
-
-spi <- read_csv(
-  here("data", "input", "spi", "2024", "SPI_index_labelled.csv")
-) |> 
-  clean_names() 
-
-
-rise <- read_dta(
-  here("data", "input", "rise", "RISE_20102021.dta")
+wdi <- read_dta(
+  here("data", "input", "wdi", "2024", "wdi_19902023.dta")
 )
 
 
