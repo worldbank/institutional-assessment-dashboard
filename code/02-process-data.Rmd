@@ -17,7 +17,7 @@ source(
   here("funs.R")
 )
 
-ref_year <- 2023
+ref_year <- 2024
 ```
 
 ## 1. Import data
@@ -394,32 +394,31 @@ wdi_clean <- wdi |>
 
 columns_to_drop <- c(
   "country_name",
-  "WDI_DCODATOTLGNZS",
-  "WDI_DTDODPVLXGNZS",
-  # "WDI_PERSIALLSIADQPOPTOT",
-  # "WDI_PERALLSPADQPOPTOT",
-  # "WDI_PERSAALLSAADQPOPTOT",
-  # "WDI_PERSIALLSICOVPOPTOT",
-  # "WDI_PERSIALLSICOVQ1TOT",
-  # "WDI_PERALLSPCOVPOPTOT",
-  # "WDI_PERSAALLSACOVQ1TOT",
-  # "WDI_SHMEDCMHWP3",
-  "WDI_SIPOVMDIM",
-  "WDI_SIPOVMDIMXQ"
-)
-
-columns_to_drop <- tolower(columns_to_drop)
-
-# Drop the specified columns
+  "wdi_dcodatotlgnzs", 
+  "wdi_dtdodpvlxgnzs", 
+  "wdi_shmedcmhwp3",  
+  "wdi_sipovmdim",     
+  "wdi_sipovmdimxq"  
+)  
+  
 wdi_clean <- wdi_clean |>
-  select(-all_of(columns_to_drop))
+  select(!all_of(columns_to_drop)) |>
+  rename(
+    wdi_spdynamrtfe = wdi_shdynmortfe,
+    wdi_spdynamrtma = wdi_shdynmortma
+  ) |>
+  filter(!is.na(country_code) & country_code != ""
+  ) |>
+  distinct(country_code, year, .keep_all = TRUE)
+
 
 # 9. vdem
 vdem_clean <- vdem 
 
 # 10. heritage
 heritage_clean <- heritage |> 
-  clean_names()
+  clean_names() |>
+  filter(!is.na(country_code) & country_code != "")
 
 # 11. OECD Product Market Regulation
 oecd_pmr_clean <- oecd_pmr |> 
@@ -567,7 +566,7 @@ cliar_indicators <- cliar_indicators %>%
 ```
 
 
-```{r wdi rename db_variables convention}
+```{r wdi rename db_variables convention, eval=FALSE, include=FALSE}
 # Extract column names
 wdi_clean_cols <- colnames(wdi_clean)
 wdix_cols <- colnames(wdix_clean)
@@ -600,18 +599,37 @@ print(extra_wdix_cols)
 print("Differences in column names for common columns:")
 print(diff_names)
 
+db_variables_names <- db_variables %>% 
+  filter(variable %in% c("wdi_seadtlitrfezs", "wdi_seadtlitrmazs", "wdi_seadtlitrzs", 
+                          "wdi_shdynmort", "wdi_shstaanvczs", "wdi_shstammrt", 
+                          "wdi_spdynamrtfe", "wdi_spdynamrtma"))
+
+
+
 ###
 # RESULTS
-# > print(extra_wdi_clean_cols)
-# [1] "wdi_persiallsiadqpoptot" "wdi_perallspadqpoptot"   "wdi_persaallsaadqpoptot" "wdi_persiallsicovpoptot"
-# [5] "wdi_persiallsicovq1tot"  "wdi_perallspcovpoptot"   "wdi_persaallsacovq1tot"  "wdi_shmedcmhwp3"        
-# > print("Extra columns in wdix:")
-# [1] "Extra columns in wdix:"
+
+# [1] "Extra columns in wdix:" db-variables
 # > print(extra_wdix_cols)
 # [1] "wdi_seadtlitrfezs" "wdi_seadtlitrmazs" "wdi_seadtlitrzs"   "wdi_shdynmort"     "wdi_shstaanvczs"   "wdi_shstammrt"    
 # [7] "wdi_spdynamrtfe"   "wdi_spdynamrtma" 
 
 
+###
+
+  # "SE.ADT.LITR.FE.ZS",  # Literacy rate, adult female
+  # "SE.ADT.LITR.MA.ZS",  # Literacy rate, adult male
+  # "SE.ADT.LITR.ZS",     # Literacy rate, adult total
+  # "SH.DYN.MORT",        # Mortality rate, under-5
+  # "SH.STA.PRSC.ZS",     # Pregnant women receiving prenatal care
+  # "SH.MMR.RATIO",       # Maternal mortality ratio
+  # "SH.DYN.MORT.FE",     # Mortality rate, adult female
+  # "SH.DYN.MORT.MA"      # Mortality rate, adult male
+
+###
+# Rename
+#  "SH.DYN.MORT.FE",     # Mortality rate, adult female sp.dyn.amrt.fe
+#  "SH.DYN.MORT.MA",    # Mortality rate, adult male 
 ```
 
 
@@ -705,8 +723,29 @@ cliar_indicators_clean <- cliar_indicators |>
   left_join(
     cliar_family_level,
     by = c("country_code", "year")
-  ) %>% 
-  filter(!country_code %in% c("DDR", "YMD")) # Filter 2 rows
+  ) |>
+  filter(!country_code %in% c("DDR", "YMD"))
+
+```
+
+```{r eval=FALSE, include=FALSE}
+### Balancing the panel
+# Create a new row with specified values
+new_row <- tibble(
+  country_code = "CHI",
+  country_name = "Channel Islands",
+  year = 2023
+)
+
+# Add NA for all other columns
+new_row <- new_row %>%
+  mutate(
+  add_column(across(everything(), ~ NA))
+)
+
+# Add the new row to the existing dataframe
+cliar_indicators_clean <- cliar_indicators_clean %>%
+  bind_rows(new_row)
 ```
 
 ## 6. Data Quality Control: verify country_code and country_name consistency
@@ -716,6 +755,8 @@ This section ensures that the country_code code and the country name are consist
 ```{r country_validation}
 # there are 218 country codes listed in the WB's official website
 # https://datahelpdesk.worldbank.org/knowledgebase/articles/906519-world-bank-country-and-lending-groups
+
+
 # a. verify that all the country codes from the official data are included
 test_that(
   "Verify that all the country codes from the official data are included",
@@ -731,28 +772,6 @@ test_that(
       0
   )
 )
-
-
-
-
-##################
-# # Identify unmatched rows
-# unmatched_rows <- cliar_indicators_clean %>%
-#   distinct(country_code, country_name) %>%
-#   anti_join(
-#     wb_country_list %>%
-#       distinct(country_code, country_name),
-#     by = c("country_code", "country_name")
-#   )
-# 
-# # Print unmatched rows
-# print("Unmatched rows in cliar_indicators_clean:")
-# print(unmatched_rows)
-# # DDR & YMD 
-# # GERMANY (EAST) DEMOCRATIC REPUBLIC should be DEU
-# # YEMEN, SOUTH (ADEN) should be YEM
-
-##################
 
 # b. verify that cliar has distinct country-year
 test_that(
@@ -829,7 +848,7 @@ write_rds(
   here(
     "data",
     "output",
-    "compiled_indicators.rds"
+    "compiled_indicators_24.rds"
   )
 )
 
@@ -838,7 +857,7 @@ cliar_indicators_diagnostic |>
       here(
         "data",
         "output",
-        "diagnostics_compiled_indicators.rds"
+        "diagnostics_compiled_indicators_24.rds"
       )
     )
 ```

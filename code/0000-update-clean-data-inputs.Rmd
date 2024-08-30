@@ -74,6 +74,7 @@ wdi <- read_dta(
 wdi <- WDI(
   country = "all",
   indicator = c(
+    # Existing indicators
     "GC.DOD.TOTL.GD.ZS", "EN.ATM.CO2E.PP.GD.KD", "BN.CAB.XOKA.GD.ZS",
     "SH.XPD.GHED.GD.ZS", "GC.XPN.TOTL.GD.ZS", "NE.EXP.GNFS.ZS",
     "NE.CON.TOTL.ZS", "BX.KLT.DINV.WD.GD.ZS", "BM.KLT.DINV.WD.GD.ZS",
@@ -100,10 +101,18 @@ wdi <- WDI(
     "IQ.CPA.MACR.XQ", "IQ.CPA.SOCI.XQ", "IQ.CPA.ENVR.XQ",
     "IQ.CPA.PROP.XQ", "IQ.CPA.PUBS.XQ", "IQ.CPA.FINQ.XQ",
     "IQ.CPA.PADM.XQ", "IQ.CPA.PROT.XQ", "IQ.CPA.STRC.XQ",
-    "IQ.CPA.TRAD.XQ", "IQ.CPA.TRAN.XQ", "per_si_allsi.adq_pop_tot",
-    "per_allsp.adq_pop_tot", "per_sa_allsa.adq_pop_tot",
-    "per_si_allsi.cov_pop_tot", "per_si_allsi.cov_q1_tot",
-    "per_allsp.cov_pop_tot", "per_sa_allsa.cov_q1_tot",
+    "IQ.CPA.TRAD.XQ", "IQ.CPA.TRAN.XQ",
+    # Updated code indicators according the Metadata Glossary 
+    # https://databank.worldbank.org/metadataglossary/all/series
+    # adjust db_bariables
+    "SE.ADT.LITR.FE.ZS",  # Literacy rate, adult female
+    "SE.ADT.LITR.MA.ZS",  # Literacy rate, adult male
+    "SE.ADT.LITR.ZS",     # Literacy rate, adult total
+    "SH.DYN.MORT",        # Mortality rate, under-5
+    "SH.STA.ANVC.ZS",     # Pregnant women receiving prenatal care "SH.STA.PRSC.ZS"
+    "SH.STA.MMRT",       # Maternal mortality ratio "SH.MMR.RATIO",
+    "SH.DYN.MORT.FE",     # Mortality rate, adult female sp.dyn.amrt.fe
+    "SH.DYN.MORT.MA",      # Mortality rate, adult male 
     "GC.REV.SOCL.ZS", "MS.MIL.TOTL.TF.ZS", "SL.UEM.TOTL.NE.ZS",
     "SL.UEM.TOTL.ZS", "SE.COM.DURS", "SE.XPD.CPRM.ZS",
     "SE.XPD.CSEC.ZS", "SE.XPD.CTER.ZS", "SE.XPD.CTOT.ZS",
