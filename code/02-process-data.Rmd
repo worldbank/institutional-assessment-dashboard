@@ -23,7 +23,7 @@ ref_year <- 2024
 ## 1. Import data
 
 The data was imported from (a) the EFI360 shared data and (b) manual imports.
-This section first reads in each of the individual manual-input files and the column id names are cleaned with the clean_names() function. After this is done, a list of of standardized WB country names and codes is read in and mutated to be better compatible with the CLIAR data
+This section first reads in each of the individual manual-input files (Note that the updated version count with '2024' as folder and the column id names are cleaned with the clean_names() function. After this is done, a list of of standardized WB country names and codes is read in and mutated to be better compatible with the CLIAR data
 
 ```{r read_in}
 efi <- read_dta(
@@ -73,9 +73,6 @@ rise <- read_dta(
   here("data", "input", "rise", "RISE_20102021.dta")
 )
 
-wdix <- read_dta(
-  here("data", "input", "wdi", "WDI_19902022_CLIAR.dta")
-)
 
 wdi <- read_dta(
   here("data", "input", "wdi", "2024", "wdi_19902023.dta")
@@ -85,8 +82,8 @@ vdem <- read_csv(
   here("data", "input", "vdem", "2024", "vdem_19902023.csv.gz")
 )
 
-heritagex <- read_dta(
-  here("data", "input", "heritage", "heritage20122022.dta")
+vdem_old <- read_dta(
+  here("data", "input", "vdem", "VDEM_1990_2022.dta")
 )
 
 heritage <- read_dta(
@@ -374,13 +371,6 @@ rise_clean <- rise |>
   clean_names()
 
 # 8. wdi data
-wdix_clean <- wdix |>
-  clean_names() |>
-  select(-countryname) |>
-   rename_with(
-    ~ str_to_lower(.) ) 
-  
-
 wdi_clean <- wdi |>
   rename(
     country_name = countryname,
@@ -403,10 +393,10 @@ columns_to_drop <- c(
   
 wdi_clean <- wdi_clean |>
   select(!all_of(columns_to_drop)) |>
-  rename(
-    wdi_spdynamrtfe = wdi_shdynmortfe,
-    wdi_spdynamrtma = wdi_shdynmortma
-  ) |>
+  # rename(
+  #   wdi_spdynamrtfe = wdi_shdynmortfe,
+  #   wdi_spdynamrtma = wdi_shdynmortma
+  # ) |>
   filter(!is.na(country_code) & country_code != ""
   ) |>
   distinct(country_code, year, .keep_all = TRUE)
@@ -568,44 +558,6 @@ cliar_indicators <- cliar_indicators %>%
 
 ```{r wdi rename db_variables convention, eval=FALSE, include=FALSE}
 # Extract column names
-wdi_clean_cols <- colnames(wdi_clean)
-wdix_cols <- colnames(wdix_clean)
-
-# Identify extra columns
-extra_wdi_clean_cols <- setdiff(wdi_clean_cols, wdix_cols)
-extra_wdix_cols <- setdiff(wdix_cols, wdi_clean_cols)
-
-# Identify common columns to compare names
-common_cols <- intersect(wdi_clean_cols, wdix_cols)
-
-
-# Rename columns in wdi_clean and wdix to lower case for comparison
-wdi_clean_renamed <- wdi_clean %>%
-  rename_with(~ tolower(gsub(" ", "_", .)))
-
-wdix_renamed <- wdix %>%
-  rename_with(~ tolower(gsub(" ", "_", .)))
-
-# Compare common columns in a case-insensitive manner
-diff_names <- setdiff(tolower(common_cols), tolower(gsub(" ", "_", wdix_cols)))
-
-# Print results
-print("Extra columns in wdi_clean:")
-print(extra_wdi_clean_cols)
-
-print("Extra columns in wdix:")
-print(extra_wdix_cols)
-
-print("Differences in column names for common columns:")
-print(diff_names)
-
-db_variables_names <- db_variables %>% 
-  filter(variable %in% c("wdi_seadtlitrfezs", "wdi_seadtlitrmazs", "wdi_seadtlitrzs", 
-                          "wdi_shdynmort", "wdi_shstaanvczs", "wdi_shstammrt", 
-                          "wdi_spdynamrtfe", "wdi_spdynamrtma"))
-
-
-
 ###
 # RESULTS
 
@@ -614,9 +566,7 @@ db_variables_names <- db_variables %>%
 # [1] "wdi_seadtlitrfezs" "wdi_seadtlitrmazs" "wdi_seadtlitrzs"   "wdi_shdynmort"     "wdi_shstaanvczs"   "wdi_shstammrt"    
 # [7] "wdi_spdynamrtfe"   "wdi_spdynamrtma" 
 
-
 ###
-
   # "SE.ADT.LITR.FE.ZS",  # Literacy rate, adult female
   # "SE.ADT.LITR.MA.ZS",  # Literacy rate, adult male
   # "SE.ADT.LITR.ZS",     # Literacy rate, adult total
@@ -627,7 +577,7 @@ db_variables_names <- db_variables %>%
   # "SH.DYN.MORT.MA"      # Mortality rate, adult male
 
 ###
-# Rename
+# Renamed variables
 #  "SH.DYN.MORT.FE",     # Mortality rate, adult female sp.dyn.amrt.fe
 #  "SH.DYN.MORT.MA",    # Mortality rate, adult male 
 ```
@@ -737,15 +687,18 @@ new_row <- tibble(
   year = 2023
 )
 
-# Add NA for all other columns
-new_row <- new_row %>%
-  mutate(
-  add_column(across(everything(), ~ NA))
-)
+# # Add NA for all other columns
+# new_row <- new_row %>%
+#   mutate(
+#   add_column(across(everything(), ~ NA))
+# )
 
 # Add the new row to the existing dataframe
 cliar_indicators_clean <- cliar_indicators_clean %>%
   bind_rows(new_row)
+
+cliar_indicators_clean %>% 
+  filter(is.na(country_code))
 ```
 
 ## 6. Data Quality Control: verify country_code and country_name consistency

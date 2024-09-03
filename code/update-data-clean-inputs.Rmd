@@ -1,10 +1,10 @@
-# Cleaning files from 2024 data bash
+# Cleaning files from the 2023-2024 data bash
 
 -   Input: `data/input/**`
 -   Output: `data/output/2024/clean-2024version-*.csv.gz`
  
 
-This script uses the 'RStrata' package for initial cleaning of manually imported data,
+This script uses the 'RStata' package for initial cleaning of manually imported data,
 streamlining the process and preparing key indicators.
 
 # Read in data
@@ -27,13 +27,14 @@ library(scales)
 library(naniar)
 library(countrycode)
 library(purrr)
-library(vdemdata) # R Package version: ?
-library(WDI) # R Package version: ?
-library(RStata) # Do files
+# R Packages
+library(vdemdata) 
+library(WDI)     
+library(RStata)   
 ```
 
 
-## 1. Import data inputs
+## 1. Import inputs
 
 The data, initially imported manually, will be filtered
 (relevant indicators only) and cleaned either calling .do files or in R. 
@@ -41,33 +42,52 @@ This step enables automation for future data update. Once cleaned,
 standardized CSV files will be exported to be further procesed.
 
 
-### 1.1 Do files
+### 1.1 Setting Working Directory
 
 ```{r read_in, eval=FALSE, include=FALSE}
 
-library(RStata)
+# Setting path based on the user
+{
+  
+  user <- Sys.getenv("USERNAME")
+  
+  # NEED TO CHANGE THIS DIRECTORY
+  if (user == "wb622595") { 
+    print("Ileana has been selected")
+    directory <- "C:/Users/wb622595/gitHub-repositories/institutional-assessment-dashboard/code"
+  } else {
+    stop("Unknown user. Please set the correct directory.")
+  }
+  
+  # NEED TO CHANGE STATA (CHANGE DIRECTORY) 
+  options("RStata.StataVersion" = 18.0)
+  options("RStata.StataPath" = "/ProgramData/Microsoft/Windows/Start Menu/Programs/StataMP 18")
+}
 
-options("RStata.StataPath" = "/ProgramData/Microsoft/Windows/Start Menu/Programs/StataMP 18")
+# Set working directories
+{
+  # Data directories
+  input_data <- file.path(directory, "data/input")
+  output_data <- file.path(directory, "data/output")
+  
+  # Stata do files to prepare inputs
+  do_doc <- file.path(directory, "data/input/0.rtsata_inputs/")
+}
 
-options("RStata.StataVersion" = 18)
 
-stata("/data/input/heritage/clean heritage.do")
+# Clean the datasets bash 2024
+{
+# stata(file.path(do_doc, "clean-2024-heritage.do"))
+# stata(file.path(do_doc, "clean-2024-wbl.do"))
 
-
-heritage <- read_dta(
-  here("data", "input", "heritage", "2024", "heritage20122024.dta")
-)
-
-wdi <- read_dta(
-  here("data", "input", "wdi", "2024", "wdi_19902023.dta")
-)
+}
 
 
 ```
 
 
 
-### 1.2 R packages
+### 1.2 Import from R packages
 
 ```{r r_package_import}
 
@@ -142,7 +162,7 @@ vdem <- vdemdata::vdem
 
 
 
-## 2. Select indicators
+## 2. Clean indicators
 ```{r}
 wdi_clean <- wdi %>%
   clean_names() %>%
@@ -218,7 +238,7 @@ vdem_clean <- vdem |>
     v2csreprss,
     v2x_civlib,
     v2x_cspart,
-    # v2cl_acjst, ### Review this variable
+    v2clstown, ### Former name v2cl_acjst State ownership of economy
     v2clacjstm,
     v2clacjstw,
     v2lgqugen,
@@ -273,6 +293,19 @@ write_csv(
       "vdem_19902023.csv.gz"
   )
 )
+
+
+write_dta(
+  wdi_clean,
+  here(
+    "data",
+    "input",
+    "vdem",
+    "2024",
+    "dem_19902023.dta"
+  )
+)
+
 
 write_dta(
   wdi_clean,
