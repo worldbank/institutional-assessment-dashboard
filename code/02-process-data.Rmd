@@ -25,7 +25,7 @@ ref_year <- 2024
 The data was imported from (a) the EFI360 shared data and (b) manual imports.
 This section first reads in each of the individual manual-input files (Note that the updated version count with '2024' as folder and the column id names are cleaned with the clean_names() function. After this is done, a list of of standardized WB country names and codes is read in and mutated to be better compatible with the CLIAR data
 
-```{r read_in}
+```{r read in}
 efi <- read_dta(
   here("data", "input", "efi", "EFI360_CLIAR_1990-2022_032124.dta")
 )
@@ -678,7 +678,7 @@ cliar_indicators_clean <- cliar_indicators |>
 
 ```
 
-```{r eval=FALSE, include=FALSE}
+```{r channel island}
 ### Balancing the panel
 # Create a new row with specified values
 new_row <- tibble(
@@ -801,7 +801,7 @@ write_rds(
   here(
     "data",
     "output",
-    "compiled_indicators_24.rds"
+    "compiled_indicators.rds"
   )
 )
 
@@ -810,7 +810,7 @@ cliar_indicators_diagnostic |>
       here(
         "data",
         "output",
-        "diagnostics_compiled_indicators_24.rds"
+        "diagnostics_compiled_indicators.rds"
       )
     )
 ```
