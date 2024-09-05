@@ -1,50 +1,35 @@
-# Cleaning files from the 2023-2024 data bash
+---
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+# Data Sources update (optional)
 
 -   Input: `data/input/**`
 -   Output: `data/output/2024/clean-2024version-*.csv.gz`
- 
 
-This script uses the 'RStata' package for initial cleaning of manually imported data,
-streamlining the process and preparing key indicators.
+READ ME (new data versions)
 
-# Read in data
+-   This script is considered "optional" because its primary purpose is
+    to extract new data versions. Therefore, each chunk of this script
+    is currently set to `eval=FALSE, include=FALSE` (not running).
 
-```{r}
-library(tidyverse)
-library(readxl)
-library(here)
-library(labelled)
-library(haven)
-library(data360r)
-library(skimr)
-library(knitr)
-library(assertthat)
-library(tibble)
-library(sf)
-library(janitor)
-library(stringr)
-library(scales)
-library(naniar)
-library(countrycode)
-library(purrr)
-# R Packages
-library(vdemdata) 
-library(WDI)     
-library(RStata)   
-```
+-   To effectively execute this code and run the chunks, remove the
+    `eval=FALSE, include=FALSE` tags from the chunk names.
 
+-   Latest Data Version Update: September 5, 2024.
 
-## 1. Import inputs
+## Import Inputs
 
-The data, initially imported manually, will be filtered
-(relevant indicators only) and cleaned either calling .do files or in R. 
-This step enables automation for future data update. Once cleaned, 
-standardized CSV files will be exported to be further procesed.
+The data, initially imported manually, will be filtered (relevant
+indicators only) and cleaned either calling .do files or in R. It uses
+the 'RStata' package for initial cleaning of manually imported data,
+streamlining the process and preparing key indicators. This step enables
+automation for future data update. Once cleaned, standardized CSV files
+will be exported to be further proceed.
 
-
-### 1.1 Setting Working Directory
-
-```{r read_in, eval=FALSE, include=FALSE}
+```{r do-files-import, eval=FALSE, include=FALSE}
 
 # Setting path based on the user
 {
@@ -85,11 +70,7 @@ standardized CSV files will be exported to be further procesed.
 
 ```
 
-
-
-### 1.2 Import from R packages
-
-```{r r_package_import}
+```{r r_packages_import, eval=FALSE, include=FALSE}
 
 wdi <- WDI(
   country = "all",
@@ -160,10 +141,9 @@ vdem <- vdemdata::vdem
 
 ```
 
+## Clean Inputs
 
-
-## 2. Clean indicators
-```{r}
+```{r eval=FALSE, include=FALSE}
 wdi_clean <- wdi %>%
   clean_names() %>%
   rename(
@@ -278,31 +258,17 @@ vdem_clean <- vdem |>
 
 ```
 
+## Export Inputs
 
-
-# Export data
-
-```{r}
-write_csv(
-  vdem_clean,
-  here(
-      "data",
-      "input",
-      "vdem",
-      "2024",
-      "vdem_19902023.csv.gz"
-  )
-)
-
-
+```{r eval=FALSE, include=FALSE}
 write_dta(
-  wdi_clean,
+  vdem_clean,
   here(
     "data",
     "input",
     "vdem",
     "2024",
-    "dem_19902023.dta"
+    "vdem_19902023.dta"
   )
 )
 
@@ -319,6 +285,3 @@ write_dta(
 )
 
 ```
-
-
-

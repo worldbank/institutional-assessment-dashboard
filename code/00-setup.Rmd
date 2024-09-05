@@ -17,4 +17,8 @@ library(naniar)
 library(countrycode)
 library(purrr)
 library(testthat)
+# R Packages
+library(vdemdata) 
+library(WDI)     
+library(RStata)   
 ```

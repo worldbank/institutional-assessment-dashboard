@@ -78,13 +78,10 @@ wdi <- read_dta(
   here("data", "input", "wdi", "2024", "wdi_19902023.dta")
 )
 
-vdem <- read_csv(
-  here("data", "input", "vdem", "2024", "vdem_19902023.csv.gz")
+vdem <- read_dta(
+  here("data", "input", "vdem", "2024", "vdem_19902023.dta")
 )
 
-vdem_old <- read_dta(
-  here("data", "input", "vdem", "VDEM_1990_2022.dta")
-)
 
 heritage <- read_dta(
   here("data", "input", "heritage", "2024", "heritage20122024.dta")
@@ -553,33 +550,6 @@ cliar_indicators <- cliar_indicators %>%
   mutate(
     index = row_number()
   )
-```
-
-
-```{r wdi rename db_variables convention, eval=FALSE, include=FALSE}
-# Extract column names
-###
-# RESULTS
-
-# [1] "Extra columns in wdix:" db-variables
-# > print(extra_wdix_cols)
-# [1] "wdi_seadtlitrfezs" "wdi_seadtlitrmazs" "wdi_seadtlitrzs"   "wdi_shdynmort"     "wdi_shstaanvczs"   "wdi_shstammrt"    
-# [7] "wdi_spdynamrtfe"   "wdi_spdynamrtma" 
-
-###
-  # "SE.ADT.LITR.FE.ZS",  # Literacy rate, adult female
-  # "SE.ADT.LITR.MA.ZS",  # Literacy rate, adult male
-  # "SE.ADT.LITR.ZS",     # Literacy rate, adult total
-  # "SH.DYN.MORT",        # Mortality rate, under-5
-  # "SH.STA.PRSC.ZS",     # Pregnant women receiving prenatal care
-  # "SH.MMR.RATIO",       # Maternal mortality ratio
-  # "SH.DYN.MORT.FE",     # Mortality rate, adult female
-  # "SH.DYN.MORT.MA"      # Mortality rate, adult male
-
-###
-# Renamed variables
-#  "SH.DYN.MORT.FE",     # Mortality rate, adult female sp.dyn.amrt.fe
-#  "SH.DYN.MORT.MA",    # Mortality rate, adult male 
 ```
 
 
