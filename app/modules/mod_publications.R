@@ -17,8 +17,9 @@ publicationsUI <- function(id) {
   ns <- NS(id)
 
   tagList(
-    #This is commented out to avoid warning text being displayed in the tab
-    # ## ensures that we can use the Bs4Dash functions in our module
+    # ## ensures that we can use the Bs4Dash functions in our module, but also suppresses
+    #Warnings from bs4dash
+    tags$script(suppressWarnings(shinyWidgets::useBs4Dash())),
     # shinyWidgets::useBs4Dash(),
 
     ## styling implemented on the divs
