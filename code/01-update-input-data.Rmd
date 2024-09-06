@@ -13,10 +13,10 @@ READ ME (new data versions)
 
 -   This script is considered "optional" because its primary purpose is
     to extract new data versions. Therefore, each chunk of this script
-    is currently set to `eval=FALSE, include=FALSE` (not running).
+    is currently set to `eval=FALSE` (not running).
 
 -   To effectively execute this code and run the chunks, remove the
-    `eval=FALSE, include=FALSE` tags from the chunk names.
+    `eval=FALSE` tags from the chunk names.
 
 -   Latest Data Version Update: September 5, 2024.
 
@@ -29,7 +29,7 @@ streamlining the process and preparing key indicators. This step enables
 automation for future data update. Once cleaned, standardized CSV files
 will be exported to be further proceed.
 
-```{r do-files-import, eval=FALSE, include=FALSE}
+```{r do-files-import, eval=FALSE}
 
 # Setting path based on the user
 {
@@ -70,7 +70,7 @@ will be exported to be further proceed.
 
 ```
 
-```{r r_packages_import, eval=FALSE, include=FALSE}
+```{r r_packages_import, eval=FALSE}
 
 wdi <- WDI(
   country = "all",
@@ -143,7 +143,7 @@ vdem <- vdemdata::vdem
 
 ## Clean Inputs
 
-```{r eval=FALSE, include=FALSE}
+```{r cleaning, eval=FALSE}
 wdi_clean <- wdi %>%
   clean_names() %>%
   rename(
@@ -260,7 +260,7 @@ vdem_clean <- vdem |>
 
 ## Export Inputs
 
-```{r eval=FALSE, include=FALSE}
+```{r export, eval=FALSE}
 write_dta(
   vdem_clean,
   here(
