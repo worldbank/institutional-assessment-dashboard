@@ -4,6 +4,10 @@ note_chars <- 200
 color_groups <- colorRampPalette(c("#001f3f", "#60C2F7"))
 color_countries <- colorRampPalette(c("grey20", "grey50"))
 
+
+#============
+
+
 plotly_remove_buttons <-
   c("zoomIn2d",
     "zoomOut2d",
@@ -1321,11 +1325,11 @@ interactive_map <-
   }
 
 # Time series ###################################################################
-
+#ALEX ADDITIONS TWO EXTRA PARAMETERS FOR COLORS
 trends_plot <- function(raw_data,
                         indicator, indicator_name,
                         base_country, comparison_countries, country_list, groups,
-                        definitions, custom_df = NULL) {
+                        definitions, custom_df = NULL, base_color, comp_color) {
 
   
   def <-
@@ -1396,12 +1400,17 @@ trends_plot <- function(raw_data,
              country_name %in% comparison_countries) %>%
     bind_rows(data_groups) %>%
     mutate(
-      alpha = ifelse(country_name == base_country, .8, .5)
+      alpha = ifelse(country_name == base_country, .8, .5),
+      color = case_when(
+        country_name == base_country ~ base_color,
+        country_name %in% comparison_countries ~ comp_color,
+        TRUE ~ '#000000' # Adding default black color
+      ),
+      legend_label = country_name
     ) %>%
     rename(Country = country_name) %>% 
     mutate(Year = as.factor(Year))
-  
-  
+  #==================PLOTTING: TIME TRENDS
   static_plot <-
     ggplot(
       data,
@@ -1412,6 +1421,7 @@ trends_plot <- function(raw_data,
         group = Country,
         alpha = alpha)
     ) +
+    geom_line(aes(color = Country)) +
     geom_point(
       aes(
         text = paste(
@@ -1422,29 +1432,43 @@ trends_plot <- function(raw_data,
       ),
      size = 3
     ) +
-    geom_line(
-      aes(y = na.approx(get(indicator)))
-    ) +
+    #ALEX
+    #scale_alpha_identity() +
     theme_ipsum() +
     labs(
       x = "Year",
       y = "Indicator value",
       title = paste0("<b>",indicator_name,"</b>")
     ) +
+   # #ALEX ADDITION
     scale_color_manual(
-      name = NULL,
-      values = c(
-        "#FB8500",
-        color_groups(length(groups)),
-        color_countries(length(comparison_countries))
-      ),
-      breaks = c(
-        base_country,
-        paste(groups, "average"),
-        comparison_countries
-      )
+      values = setNames(data$color, data$Country),  # Map each Country to its color
+      name = "Country"  # Set the legend title
     ) +
     scale_alpha_identity() +
+   # + geom_col(
+   #    aes(fill=color
+   #    )
+   #  ) +
+   #   # #ALEX
+   #   scale_fill_identity() +
+   #   
+     #ALEX COMMENTed OUT
+    # scale_color_manual(
+    #   name = NULL,
+    #   values = c(
+    #     "#FB8500",
+    #     color_groups(length(groups)),
+    #     color_countries(length(comparison_countries))
+    #   ),
+   #    breaks = c(
+   #      base_country,
+   #      paste(groups, "average"),
+   #      comparison_countries
+   #    )
+   #  #) 
+   # +
+    # scale_alpha_identity() +
     theme(
       axis.text.x = element_text(angle = 90)
     )
@@ -1498,11 +1522,11 @@ trends_plot <- function(raw_data,
 }
 
 # Cross-country comparison #####################################################
-
+#ALEX ADDING COLORS
 static_bar <-
   function(data,
            base_country, comparison_countries, groups,
-           var, variable_names, custom_df) {
+           var, variable_names, custom_df, color_base_bar, color_comp_bar) {
 
     varname <-
       variable_names %>%
@@ -1589,21 +1613,22 @@ static_bar <-
           bind_rows(custom_grp_median_data_df)
       }
     }
-    
-    data <-
-      data %>%
-      ungroup %>%
+    #NEW PIPELINE START=============
+    data <- data %>%
+      ungroup() %>%
       mutate(
-        color =
-          case_when(
-            country_name == base_country ~ 1,
-            country_name %in% comparison_countries ~ 2,
-            TRUE ~ 3
-          ),
+        # Initial color assignment 
+        color = case_when(
+          country_name == base_country ~ color_base_bar,
+          country_name %in% comparison_countries ~ color_comp_bar,
+          TRUE ~ '#7a7d7b' # Default gray color for median
+        ),
         country_name = fct_reorder(country_name, get(varname), min)
       ) %>%
-      select(all_of(varname), country_name, color)
-
+      select(all_of(varname), country_name, color) %>%
+      ungroup()
+    #NEW PIPELINE END============
+    #PLOTTING:
     ggplot(
       data = data,
       aes(
@@ -1613,9 +1638,14 @@ static_bar <-
     ) +
       geom_col(
         aes(
-          fill = factor(color)
+          #ALEX CHANGE HERE
+          fill=color
+          # fill = factor(color)
         )
       ) +
+      # #ALEX
+      scale_fill_identity() +
+      
       geom_text(
         aes(
           x = get(varname) + .03,
@@ -1640,12 +1670,14 @@ static_bar <-
         x = "Closeness to Frontier",
         fill = NULL,
         title = paste0("<b>", var, "</b>")
-      ) +
-      scale_fill_manual(
-        values = c(`1` = "#FB8500", `2` = "#001f3f", `3` = "#6c757d")
-      )
+      )} 
+    #+
+     #ALEX COMMENT 
+    # scale_fill_manual(
+    #   values = c(`1` = "#FB8500", `2` = "#001f3f", `3` = "#6c757d")
+    # )}
 
-  }
+  
 
 
 interactive_bar <-
@@ -1706,13 +1738,13 @@ interactive_bar <-
   }
 
 # Bivariate correlation #####################################################
-
+#ALEX ADDING COLOR PARAMETERS
 static_scatter <-
   function(data, 
            base_country, comparison_countries, high_group,
            y_scatter, x_scatter,
            variable_names, country_list,
-           linear_fit) {
+           linear_fit, color_base_scatter, color_comp_scatter ) {
     
     y <-
       ifelse(
@@ -1738,8 +1770,7 @@ static_scatter <-
       )
 
 
-    data <-
-      data %>%
+    data <- data %>%
       mutate(
         # label = paste0(
         #   "Country: ", country_name, "<br>"
@@ -1749,11 +1780,18 @@ static_scatter <-
           country_name == base_country ~ "Base country",
           country_name %in% comparison_countries ~ "Comparison countries",
           TRUE ~ "Others"
-        ),
-
-      ) %>%
+        )
+       ) %>%
+      # #ALEX COLOR SCATTER ADDITION
+      # mutate(
+      #   color = case_when(
+      #     country_name == base_country ~ color_base_scatter,
+      #     country_name %in% comparison_countries ~ color_comp_scatter,
+      #     TRUE ~ "#828285"  # Ensure this is a character string for color
+      #   )
+      # ) %>%
       left_join(
-        high_group, by = c("country_name")
+        high_group, by = "country_name"
       )
 
    
@@ -1773,7 +1811,8 @@ static_scatter <-
                )
       )
     
-    
+  #PLOTTING THE SCATTER PLOT
+  #ALEX IS ADDING COLORS
   sc_plot <-  ggplot(
       data,
       aes(
@@ -1798,8 +1837,8 @@ static_scatter <-
 
       scale_color_manual(
         values = c(
-          "Base country" = "#FB8500",
-          "Comparison countries" = "#001f3f",
+          "Base country" = color_base_scatter,
+          "Comparison countries" = color_comp_scatter,
           group_name = "#60C2F7"
         )
       ) +
@@ -1958,3 +1997,4 @@ annotations =
     align = 'left',
     font = list(size = note_size)
   )
+

@@ -852,7 +852,33 @@ ui <-
               )
             )
           ),
-          
+          # Color Select BS4 Card
+          bs4Card(
+            title = "Select Bar Graph Colors",
+            status = "success",
+            collapsed=TRUE,
+            width = 12,
+            
+            fluidRow(
+              column(
+                width = 4,
+                colourInput(
+                  "color_base_bar",
+                  "Choose a base country color:",
+                  value = "#f29411"  
+                )
+              ),
+              column(
+                width = 4,
+                colourInput(
+                  "color_comp_bar",
+                  "Choose a comparison country color:",
+                  value = "#080770")
+            )
+          )),
+  
+
+         #======================================  
           conditionalPanel(
             'input.country_bar !== "" && input.vars_bar != null',
             
@@ -982,6 +1008,29 @@ ui <-
               )
             )
           ),
+          bs4Card(
+            title = "Select Bar Graph Colors",
+            status = "success",
+            collapsed=TRUE,
+            width = 12,
+            
+            fluidRow(
+              column(
+                width = 4,
+                colourInput(
+                  "color_base_scatter",
+                  "Choose a base country color:",
+                  value = "#f29411"  
+                )
+              ),
+              column(
+                width = 4,
+                colourInput(
+                  "color_comp_scatter",
+                  "Choose a comparison country color:",
+                  value = "#080770")
+              )
+            )),
           
           conditionalPanel(
             'input.y_scatter !== ""',
@@ -999,6 +1048,7 @@ ui <-
             )
           )
         ),
+        
         
         ## Trends  tab ------------------------------------------------------------
         
@@ -1080,6 +1130,34 @@ ui <-
               )
             )
           ),
+          # Color Select BS4 Card
+          bs4Card(
+            title = "Select Time Trend Colors",
+            status = "success",
+            collapsed=TRUE,
+            width = 12,
+            
+            fluidRow(
+              column(
+                width = 4,
+                colourInput(
+                  "color_base_trends",
+                  "Choose a base country color:",
+                  value = "#f29411"  
+                )
+              ),
+              column(
+                width = 4,
+                colourInput(
+                  "color_comp_trends",
+                  "Choose a comparison country color:",
+                  value = "#080770"  
+                )
+              )
+            )
+          ),
+          
+          #==============================
           
           conditionalPanel(
             'input.vars_trends !== null && input.country_trends != ""',
@@ -1191,6 +1269,7 @@ ui <-
             solidHeader = TRUE,
             width = 12,
             collapsible = F,
+            
             fluidRow(
               column(
                 width = 2.4,
@@ -1235,6 +1314,126 @@ ui <-
               )
             )
           ),
+      
+          bs4Card(
+            title = "Pre-Download Base & Comparison Country Selection",
+            status = "success",
+            solidHeader = TRUE,
+            width = 12,
+            collapsed = TRUE,
+            fluidRow(
+              
+              column(
+                width = 6,
+                style = "padding-left: 24px",
+                pickerInput(
+                  "country_dwnld",
+                  label = helper(
+                    shiny_tag = tags$span("Base country:", style = "font-size: 28px; color: #051f3f;"),
+                    type = "inline",
+                    icon = "circle-question",
+                    title = "Base country",
+                    content = c(
+                      "Choose the base country of interest. (For some analysis, you can select more than one.) This menu can also be accessed in the Country Benchmarking tab"
+                    ),
+                    buttonLabel = "Close",
+                    fade = T,
+                    size = "s"
+                  ),
+                  choices = countries,
+                  choicesOpt = list(
+                    content = flags_with_countries,
+                    style = rep(length(flags_with_countries))
+                  ),
+                  selected = NULL,
+                  multiple = TRUE,
+                  options = list(
+                    `actions-box` = TRUE,
+                    `live-search` = TRUE 
+                  )
+                )
+              )),
+          fluidRow(style = "height: 5px;"),
+          
+          ### Comparison card 
+            
+            shiny::fluidRow(
+              column(
+                width = 6,
+                pickerInput(
+                  "groups_dwnld",
+                  label = helper(
+                    shiny_tag = "Select comparison groups",
+                    type = "inline",
+                    icon = "circle-question",
+                    title = "Pre-defined groups",
+                    content = c(
+                      "There are multiple ways to select the comparator countries. Here you can select one (or more) pre-defined group(s) (either as a comparator group itself or as a shortcut for selecting individual countries). When selecting more than one, it is the union (i.e., sum) of the groups that will be analyzed.This menu can also be accessed in the Country Benchmarking tab"
+                    ),
+                    buttonLabel = "Close",
+                    fade = T,
+                    size = "s"
+                  ),
+                  choices = group_list,
+                  selected = NULL,
+                  multiple = TRUE,
+                  options = list(
+                    `actions-box` = TRUE,
+                    `live-search` = TRUE
+                  )
+                )
+              ),
+              column(
+                id = "show_countries_column_dwnld",
+                width = 3,
+                style = "display: flex; align-items: center; justify-content: center;",
+                shinyWidgets::materialSwitch(
+                  inputId = "show_countries_dwnld",
+                  label = helper(
+                    shiny_tag = tags$b("Show list of countries"),
+                    type = "inline",
+                    icon = "circle-question",
+                    title = "List of countries",
+                    content = c(
+                      "Here you can add and remove individual comparator countries. If you have already selected one or more the pre-defined groups, those countries will appear as selected, and you can manually add or remove."
+                    ),
+                    buttonLabel = "Close",
+                    fade = T,
+                    size = "s"
+                  ),
+                  value = FALSE,
+                  status = "success"
+                )
+              ),
+              
+              shiny::conditionalPanel(
+                "input.show_countries_dwnld == true",
+                
+                fluidRow(style = "height: 15px;"),
+                
+                fluidRow(
+                  column(
+                    width = 12,
+                    checkboxGroupButtons(
+                      inputId = "countries_dwnld",
+                      individual = TRUE,
+                      label = NULL,
+                      choices = countries,
+                      selected = "countries", 
+                      checkIcon = list(
+                        yes = icon(
+                          "ok",
+                          lib = "glyphicon"
+                        )
+                      )
+                    )
+                  )
+                )
+              )
+            ) #fluid row
+          )#bs4
+          ,
+          
   
           bs4Card(
             title = "Interactive Data Access & Custom Download",
@@ -1299,6 +1498,25 @@ ui <-
                                  lib = "glyphicon")
                     )
                   ),
+                  #Input selector for download column names
+                  (
+                  shinyWidgets::materialSwitch(
+                    inputId = "descriptions_dwnld",
+                    label = helper(
+                      shiny_tag = tags$b("Descriptive Columns"),
+                      type = "inline",
+                      icon = "circle-question",
+                      title = "Descriptive Names",
+                      content = c(
+                    "Here you can select whether you want abrreviated or full names for each of the columns in the downloaded data."
+                      ),
+                      buttonLabel = "Close",
+                      fade = T,
+                      size = "s"
+                    ),
+                    value = FALSE,
+                    status = "success"
+                  )),
                   
                   shinyjs::hidden(
                     radioGroupButtons(
