@@ -13,7 +13,6 @@ This list is filled by hand in Excel.
 db_variables <-
   read_excel(
     here(
-
       "data",
       "input",
       "cliar",
@@ -25,6 +24,7 @@ db_variables <-
     variable = make_clean_names(variable)
   )
 ```
+
 
 ## Save list of selected indicators in R format
 
@@ -75,3 +75,6 @@ write_rds(
   )
 )
 ```
+
+
+

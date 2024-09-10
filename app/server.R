@@ -4,9 +4,25 @@ server <- function(input, output, session) {
   # Handle inputs ======================================================================
   
   ## Hide save inputs button at onset
-  shinyjs::hide("save_inputs")
+  #shinyjs::hide("save_inputs")
   shinyjs::disable("preset_order")
   shinyjs::hide("benchmark_median")
+  
+  observe_helpers()
+  
+  # initialise then start the guide
+  start_tour <- FALSE
+  start_tour_bench <- FALSE
+  
+  observeEvent(input$start, {
+    guide_landing_page$init()$start()
+    start_tour <<- TRUE
+  })
+  
+  observeEvent(input$start_guide_bench, {
+    guide_benchmark$init()$start()
+    start_tour_bench <<- TRUE
+  })
   
   
   ## Base country ------------------------------------------------------------
@@ -46,8 +62,8 @@ server <- function(input, output, session) {
   })
   
   
-  observeEvent(input$country,{
-    if(length(input$country)>1){
+  observeEvent(input$rank,{
+    if(input$rank==FALSE){
       shinyjs::disable("preset_order")
     }else{
       shinyjs::enable("preset_order")
@@ -183,12 +199,7 @@ server <- function(input, output, session) {
     input$select,
     {
       if (!is.null(input$groups)) {
-        updatePickerInput(
-          session,
-          "groups_data",
-          choices = c("All", "Comparison groups only", "None")
-        )
-        
+
         updatePickerInput(
           session,
           "groups_bar",
@@ -211,7 +222,12 @@ server <- function(input, output, session) {
       updatePickerInput(
         session,
         "countries_data",
-        choices = c("All", "Base country only", "Base + comparison countries")
+        choices = c("All", "Base country only", "Base + comparison countries"),
+        options = list(
+          "All" = list(disabled = FALSE),
+          "Base country only" = list(disabled = FALSE),
+          "Base + comparison countries" = list(disabled = FALSE)
+        )
       )
       
       # Create report
@@ -473,6 +489,24 @@ server <- function(input, output, session) {
     
   })
   
+  ## Disable and hide
+  shiny::observeEvent(input$create_custom_grps, {
+    if (input$create_custom_grps == TRUE) {
+      
+      shinyWidgets::updateMaterialSwitch(
+        session = session,
+        inputId = "show_countries",
+        value = FALSE
+      )
+      
+      shinyjs::disable(id = "show_countries")
+      
+    } else {
+      
+      shinyjs::enable(id = "show_countries")
+      
+    }
+  })
   
   ## Turning on the "Show custom groups" switch shows the custom groups ui
   shiny::observeEvent(input$show_custom_grps, {
@@ -734,58 +768,7 @@ server <- function(input, output, session) {
     ignoreNULL = FALSE
   )
   
-  
-  
-  observeEvent(
-    input$vars_bar,
-    {
-      
-      var <-
-        db_variables %>%
-        filter(var_name == input$vars_bar) %>%
-        pull(variable)
-      
-      valid <-
-        global_data %>%
-        filter(
-          !is.na(get(var))
-        ) %>%
-        select(country_name) %>%
-        unique() %>%
-        unlist() %>%
-        unname()
-      
-      bar_countries <-
-        intersect(valid, countries)
-      
-      updatePickerInput(
-        session,
-        "country_bar",
-        choices = c(
-          "",
-          bar_countries
-        )
-      )
-      
-      updateCheckboxGroupButtons(
-        session,
-        "countries_bar",
-        choices = bar_countries,
-        checkIcon = list(
-          yes = icon(
-            "ok",
-            lib = "glyphicon"
-          )
-        )
-      )
-    },
-    ignoreNULL = TRUE
-  )
-  
-  
-  
-  
-  
+
   # When custom groups are included and the group field is updated, append the countries to the initial list of countries
   # displayed
   observeEvent(
@@ -883,21 +866,34 @@ server <- function(input, output, session) {
           "select",
           "Apply selection",
           icon = icon("check"),
-          class = "btn-success",
-          width = "100%"
+          status = "success",
+          width = "100%",
+          #shinyjs::show("save_inputs"),
+          shinyjs::enable("save_inputs")
         )
       } else {
         actionButton(
           "select",
           "Select a base country and at least 10 comparison countries to apply selection",
           icon = icon("triangle-exclamation"),
-          class = "btn-warning",
+          status = "warning",
           width = "100%",
           shinyjs::disable("report"),
           shinyjs::disable("pptreport"),
           shinyjs::disable("download_data_1"),
-          
-        )
+          shinyjs::disable("save_inputs")
+        ) #|> 
+          #helper(
+          #  type = "inline",
+          #  icon = "circle-question",
+          #  title = "Apply",
+          #  content = c(
+          #    "Click on this box to (re-)run the analysis and (re-)load the resulting graphs. Note that this has to be done for every new selection or option, including a different institutional cluster. This option is enabled when the base country and at least 10 comparison countries are selected."
+          #  ),
+          #  buttonLabel = "Close",
+          #  fade = T,
+          #  size = "s"
+          #)
       }
     })
   
@@ -1036,13 +1032,13 @@ server <- function(input, output, session) {
     eventReactive(
       input$select,
       {
-        
+      
         static_avg_data<-global_data%>%
           select(-matches("_avg"))
         
-        vars_static_avg_data <- names(static_avg_data)[4:length(static_avg_data)] 
+        vars_static_avg_data <- names(static_avg_data)[6:length(static_avg_data)] 
         
-        static_avg <-compute_family_average(static_avg_data,vars_static_avg_data,"static",db_variables)
+        static_avg <-compute_family_average(static_avg_data,vars_static_avg_data,"static",db_variables,base_country(),input$countries)
         
         static_avg<- static_avg%>%
           select(-matches('NA'))
@@ -1093,7 +1089,7 @@ server <- function(input, output, session) {
         
         vars_dynamic_avg_data <- names(dynamic_avg_data)[6:length(dynamic_avg_data)] 
         
-        dynamic_avg <-compute_family_average(dynamic_avg_data,vars_dynamic_avg_data,"dynamic",db_variables)
+        dynamic_avg <-compute_family_average(dynamic_avg_data,vars_dynamic_avg_data,"dynamic",db_variables,base_country(),input$countries)
         
         dynamic_avg<- dynamic_avg%>%
           select(-matches('NA'))%>%
@@ -1141,7 +1137,8 @@ server <- function(input, output, session) {
         family_data(
           global_data,
           base_country(),
-          variable_names
+          variable_names,
+          input$countries
         ) %>%
           def_quantiles(
             base_country(),
@@ -1273,15 +1270,11 @@ server <- function(input, output, session) {
         input$select
         
         # browser()
-        
-        ## Important!
-        ## Shel added custom_df as an argument in the static_plot function to accommodate the custom groups
-        
-        
         isolate(
           
           
           if (input$family == "Overview") {
+            
             missing_variables <-
               global_data %>%
               missing_var(
@@ -1482,7 +1475,8 @@ server <- function(input, output, session) {
   
   output$dynamic_benchmark_plot <-
     renderPlotly({
-      tryCatch({
+#      tryCatch({
+
       validate(need(length(input$country) == 1,'Dynamic Benchmarking is available only when One base Country is selected'))
       validate(need(!(input$family %in% family_order$family_name[family_order$Benchmark_dynamic_indicator == "No"])," No Dynamic Benchmarking Plot available for this family."))
       if (length(input$countries) >= 10 && length(input$country) == 1) {
@@ -1582,12 +1576,12 @@ server <- function(input, output, session) {
         )
       }
       
-    }
-    , error = function(e) {
-    #   # If an error occurs, display a standard text message
-       showNotification('An error occurred. Data is missing for the selected base country.','',type = "error",duration = 10)
-       return()
-    })
+    # }
+    # , error = function(e) {
+    # #   # If an error occurs, display a standard text message
+    #    showNotification('An error occurred. Data is missing for the selected base country.','',type = "error",duration = 10)
+    #    return()
+    # })
       })%>%
     bindCache(input$country,  input$groups, input$family,input$benchmark_median,
               input$rank, input$benchmark_dots, input$preset_order, input$create_custom_grps,
@@ -1598,97 +1592,109 @@ server <- function(input, output, session) {
   ## Change variable selection in all tabs --------------------------
   
   observeEvent(
-    input$vars_bar,
+    input$country_bar,
     {
       updatePickerInput(
         session,
-        "y_scatter",
-        selected = input$vars_bar
+        "country_scatter",
+        selected = input$country_bar
       )
+      
+      # updatePickerInput(
+      #   session,
+      #   "vars_map",
+      #   selected = input$country_bar
+      # )
       
       updatePickerInput(
         session,
-        "vars_map",
-        selected = input$vars_bar
-      )
-      
-      updatePickerInput(
-        session,
-        "vars_trends",
-        selected = input$vars_bar
+        "country_trends",
+        selected = input$country_bar
       )
     },
     ignoreNULL = FALSE
   )
   
   observeEvent(
-    input$y_scatter,
+    input$country_scatter,
     {
       updatePickerInput(
         session,
-        "vars_bar",
-        selected = input$y_scatter
+        "country_bar",
+        selected = input$country_scatter
       )
+      
+      # updatePickerInput(
+      #   session,
+      #   "vars_map",
+      #   selected = input$country_scatter
+      # )
       
       updatePickerInput(
         session,
-        "vars_map",
-        selected = input$y_scatter
-      )
-      
-      updatePickerInput(
-        session,
-        "vars_trends",
-        selected = input$y_scatter
+        "country_trends",
+        selected = input$country_scatter
       )
     },
     ignoreNULL = FALSE
   )
   
   observeEvent(
-    input$vars_map,
-    {
-      updatePickerInput(
-        session,
-        "vars_bar",
-        selected = input$vars_map
-      )
+    input$vars_map,{
+      if(grepl("Average", input$vars_map)){
+        
+        disable(selector = "#value_map button:eq(1)")
+      }else{
+        enable(selector = "#value_map button:eq(1)")
+      }
       
-      updatePickerInput(
-        session,
-        "y_scatter",
-        selected = input$vars_map
-      )
-      
-      updatePickerInput(
-        session,
-        "vars_trends",
-        selected = input$vars_map
-      )
-    },
-    ignoreNULL = FALSE
-  )
+      }
+    )
+  
+  # observeEvent(
+  #   input$vars_map,
+  #   {
+  #     updatePickerInput(
+  #       session,
+  #       "vars_bar",
+  #       selected = input$vars_map
+  #     )
+  #     
+  #     updatePickerInput(
+  #       session,
+  #       "y_scatter",
+  #       selected = input$vars_map
+  #     )
+  #     
+  #     updatePickerInput(
+  #       session,
+  #       "vars_trends",
+  #       selected = input$vars_map
+  #     )
+  #   },
+  #   ignoreNULL = FALSE
+  # )
   
   observeEvent(
-    input$vars_trends,
+    input$country_trends,
     {
       updatePickerInput(
         session,
-        "vars_bar",
-        selected = input$vars_trends
+        "country_bar",
+        selected = input$country_trends
       )
       
       updatePickerInput(
         session,
-        "y_scatter",
-        selected = input$vars_trends
+        "country_scatter",
+        selected = input$country_trends
       )
-      
-      updatePickerInput(
-        session,
-        "vars_map",
-        selected = input$vars_trends
-      )
+      # 
+      # updatePickerInput(
+      #   session,
+      #   "vars_map",
+      #   selected = input$country_trends
+      # )
     },
     ignoreNULL = FALSE
   )
@@ -1713,11 +1719,25 @@ server <- function(input, output, session) {
   }) 
   
   
+  check_data <-function(data,country,indicator){
+    
+        var <-
+          db_variables %>%
+          filter(var_name == indicator) %>%
+          pull(variable)
+
+        indicator_val <-
+          data %>%
+          filter(country_name == country) %>%
+          pull(var)
+          
+        return(is.na(indicator_val))
+  }  
+  
   output$bar_plot <-
     renderPlotly({
       
-      
-      
+        validate(need(check_data(global_data,input$country_bar,input$vars_bar) == FALSE,'Country Comparison is not available for this Indicator for the selected base country'))
       static_bar(
         global_data,
         input$country_bar,
@@ -1815,54 +1835,6 @@ server <- function(input, output, session) {
   
   # Trends plot ===============================================================
   
-  observeEvent(
-    input$vars_trends,
-    {
-      if (input$vars_trends != "") {
-        var <-
-          db_variables %>%
-          filter(var_name == input$vars_trends) %>%
-          pull(variable)
-        
-        valid <-
-          raw_data %>%
-          filter(
-            !is.na(get(var))
-          ) %>%
-          select(country_name) %>%
-          unique() %>%
-          unlist() %>%
-          unname()
-        
-        valid_countries <-
-          intersect(valid, countries)
-        
-        updatePickerInput(
-          session,
-          "country_trends",
-          choices = c(
-            "",
-            valid_countries
-          )
-        )
-        
-        updateCheckboxGroupButtons(
-          session,
-          "countries_trends",
-          choices = valid_countries,
-          checkIcon = list(
-            yes = icon(
-              "ok",
-              lib = "glyphicon"
-            )
-          )
-        )
-      }
-    },
-    ignoreNULL = TRUE
-  )
-  
-  
   custom_df_trend <-  reactive({
     
     if(any(!input$group_trends %in% unlist(group_list))){
@@ -1877,11 +1849,9 @@ server <- function(input, output, session) {
   
   output$time_series <-
     renderPlotly({
-      
-      
-      
       shiny::req(input$country_trends)
       shiny::req(input$vars_trends)
+      validate(need(check_data(raw_data,input$country_trends,input$vars_trends) == FALSE,'Country Comparison is not available for this Indicator for the selected base country'))
       
       if (input$vars_trends != "") {
         var <-
@@ -1925,10 +1895,14 @@ server <- function(input, output, session) {
     reactive({
       data <-
         if (input$data_source == "Closeness to frontier (Static)") {
+
           global_data
+
         } else {
           if(input$data_source == "Closeness to frontier (Dynamic)"){
+         
             global_data_dyn
+ 
           }else{
             
             raw_data%>%
@@ -1938,14 +1912,14 @@ server <- function(input, output, session) {
           
         }
       
-      groups <-
-        if (input$groups_data == "All") {
-          all_groups
-        } else if (input$groups_data == "Comparison groups only" & input$groups != "") {
-          input$groups
-        } else {
-          ""
-        }
+      groups <- all_groups
+        # if (input$groups_data == "All") {
+        #   all_groups
+        # } else if (input$groups_data == "Comparison groups only" & input$groups != "") {
+        #   input$groups
+        # } else {
+        #   ""
+        # }
       
       selected_countries <-
         if (input$countries_data == "All") {
@@ -1966,10 +1940,10 @@ server <- function(input, output, session) {
         unlist()
       
       if (input$data_source == "Closeness to frontier (Static)") {
-        vars_table <- c("country_name", "country_code", "country_group",  vars)
+        vars_table <- c("country_name", "country_code", "country_group","income_group","region",vars)
       }else{
         if(input$data_source == "Closeness to frontier (Dynamic)"){
-          vars_table <- c("country_name", "country_code", "country_group", "year", vars)
+          vars_table <- c("country_name", "country_code", "country_group","income_group","region", "year", vars)
         } else {
           vars_table <- names(data)
         }
@@ -2007,7 +1981,7 @@ server <- function(input, output, session) {
           filter(country_group == 0) %>%
           mutate(
             across(
-              4:ncol(.),
+              6:ncol(.),
               ~ rank(desc(.), ties.method = "min")
             )
           )
@@ -2059,6 +2033,14 @@ server <- function(input, output, session) {
         paste0("CLIAR ",input$data_source," data.rds")
       },
       content = function(file) {
+        
+        show_modal_spinner(
+          color = "#17a2b8",
+          text = "Loading Data",
+        )
+        
+        on.exit(remove_modal_spinner())
+        
         write_rds(
           browse_data() %>%
             setnames(
@@ -2079,6 +2061,14 @@ server <- function(input, output, session) {
         paste0("CLIAR ",input$data_source," data.csv")
       },
       content = function(file) {
+        
+        show_modal_spinner(
+          color = "#17a2b8",
+          text = "Loading Data",
+        )
+        
+        on.exit(remove_modal_spinner())
+        
         write_csv(
           browse_data(),
           file,
@@ -2094,6 +2084,14 @@ server <- function(input, output, session) {
         paste0("CLIAR ",input$data_source," data.dta")
       },
       content = function(file) {
+        
+        show_modal_spinner(
+          color = "#17a2b8",
+          text = "Loading Data",
+        )
+        
+        on.exit(remove_modal_spinner())
+        
         write_dta(
           browse_data() %>%
             setnames(
@@ -2108,6 +2106,120 @@ server <- function(input, output, session) {
         )
       }
     )
+  
+  #CTF Static (Cluster-level aggregates only)
+  output$down_clust_ctf_stat <-
+    downloadHandler(
+      filename = function() {
+        paste0("CTF Static (Cluster-level aggregates only) data.csv")
+      },
+      content = function(file) {
+        
+        show_modal_spinner(
+          color = "#17a2b8",
+          text = "Loading Data",
+        )
+        
+        on.exit(remove_modal_spinner())
+        
+        write_csv(
+          down_clust_ctf_stat_data,
+          file,
+          na = ""
+        )
+      }
+    )
+  
+  #CTF Static (All indicators)
+  output$down_all_ctf_stat <-
+    downloadHandler(
+      filename = function() {
+        paste0("CLIAR CTF Static (All indicators) data.csv")
+      },
+      content = function(file) {
+        
+        show_modal_spinner(
+          color = "#17a2b8",
+          text = "Loading Data",
+        )
+        
+        on.exit(remove_modal_spinner())
+        
+        write_csv(
+          global_data,
+          file,
+          na = ""
+        )
+      }
+    )
+  #CTF Dynamic (Cluster-level aggregates only) data
+  output$down_clust_ctf_dyn <-
+    downloadHandler(
+      filename = function() {
+        paste0("CTF Dynamic (Cluster-level aggregates only) data.csv")
+      },
+      content = function(file) {
+        
+        show_modal_spinner(
+          color = "#17a2b8",
+          text = "Loading Data",
+        )
+        
+        on.exit(remove_modal_spinner())
+        
+        write_csv(
+          down_clust_ctf_dyn_data,
+          file,
+          na = ""
+        )
+      }
+    )
+  #CTF Dynamic (All indicators)
+  output$down_all_ctf_dyn <-
+    downloadHandler(
+      filename = function() {
+        paste0("CLIAR CTF Dynamic (All indicators) data.csv")
+      },
+      content = function(file) {
+        
+        show_modal_spinner(
+          color = "#17a2b8",
+          text = "Loading Data",
+        )
+        
+        on.exit(remove_modal_spinner())
+        
+        write_csv(
+          global_data_dyn,
+          file,
+          na = ""
+        )
+      }
+    )
+  #Original indicators
+  output$down_original <-
+    downloadHandler(
+      filename = function() {
+        paste0("CLIAR Original indicators data.csv")
+      },
+      content = function(file) {
+        
+        show_modal_spinner(
+          color = "#17a2b8",
+          text = "Loading Data",
+        )
+        
+        on.exit(remove_modal_spinner())
+        
+        write_csv(
+          raw_data%>%
+            select(-ends_with("_avg")),
+          file,
+          na = ""
+        )
+      }
+    )
+  
   
   
   # Report ================================================================================
@@ -2140,9 +2252,10 @@ server <- function(input, output, session) {
         list(
           base_country = base_country(),
           comparison_countries = input$countries,
-          data = data(),
+          data = data_avg(),
           family_data = data_family(),
           data_dyn = data_dyn(),
+          data_dyn_avg = data_dyn_avg(),
           family_data_dyn = data_family_dyn(),
           rank = input$rank,
           definitions = definitions,
@@ -2219,7 +2332,7 @@ server <- function(input, output, session) {
           threshold = input$threshold
         )
       
-      plot2 <- data_dyn() %>%
+      plot2 <- data_dyn_avg() %>%
         filter(str_detect(variable, "_avg"))%>%
         static_plot_dyn(
           base_country()[1],
@@ -2273,7 +2386,7 @@ server <- function(input, output, session) {
             pull(variable) %>%
             unique()
           
-          plt_f<-data() %>%
+          plt_f<-data_avg() %>%
             filter(variable %in% fam_variable_names)%>%
             static_plot(
               base_country(),
@@ -2302,14 +2415,14 @@ server <- function(input, output, session) {
         }
       }
       
-      ppt<-ppt%>%
-        add_slide(master = "Custom Design")%>%
-        on_slide(index = slide_index) %>%
-        ph_with(value = "Dynamic Benchmarking : Overview", location = ph_location(left = 1, top = 0.4,width = 12))%>%
-        ph_with(value = plot2, location = ph_location(
-          left = 1.5, top = 1.2,
-          width = 10.04, height = 4.67, bg = "transparent"
-        ))
+      # ppt<-ppt%>%
+      #   add_slide(master = "Custom Design")%>%
+      #   on_slide(index = slide_index) %>%
+      #   ph_with(value = "Dynamic Benchmarking : Overview", location = ph_location(left = 1, top = 0.4,width = 12))%>%
+      #   ph_with(value = plot2, location = ph_location(
+      #     left = 1.5, top = 1.2,
+      #     width = 10.04, height = 4.67, bg = "transparent"
+      #   ))
       
       print(ppt, file)
     }
@@ -2431,8 +2544,8 @@ server <- function(input, output, session) {
   
   # When 'apply selection' button is clicked, show the save button
   shiny::observeEvent(input$select, {
-    shinyjs::show("save_inputs")
-    shinyjs::enable("save_inputs")
+    #shinyjs::show("save_inputs")
+    #shinyjs::enable("save_inputs")
     shinyjs::show("download_data_1")
     shinyjs::enable("download_data_1")
     

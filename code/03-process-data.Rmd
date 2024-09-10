@@ -17,17 +17,17 @@ source(
   here("funs.R")
 )
 
-ref_year <- 2023
+ref_year <- 2024
 ```
 
 ## 1. Import data
 
 The data was imported from (a) the EFI360 shared data and (b) manual imports.
-This section first reads in each of the individual manual-input files and the column id names are cleaned with the clean_names() function. After this is done, a list of of standardized WB country names and codes is read in and mutated to be better compatible with the CLIAR data
+This section first reads in each of the individual manual-input files (Note that the updated version count with '2024' as folder and the column id names are cleaned with the clean_names() function. After this is done, a list of of standardized WB country names and codes is read in and mutated to be better compatible with the CLIAR data
 
-```{r read_in}
+```{r read in}
 efi <- read_dta(
-  here("data", "input", "efi", "EFI360_CLIAR_1990-2022.dta")
+  here("data", "input", "efi", "EFI360_CLIAR_1990-2022_032124.dta")
 )
 
 romelli <- read_dta(
@@ -61,9 +61,9 @@ oecd_pmr <- read_dta(
 )
 
 spi <- read_csv(
-  here("data", "input", "spi", "spi_index.csv")
+  here("data", "input", "spi", "2024", "SPI_index_labelled.csv")
 ) |> 
-  clean_names()
+  clean_names() 
 
 aspire <- read_dta(
   here("data", "input", "aspire", "ASPIRE performance indicators.dta")
@@ -73,16 +73,18 @@ rise <- read_dta(
   here("data", "input", "rise", "RISE_20102021.dta")
 )
 
+
 wdi <- read_dta(
-  here("data", "input", "wdi", "WDI_19902022_CLIAR.dta")
+  here("data", "input", "wdi", "2024", "wdi_19902023.dta")
 )
 
 vdem <- read_dta(
-  here("data", "input", "vdem", "VDEM_1990_2022.dta")
+  here("data", "input", "vdem", "2024", "vdem_19902023.dta")
 )
 
+
 heritage <- read_dta(
-  here("data", "input", "heritage", "heritage20122022.dta")
+  here("data", "input", "heritage", "2024", "heritage20122024.dta")
 )
 
 open_budget <- list.files(
@@ -139,8 +141,12 @@ country_income_and_region <- read_xlsx(
       country_code != "PRK"
   )
 
-wbl <- read_dta(
+wblx <- read_dta(
   here("data", "input", "wbl", "WBL_19902022_CLIAR.dta")
+)
+
+wbl <- read_dta(
+  here("data", "input", "wbl", "WBL_19902023_CLIAR.dta")
 )
 
 # note that North America is not included in this list
@@ -177,16 +183,20 @@ efi_clean <- efi |>
     .cols = starts_with("wb_survey")
   ) |> 
   # create PFM MIS indicator by summing over the following and rescaling:
+  # GTMI_I-12       Is there an e-Procurement System in place? (foreign and domestic debt)
   # GTMI_I-13       Is there a Debt Management System (DMS) in place? (foreign and domestic debt)
   # GTMI_I-14       Is there a Public Investment Management System (PIMS) in place?
-  # GTMI_I-7         Is there a Tax Management Information System in place?
-  # GTMI_I-6         Is there a TSA supported by FMIS to automate payments and bank reconciliation?
-  # GTMI_I-5         Is there an operational FMIS in place to support core PFM functions?
+  # GTMI_I-8        Is there a Customs System in place?
+  # GTMI_I-7        Is there a Tax Management Information System in place?
+  # GTMI_I-6        Is there a TSA supported by FMIS to automate payments and bank reconciliation?
+  # GTMI_I-5        Is there an operational FMIS in place to support core PFM functions?
   rowwise() |> 
   mutate(
     wb_gtmi_pfm_mis = sum(
+      # wb_gtmi_i_12,
       wb_gtmi_i_13,
       wb_gtmi_i_14,
+      wb_gtmi_i_8,
       wb_gtmi_i_7,
       wb_gtmi_i_6,
       wb_gtmi_i_5
@@ -293,7 +303,14 @@ oecd_epl_clean <- oecd_epl_regular_clean |>
 
 # SPI.DIM4.1.CEN.INDEX	SPI.DIM4.1.SVY.INDEX Dimension 5.2: Standards and Methods
 # SPI.DIM5.2.INDEX
-spi_clean <- spi |> 
+spi_clean <- spi %>%
+slice(-1)|> 
+  mutate(
+    spi_dim4_1_cen_index = as.numeric(spi_dim4_1_cen_index),
+    spi_dim4_1_svy_index = as.numeric(spi_dim4_1_svy_index),
+    spi_dim5_2_index = as.numeric(spi_dim5_2_index),
+    date = as.numeric(date) # Relevant cols as numeric
+  ) |> 
   rowwise() |> 
   # generate an average index of the census and survey indexes
   mutate(
@@ -351,18 +368,44 @@ rise_clean <- rise |>
   clean_names()
 
 # 8. wdi data
-wdi_clean <- wdi |> 
-  clean_names() |> 
-  select(-countryname)
+wdi_clean <- wdi |>
+  rename(
+    country_name = countryname,
+    country_code = countrycode
+  ) |>
+  rename_with(
+    ~ str_to_lower(.) %>% 
+      str_replace_all("^wdi_", "wdi_"), 
+      starts_with("wdi_")
+  )
+
+columns_to_drop <- c(
+  "country_name",
+  "wdi_dcodatotlgnzs", 
+  "wdi_dtdodpvlxgnzs", 
+  "wdi_shmedcmhwp3",  
+  "wdi_sipovmdim",     
+  "wdi_sipovmdimxq"  
+)  
+  
+wdi_clean <- wdi_clean |>
+  select(!all_of(columns_to_drop)) |>
+  # rename(
+  #   wdi_spdynamrtfe = wdi_shdynmortfe,
+  #   wdi_spdynamrtma = wdi_shdynmortma
+  # ) |>
+  filter(!is.na(country_code) & country_code != ""
+  ) |>
+  distinct(country_code, year, .keep_all = TRUE)
+
 
 # 9. vdem
-vdem_clean <- vdem |> 
-  clean_names() |> 
-  select(-country_name)
+vdem_clean <- vdem 
 
 # 10. heritage
 heritage_clean <- heritage |> 
-  clean_names()
+  clean_names() |>
+  filter(!is.na(country_code) & country_code != "")
 
 # 11. OECD Product Market Regulation
 oecd_pmr_clean <- oecd_pmr |> 
@@ -398,6 +441,13 @@ open_budget_clean <- open_budget |>
       country_code == "KMH",
       "KHM",
       country_code
+    )
+  ) |> 
+  # shift values one year earlier, to reflect year of measurement
+  # this holds starting in year = 2015
+  mutate(
+    year = if_else(
+      year >= 2015,  year - 1, year
     )
   )
 
@@ -442,7 +492,8 @@ excluded_country_code <- c(
   "ZZB", # zanzibar
   "CUB", # cuba
   "PRK", # democratic people's republic of Korea
-  "KMH" # unclear, listed in Open Budget Survey
+  "KMH", # unclear, listed in Open Budget Survey
+  "PSG" # palestine and gaza (VDEM)
 )
 
 cliar_indicators <- list(
@@ -501,6 +552,7 @@ cliar_indicators <- cliar_indicators %>%
   )
 ```
 
+
 ## 4. Data Quality Control: Indicator Selection
 
 Verify that the indicators are selected correctly. To do this, take the non-removed indicators from the metadata file as the indicators from combined dataset created in step 5 and ensure they have the same contents by using an anti-join in both directions. Re-select indicators to ensure that only the indicators in metadata and v2 id cols are in data.
@@ -513,7 +565,7 @@ db_variables_indicators <- db_variables |>
   )
 
 # only retain indicators contained in metadata + id cols
-cliar_indicators <- cliar_indicators |> 
+cliar_indicators <- cliar_indicators %>%  
   # add country names
   left_join(
     wb_country_list |> 
@@ -528,9 +580,9 @@ cliar_indicators <- cliar_indicators |>
   )
 
 cliar_indicators_id <- cliar_indicators |> 
-  colnames() %>% 
+  colnames()|> 
   tibble(
-    variable = .
+    variable = colnames(cliar_indicators)
   )
 
 test_that(
@@ -591,7 +643,32 @@ cliar_indicators_clean <- cliar_indicators |>
   left_join(
     cliar_family_level,
     by = c("country_code", "year")
-  )
+  ) |>
+  filter(!country_code %in% c("DDR", "YMD"))
+
+```
+
+```{r channel island}
+### Balancing the panel
+# Create a new row with specified values
+new_row <- tibble(
+  country_code = "CHI",
+  country_name = "Channel Islands",
+  year = 2023
+)
+
+# # Add NA for all other columns
+# new_row <- new_row %>%
+#   mutate(
+#   add_column(across(everything(), ~ NA))
+# )
+
+# Add the new row to the existing dataframe
+cliar_indicators_clean <- cliar_indicators_clean %>%
+  bind_rows(new_row)
+
+cliar_indicators_clean %>% 
+  filter(is.na(country_code))
 ```
 
 ## 6. Data Quality Control: verify country_code and country_name consistency
@@ -601,6 +678,8 @@ This section ensures that the country_code code and the country name are consist
 ```{r country_validation}
 # there are 218 country codes listed in the WB's official website
 # https://datahelpdesk.worldbank.org/knowledgebase/articles/906519-world-bank-country-and-lending-groups
+
+
 # a. verify that all the country codes from the official data are included
 test_that(
   "Verify that all the country codes from the official data are included",

@@ -29,15 +29,20 @@ static_plot <-
            dots = FALSE,
            note = NULL,
            threshold,
-           preset_order = FALSE) {
+           preset_order = FALSE,
+           report = FALSE) {
+  
+    #browser()
 
     data$var_name <- ifelse(grepl("Average", data$var_name, ignore.case = TRUE), toupper(data$var_name), data$var_name)
     
     if (threshold=="Default"){
       cutoff<-c(25,50)
+      custom_levels <- c("Weak\n(bottom 25%)", "Emerging\n(25% - 50%)", "Strong\n(top 50%)")
     }else if (threshold=="Terciles")
     {
       cutoff<-c(33,66)
+      custom_levels <- c("Weak\n(bottom 33%)", "Emerging\n(33% - 66%)", "Strong\n(top 34%)")
     }
 
     if(preset_order == TRUE){
@@ -49,8 +54,6 @@ static_plot <-
       
         base_country_df<-data%>%
           filter(country_name==base_country[1])
-        
-        custom_levels <- c("Weak\n(bottom 25%)", "Emerging\n(25% - 50%)", "Strong\n(top 50%)")
         
         base_country_df$status <- factor(base_country_df$status, levels = custom_levels, ordered = TRUE)
         if(rank==FALSE){
@@ -116,7 +119,7 @@ static_plot <-
       #   mutate(
       #     var = dtf,
       #     text = paste(
-      #       " Country:", country_name, "<br>",
+      #       "Country:", country_name, "<br>",
       #       "Closeness to frontier:", round(dtf, 3)
       #     )
       #   )
@@ -127,7 +130,7 @@ static_plot <-
           var = dtf,
           text = paste(
             "Closeness to frontier:", round(dtf, 3), "<br>",
-            " Country:", paste(country_name, collapse = ", ")
+            "Country:", paste(country_name, collapse = ", ")
           )
         ) %>%
         ungroup()
@@ -138,12 +141,12 @@ static_plot <-
         data %>%
         group_by(variable,nrank) %>%
         mutate(
-          q25 = cutoff[[1]]/100,
-          q50 = cutoff[[2]]/100,
+          q_cutoff1 = cutoff[[1]]/100,
+          q_cutoff2 = cutoff[[2]]/100,
           var = dtt,
           text = paste(
             "Rank:", nrank, "<br>",
-            " Country:", paste(country_name, collapse = ", "), "<br>",
+            "Country:", paste(country_name, collapse = ", "), "<br>",
             "Closeness to frontier:", round(dtf, 3)
           )
         ) %>%
@@ -160,7 +163,7 @@ static_plot <-
             y = var_name,
             yend = var_name,
             x = 0,
-            xend = q25
+            xend = q_cutoff1
           ),
           color = "#e47a81",
           size = 2,
@@ -177,8 +180,8 @@ static_plot <-
           aes(
             y = var_name,
             yend = var_name,
-            x = q25,
-            xend = q50
+            x = q_cutoff1,
+            xend = q_cutoff2
           ),
           color = "#ffd966",
           size = 2,
@@ -189,20 +192,22 @@ static_plot <-
           aes(
             y = var_name,
             yend = var_name,
-            x = q50,
+            x = q_cutoff2,
             xend = 1
           ),
           color = "#8ec18e",
           size = 2,
           alpha = .3
         ) +
+      scale_y_discrete(labels = function(x) str_wrap(x, width = 20))+
         theme_minimal() +
         theme(
+          aspect.ratio = 1.6/1,
           legend.position = "top",
           panel.grid.minor = element_blank(),
           axis.ticks = element_blank(),
           axis.text = element_text(color = "black"),
-          axis.text.y = element_text(size = 12),
+          axis.text.y = element_text(size = 10),
           axis.text.x = element_text(size = 11),
           legend.box = "vertical",
           plot.caption = element_text(size = 8, hjust = 0),
@@ -355,7 +360,7 @@ static_plot <-
             x = value,
             shape = country_name,
             text = paste(
-              " Group:", country_name,"<br>",
+              "Group:", country_name,"<br>",
               "Median closeness to frontier:", round(value, 3)
             )
           ),
@@ -386,22 +391,53 @@ static_plot <-
           show.legend = TRUE
         ))
     }else {
-      plot <-
-        plot +
-        suppressWarnings(geom_point(
-          data = data %>% filter(country_name %in% base_country),
-          aes(
-            y = var_name,
-            x = var,
-            shape = country_name,
-            fill = status ,
-            text = text
-          ),
-          size = 3,
-          color = "gray0",
-          show.legend = TRUE
-        ))+ 
-        scale_shape_manual(values = 21:25)      
+      
+      if(report==TRUE){
+        
+        data$status <- factor(data$status, levels = custom_levels, ordered = TRUE)
+        
+        
+        plot <-
+          plot +
+          suppressWarnings(geom_point(
+            data = data %>% filter(country_name %in% base_country),
+            aes(
+              y = var_name,
+              x = var,
+              shape = country_name,
+              fill = status ,
+              text = text
+            ),
+            size = 3,
+            color = "gray0",
+            show.legend = TRUE
+          ))+
+          guides(fill=guide_legend(override.aes=list(shape=21)))+
+          scale_shape_manual(values = 21:25)+
+          guides(colour = guide_legend(order = 1), 
+                 shape = guide_legend(order = 2))
+      }else{
+        plot <-
+          plot +
+          suppressWarnings(geom_point(
+            data = data %>% filter(country_name %in% base_country),
+            aes(
+              y = var_name,
+              x = var,
+              shape = country_name,
+              fill = status ,
+              text = text
+            ),
+            size = 3,
+            color = "gray0",
+            show.legend = TRUE
+          ))+scale_shape_manual(values = 21:25)
+
+      }
+      
+      
+        #guides(fill=guide_legend(override.aes=list(shape=21)))#+
+        #scale_shape_manual(values = 21:25)      
         # scale_fill_manual(values= c("Weak\n(bottom 25%)" = "#D2222D",
         #                            "Emerging\n(25% - 50%)" = "#FFBF00",
         #                            "Strong\n(top 50%)" = "#238823"))+
@@ -433,14 +469,17 @@ static_plot_dyn <-
     threshold,
     preset_order = FALSE) {
     
+    #browser()
+    
     if (threshold=="Default"){
       cutoff<-c(25,50)
+      custom_levels <- c("Weak\n(bottom 25%)", "Emerging\n(25% - 50%)", "Strong\n(top 50%)")
     }else if (threshold=="Terciles")
     {
       cutoff<-c(33,66)
+      custom_levels <- c("Weak\n(bottom 33%)", "Emerging\n(33% - 66%)", "Strong\n(top 34%)")
     }
-    
-    
+
     
     if(preset_order == TRUE){
       
@@ -521,7 +560,7 @@ static_plot_dyn <-
         mutate(
           var = dtf,
           text = paste(
-            " Country:", country_name, "<br>",
+            "Country:", country_name, "<br>",
             "Year: ", year, "<br>",
             "Closeness to frontier:", round(dtf, 3)
           )
@@ -531,11 +570,11 @@ static_plot_dyn <-
       data <-
         data %>%
         mutate(
-          q25 = cutoff[[1]]/100,
-          q50 = cutoff[[2]]/100,
+          q_cutoff1 = cutoff[[1]]/100,
+          q_cutoff2 = cutoff[[2]]/100,
           var = dtt,
           text = paste(
-            " Country:", country_name, "<br>",
+            "Country:", country_name, "<br>",
             "Year: ", year,  "<br>",
             "Closeness to frontier:", round(dtf, 3), "<br>",
             "Rank:", nrank
@@ -594,7 +633,7 @@ static_plot_dyn <-
           x = year,
           xend = year,
           y = 0,
-          yend = q25
+          yend = q_cutoff1
         ),
         color = "#e47a81",
         size = 2,
@@ -605,8 +644,8 @@ static_plot_dyn <-
         aes(
           x = year,
           xend = year,
-          y = q25,
-          yend = q50
+          y = q_cutoff1,
+          yend = q_cutoff2
         ),
         color = "#ffd966",
         size = 2,
@@ -617,7 +656,7 @@ static_plot_dyn <-
         aes(
           x = year,
           xend = year,
-          y = q50,
+          y = q_cutoff2,
           yend = 1
         ),
         color = "#8ec18e",
@@ -793,7 +832,7 @@ static_plot_dyn <-
             x = as.character(year),
             shape = country_name,
             text = paste(
-              " Group:", country_name,"<br>",
+              "Group:", country_name,"<br>",
               "Year: ", year,  "<br>",
               "Median closeness to frontier:", round(value, 3)
             )
@@ -809,6 +848,9 @@ static_plot_dyn <-
       
       
     }
+    
+    
+    data$status <- factor(data$status, levels = custom_levels, ordered = TRUE)
     
     ## add base country
     plot <-
@@ -875,7 +917,6 @@ static_plot_dyn <-
 plot_notes_function <-
   function(y, z, tab_name, miss_var, plot_type, custom_df) {
     
-    
     if(!is.null(custom_df)){
       
       custom_grp_notes <- custom_df %>% 
@@ -904,11 +945,11 @@ plot_notes_function <-
       notes <-
         paste0(
           "Notes:<br><br>",
-          y,
+          paste(y,collapse = ","),
           " compared to ",
           str_wrap(paste(z, collapse = ", "), note_chars),".",
           custom_grp_notes,
-          "<br><br>The following indicators are not considered because base country has no information or because of low variance: ",
+          "<br><br>The following indicators are not considered because the base country (or countries) has no information or because of low variance: ",
           str_wrap(paste(miss_var, collapse = ", "), note_chars),
           "."
         )
@@ -941,7 +982,7 @@ plot_notes_function <-
       notes <-
         paste(
           notes,
-          "<br><br>Family-level closeness to frontier is calculated by taking the average closeness to frontier for the estimated indicators within each family."
+          "<br><br>Cluster-level closeness to frontier is calculated by taking the average closeness to frontier for the estimated indicators within each cluster."
         )
     }
     
@@ -958,11 +999,12 @@ plot_notes_function <-
 
 interactive_plot <-
   function(x, tab_name, buttons,  plot_type) {
-    
-    if(lengths(variable_list[tab_name])>10 & plot_type=='dynamic'){
+    if(length(x$facet)>10 & plot_type=='dynamic'){
       plt_height = 3000
     }else if(plot_type=='dynamic') {
       plt_height = 1000
+    }else if(tab_name=='Overview'){
+      plt_height = 900
     }else{
       plt_height = 750
     }
@@ -1117,14 +1159,14 @@ static_map <-
             "#579E47",
             "#009E73"
           ),
-          name = NULL,
+          name = "Original Scale",
           na.value = "#808080"
         )
     } else if (source == "ctf") {
       plot <-
         plot +
         scale_fill_manual(
-          name = NULL,
+          name = "CTF",
           values = c(
             "0.0 - 0.2" = "#D55E00",
             "0.2 - 0.4" = "#DD7C00",
@@ -1149,21 +1191,23 @@ interactive_map <-
     def <-
       definitions %>%
       filter(variable == var)
-
-    if (source == "ctf") {
-      leg_title <- "Closeness to\nfrontier"
-    } else  {
-      leg_title <- NULL
-    }
+  
+    
+    # if (source == "ctf") {
+    #   leg_title <- "Closeness to\nfrontier"
+    # }else{
+    #   leg_title <-NULL
+    # }
 
     x %>%
       ggplotly(tooltip = "text") %>%
       layout(
-        legend = list(
-          title = list(text = paste("<b>", leg_title, "</b>")),
-          y = 0.5
-        ),
-        margin = list(t = 75, b = 125),
+        # legend = list(
+        #   title = list(text = paste("<b>", leg_title, "</b>")),
+        #   y = 0.2
+        # ),
+
+        margin = list(t = 75, b = 200),
         xaxis = list(visible = FALSE),
         yaxis = list(visible = FALSE),
         annotations =
@@ -1191,8 +1235,9 @@ interactive_map <-
                      ),
                      note_chars
                    ),
+                   
                    str_wrap(
-                     "<b>Note:</b> The color illustrates the latest value of the indicator available for each country.",
+                     "<b>Note:</b> The color illustrates the latest value of the indicator available for each country.The data presented here for CTF is obtained by taking the average of the indicator for the period 2018-2022 and for original indicator, it is latest datapoint available.",
                      note_chars
                    ),
                    sep = "<br>"
@@ -1340,7 +1385,7 @@ trends_plot <- function(raw_data,
     theme(
       axis.text.x = element_text(angle = 90)
     )
-
+  
   ggplotly(
     static_plot,
     tooltip = "text"

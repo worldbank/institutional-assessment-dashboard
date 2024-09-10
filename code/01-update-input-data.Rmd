@@ -1,0 +1,287 @@
+---
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+# Data Sources update (optional)
+
+-   Input: `data/input/**`
+-   Output: `data/output/2024/clean-2024version-*.csv.gz`
+
+READ ME (new data versions)
+
+-   This script is considered "optional" because its primary purpose is
+    to extract new data versions. Therefore, each chunk of this script
+    is currently set to `eval=FALSE` (not running).
+
+-   To effectively execute this code and run the chunks, remove the
+    `eval=FALSE` tags from the chunk names.
+
+-   Latest Data Version Update: September 5, 2024.
+
+## Import Inputs
+
+The data, initially imported manually, will be filtered (relevant
+indicators only) and cleaned either calling .do files or in R. It uses
+the 'RStata' package for initial cleaning of manually imported data,
+streamlining the process and preparing key indicators. This step enables
+automation for future data update. Once cleaned, standardized CSV files
+will be exported to be further proceed.
+
+```{r do-files-import, eval=FALSE}
+
+# Setting path based on the user
+{
+  
+  user <- Sys.getenv("USERNAME")
+  
+  # NEED TO CHANGE THIS DIRECTORY
+  if (user == "wb622595") { 
+    print("Ileana has been selected")
+    directory <- "C:/Users/wb622595/gitHub-repositories/institutional-assessment-dashboard/code"
+  } else {
+    stop("Unknown user. Please set the correct directory.")
+  }
+  
+  # NEED TO CHANGE STATA (CHANGE DIRECTORY) 
+  options("RStata.StataVersion" = 18.0)
+  options("RStata.StataPath" = "/ProgramData/Microsoft/Windows/Start Menu/Programs/StataMP 18")
+}
+
+# Set working directories
+{
+  # Data directories
+  input_data <- file.path(directory, "data/input")
+  output_data <- file.path(directory, "data/output")
+  
+  # Stata do files to prepare inputs
+  do_doc <- file.path(directory, "data/input/0.rtsata_inputs/")
+}
+
+
+# Clean the datasets bash 2024
+{
+# stata(file.path(do_doc, "clean-2024-heritage.do"))
+# stata(file.path(do_doc, "clean-2024-wbl.do"))
+
+}
+
+
+```
+
+```{r r_packages_import, eval=FALSE}
+
+wdi <- WDI(
+  country = "all",
+  indicator = c(
+    # Existing indicators
+    "GC.DOD.TOTL.GD.ZS", "EN.ATM.CO2E.PP.GD.KD", "BN.CAB.XOKA.GD.ZS",
+    "SH.XPD.GHED.GD.ZS", "GC.XPN.TOTL.GD.ZS", "NE.EXP.GNFS.ZS",
+    "NE.CON.TOTL.ZS", "BX.KLT.DINV.WD.GD.ZS", "BM.KLT.DINV.WD.GD.ZS",
+    "NY.GDP.MKTP.KD", "NY.GDP.DEFL.ZS", "NY.GDP.DEFL.ZS.AD",
+    "NY.GDP.MKTP.KD.ZG", "NY.GDP.PCAP.KD", "NY.GDP.PCAP.KD.ZG",
+    "NY.GDP.PCAP.PP.KD", "NY.GDP.MKTP.PP.KD", "NE.CON.GOVT.ZS",
+    "SE.XPD.TOTL.GD.ZS", "SE.XPD.PRIM.PC.ZS", "SE.XPD.SECO.PC.ZS",
+    "SE.XPD.TERT.PC.ZS", "NE.GDI.TOTL.ZS", "NY.GDS.TOTL.ZS",
+    "NE.GDI.FTOT.ZS", "NE.DAB.TOTL.ZS", "NY.GNS.ICTR.ZS",
+    "NE.IMP.GNFS.ZS", "NY.GDP.DEFL.KD.ZG", "NY.GDP.DEFL.KD.ZG.AD",
+    "NV.IND.MANF.ZS", "MS.MIL.XPND.GD.ZS", "NY.GDP.MINR.RT.ZS",
+    "NY.GDP.NGAS.RT.ZS", "GC.NLD.TOTL.GD.ZS", "NY.GDP.PETR.RT.ZS",
+    "BX.TRF.PWKR.DT.GD.ZS", "GC.REV.XGRT.GD.ZS", "NV.SRV.TOTL.ZS",
+    "GC.TAX.TOTL.GD.ZS", "NY.GDP.TOTL.RT.ZS", "NE.TRD.GNFS.ZS",
+    "NY.GNP.MKTP.KD", "DT.DOD.DECT.GN.ZS", "NY.GNP.MKTP.KD.ZG",
+    "NY.GNP.PCAP.KD", "NY.GNP.PCAP.KD.ZG", "NY.GNP.PCAP.PP.KD",
+    "NY.GNP.MKTP.PP.KD", "DT.ODA.ODAT.GN.ZS", "DC.ODA.TOTL.GN.ZS",
+    "DT.TDS.DPPG.GN.ZS", "DT.TDS.DECT.GN.ZS", "DT.DOD.PVLX.GN.ZS",
+    "DT.DOD.DSTC.ZS", "DT.DOD.DSTC.IR.ZS", "DT.TDS.DECT.EX.ZS",
+    "FI.RES.TOTL.DT.ZS", "DT.DOD.DSTC.XP.ZS", "DT.TDS.MLAT.PG.ZS",
+    "IQ.CPA.HRES.XQ", "IQ.CPA.BREG.XQ", "IQ.CPA.DEBT.XQ",
+    "IQ.CPA.ECON.XQ", "IQ.CPA.REVN.XQ", "IQ.CPA.PRES.XQ",
+    "IQ.CPA.FISP.XQ", "IQ.CPA.FINS.XQ", "IQ.CPA.GNDR.XQ",
+    "IQ.CPA.MACR.XQ", "IQ.CPA.SOCI.XQ", "IQ.CPA.ENVR.XQ",
+    "IQ.CPA.PROP.XQ", "IQ.CPA.PUBS.XQ", "IQ.CPA.FINQ.XQ",
+    "IQ.CPA.PADM.XQ", "IQ.CPA.PROT.XQ", "IQ.CPA.STRC.XQ",
+    "IQ.CPA.TRAD.XQ", "IQ.CPA.TRAN.XQ",
+    # Updated code indicators according the Metadata Glossary 
+    # https://databank.worldbank.org/metadataglossary/all/series
+    # adjust db_bariables
+    "SE.ADT.LITR.FE.ZS",  # Literacy rate, adult female
+    "SE.ADT.LITR.MA.ZS",  # Literacy rate, adult male
+    "SE.ADT.LITR.ZS",     # Literacy rate, adult total
+    "SH.DYN.MORT",        # Mortality rate, under-5
+    "SH.STA.ANVC.ZS",     # Pregnant women receiving prenatal care "SH.STA.PRSC.ZS"
+    "SH.STA.MMRT",       # Maternal mortality ratio "SH.MMR.RATIO",
+    "SH.DYN.MORT.FE",     # Mortality rate, adult female sp.dyn.amrt.fe
+    "SH.DYN.MORT.MA",      # Mortality rate, adult male 
+    "GC.REV.SOCL.ZS", "MS.MIL.TOTL.TF.ZS", "SL.UEM.TOTL.NE.ZS",
+    "SL.UEM.TOTL.ZS", "SE.COM.DURS", "SE.XPD.CPRM.ZS",
+    "SE.XPD.CSEC.ZS", "SE.XPD.CTER.ZS", "SE.XPD.CTOT.ZS",
+    "SE.XPD.TOTL.GB.ZS", "SE.SEC.TCAQ.LO.ZS", "SE.PRE.TCAQ.ZS",
+    "SE.PRM.TCAQ.ZS", "SE.SEC.TCAQ.ZS", "SE.SEC.TCAQ.UP.ZS",
+    "SE.PRM.TENR", "SH.STA.BRTC.ZS", "SH.MED.CMHW.P3",
+    "SH.XPD.CHEX.GD.ZS", "SH.XPD.OOPC.CH.ZS", "SH.XPD.OOPC.PP.CD",
+    "SI.POV.MDIM", "SI.POV.MDIM.XQ", "SI.POV.GAPS",
+    "SI.POV.LMIC.GP", "SI.POV.UMIC.GP", "SI.POV.DDAY",
+    "SI.POV.LMIC", "SI.POV.UMIC", "SI.POV.NAHC",
+    "SE.PRM.ENRL.TC.ZS", "SE.SEC.ENRL.TC.ZS", "SE.TER.ENRL.TC.ZS",
+    "SH.MED.BEDS.ZS", "SH.MED.PHYS.ZS", "SP.REG.BRTH.ZS",
+    "SP.REG.BRTH.RU.ZS", "SP.REG.BRTH.UR.ZS"
+  ),
+  start = 1990,
+  end = 2023,
+  extra = FALSE,
+  cache = NULL,
+  latest = NULL,
+  language = "en"
+)
+
+
+vdem <- vdemdata::vdem 
+
+```
+
+## Clean Inputs
+
+```{r cleaning, eval=FALSE}
+wdi_clean <- wdi %>%
+  clean_names() %>%
+  rename(
+    country_name = country,
+    country_code = iso3c
+  )
+
+# Function to convert mixed ISO2 and ISO3 codes to ISO3
+convert_to_iso3 <- function(codes) {
+  # Convert ISO2 codes to ISO3
+  iso3_from_iso2 <- countrycode(
+    sourcevar = codes,
+    origin = "iso2c",
+    destination = "iso3c",
+    warn = FALSE
+  )
+  
+  iso3_from_iso3 <- countrycode(
+    sourcevar = codes,
+    origin = "iso3c",
+    destination = "iso3c",
+    warn = FALSE
+  )
+  
+  # Return the ISO3 codes from either conversion
+  iso3_from_iso2 %>% ifelse(is.na(.), iso3_from_iso3, .)
+}
+
+wdi_clean <- wdi_clean %>%
+  mutate(
+    country_code = convert_to_iso3(iso2c)
+  ) %>% 
+  select(-iso2c)
+
+# # Check unmatched codes
+# unmatched_codes <- wdi_clean$iso2c[is.na(wdi_clean$country_code)]
+# print(unmatched_codes)
+
+# Remove underscores from column names and replace prefixes with `wdi_` convention
+wdi_clean <- wdi_clean|>
+  rename_with(~ str_replace_all(.x, "_", ""), .cols = everything()) %>% 
+  rename_with(~ str_replace_all(.x, "^(.+)", "wdi_\\1"), .cols = !starts_with("country") & !starts_with("year"))
+
+
+vdem_clean <- vdem |>
+  filter(year >= 1990) |>
+  rename(
+  country_code = country_text_id 
+  ) |> 
+  clean_names() |>  # Clean column names to lower case with underscores
+  distinct(country_code, year, .keep_all = TRUE)|>  # Remove duplicates
+  select(
+    country_code,
+    year,
+    v2x_corr,
+    v2exbribe,
+    v2xcl_prpty,
+    v2xcl_acjst,
+    v2juhcind,
+    v2juncind,
+    v2juaccnt,
+    v2pepwrgen,
+    v2pepwrsoc,
+    v2pepwrses,
+    v2xlg_legcon,
+    v2x_gender,
+    v2stcritrecadm,
+    v2clrspct,
+    v2cseeorgs,
+    v2dlengage,
+    v2clacfree,
+    v2csreprss,
+    v2x_civlib,
+    v2x_cspart,
+    v2clstown, ### Former name v2cl_acjst State ownership of economy
+    v2clacjstm,
+    v2clacjstw,
+    v2lgqugen,
+    v2lgfemleg,
+    v2cldiscm,
+    v2cldiscw,
+    v2caassemb,
+    v2cacamps,
+    v2peapsecon,
+    v2peasjsoecon,
+    v2peapsgen,
+    v2peasjgen,
+    v2peapspol,
+    v2peasjpol,
+    v2x_pubcorr,
+    v2x_execorr,
+    v2lgcrrpt,
+    v2dlencmps,
+    v2clstown,
+    v2peedueq,
+    v2pehealth,
+    v2peasbepol,
+    v2cafres,
+    v2cafexch,
+    v2x_rule,
+    v2xed_ed_cent,
+    v2xed_ed_ctag,
+    v2xed_ed_con,
+    v2edteautonomy,
+    v2edteunionindp
+  ) |>
+ rename_with(
+    # replace prefixses with efi conventions
+    ~ paste0("vdem_core_", .), 
+    .cols = starts_with("v2")
+  )
+
+```
+
+## Export Inputs
+
+```{r export, eval=FALSE}
+write_dta(
+  vdem_clean,
+  here(
+    "data",
+    "input",
+    "vdem",
+    "2024",
+    "vdem_19902023.dta"
+  )
+)
+
+
+write_dta(
+  wdi_clean,
+  here(
+    "data",
+    "input",
+    "wdi",
+    "2024",
+    "wdi_19902023.dta"
+  )
+)
+
+```

@@ -1,25 +1,43 @@
-family_data <- function(data, base_country, variable_names) {
+check_quantiles <- function(column) {
+  q25 <- quantile(column, 0.25, na.rm = TRUE)
+  q75 <- quantile(column, 0.75, na.rm = TRUE)
+  if (!is.na(q25) & !is.na(q75) & q25 == q75) {
+    return(TRUE)
+  } else {
+    return(FALSE)
+  }
+}  
+
+family_data <- function(data, base_country, variable_names,comparison_countries) {
 
   na_indicators <-
     data %>%
     ungroup() %>%
     filter(country_name %in% base_country) %>%
-    select(-(1:3)) %>%
+    select(-(1:5)) %>%
     summarise(across(everything(), ~ if_else(any(is.na(.)), NA, sum(., na.rm = TRUE)))) %>%
     select(where(is.na)) %>%
     distinct() %>%
-    names 
+    names
 
+  lv_data<-data%>% 
+    filter(country_name %in% c(base_country,comparison_countries))%>%
+    select(-(1:5))
+  
+  result <- sapply(lv_data, check_quantiles)
+  
+  lv_indicators <- names(result[result == TRUE])
+  
   data <-
     data %>%
-    select(-c(na_indicators, country_code)) %>%
+    select(-c(union(na_indicators, lv_indicators),country_code)) %>%
     ungroup %>%
     select(country_name, everything())
 
-
+  
   dtf_family_level <-
     data %>%
-    pivot_longer(cols = 2:ncol(.),
+    pivot_longer(cols = 4:ncol(.),
                  names_to = "variable") %>%
     left_join(variable_names,
               by = "variable") %>%
@@ -69,10 +87,27 @@ family_data_dyn <- function(data, base_country, variable_names) {
  
 }
 
-compute_family_average <- function(cliar_data, vars, type = "static", db_variables){
+compute_family_average <- function(cliar_data, vars, type = "static", db_variables,base_country,comparison_countries){
   # this function generates family averages
   # taking a simple average by grouping
   # default is static
+  
+    lv_data<-cliar_data%>% 
+    filter(country_name %in% c(base_country,comparison_countries))%>%
+    select(-(1:5))
+  
+  result <- sapply(lv_data, check_quantiles)
+  
+  lv_indicators <- names(result[result == TRUE])
+  
+  cliar_data <-
+    cliar_data %>%
+    select(-lv_indicators)%>%
+    ungroup %>%
+    select(country_name, everything())
+
+  vars <-setdiff(vars, lv_indicators)
+  
   cliar_data_long <-
     cliar_data %>%
     pivot_longer(

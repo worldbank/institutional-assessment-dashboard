@@ -15,13 +15,13 @@ $('#threshold').on('shown.bs.select', function() {
 ui <-
   dashboardPage(
     
-
-      freshTheme = create_theme(bs4dash_layout(sidebar_width = "400px")),
-
+    
+    freshTheme = create_theme(bs4dash_layout(sidebar_width = "350px")),
+    
     ## Header ------------------------------------------------------------------
-
+    
     dashboardHeader(
-
+      
       title = dashboardBrand(
         title = "CLIAR Benchmarking Dashboard"
       ),
@@ -31,14 +31,14 @@ ui <-
       controlbarIcon = icon("th"),
       fixed = FALSE
     ),
-
+    
     ## Navigation menu ---------------------------------------------------------
     dashboardSidebar(
-
+      
       status = "info",
       skin = "light",
       elevation = 5,
-
+      
       sidebarMenu(
         menuItem("Home", tabName = "home", icon = icon("home")),
         menuItem("Country benchmarking", tabName = "benchmark", icon = icon("sort-amount-up")),
@@ -52,71 +52,28 @@ ui <-
         menuItem("Terms of use and Disclaimers", tabName = "terms", icon = icon("handshake")),
         menuItem("FAQ", tabName = "faq", icon = icon("question")),
         menuItem("Contact Us", 
-                   icon = icon("comments", lib = "font-awesome"),
-                   href = "mailto:CLIAR@worldbank.org"),
+                 icon = icon("comments", lib = "font-awesome"),
+                 href = "mailto:CLIAR@worldbank.org"),
         menuItem("Source code", 
-                   icon = icon("github", lib = "font-awesome"),
-                   href = "https://github.com/worldbank/institutional-assessment-dashboard/")
+                 icon = icon("github", lib = "font-awesome"),
+                 href = "https://github.com/worldbank/institutional-assessment-dashboard/")
       )
     ),
-
+    
     dashboardBody(
       
+      cicerone::use_cicerone(),
+      
       ## universal css styles
-      tags$style(HTML("
-      
-      /* Make the dynamic dashboard scrollable */
-                      
-       #shiny-tab-benchmark > div:nth-child(4) > div{
-        max-height: 600px;
-        overflow-y: auto;
-        
-       }
-        
-    .shiny-notification {
-             position:fixed;
-             top: calc(80%);
-             left: calc(40%);
-             }
-        
-        .shiny-html-output.shiny-bound-output{
-            text-align: justify;
-        }
-        
-      /* Changed the background of the load and save input buttons a shade of red */
-      .load_save_btns .bttn-primary{background-color: #e94152;}
-      
-      /* Changed the background of the selected country or countries to a shade of blue */
-      .dropdown-item.active, .dropdown-item:active,
-      .dropdown-item.opt.selected
-      {background-color: #007bff6b;}
-       
-       .far.fa-square-check{
-            background-color: #e94152e8;
-            color: white;
-       } 
-       
-       #save_inputs{
-          background-color: #e94152;
-          color: white;
-          border-radius: 20px;
-       }
-       
-       #download_data_1{
-          background-color: #3326da;
-          color: white;
-       }
-
-        "
-      )),
+      tags$head(includeCSS("www/styles.css")),
       
       tabItems(
-
+        
         ## Landing page --------------------------------------------------------
-
+        
         tabItem(
           tabName = "home",
-
+          
           bs4Card(
             width = 12,
             status = "navy",
@@ -125,15 +82,13 @@ ui <-
               span(
                 img(src = "cliar.png", width = "80%")
               ),
-
+            
             br(),            
             p("Welcome to the Country Level Institutional Assessment and Review (CLIAR) Benchmarking Dashboard!"), 
-            p("The World Bank recognizes institutional strengthening as key ingredient for progress of its members countries along income categories. While there are numerous diagnostic and assessment tools for specific functional areas such as public financial management and tax administration, there is no analytical tool for country-level institutional assessment."), 
-            p("The Country Level Institutional Assessment and Review (CLIAR) contributes to fill this gap via two distinct but complementary products: the (i) CLIAR Benchmarking and its Dashboard and the (ii) CLIAR Country Deep-Dive."),
-            p("The CLIAR Benchmarking Dashboard value added is to provide a standard quantitative methodology to summarize information from a large set of country-level institutional indicators. It does so by providing a user-friendly interface with multiple visualizations of a country’s institutional profile based on a set of curated international indicators, highlighting a given country’s institutional strengths and weaknesses relative to a set of country comparators. 
-              The findings can provide a structured, standardized, and up-to-date empirical guidance for further in-depth analysis in the specific areas of interest. This can inform and contribute the World Bank's engagement in a given country and complement other strategic and analytical country-level reports, such as Country Climate and Development Reports (CCDR), Country Economic Memorandums (CEM), Public Expenditure Reviews (PER), Country-Partnership Frameworks (CPF), among others."),
+            
+            p("The CLIAR Benchmarking Dashboard provides a standard quantitative methodology to summarize information from a large set of country-level institutional indicators."),
+            
             p("For full details about the methodology behind the CLIAR Benchmarking, please find the Methodological paper in the Methodology tab. Users of this resource should cite this paper. Publications using the CLIAR data should include a citation of the CLIAR Dashboard as well as the original source(s) of the data used. Citation information for each component dataset is also included in the Methodology page."),
-            p("Disclaimer: The findings, interpretations, and conclusions expressed in CLIAR are a product of staff of the World Bank, but do not necessarily reflect the views of the World Bank and its affiliated organizations, or those of the Executive Directors of the World Bank or the governments they represent."),
             h3("How to use this dashboard"),
             p("This dashboard aims to enable its users to interact with the country-level benchmarking through the following tabs:"),
             tags$ul(
@@ -178,7 +133,7 @@ ui <-
               tags$li(
                 "The ",
                 tags$b("Terms of use and Disclaimer"),
-                "tab provides more information about the terms of use,disclaimer, as well as citation information."
+                "tab provides more information about the terms of use and disclaimer, as well as citation information."
               ),
               tags$li(
                 "The ",
@@ -195,237 +150,515 @@ ui <-
                 tags$b("Source Code"),
                 "tab takes users to our GitHub repository where they can access our source code."
               )
-            )
+            ),
+            p("Disclaimer :The findings, interpretations, and conclusions expressed in CLIAR are a product of staff of the World Bank, but do not necessarily reflect the views of the World Bank and its affiliated organizations, or those of the Executive Directors of the World Bank or the governments they represent. Moreover, country borders or names used and available in this dashboard do not necessarily reflect the World Bank Group's official position, and do not imply the expression of any opinion on the part of the World Bank, concerning the legal status of any country or territory or concerning the delimitation of frontiers or boundaries. The term country, used interchangeably with economy, does not imply political independence but refers to any territory for which authorities report separate social or economic statistics.")
+            
           )
         ),
-
+        
         ## Country benchmark tab -------------------------------------------------------
-
         tabItem(
           tabName = "benchmark",
           useShinyjs(),
-
-          bs4Card(
-            title = "Select information to display",
-            status = "success",
-            solidHeader = TRUE,
-            width = 12,
-
-            shiny::fluidRow(
-              ## Load inputs button
-              column(
-                width = 3,
-                buttons_func(id = "load_inputs",
-                  lab = "Load Inputs"
-                ),
-                
-              )
-            ),
-            
-            shiny::fluidRow(style = "height:30px;"),
-            
-            fluidRow(
-
-              column(
-                width = 3,
-                pickerInput(
-                  "country",
-                  label = "Select a base country",
-                  choices = c("", countries),
-                  selected = NULL,
-                  multiple = TRUE,
-                  options = list(
-                    `actions-box` = TRUE,
-                    `live-search` = TRUE 
-                  )
-                )
-              ),
-
-              column(
-                width = 3,
-                pickerInput(
-                  "groups",
-                  label = "Select comparison groups",
-                  choices = group_list,
-                  selected = NULL,
-                  multiple = TRUE,
-                  options = list(
-                    # size = 21,
-                    `actions-box` = TRUE,
-                    `live-search` = TRUE
-                  )
-                )
-              ),
-
-              column(
-                width = 3,
-                pickerInput(
-                  "family",
-                  label = "Select institutional family",
-                  choices = c("Overview", names(variable_list)),
-                  selected = NULL
-                )
-              ),
-
-              column(
-                width = 3,
-                pickerInput(
-                  inputId = "benchmark_median",
-                  label = "Show group median",
-                  choices = append(
-                    "Comparison countries",
-                    group_list
+          
+          fluidRow(
+            column(
+              width = 6,
+              style = "padding-left: 24px",
+              pickerInput(
+                "country",
+                label = helper(
+                  shiny_tag = tags$span("Base country:", style = "font-size: 28px; color: #051f3f;"),
+                  type = "inline",
+                  icon = "circle-question",
+                  title = "Base country",
+                  content = c(
+                    "Choose the base country of interest. (For some analysis, you can select more than one.)"
                   ),
-                  selected = NULL,
-                  multiple = TRUE,
-                  options = list(
-                    `live-search` = TRUE,
-                    "max-options" = 3
+                  buttonLabel = "Close",
+                  fade = T,
+                  size = "s"
+                ),
+                choices = countries,
+                choicesOpt = list(
+                  content = flags_with_countries,
+                  style = rep(length(flags_with_countries))
+                ),
+                selected = NULL,
+                multiple = TRUE,
+                options = list(
+                  `actions-box` = TRUE,
+                  `live-search` = TRUE 
+                )
+              )
+            ),
+            ## Guide action button
+            column(
+              width = 3,
+              tags$span("Guided tour", style = "font-size: 1rem; color: #051f3f; font-weight:bold"),
+              fluidRow(
+                shinyWidgets::actionBttn(
+                  inputId = "start_guide_bench",
+                  label = "Start", 
+                  icon = shiny::icon("gear"),
+                  style = "jelly",
+                  color = "primary",
+                  size = "sm"
+                )
+              )
+            ),
+            column(
+              id = "input_buttons",
+              width = 3,
+              fluidRow(
+                column(
+                  width = 8,
+                  helper(
+                    shiny_tag = tags$span("Selection of Countries", style = "font-size: 1rem; color: #051f3f; font-weight:bold"),
+                    type = "inline",
+                    icon = "circle-question",
+                    title = "Saving and loading Selection of Countries",
+                    content = c(
+                      "You can save your selected inputs to return to at a future time: click “Save Selection of Countries” button to download a .rds file to your computer with that information. When you return to the dashboard, you can click “Load Selection of Countries” button and then “Browse” to select this same .rds file. Loading this .rds file will re-populate all of the selections that you previously made."
+                    ),
+                    buttonLabel = "Close",
+                    fade = T,
+                    size = "s"
+                  )
+                ),
+                column(4)
+              ),
+              fluidRow(
+                ## Load inputs button
+                buttons_func(
+                  id = "load_inputs",
+                  lab = "Load"
+                ),
+                ## Save inputs button
+                shinyjs::disabled(
+                  downloadButton(
+                    "save_inputs", 
+                    "Save"
+                  )
+                )
+              )
+            )
+          ),
+          
+          fluidRow(style = "height: 5px;"),
+            
+            ### Comparison card 
+            bs4Card(
+              title = "Comparator countries",              
+              status = "success",
+              solidHeader = TRUE,
+              width = 12,
+              collapsible = TRUE,
+              
+              shiny::fluidRow(
+                column(
+                  width = 6,
+                  pickerInput(
+                    "groups",
+                    label = helper(
+                      shiny_tag = "Select comparison groups",
+                      type = "inline",
+                      icon = "circle-question",
+                      title = "Pre-defined groups",
+                      content = c(
+                        "There are multiple ways to select the comparator countries. Here you can select one (or more) pre-defined group(s) (either as a comparator group itself or as a shortcut for selecting individual countries). When selecting more than one, it is the union (i.e., sum) of the groups that will be analyzed."
+                      ),
+                      buttonLabel = "Close",
+                      fade = T,
+                      size = "s"
+                    ),
+                    choices = group_list,
+                    selected = NULL,
+                    multiple = TRUE,
+                    options = list(
+                      `actions-box` = TRUE,
+                      `live-search` = TRUE
+                    )
+                  )
+                ),
+                column(
+                  id = "show_countries_column",
+                  width = 3,
+                  style = "display: flex; align-items: center; justify-content: center;",
+                  shinyWidgets::materialSwitch(
+                    inputId = "show_countries",
+                    label = helper(
+                      shiny_tag = tags$b("Show list of countries"),
+                      type = "inline",
+                      icon = "circle-question",
+                      title = "List of countries",
+                      content = c(
+                        "Here you can add and remove individual comparator countries. If you have already selected one or more the pre-defined groups, those countries will appear as selected, and you can manually add or remove."
+                      ),
+                      buttonLabel = "Close",
+                      fade = T,
+                      size = "s"
+                    ),
+                    value = FALSE,
+                    status = "success"
+                  )
+                ),
+                column(
+                  id = "custom_grps_column",
+                  width = 3,
+                  style = "display: flex; align-items: center; justify-content: left;",
+                  shinyWidgets::materialSwitch(
+                    inputId = "create_custom_grps",
+                    label = helper(
+                      shiny_tag = tags$b("Create custom groups"),
+                      type = "inline",
+                      icon = "circle-question",
+                      title = "Custom groups",
+                      content = paste0(
+                        "Alternative, you may create up to three custom groups of countries. This feature will additionally display in the Benchmarking graphs the median estimates of each custom group.",
+                        "<br><br><b>Note:</b> Currently custom groups are not allowed when displaying ranks instead of values, when ranking from best to worst, or when doing the dynamic benchmark."
+                      ),
+                      buttonLabel = "Close",
+                      fade = T,
+                      size = "s"
+                    ),
+                    value = FALSE,
+                    status = "success"
+                  )
+                )
+              ),
+              
+              shiny::conditionalPanel(
+                "input.create_custom_grps == true",
+                
+                fluidRow(
+                  column(
+                    width = 12,
+                    shinyWidgets::materialSwitch(
+                       inputId = "show_custom_grps",
+                       label = tags$b("Show custom groups"),
+                       status = "success",
+                       value = TRUE
+                     )
+                  )
+                ),
+                #fluidRow(
+                #  column(
+                #    width = 12,
+                #    tags$p(HTML("<strong>NOTE:</strong> Currently custom groups are not allowed when displaying ranks instead of values, when ranking from best to worst, or when doing the dynamic benchmark."))
+                #  )
+                #),
+                fluidRow(
+                  column(
+                    width = 3,
+                    numericInput(
+                      inputId = "custom_grps_count",
+                      label = "Number of groups",
+                      value = 1,
+                      min = 1,
+                      max = 3,
+                      step = 1
+                    )
+                  ),
+                  column(
+                    width = 3,
+                    style = "display: flex; align-items: center; justify-content: center;",
+                    shinyWidgets::actionBttn(
+                      inputId = "save_custom_grps",
+                      label = "Save custom groups", 
+                      icon = shiny::icon("save"),
+                      style = "jelly",
+                      color = "primary",
+                      size = "sm"
+                    )
+                  ),
+                  column(
+                    width = 12,
+                    conditionalPanel(
+                      "input.custom_grps_count >= 1",
+                      uiOutput("custom_grps")
+                    )
+                  )
+                )
+              ),
+              #### Countries list 
+              shiny::conditionalPanel(
+                "input.show_countries == true",
+                
+                fluidRow(style = "height: 15px;"),
+                
+                fluidRow(
+                  column(
+                    width = 12,
+                    checkboxGroupButtons(
+                      inputId = "countries",
+                      individual = TRUE,
+                      label = NULL,
+                      choices = countries,
+                      selected = NULL, 
+                      checkIcon = list(
+                        yes = icon(
+                          "ok",
+                          lib = "glyphicon"
+                        )
+                      )
+                    )
                   )
                 )
               )
             ),
-            
-            fluidRow(style = "height: 15px;"),
-            
-            fluidRow(
-              shiny::column(3,
-                shinyWidgets::prettyCheckbox(
-                  inputId = "create_custom_grps",
-                  label = "Create custom groups",
-                  value = FALSE,
-                  icon = icon("check"),
-                  status = "success"
-                )
+          
+            ### Bench card 
+            bs4Card(
+              title = "Benchmarking options",
+              status = "success",
+              solidHeader = TRUE,
+              width = 12,
+              collapsible = TRUE,
+              collapsed = FALSE,
+              fluidRow(
+                column(
+                  width = 6,
+                  pickerInput(
+                    inputId = "threshold", 
+                    label = helper(
+                      shiny_tag = tags$b("Benchmarking Thresholds"),
+                      type = "inline",
+                      icon = "circle-question",
+                      title = "Benchmarking Thresholds",
+                      content = c(
+                        "The default benchmarking thresholds for weak, emerging and strong institutions are 25th and 50th percentiles. You can also select the “Terciles” option, which uses 33rd and 66th percentiles as thresholds instead."
+                      ),
+                      buttonLabel = "Close",
+                      fade = T,
+                      size = "s"
+                    ),
+                    choices = c("Default","Terciles")
+                  )
                 ),
-              shiny::conditionalPanel(
-               "input.create_custom_grps == true" ,
-              shiny::column(12,
-                shinyWidgets:: materialSwitch(
-                  inputId = "show_custom_grps",
-                  label = "Show custom groups",
-                  status = "success",
-                  value = TRUE
+                column(width = 1),
+                column(
+                  width = 5,
+                  div(
+                    id = "benchmark_dots_div",
+                    prettyCheckbox(
+                      inputId = "benchmark_dots",
+                      label = helper(
+                        shiny_tag = tags$b("Show comparison countries"),
+                        type = "inline",
+                        icon = "circle-question",
+                        title = "Show comparison countries",
+                        content = c(
+                          "Select this option to show the comparison countries as white circles on the plots. You may hover over each circle to see the country name. Note that individual countries are represented by circles in the first example below. This shows the distribution of values for the comparison group."
+                        ),
+                        buttonLabel = "Close",
+                        fade = T,
+                        size = "s"
+                      ),
+                      value = FALSE,
+                      icon = icon("check"),
+                      status = "success"
+                    )
+                  ),
+                  div(
+                    id = "rank_div",
+                    prettyCheckbox(
+                      inputId = "rank",
+                      label = helper(
+                        shiny_tag = tags$b("Show rank instead of value"),
+                        type = "inline",
+                        icon = "circle-question",
+                        title = "Show rank instead of value",
+                        content = c(
+                          "Select this option to change the x-axis of the static benchmarking plot to display rankings instead of the CTF value."
+                        ),
+                        buttonLabel = "Close",
+                        fade = T,
+                        size = "s"
+                      ),
+                      value = FALSE,
+                      icon = icon("check"),
+                      status = "success"
+                    )
+                  ),
+                  div(
+                    id = "preset_order_div",
+                    prettyCheckbox(
+                      inputId = "preset_order",
+                      label = helper(
+                        shiny_tag = tags$b("Rank indicators from best to worst"),
+                        type = "inline",
+                        icon = "circle-question",
+                        title = "Rank indicators from best to worst",
+                        content = c(
+                          "Select this option to change the ordering of the variables on the vertical axis of the figure. Ranking from best to worst will place the indicator for which the base country has the highest value first and the indicator with the lowest value last."
+                        ),
+                        buttonLabel = "Close",
+                        fade = T,
+                        size = "s"
+                      ),
+                      value = FALSE,
+                      icon = icon("check"),
+                      status = "success"
+                    )
+                  )
                 )
-              )
               )
             ),
-
-            shiny::conditionalPanel(
-              "input.create_custom_grps == true",
-              fluidRow(column(12, # This defines the width of the note (12 spans the entire row)
-                              tags$p(HTML("<strong>NOTE:</strong> Currently custom groups are not allowed when displaying ranks instead of values, when ranking from best to worst, or when doing the dynamic benchmark.")),
-                              
-              )),
+          
+            ### Outputs card
+            bs4Card(
+              title = "Outputs",
+              status = "success",
+              solidHeader = TRUE,
+              width = 12,
+              collapsible = TRUE,
               fluidRow(
-                    shiny::column(
-                      width = 3,
-                      shiny::numericInput(
-                        inputId = "custom_grps_count",
-                        label = "Number of groups",
-                        value = 1,
-                        min = 1,
-                        max = 5,
-                        step = 1
+                column(
+                  width = 6,
+                  pickerInput(
+                    "family",
+                    label = helper(
+                      shiny_tag = tags$b("Select institutional cluster"),
+                      type = "inline",
+                      icon = "circle-question",
+                      title = "Institutional cluster",
+                      content = c(
+                        "Choose the institutional cluster you would like to display. The overview displays the aggregate results at the institutional-cluster level. When selecting a specific institutional-cluster, the individual indicators/components will be displayed."
+                      ),
+                      buttonLabel = "Close",
+                      fade = T,
+                      size = "s"
+                    ),
+                    choices = c("Overview", names(variable_list)),
+                    selected = NULL
+                  )
+                ),
+                # Please do not delete the below button, though not being displayed. It has downstream impact on other process.
+                column(
+                  width = 1,
+                  pickerInput(
+                    inputId = "benchmark_median",
+                    label = "Show group median",
+                    choices = append(
+                      "Comparison countries",
+                      group_list
+                    ),
+                    selected = NULL,
+                    multiple = TRUE,
+                    options = list(
+                      `live-search` = TRUE,
+                      "max-options" = 3
+                    )
+                  )
+                ),
+                column(
+                  width = 4,
+                  style = "display: flex; align-items: center; justify-content: center;",
+                  fluidRow(
+                    column(
+                      width = 10,
+                      uiOutput(
+                        "select_button"
                       )
                     ),
-                    shiny::column(
-                      width = 6,
-                      
-                     shiny::conditionalPanel(
-                      "input.custom_grps_count >= 1",
-                      shiny::uiOutput("custom_grps")
+                    column(
+                      width = 1,
+                      helper(
+                        shiny_tag = NULL,
+                        type = "inline",
+                        icon = "circle-question",
+                        title = "Apply",
+                        content = c(
+                          "Click on this box to (re-)run the analysis and (re-)load the resulting graphs. Note that this has to be done for every new selection or option, including a different institutional cluster. This option is enabled when the base country and at least 10 comparison countries are selected."
+                        ),
+                        buttonLabel = "Close",
+                        fade = T,
+                        size = "s"
                       )
+                    ),
+                    column(1)
+                  )
+                )
               ),
-              column(
-                width = 3,
-                align = "center",
-                shiny::actionButton("save_custom_grps", "Save")
-                
-              )
-              
-              )
+              fluidRow(
+                column(
+                  width = 2,
+                  helper(
+                    shiny_tag = tags$b("Downloads"),
+                    type = "inline",
+                    icon = "circle-question",
+                    title = "Pre-populated reports and data",
+                    content = c(
+                      "Download pre-populated Word or Power Point documents with the results. Note that you may select the “Advanced Report (~10 min)” box to receive more detailed information - including all dynamic graphs - which takes longer to produce and download. Click the download “Data” button to download a CSV file that contains the data needed to recreate the benchmarking graphs."
+                    ),
+                    buttonLabel = "Close",
+                    fade = T,
+                    size = "s"
+                  ),
+                )
               ),
-            fluidRow(style = "height: 15px;"),
-            fluidRow(
-              column(
-                width = 3,
-                prettyCheckbox(
-                  inputId = "benchmark_dots",
-                  label = "Show comparison countries",
-                  value = FALSE,
-                  icon = icon("check"),
-                  status = "success"
+              fluidRow(
+                column(
+                  width = 9,
+                  fluidRow(
+                    id = "download_reports",
+                    column(
+                      width = 4,
+                      shinyjs::disabled(
+                        downloadButton(
+                          "report",
+                          "Editable report",
+                          style = "width:100%; background-color: #204d74; color: white"
+                        )
+                      ),
+                      shiny::fluidRow(
+                        column(
+                          width = 12,
+                          prettyCheckbox(
+                            inputId = "download_Opt",
+                            label = "Advanced Report (~10min)",
+                            value = FALSE,
+                            icon = icon("check"),
+                            status = "success"
+                          )
+                        )
+                      )
+                    ),
+                    column(
+                      width = 4,
+                      shinyjs::disabled(
+                        downloadButton(
+                          "pptreport",
+                          "PPT report",
+                          style = "width:100%; background-color: #204d74; color: white"
+                        )
+                      )
+                    ),
+                    column(
+                      width = 4,
+                      shinyjs::disabled(
+                        downloadButton(
+                          "download_missing",
+                          "Missingness report",
+                          style = "width:100%; background-color: #204d74; color: white"
+                        )
+                      )
+                    )
+                  )
                 ),
-                prettyCheckbox(
-                  inputId = "rank",
-                  label = "Show rank instead of value",
-                  value = FALSE,
-                  icon = icon("check"),
-                  status = "success"
-                ),
-                
-                prettyCheckbox(
-                  inputId = "preset_order",
-                  label = "Rank indicators from best to worst",
-                  value = FALSE,
-                  icon = icon("check"),
-                  status = "success"
-                )
-              ),
-              
-              column(
-                width = 3,
-                pickerInput(
-                  inputId = "threshold", 
-                  label = "Benchmarking Thresholds",
-                  choices = c("Default","Terciles")
-                ),
-              ),
-              
-              tags$script(HTML(js)),
-
-              
-              column(
-                width = 3,
-                uiOutput(
-                  "select_button"
+                column(
+                  id = "download_data_opt",
+                  width = 3,
+                  shinyjs::disabled(
+                    downloadButton(
+                      "download_data_1",
+                      "Data",
+                      style = "width:100%; background-color: #204d74; color: white"
+                    )
+                  )
                 )
               )
-            ),
-            fluidRow(
-              column(
-                width = 2,
-                   downloadButton(
-                     "report",
-                     "Download editable report",
-                     style = "width:100%; background-color: #204d74; color: white"
-                   )
-                
-
-              ),
-            
-              
-              column(
-                width = 2,
-                downloadButton(
-                  "pptreport",
-                  "Download PPT report",
-                  style = "width:100%; background-color: #204d74; color: white"
-                )
-                
-                
-              ),
-              column(
-                
-                width = 2,
-                downloadButton(
-                  "download_data_1",
-                  "Download Data",
-                  style = "width:100%; background-color: #204d74; color: white"
-                )
-              ),
-              
               # shiny::column(3,
               #               shinyWidgets::materialSwitch(
               #                 inputId = "show_dynamic_plot",
@@ -433,67 +666,26 @@ ui <-
               #                 status = "success",
               #                 value = FALSE
               #               )
-              # ),
-              
-
-              ## Save inputs button
-              column(
-                align = "right",
-                width = 3,
-                downloadButton("save_inputs", "Save inputs")
-              )
-
-            ),
-            fluidRow(style = "height: 15px;"),
-            
-            fluidRow(
-              prettyCheckbox(
-                inputId = "download_Opt",
-                label = "Download Advanced Report (~10min)",
-                value = FALSE,
-                icon = icon("check"),
-                status = "success"
-              )
-            )
-
+              # )
           ),
-
-          bs4Card(
-            title = "Select individual comparison countries",
-            width = 12,
-            status = "success",
-            collapsed = TRUE,
-
-            checkboxGroupButtons(
-              inputId = "countries",
-              individual = TRUE,
-              label = NULL,
-              choices = countries,
-              selected = NULL, 
-              checkIcon = list(
-                yes = icon("ok",
-                           lib = "glyphicon")
-              )
-            )
-          ),
-
+          
+          ### Static Benchmarks ----
           bs4Card(
             title = "Static Benchmarks",
             collapsible = TRUE,
             width = 12,
-
+            
             conditionalPanel(
               "input.select !== 0",
               fluidRow(
-
+                
                 column(
                   width = 12,
                   plotlyOutput(
                     "plot",
-                    height = paste0(plot_height * 1.5, "px")
+                    height = paste0(plot_height * 1.9, "px")
                   ) %>% shinycssloaders::withSpinner(color = "#051f3f", type = 8)
                 )
-
               ),
               fluidRow(
                 shinyWidgets:: materialSwitch(
@@ -501,38 +693,28 @@ ui <-
                   label = "Show notes",
                   status = "success",
                   value = FALSE
-                ),
-                column(width = 1),
-                shinyWidgets::materialSwitch(
-                  inputId = "show_dynamic_plot",
-                  label = "Show dynamic benchmark plot",
-                  status = "success",
-                  value = FALSE
                 )
-                
 
-                
               ),
               
               conditionalPanel(
                 "input.show_plot_notes !== false",
                 
-              fluidRow(
-                
-                column(
-                  width = 12,
-                  htmlOutput(
-                    "plot_notes"
+                fluidRow(
+                  
+                  column(
+                    width = 12,
+                    htmlOutput(
+                      "plot_notes"
+                    )
                   )
+                  
                 )
-
-            )
               )
             )
           ),
           
-          ## Dynamic benchmark tab  -------------------------------------------------------
-          
+          ### Dynamic benchmark tab  -------------------------------------------------------
           bs4Card(
             width = 12,
             solidHeader = FALSE,
@@ -542,7 +724,7 @@ ui <-
             
             
             conditionalPanel(
-              "input.select !== 0 && input.show_dynamic_plot === true",
+              "input.select !== 0 && output.plot!=null",
               fluidRow(
                 
                 column(
@@ -553,42 +735,64 @@ ui <-
                   ) %>% shinycssloaders::withSpinner(color = "#051f3f", type = 8)
                 )
                 
-              ),
-              
+              )
               
             )
             
-            
-            
           ),
           
-
           bs4Card(
             title = "Indicator definitions",
             collapsible = TRUE,
-            collapsed = FALSE,
+            collapsed = TRUE,
             status = "secondary",
             solidHeader = TRUE,
             width = 12,
-
+            
             tableOutput('definition')
           )
+          
         ),
-
-        
         
         ## Country comparison ----------------------------------------------------
-
+        
         tabItem(
           tabName = "country",
-
+          
           bs4Card(
             title = "Select information to display",
             status = "success",
             solidHeader = TRUE,
             width = 11,
-
+            
             fluidRow(
+        
+              column(
+                width = 3,
+                pickerInput(
+                  "country_bar",
+                  label = "Select a base country",
+                  choices = c("", countries),
+                  selected = NULL,
+                  multiple = FALSE
+                )
+              ),
+              
+              column(
+                width = 4,
+                pickerInput(
+                  inputId = "groups_bar",
+                  label = "Select comparison groups",
+                  choices = group_list,
+                  selected = NULL,
+                  multiple = TRUE,
+                  options = list(
+                    # size = 21,
+                    `live-search` = TRUE,
+                    `actions-box` = TRUE
+                  )
+                )
+              ),   
               column(
                 width = 5,
                 pickerInput(
@@ -604,43 +808,17 @@ ui <-
                   ),
                   width = "100%"
                 )
-              ),
-              column(
-                width = 3,
-                pickerInput(
-                  "country_bar",
-                  label = "Select a base country",
-                  choices = c("", countries),
-                  selected = NULL,
-                  multiple = FALSE
-                )
-              ),
-
-              column(
-                width = 4,
-                pickerInput(
-                  inputId = "groups_bar",
-                  label = "Select comparison groups",
-                  choices = group_list,
-                  selected = NULL,
-                  multiple = TRUE,
-                  options = list(
-                    # size = 21,
-                    `live-search` = TRUE,
-                    `actions-box` = TRUE
-                  )
-                )
-              ),              
+              )
               
             )
           ),
-
+          
           bs4Card(
             title = "Select individual comparison countries",
             width = 11,
             status = "success",
             collapsed = TRUE,
-
+            
             checkboxGroupButtons(
               inputId = "countries_bar",
               individual = TRUE,
@@ -654,16 +832,16 @@ ui <-
               )
             )
           ),
-
+          
           conditionalPanel(
             'input.country_bar !== "" && input.vars_bar != null && (input.countries_bar != "" || input.groups_bar != "")',
-
+            
             bs4Card(
               width = 11,
               solidHeader = FALSE,
               gradientColor = "primary",
               collapsible = FALSE,
-
+              
               plotlyOutput(
                 "bar_plot",
                 height = paste0(plot_height * 1.6, "px")
@@ -671,20 +849,20 @@ ui <-
             )
           )
         ),
-
+        
         ## Bivariate correlation ----------------------------------------------------
-
+        
         tabItem(
           tabName = "scatter",
-
+          
           bs4Card(
             title = "Select indicators to visualize",
             status = "success",
             solidHeader = TRUE,
             width = 11,
-
+            
             fluidRow(
-
+              
               column(
                 width = 3,
                 pickerInput(
@@ -700,7 +878,7 @@ ui <-
                   )
                 )
               ),
-
+              
               column(
                 width = 3,
                 pickerInput(
@@ -716,7 +894,7 @@ ui <-
                   width = "100%"
                 )
               ),
-
+              
               column(
                 width = 3,
                 pickerInput(
@@ -732,7 +910,7 @@ ui <-
                   width = "100%"
                 )
               ),
-
+              
               column(
                 width = 3,
                 pickerInput(
@@ -751,8 +929,8 @@ ui <-
                   ),
                 )
               )
-
-
+              
+              
             ),
             fluidRow(
               column(
@@ -766,13 +944,13 @@ ui <-
               )
             )
           ),
-
+          
           bs4Card(
             title = "Select individual comparison countries",
             width = 11,
             status = "success",
             collapsed = TRUE,
-
+            
             checkboxGroupButtons(
               inputId = "countries_scatter",
               individual = TRUE,
@@ -784,16 +962,16 @@ ui <-
               )
             )
           ),
-
+          
           conditionalPanel(
             'input.y_scatter !== ""',
-
+            
             bs4Card(
               width = 11,
               solidHeader = FALSE,
               gradientColor = "primary",
               collapsible = FALSE,
-
+              
               plotlyOutput(
                 "scatter_plot",
                 height = paste0(plot_height * 1.6, "px")
@@ -801,37 +979,22 @@ ui <-
             )
           )
         ),
-
+        
         ## Trends  tab ------------------------------------------------------------
-
-
+        
+        
         tabItem(
           tabName = "trends",
-
+          
           box(
             width = 11,
             solidHeader = TRUE,
             title = "Select indicator to visualize",
             status = "success",
             collapsible = TRUE,
-
+            
             fluidRow(
-                     column(
-                       width = 5,
-                       pickerInput(
-                         "vars_trends",
-                         label = "Select indicator to visualize",
-                         choices = filtered_variable_list,
-                         selected = NULL,
-                         options = list(
-                           `live-search` = TRUE,
-                           # size = 21,
-                           title = "Click to select family or indicator"
-                         ),
-                         width = "100%"
-                       )
-                     ),
-
+              
               column(
                 width = 3,
                 pickerInput(
@@ -846,7 +1009,7 @@ ui <-
                   )
                 )
               ),
-
+              
               column(
                 width = 4,
                 pickerInput(
@@ -861,16 +1024,31 @@ ui <-
                     # size = 21
                   )
                 )
+              ),
+              column(
+                width = 5,
+                pickerInput(
+                  "vars_trends",
+                  label = "Select indicator to visualize",
+                  choices = filtered_variable_list,
+                  selected = NULL,
+                  options = list(
+                    `live-search` = TRUE,
+                    # size = 21,
+                    title = "Click to select family or indicator"
+                  ),
+                  width = "100%"
+                )
               )
             )
           ),
-
+          
           bs4Card(
             title = "Select individual comparison countries",
             width = 11,
             status = "success",
             collapsed = TRUE,
-
+            
             checkboxGroupButtons(
               inputId = "countries_trends",
               individual = TRUE,
@@ -882,16 +1060,16 @@ ui <-
               )
             )
           ),
-
+          
           conditionalPanel(
             'input.vars_trends !== null && input.country_trends != ""',
-
+            
             bs4Card(
               width = 11,
               solidHeader = FALSE,
               gradientColor = "primary",
               collapsible = FALSE,
-
+              
               plotlyOutput(
                 "time_series",
                 height = paste0(plot_height * 1.6, "px")
@@ -899,22 +1077,22 @@ ui <-
             )
           )
         ),
-
+        
         ## Map  tab ------------------------------------------------------------
-
-
+        
+        
         tabItem(
           tabName = "world_map",
-
+          
           box(
             width = 11,
             solidHeader = TRUE,
             title = "Select information to display",
             status = "success",
             collapsible = TRUE,
-
+            
             fluidRow(
-
+              
               column(
                 width = 5,
                 pickerInput(
@@ -930,7 +1108,7 @@ ui <-
                   width = "100%"
                 )
               ),
-
+              
               column(
                 width = 3,
                 radioGroupButtons(
@@ -946,7 +1124,7 @@ ui <-
                     yes = icon("ok", lib = "glyphicon"))
                 )
               ),
-
+              
               column(
                 width = 4,
                 radioGroupButtons(
@@ -964,129 +1142,195 @@ ui <-
               )
             )
           ),
-
+          
           conditionalPanel(
             "input.vars_map !== ''",
-
+            
             bs4Card(
               width = 11,
               solidHeader = FALSE,
               gradientColor = "primary",
               collapsible = FALSE,
-
+              
               plotlyOutput(
                 "map",
                 height = paste0(plot_height, "px")
-              )
+              ) %>% shinycssloaders::withSpinner(color = "#051f3f", type = 8)
             )
           )
         ),
-
+        
         ## Data tab --------------------------------------------------------------------
-
+        
         tabItem(
           tabName = "data",
-
-          fluidRow(
-            
-            bs4Card(
-              width = 9,
-              collapsible = FALSE,
-              solidHeader = TRUE,
-              headerBorder = FALSE,
-              dataTableOutput("benchmark_datatable")
-            ),
-            
-            bs4Card(
-              
-              title = "Select information to display",
-              status = "success",
-              width = 3,
-
-              pickerInput(
-                "countries_data",
-                label = "Select countries to include",
-                choices = c("All"),
-                selected = "All"
+          
+          bs4Card(
+            title = "Data download",
+            status = "success",
+            solidHeader = TRUE,
+            width = 12,
+            collapsible = F,
+            fluidRow(
+              column(
+                width = 2.4,
+                  downloadButton(
+                    "down_clust_ctf_stat",
+                    "CTF Static (Cluster-level aggregates only)",
+                    style = "width:100%; background-color: #204d74; color: white"
+                  )
+                
               ),
-              
-              pickerInput(
-                "groups_data",
-                label = "Select groups to include",
-                choices = c("All", "None"),
-                selected = "All"
-              ),
-              
-              pickerInput(
-                "vars",
-                label = "Select institutional families to include",
-                choices = names(definitions),
-                selected = names(definitions),
-                multiple = TRUE,
-                options = list(`actions-box` = TRUE)
-              ),
-              
-              radioGroupButtons(
-                "data_source",
-                label = "Select a data source",
-                choices = c("Closeness to frontier (Static)",
-                            "Closeness to frontier (Dynamic)",
-                            "Original indicators"),
-                selected = "Closeness to frontier (Static)",
-                direction = "vertical",
-                justified = TRUE,
-                checkIcon = list(
-                  yes = icon("ok",
-                             lib = "glyphicon")
-                )
-              ),
-                  
-              radioGroupButtons(
-                "data_value",
-                label = "Select information to show",
-                choices = c("Value"),
-                selected = "Value",
-                direction = "vertical",
-                justified = TRUE,
-                checkIcon = list(
-                  yes = icon("ok",
-                             lib = "glyphicon")
+              column(
+                width = 2.4,
+                  downloadButton(
+                    "down_all_ctf_stat",
+                    "CTF Static (All indicators)",
+                    style = "width:100%; background-color: #204d74; color: white"
                   )
               ),
-              
-              p(tags$b("Download data")),
-                
-              downloadButton(
-                "download_global_rds",
-                ".rds",
-                style = "width:100%; background-color: #204d74; color: white"
+              column(
+                width = 2.4,
+                  downloadButton(
+                    "down_clust_ctf_dyn",
+                    "CTF Dynamic (Cluster-level aggregates only)",
+                    style = "width:100%; background-color: #204d74; color: white"
+                  )
               ),
-              
-              downloadButton(
-                "download_global_csv",
-                ".csv",
-                style = "width:100%; background-color: #204d74; color: white"
+              column(
+                width = 2.4,
+                  downloadButton(
+                    "down_all_ctf_dyn",
+                    "CTF Dynamic (All indicators)",
+                    style = "width:100%; background-color: #204d74; color: white"
+                  )
               ),
-              
-              downloadButton(
-                "download_global_dta",
-                ".dta",
-                style = "width:100%; background-color: #204d74; color: white"
+              column(
+                width = 2.4,
+                  downloadButton(
+                    "down_original",
+                    "Original indicators",
+                    style = "width:100%; background-color: #204d74; color: white"
+                  )
+              )
+            )
+          ),
+  
+          bs4Card(
+            title = "Interactive Data Access & Custom Download",
+            status = "success",
+            solidHeader = TRUE,
+            width = 12,
+            collapsible = F,
+            fluidRow(
+              column(
+                width = 8,
+                dataTableOutput("benchmark_datatable") |>
+                  shinycssloaders::withSpinner(color = "#051f3f", type = 8)
+              ),
+              column(
+                width = 4,
+                bs4Card(
+                  
+                  title = "Select information to display",
+                  status = "success",
+                  width = 12,
+                  collapsible = FALSE,
+                  
+                  pickerInput(
+                    "countries_data",
+                    label = "Select countries to include",
+                    choices = c("All", "Base country only", "Base + comparison countries"),
+                    selected = "All",
+                    options = list(
+                      "All" = list(disabled = FALSE),
+                      "Base country only" = list(disabled = TRUE),
+                      "Base + comparison countries" = list(disabled = TRUE)
+                    )
+                  ),
+                  
+                  # pickerInput(
+                  #   "groups_data",
+                  #   label = "Select groups to include",
+                  #   choices = c("All", "None"),
+                  #   selected = "All"
+                  # ),
+                  
+                  pickerInput(
+                    "vars",
+                    label = "Select institutional families to include",
+                    choices = names(definitions),
+                    selected = names(definitions),
+                    multiple = TRUE,
+                    options = list(`actions-box` = TRUE)
+                  ),
+                  
+                  radioGroupButtons(
+                    "data_source",
+                    label = "Select a data source",
+                    choices = c("Closeness to frontier (Static)",
+                                "Closeness to frontier (Dynamic)",
+                                "Original indicators"),
+                    selected = "Closeness to frontier (Static)",
+                    direction = "vertical",
+                    justified = TRUE,
+                    checkIcon = list(
+                      yes = icon("ok",
+                                 lib = "glyphicon")
+                    )
+                  ),
+                  
+                  shinyjs::hidden(
+                    radioGroupButtons(
+                      "data_value",
+                      label = "Select information to show",
+                      choices = c("Value"),
+                      selected = "Value",
+                      direction = "vertical",
+                      justified = TRUE,
+                      checkIcon = list(
+                        yes = icon("ok",
+                                   lib = "glyphicon")
+                      )
+                    )
+                  ),
+                  
+                  p(tags$b("Download data")),
+                  
+                  downloadButton(
+                    "download_global_rds",
+                    ".rds",
+                    style = "width:100%; background-color: #204d74; color: white"
+                  ),
+                  
+                  downloadButton(
+                    "download_global_csv",
+                    ".csv",
+                    style = "width:100%; background-color: #204d74; color: white"
+                  ),
+                  
+                  downloadButton(
+                    "download_global_dta",
+                    ".dta",
+                    style = "width:100%; background-color: #204d74; color: white"
+                  )
+                )
               )
             )
           )
+
         ),
-
+        
         ## Methodology tab -------------------------------------------------------------
-
+        
         tabItem(
           tabName = "methodology",
-
+          
           box(
             width = 11,
             status = "navy",
             title = "Institutional families",
-
+            
             p("The CLIAR Benchmarking uses a set of curated and validated institutional indicators, clustered into 13 institutional clusters:", 
               
               tags$ul( 
@@ -1123,27 +1367,24 @@ ui <-
             p("The proposed clusters are based on an effort to capture key functions that different institutions perform. In so doing, the categorization process faces a trade-off between aggregation and narrowness, where the categories ought to be broad enough to capture enough indicators and policy spaces, but narrow enough to guide a deep qualitative analysis as well as a fruitful and engaged conversation with the country. In addition, the categorization also faces the limitations of data availability."),
             p('All country-level indicators can be downloaded in the “Data” tab.')
           ),
-
+          
           box(
             width = 11,
             status = "navy",
             collapsed = TRUE,
             title = "Closeness to frontier",
-
-            p('The dashboard uses the “Closeness to Frontier"(CTF) methodology, which is adapted from the original Doing Business’s',
-              a("Distance to Frontier methodology",
-                href = "https://www.doingbusiness.org/content/dam/doingBusiness/media/Annual-Reports/English/DB17-Chapters/DB17-DTF-and-DBRankings.pdf"),
-              '. The CTF methodology allows to assess country’s performance across institutional indicators by comparing it with the “global frontier”, where the global frontier is the world’s best performer. For each indicator, a country’s performance is rescaled on a 0-1 scale using the linear transformation (worst–y)/(worst–frontier), where 1 represents the best performer and 0 the worst performer. The higher the score, the closer a country is to the best performer and the lower the score, the closer a country is to the worst performer, and more distant to the frontier. The best and worst performers are identified using available data from the global sample (i.e., considering all countries for which data is available), and using the relevant time period according to the benchmarking approach –i.e., whether it estimates the static (default) CTF benchmarking scores or dynamic CTF scores. In the static case, the average of the 2018-2022 period is used.'),
+            
+            p('The dashboard uses a “Closeness to Frontier"(CTF) methodology. The CTF methodology allows to assess country’s performance across institutional indicators by comparing it with the “global frontier”, where the global frontier is the world’s best performer. For each indicator, a country’s performance is rescaled on a 0-1 scale using the linear transformation (worst–y)/(worst–frontier), where 1 represents the best performer and 0 the worst performer. The higher the score, the closer a country is to the best performer and the lower the score, the closer a country is to the worst performer, and more distant to the frontier. The best and worst performers are identified using available data from the global sample (i.e., considering all countries for which data is available), and using the relevant time period according to the benchmarking approach –i.e., whether it estimates the static (default) CTF benchmarking scores or dynamic CTF scores. In the static case, the average of the 2018-2022 period is used.'),
             p('For each institutional family, the CTF scores obtained for each indicator are aggregated through simple averaging into one CTF score at family level. This captures the overall performance for an institutional family relatively to the “global frontier”, while the performance across the indicators will help identify the most challenging areas for institutional strengthening.')
-
+            
           ),
-
+          
           box(
             width = 11,
             status = "navy",
             collapsed = TRUE,
             title = "Percentile analysis and comparator countries",
-
+            
             p('The CTF scores compare the country’s performance with the best and worst performers at global level. However, how does the country compare relatively to a set of chosen comparators?'),
             p('The dashboard uses percentile distribution and traffic light coloring to capture the areas where the largest institutional gaps exist, ',
               HTML('<b>relative to the set of country comparators</b>'),
@@ -1151,13 +1392,13 @@ ui <-
             p('The “Closeness to Frontier” (length of the bar) and the percentile analysis (color of the bar) capture two related but different performance dimensions. The CTF compares the country’s performance with the best and worst performers. The percentile analysis benchmarks the country’s performance with all the set of other comparator countries. For example, it could be that for one indicator or institutional cluster the CTF score is relatively high and close to 1 (indicating in fact ‘closeness to the frontier’) but, at the same time, this dimension is marked as an institutional weakness (red coloring) because the country’s performance is still worse than the majority of comparator countries.'),
             p('The percentile analysis requires indicators to be available for the base country, while it also effectively drops those indicators whose distribution precludes this percentile classification (i.e., low variance).')
           ),
-
+          
           box(
             width = 11,
             status = "navy",
             collapsed = TRUE,
             title ="Country group definitions",
-
+            
             p(
               "Country group definitions are extracted from the",
               a(
@@ -1184,25 +1425,25 @@ ui <-
               HTML("The term <i>country</i>, used interchangeably with <i>economy,</i>"),
               "does not imply political independence but refers to any territory for which authorities report separate social or economic statistics.",
               "Income classifications set on 1 July 2023 remain in effect until 1 July 2024.",
-              ),
+            ),
             p(
               "OECD members are: ", paste0(paste(country_list %>% filter(group_code=="OED") %>% .$country_name, collapse = ", "),".")
             )
           ),
-
-
+          
+          
           box(
             width = 11,
             status = "navy",
             title = "List of indicators",
-
+            
             p("The indicators used to benchmark the institutional families are extracted from multiple public data sources.
                             For a full list of the indicators used, their sources, and their definitions, download the metadata below."),
             downloadButton("download_indicators",
                            "Download indicator definitions",
                            style = "background-color: #204d74; color: white")
           ),
-
+          
           box(
             width = 11,
             status = "navy",
@@ -1211,17 +1452,17 @@ ui <-
                            "Download complete methodology",
                            style = "background-color: #204d74; color: white")
           )
-
+          
         ),
-
-## Publications  ================================================================
-tabItem(
-  tabName = "pubs",
-  publicationsUI("publications")
-),
-                
-## Terms of use ================================================================
-
+        
+        ## Publications  ================================================================
+        tabItem(
+          tabName = "pubs",
+          publicationsUI("publications")
+        ),
+        
+        ## Terms of use ================================================================
+        
         tabItem(
           tabName = "terms",
           
@@ -1240,17 +1481,17 @@ tabItem(
                 "We kindly request that if users modify the methodology and the source code for their reports and analyses clearly state so and highlight the relevant departures from the CLIAR Benchmarking methodology."
               ),
               tags$li(
-                "Disclaimer: The findings, interpretations, and conclusions expressed in CLIAR are a product of staff of the World Bank, but do not necessarily reflect the views of the World Bank and its affiliated organizations, or those of the Executive Directors of the World Bank or the governments they represent. Moreover, country borders or names used and available in this dashboard do not necessarily reflect the World Bank Group's official position, and do not imply the expression of any opinion on the part of the World Bank, concerning the legal status of any country or territory or concerning the delimitation of frontiers or boundaries."
+                "Disclaimer: The findings, interpretations, and conclusions expressed in CLIAR are a product of staff of the World Bank, but do not necessarily reflect the views of the World Bank and its affiliated organizations, or those of the Executive Directors of the World Bank or the governments they represent. Moreover, country borders or names used and available in this dashboard do not necessarily reflect the World Bank Group's official position, and do not imply the expression of any opinion on the part of the World Bank, concerning the legal status of any country or territory or concerning the delimitation of frontiers or boundaries. The term country, used interchangeably with economy, does not imply political independence but refers to any territory for which authorities report separate social or economic statistics."
               )
             )
           )
         ),
-
-## FAQ tab =====================================================================
-
+        
+        ## FAQ tab =====================================================================
+        
         tabItem(
           tabName = "faq",
-
+          
           box(
             width = 11,
             status = "navy",
@@ -1262,8 +1503,8 @@ tabItem(
               In some exceptional cases, CLIAR does combine existing indicators to create new ones (e.g., aggregation of binary indicators); these are detailed in the CLIAR Methodological Note."
             )
           ),
-
-
+          
+          
           box(
             width = 11,
             status = "navy",
@@ -1276,18 +1517,7 @@ tabItem(
               Each request will be reviewed by a team of technical experts and if the indicator meets the selection criteria indicated in the methodological note (quality and coverage) it will be added during the next update round."
             )
           ),
-
-          box(
-            width = 11,
-            status = "navy",
-            collapsed = TRUE,
-            title = "Is the “Closeness to Frontier” methodology the same one used in the “Doing Business Report”?",
-            p(
-              "The “Closeness to Frontier” is used in order to standardize indicators and make it possible to compare and aggregate them.
-              The resulting scores range between 0 and 1 and we labeled them “Closeness to Frontier” because higher values mean closer to the frontier, which is set at 1."
-            )
-          ),
-
+          
           box(
             width = 11,
             status = "navy",
@@ -1338,8 +1568,10 @@ tabItem(
             collapsed = TRUE,
             title = "Why are certain indicators or institutional families not appearing in my benchmarking results?",
             p(
-              "TO COMPLETE"
+
+              "Indicators that are missing for the base country or exhibit low variance are dropped from the analysis. In some cases, such as for the SOE Governance family, this can result in dropping an entire institutional cluster."
           )),
+
           box(
             width = 11,
             status = "navy",
@@ -1354,7 +1586,7 @@ tabItem(
             collapsed = TRUE,
             title = "Why are certain indicators and clusters not included in the dynamic benchmarking?",
             p(
-              "TO COMPLETE."
+              "Compared to static benchmarking, dynamic benchmarking is more selective (or “demanding”) with respect to indicators, considering their panel characteristics. Hence, indicators that do not offer multiple measurements for the same country are excluded from the analysis – e.g., OECD PMR and PEFA, which consequently excludes the SOE Governance Institutions and Public Finance Institutions indicator clusters from dynamic benchmarking"
             )
           ),
           
@@ -1424,9 +1656,9 @@ tabItem(
             width = 11,
             status = "navy",
             collapsed = TRUE,
-            title = "Why are certain family-level averages missing when I download the data even if there is non-missing data on the indicators of that family?",
+            title = "Why are certain cluster averages missing when I download the data even if there is non-missing data on the indicators of that cluster?",
             p(
-              "A balanced sample of individual CTF scores is aggregated by family to create family-level CTF scores. For each institutional family, a “balanced” subset of countries with full coverage (i.e., non-missing data) across all indicators within each family is created. This ensures that each family-level aggregate score relies on the same set of indicators for every country, allowing for robust and methodically sound inferences. The CTF family-level score is computed via simple averaging of the indicators within each family. This family-level score captures the overall performance for a given institutional category relative to the “global frontier.” The drawback of this robust methodological aggregation decision is that the data requirement is higher. Several families in both the static and dynamic versions do not meet the data requirements for meaninful aggregation (i.e., the balanced sample is too small or empty), and thus CTF family scores are not computed. "
+              "A balanced sample of individual CTF scores is aggregated by cluster to create cluster-level CTF scores. For each institutional cluster, a “balanced” subset of countries with full coverage (i.e., non-missing data) across all indicators within each cluster is created. This ensures that each cluster-level aggregate score relies on the same set of indicators for every country, allowing for robust and methodically sound inferences. The CTF cluster-level score is computed via simple averaging of the indicators within each cluster. This cluster-level score captures the overall performance for a given institutional category relative to the “global frontier.” The drawback of this robust methodological aggregation decision is that the data requirement is higher. Several families in both the static and dynamic versions do not meet the data requirements for meaningful aggregation (i.e., the balanced sample is too small or empty), and thus CTF cluster scores are not computed."
             )
           ),
           
@@ -1462,9 +1694,16 @@ tabItem(
               The list of indicators used will be periodically reviewed in order to include new indicators that may be become available in the future. 
               As such, the CLIAR database is a "live tool".' 
             )
+          ),
+          box(
+            width = 11,
+            status = "navy",
+            collapsed = TRUE,
+            title = "How does CLIAR manage changes in the methodology of the construction of individual indicators used in the CLIAR database?",
+            p(
+              'CLIAR aims to keep consistent indicators. Hence, if specific indicators go through changes in their methodology, CLIAR will keep only those that are consistent, prioritizing the most recent ones. Some examples include PEFA and PMR indicators. If such change means a given indicator no longer meets the benchmarking criteria, then it is dropped from the benchmarking analysis.' 
+            )
           )
-
-
         ) # Close FAQ tab
       )
     )
