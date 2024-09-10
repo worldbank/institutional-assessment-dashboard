@@ -242,6 +242,11 @@ server <- function(input, output, session) {
         shinyjs::disable("pptreport")
       )
       toggleState(
+        id = "download_missing",
+        condition = input$select,
+        shinyjs::disable("download_missing")
+      )
+      toggleState(
         id = "download_data_1",
         condition = input$select,
         shinyjs::disable("download_data_1")
@@ -253,12 +258,12 @@ server <- function(input, output, session) {
         "country_bar",
         selected = input$country
       )
-      
+  
       # updateCheckboxGroupButtons(
       #   session,
       #   "countries_bar",
       #   selected = input$countries
-      # )
+      #)
       
       # Bivariate correlation selection
       updatePickerInput(
@@ -672,7 +677,6 @@ server <- function(input, output, session) {
         ),
         selected = input$countries[!input$countries %in% unique(custom_grps_df()$Countries)]
       )
-      
       # updateCheckboxGroupButtons(
       #   session,
       #   "countries_bar",
@@ -686,7 +690,6 @@ server <- function(input, output, session) {
       #   ),
       #   selected = input$countries[!input$countries %in% unique(custom_grps_df()$Countries)]
       # )
-      
       updateCheckboxGroupButtons(
         session,
         "countries_scatter",
@@ -880,6 +883,7 @@ server <- function(input, output, session) {
           width = "100%",
           shinyjs::disable("report"),
           shinyjs::disable("pptreport"),
+          shinyjs::disable('download_missing'),
           shinyjs::disable("download_data_1"),
           shinyjs::disable("save_inputs")
         ) #|> 
@@ -908,7 +912,12 @@ server <- function(input, output, session) {
       toggleState(
         id = "select",
         condition = length(input$countries) >= 10,
-        shinyjs::disable("pptpptreport"),
+        shinyjs::disable("pptreport"),
+      )
+      toggleState(
+        id = "select",
+        condition = length(input$countries) >= 10,
+        shinyjs::disable("download_missing"),
       )
       toggleState(
         id = "select",
@@ -1354,8 +1363,9 @@ server <- function(input, output, session) {
         )
       } #End If else
        }, error = function(e) {
-         # If an error occurs, display a standard text message
-         showNotification('An error occurred. Data is missing for the selected base country.','',type = "error",duration = 10)
+         showNotification(
+           'Data is missing for the selected base country or countries for the given indicator. Please try a different selection.','',
+           type = "message",duration = 30)
          return()
        })
       }) %>%
@@ -1698,7 +1708,7 @@ server <- function(input, output, session) {
     },
     ignoreNULL = FALSE
   )
-  
+
   
   # Bar plot ==================================================================
   # 
@@ -1716,30 +1726,67 @@ server <- function(input, output, session) {
     
     return(custom_df_bar)
     
-  }) 
+  })
+  #================Reactive Menu Elements for Bar Chart
   
+  # # Reactive expression to get dataset based on  user input
+  data <- reactive({
+    if (input$value_bar == "ctf") {
+      global_data
+    } else {
+      raw_data %>%
+        select(-Year) %>%
+        group_by(country_code, country_name, income_group, region) %>%
+        fill(everything()) %>%
+        slice(n())
+    }
+  })
   
-  check_data <-function(data,country,indicator){
+  # Reactive expression to filter available comparison countries based on selected indicator
+  
+  filtered_countries_bar <- reactive({
+    req(input$vars_bar)  # Ensure the indicator is selected
     
-        var <-
-          db_variables %>%
-          filter(var_name == indicator) %>%
-          pull(variable)
-
-        indicator_val <-
-          data %>%
-          filter(country_name == country) %>%
-          pull(var)
-          
-        return(is.na(indicator_val))
-  }  
+    countries %>%
+      # Filter countries based on check_data function
+      .[!sapply(., function(country) check_data(data(), country, input$vars_bar))]
+  })
+  
+  
+  #Reactive Comparison Country Menu
+  observeEvent(
+    input$vars_bar,
+    {
+      available_countries_bar <- na.omit(filtered_countries_bar())
+      #Update Checkboxes
+      updateCheckboxGroupButtons(
+        session,
+        "countries_bar",
+        choices = available_countries_bar,
+        checkIcon = list(
+          yes = icon("ok",
+                     lib = "glyphicon",
+                     style = "color: #00000"
+          )
+        ),
+        #Maintains Selected Comparison Countries
+        # selected = intersect(input$countries_bar, available_countries_bar)
+        selected= input$countries_bar
+      )
+    })
+  
+  #=============================
   
   output$bar_plot <-
+    
     renderPlotly({
-      
+      #browser()
+      #Base Country Check
         validate(need(check_data(global_data,input$country_bar,input$vars_bar) == FALSE,'Country Comparison is not available for this Indicator for the selected base country'))
+
+      #== Bar Plot Creation
       static_bar(
-        global_data,
+        data(),
         input$country_bar,
         input$countries_bar,
         input$groups_bar,
@@ -1753,6 +1800,9 @@ server <- function(input, output, session) {
           plotly_remove_buttons
         )
     })
+
+      
+      
   
   # Scatter plot ============================================================
   
@@ -1778,14 +1828,46 @@ server <- function(input, output, session) {
     return(high_group_df)
     
   })
+  # Reactive expression to filter available comparison countries based on selected indicator
   
-  output$scatter_plot <-
+  filtered_countries_scatter <- reactive({
+    req(input$y_scatter, input$x_scatter)  # Ensure the indicator is selected
     
+    countries %>%
+      # Filter countries based on check_data function
+      .[!sapply(., function(country) check_data(global_data, country, input$y_scatter,input$x_scatter))]
+  })
+  
+  #Reactive Comparison Country Menu
+  observeEvent(
+    list(input$country_scatter, input$x_scatter),
+    {
+      available_countries_scatter <- na.omit(filtered_countries_scatter())
+      #Update Checkboxes
+      updateCheckboxGroupButtons(
+        session,
+        "countries_scatter",
+        choices = available_countries_scatter,
+        checkIcon = list(
+          yes = icon("ok",
+                     lib = "glyphicon",
+                     style = "color: #00000"
+          )
+        ),
+        #Maintains Selected Comparison Countries
+        selected = intersect(input$countries_scatter, available_countries_scatter)
+      )
+    })
+  output$scatter_plot <-
     renderPlotly({
       
       shiny::req(input$y_scatter)
       shiny::req(input$x_scatter)
       
+      validate(need(check_data(global_data,input$country_scatter,input$y_scatter, input$x_scatter) == FALSE,
+                    'Country Comparison is not available for this Indicator for the selected base country'))
+      #===================
+    
       static_scatter(
         global_data,
         input$country_scatter,
@@ -1810,6 +1892,8 @@ server <- function(input, output, session) {
   
   output$map <-
     renderPlotly({
+      
+      validate(need(check_spatial_data(spatial_data,input$vars_map) == FALSE,'Map is not available for this Indicator for the selected base country'))
       if (input$vars_map != "") {
         var_selected <-
           variable_names %>%
@@ -1846,19 +1930,49 @@ server <- function(input, output, session) {
     return(custom_df_trend)
     
   }) 
+  #=== REACTIVE Comparison Country MENU ITEMS-Trends
+  filtered_countries_trends <- reactive({
+    req(input$vars_trends)  # Ensure the indicator is selected
+    
+    countries %>%
+      # Filter countries based on check_data function
+      .[!sapply(., function(country) check_data(raw_data, country, input$vars_trends))]
+  })
   
+  
+  observeEvent(
+    list(input$country_trends, input$vars_trends),
+    {
+      available_countries_trends <- na.omit(filtered_countries_trends())
+      
+      #Update Checkboxes
+      updateCheckboxGroupButtons(
+        session,
+        "countries_trends",
+        choices = available_countries_trends,
+        checkIcon = list(
+          yes = icon("ok",
+                     lib = "glyphicon",
+                     style = "color: #00000"
+          )
+        ),
+        #Maintains Selected Comparison Countries
+        selected = intersect(input$countries_trends, available_countries_trends)
+      )
+    })
+  #============== Time Trends Output
   output$time_series <-
     renderPlotly({
       shiny::req(input$country_trends)
       shiny::req(input$vars_trends)
       validate(need(check_data(raw_data,input$country_trends,input$vars_trends) == FALSE,'Country Comparison is not available for this Indicator for the selected base country'))
-      
+#This if condition establishes var, which is used in the plot
       if (input$vars_trends != "") {
         var <-
           db_variables %>%
           filter(var_name == input$vars_trends) %>%
           pull(variable)
-        
+    #===== Trend Plot:
         trends_plot(
           raw_data,
           var,
@@ -1872,140 +1986,104 @@ server <- function(input, output, session) {
         )
       }
     })
-  
-  
+  #=========================
+  # 
   shiny::observeEvent(input$y_scatter, {
-    
+
     shiny::req(input$y_scatter)
-    
+
     updatePickerInput(
-      session, 
+      session,
       inputId =  "x_scatter",
       choices = x_scatter_choices(input$y_scatter)
-      
-      
+
+
     )
   })
-  
-  
-  
-  
-  
-  browse_data <-
-    reactive({
-      data <-
-        if (input$data_source == "Closeness to frontier (Static)") {
-
-          global_data
-
-        } else {
-          if(input$data_source == "Closeness to frontier (Dynamic)"){
-         
-            global_data_dyn
- 
-          }else{
-            
-            raw_data%>%
-              select(-ends_with("_avg"))
-            
-          }
-          
-        }
-      
-      groups <- all_groups
-        # if (input$groups_data == "All") {
-        #   all_groups
-        # } else if (input$groups_data == "Comparison groups only" & input$groups != "") {
-        #   input$groups
-        # } else {
-        #   ""
-        # }
-      
-      selected_countries <-
-        if (input$countries_data == "All") {
-          countries
-        } else if (input$countries_data == "Base country only") {
-          input$country
-        } else if (input$countries_data == "Base + comparison countries") {
-          c(input$country, input$countries)
-        }
-      
-      vars <-
-        variable_names %>%
-        filter(
-          family_name %in% input$vars,
-          var_level == "indicator"
-        ) %>%
-        select(variable) %>%
-        unlist()
-      
-      if (input$data_source == "Closeness to frontier (Static)") {
-        vars_table <- c("country_name", "country_code", "country_group","income_group","region",vars)
-      }else{
-        if(input$data_source == "Closeness to frontier (Dynamic)"){
-          vars_table <- c("country_name", "country_code", "country_group","income_group","region", "year", vars)
-        } else {
-          vars_table <- names(data)
-        }
-      }
-      
-      
-      vars_table <- unname(vars_table)
-      
-      data <-
+#=====================REACTIVE pre_download_data:
+  #This creates a reactive pre-download version of the dataset for the user
+  pre_download_data <- reactive({
+    # browser()
+    # Step 1: Select Data Based input$data_source
+    data <- switch(
+      input$data_source,
+      "Closeness to frontier (Static)" = global_data,
+      "Closeness to frontier (Dynamic)" = global_data_dyn,
+      "Original indicators" = raw_data %>% select(-ends_with("_avg"))
+    )
+    # Step 2: Determine Groups
+    groups <- all_groups
+    #Step 3: Deal with Selected Countries
+    selected_countries <- switch(
+      input$countries_data,
+      "All" = countries,
+      "Base country only" = input$country,
+      "Base + comparison countries" = c(input$country, input$countries)
+    )
+    
+    # Step 4: Pull Vars 
+    vars <- variable_names %>%
+      filter(family_name %in% input$vars, var_level == "indicator") %>%
+      pull(variable)
+    
+    # Step 5: Determine Variables Table for Selection
+    vars_table <- switch(
+      input$data_source,
+      "Closeness to frontier (Static)" = c("country_name", "country_code", "country_group", "income_group", "region", vars),
+      "Closeness to frontier (Dynamic)" = c("country_name", "country_code", "country_group", "income_group", "region", "year", vars),
+      #For the raw dataset
+      names(data)
+    )
+    vars_table <- unname(vars_table)
+    
+    # Step 6: Process Data (to ensure formatting)
+    data <- data %>%
+      filter(country_name %in% c(selected_countries, groups)) %>%
+      ungroup() %>%
+      mutate(across(where(is.numeric), round, 3)) %>%
+      select(any_of(vars_table))
+    # Step 7: Rename Columns
+    data <- data %>%
+      setnames(
+        old = as.character(variable_names$variable),
+        new = as.character(variable_names$var_name),
+        skip_absent = TRUE
+      )
+    # Step 8: Handle Rank selection 
+    if (input$data_value == "Rank") {
+      data1 <-
         data %>%
-        filter(
-          country_name %in% c(selected_countries, groups)
-        ) %>%
-        ungroup() %>%
+        filter(country_group == 0) %>%
         mutate(
           across(
-            where(is.numeric),
-            round, 3
+            6:ncol(.),
+            ~ rank(desc(.), ties.method = "min")
           )
-        ) %>%
-        select(any_of(vars_table))
-      
-      data <-
-        data %>%
-        setnames(
-          .,
-          as.character(variable_names$variable),
-          as.character(variable_names$var_name),
-          skip_absent = TRUE
         )
       
-      if (input$data_value == "Rank") {
-        data1 <-
-          data %>%
-          filter(country_group == 0) %>%
-          mutate(
-            across(
-              6:ncol(.),
-              ~ rank(desc(.), ties.method = "min")
-            )
-          )
-        
-        # data2<-data %>%
-        #   filter(country_group == 1) %>%
-        #   mutate(
-        #     across(
-        #       4:ncol(.),
-        #       ~ dense_rank(desc(.))
-        #     )
-        #   )
-        
-        data <- data1
-      }
+      #LEGACY COMMENTVV
       
-      return(data)
-    })
-  
+      # data2<-data %>%
+      #   filter(country_group == 1) %>%
+      #   mutate(
+      #     across(
+      #       4:ncol(.),
+      #       ~ dense_rank(desc(.))
+      #     )
+      #   )
+      
+      data <- data1
+    }
+    
+    return(data)
+    
+  })
+#================================ Download Page Outputs
   output$benchmark_datatable <-
     DT::renderDataTable(
       server = FALSE,
       datatable(
-        browse_data()%>%
+        pre_download_data()%>%
           setnames(
             .,
             as.character(db_variables$variable),
@@ -2041,16 +2119,9 @@ server <- function(input, output, session) {
         
         on.exit(remove_modal_spinner())
         
-        write_rds(
-          browse_data() %>%
-            setnames(
-              .,
-              as.character(db_variables$var_name),
-              as.character(db_variables$variable),
-              skip_absent = TRUE
-            ),
-          file
-        )
+        write_rds( 
+          rds_prep(pre_download_data()),
+          file)
       }
     )
   
@@ -2070,10 +2141,9 @@ server <- function(input, output, session) {
         on.exit(remove_modal_spinner())
         
         write_csv(
-          browse_data(),
+          pre_download_data(),
           file,
-          na = ""
-        )
+          na = "")
       }
     )
   
@@ -2092,18 +2162,9 @@ server <- function(input, output, session) {
         
         on.exit(remove_modal_spinner())
         
-        write_dta(
-          browse_data() %>%
-            setnames(
-              .,
-              as.character(db_variables$var_name),
-              substr(as.character(db_variables$variable),1,32),
-              skip_absent = TRUE
-            )%>%
-            rename_all(~ ifelse(nchar(.) > 32, str_sub(., end = 32), .))
-          ,
-          file
-        )
+        write_dta( 
+          dta_prep(pre_download_data()),
+          file)
       }
     )
   
@@ -2253,6 +2314,7 @@ server <- function(input, output, session) {
           base_country = base_country(),
           comparison_countries = input$countries,
           data = data_avg(),
+          wb_country_list = country_list,
           family_data = data_family(),
           data_dyn = data_dyn(),
           data_dyn_avg = data_dyn_avg(),
@@ -2266,7 +2328,72 @@ server <- function(input, output, session) {
           family_order = family_order,
           global_data = global_data,
           family_order = family_order,
-          download_opt = input$download_Opt
+          download_opt = input$download_Opt,
+          compiled_indicators = raw_data,
+          db_variables = db_variables
+        )
+      
+      #browser()
+      
+      rmarkdown::render(
+        tempReport,
+        output_file = file,
+        params = params,
+        envir = new.env(parent = globalenv()),
+        knit_root_dir = getwd()
+      )
+    }
+  )
+  
+  
+  # Missingness Report ================================================================================
+  
+  output$download_missing <- downloadHandler(
+    filename =
+      reactive(
+        paste0(
+          "Missing_data-",
+          base_country(),
+          ".docx"
+        )
+      ),
+    content = function(file) {
+      show_modal_spinner(
+        color = "#17a2b8",
+        text = "Compiling report",
+      )
+      
+      on.exit(remove_modal_spinner())
+      
+      tmp_dir <- tempdir()
+      
+      tempReport <- file.path(tmp_dir, "Missing_report.Rmd")
+      
+      file.copy("www/", tmp_dir, recursive = TRUE)
+      file.copy("Missing_report.Rmd", tempReport, overwrite = TRUE)
+      
+      params <-
+        list(
+          base_country = base_country(),
+          comparison_countries = input$countries,
+          data = data_avg(),
+          wb_country_list = country_list,
+          family_data = data_family(),
+          data_dyn = data_dyn(),
+          data_dyn_avg = data_dyn_avg(),
+          family_data_dyn = data_family_dyn(),
+          rank = input$rank,
+          definitions = definitions,
+          variable_names = variable_names,
+          dots = input$benchmark_dots,
+          group_median = input$benchmark_median,
+          threshold = input$threshold,
+          family_order = family_order,
+          global_data = global_data,
+          family_order = family_order,
+          download_opt = input$download_Opt,
+          compiled_indicators = raw_data,
+          db_variables = db_variables
         )
       
       #browser()
@@ -2313,7 +2440,7 @@ server <- function(input, output, session) {
       if (input$create_custom_grps == TRUE) {
         
         custom_df <- custom_grps_df()[custom_grps_df()$Grp %in% input$benchmark_median &
-                                        custom_grps_df()$Countries %in% input$countries]
+                                        custom_grps_df()$Countries %in% input$countries,]
       } else {
         custom_df <- NULL
       }
@@ -2329,7 +2456,8 @@ server <- function(input, output, session) {
           dots = input$benchmark_dots,
           custom_df = custom_df,
           title = FALSE,
-          threshold = input$threshold
+          threshold = input$threshold,
+          report = TRUE
         )
       
       plot2 <- data_dyn_avg() %>%
@@ -2397,7 +2525,8 @@ server <- function(input, output, session) {
               custom_df = custom_df(),
               threshold = input$threshold,
               preset_order = input$preset_order,
-              title = FALSE
+              title = FALSE,
+              report = TRUE
             )
           
           plt_f<-dml(ggobj = plt_f)
@@ -2435,21 +2564,21 @@ server <- function(input, output, session) {
   
   output$definition <-
     renderTable({
-      
-      shiny::req(input$family) ## very crucial. As the app reads the family from the input file, 
+
+      shiny::req(input$family) ## very crucial. As the app reads the family from the input file,
       # we don't want it to display "Warning: Error in if: argument is of length zero". This happens during transitions.
       # This line ensures that the table is only displayed when family is not NULL. It's null when we
       # transition from the default "Overview" to the family saved in the setup file.
-      
+
       variables <- db_variables %>%
         filter(var_level == "indicator" & benchmarked_ctf == 'Yes' & family_var != 'vars_other')
-      
+
       if (input$family != "Overview") {
         variables <-
           variables %>%
           filter(family_name == input$family)
       }
-      
+
       variables %>%
         select(
           Indicator = var_name,
@@ -2457,9 +2586,9 @@ server <- function(input, output, session) {
           Description = description,
           Source = source
         )
-      
+
     })
-  
+
   output$definition_bar <-
     renderTable({
       variables <-
@@ -2474,8 +2603,9 @@ server <- function(input, output, session) {
           Source = source
         )
     })
-  
-  
+
+
+ #======================================= 
   # Download csv with definitions
   output$download_indicators <-
     downloadHandler(
@@ -2499,9 +2629,9 @@ server <- function(input, output, session) {
   # Full methodology --------------------------------------------------------
   output$download_metho <-
     downloadHandler(
-      filename = "CLIAR-Methodological-Note_20220403.pdf",
+      filename = "CLIAR-Methodological-Note_20240501.pdf",
       content = function(file) {
-        file.copy("www/CLIAR-Methodological-Note_20220403.pdf", file)
+        file.copy("www/CLIAR-Methodological-Note_20240501.pdf", file)
       }
     )
   

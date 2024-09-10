@@ -61,10 +61,17 @@ static_plot <-
         }else{
           base_country_df <- base_country_df[order(base_country_df$status,base_country_df$dtt), ]
         }
+        
+
+        
         unique_indicators = base_country_df %>% 
             distinct(var_name) %>% 
             pull(var_name)
-      
+        
+        #Issue 283 - Remove Institutions keywork in y axis for plots
+        data$var_name <- gsub("Institutions", "", data$var_name)
+        unique_indicators <- gsub("Institutions","",unique_indicators)
+        
         data$var_name <-
           factor(
             data$var_name,
@@ -78,10 +85,26 @@ static_plot <-
         left_join(., db_variables %>% select(variable, rank_id),
           by = "variable")
       
-      unique_indicators = data %>% 
-        distinct(var_name, rank_id) %>% 
-        arrange(desc(rank_id)) %>% 
-        pull(var_name)
+      # Family Ordering
+      if(tab_name== "Country overview")
+      {
+        unique_indicators <-family_order%>%
+          arrange(family_order) %>% 
+          pull(family_name)
+      }else{
+        unique_indicators <- data %>% 
+          distinct(var_name, rank_id) %>% 
+          arrange(desc(rank_id)) %>% 
+          pull(var_name)
+        
+      }
+      
+      
+      #Issue 283 - Remove Institutions keywork in y axis for plots
+      
+      data$var_name <- gsub("Institutions", "", data$var_name)
+      unique_indicators <- gsub("Institutions","",unique_indicators)
+      
       
       data$var_name <-
         factor(
@@ -155,6 +178,13 @@ static_plot <-
       x_lab <- "Rank"
     }
     
+    if(report==FALSE){
+      aspect_ratio = 1.6/1
+    }else{
+      aspect_ratio = 1
+    }
+    
+    #browser()
     plot <-
       ggplot() +
         geom_segment(
@@ -198,11 +228,10 @@ static_plot <-
           color = "#8ec18e",
           size = 2,
           alpha = .3
-        ) +
-      scale_y_discrete(labels = function(x) str_wrap(x, width = 20))+
+        )+ 
         theme_minimal() +
         theme(
-          aspect.ratio = 1.6/1,
+          #aspect.ratio = aspect_ratio,
           legend.position = "top",
           panel.grid.minor = element_blank(),
           axis.ticks = element_blank(),
@@ -214,7 +243,7 @@ static_plot <-
           plot.caption.position =  "plot"
         ) +
         labs(
-          y = NULL,
+          y = tab_name,
           x = x_lab,
           fill = NULL,
           shape = NULL,
@@ -223,6 +252,12 @@ static_plot <-
       scale_fill_manual(
         values = colors
       )
+        
+    if(report==FALSE){
+      plot <-plot+
+        scale_y_discrete(labels = function(x) str_wrap(x, width = 20))
+    }      
+        
 
     
     if (rank) {
@@ -350,29 +385,30 @@ static_plot <-
           median_data %>%
           bind_rows(countries)
       }
-
-      plot <-
-        plot +
-        suppressWarnings(geom_point(
-          data = median_data,
-          aes(
-            y = var_name,
-            x = value,
-            shape = country_name,
-            text = paste(
-              "Group:", country_name,"<br>",
-              "Median closeness to frontier:", round(value, 3)
-            )
-          ),
-          alpha = .5,
-          color = "black",
-          fill = "white",
-          size = 3
-        )) +
-        scale_shape_manual(
-          values = 22:25 #,
-          #lab = NULL
-        )
+      # Custom Group Point needs to be excluded in the plot . Issue #294 
+      
+      # plot <-
+      #   plot +
+      #   suppressWarnings(geom_point(
+      #     data = median_data,
+      #     aes(
+      #       y = var_name,
+      #       x = value,
+      #       shape = country_name,
+      #       text = paste(
+      #         "Group:", country_name,"<br>",
+      #         "Median closeness to frontier:", round(value, 3)
+      #       )
+      #     ),
+      #     alpha = .5,
+      #     color = "black",
+      #     fill = "white",
+      #     size = 3
+      #   )) +
+      #   scale_shape_manual(
+      #     values = 22:25 #,
+      #     #lab = NULL
+      #   )
     }
     if (length(base_country)==1){
       plot <-
@@ -900,12 +936,14 @@ static_plot_dyn <-
     
     
     ### create the plot
+    
     plot <- plot +
       facet_wrap(~var_name, ncol = 2, 
-        labeller = labeller(var_name = plot_titles),
-        shrink = FALSE, scales = sc) +
-      theme(strip.text = element_text(face = "bold", size = 10),panel.spacing = unit(5, "lines"))
-    
+                 labeller = labeller(var_name = plot_titles),
+                 shrink = FALSE, scales = sc) +
+      theme(strip.text = element_text(face = "bold", size = 8),
+            panel.spacing.x = unit(1, "lines"),
+            panel.spacing.y = unit(3, "lines"))
     
    ## fix facets
    # plot <- fixfacets(figure = plot, facets = names(plot_titles), domain_offset = 0.16) 
@@ -999,11 +1037,14 @@ plot_notes_function <-
 
 interactive_plot <-
   function(x, tab_name, buttons,  plot_type) {
-    if(length(x$facet)>10 & plot_type=='dynamic'){
+    if(tab_name=='Justice Institutions' & plot_type=='dynamic'){
       plt_height = 3000
     }else if(plot_type=='dynamic') {
-      plt_height = 1000
-    }else if(tab_name=='Overview'){
+      plt_height = 1200
+    }else if(tab_name=='Service Delivery Institutions' | tab_name=='Justice Institutions'){
+      plt_height = 1200
+    }
+    else if(tab_name=='Overview'){
       plt_height = 900
     }else{
       plt_height = 750
@@ -1049,6 +1090,24 @@ interactive_plot <-
     }
 
     int_plot <- clean_plotly_legend(int_plot)
+    
+
+    
+    # names_lst <- names(int_plot$x$layout)
+    # names_lst <- names_lst[grep("yaxis",names_lst)]
+    # if(length(names_lst)>2){
+    #   nrows = ceiling(length(names_lst)/2)
+    #   height_gap = (nrows-1)*0.1182804
+    #   height_plt = (1-height_gap)/nrows
+    #   height_start = 1
+    #   for(i in seq(1,length(names_lst),1)){
+    #     int_plot$x$layout[[names_lst[i]]][['domain']] <-c(max(0,height_start-height_plt),height_start)
+    #     int_plot$x$layout$annotations[[i+1]][['y']] <- height_start
+    #     if((i+1)%%2 ==1){
+    #       height_start <-height_start-height_plt-0.1182804
+    #     }
+    #   }
+    # }
     
     return(int_plot)
     
@@ -1323,6 +1382,10 @@ trends_plot <- function(raw_data,
         ) %>%
         rename(country_name = group) %>%
         mutate(country_name = paste(country_name, "average"))
+      
+      avg_df <- avg_df %>%
+        arrange(country_name, Year)
+      
     } else {
       NULL
     }
@@ -1395,7 +1458,7 @@ trends_plot <- function(raw_data,
         title = list(text = '<b>Country:</b>'),
         y = 0.5
       ),
-      margin = list(l = 50, r = 150, t = 175, b = 200),
+      margin = list(l = 50, r = 150, t = 100, b = 300),
       annotations =
         list(x = 0, y = -0.5,
              text = HTML(
@@ -1601,7 +1664,7 @@ interactive_bar <-
         ),
         margin = list(t = 75, b = 220),
         annotations =
-          list(x = -.1,
+          list(x = -.6,
                y = -.4,
                text = HTML(
                  paste(

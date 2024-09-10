@@ -59,6 +59,12 @@ source(here("auxiliary", "plots.R"))
 source(here("auxiliary", "clean_plotly_legend.R"))
 source(here("auxiliary", "fixfacets.R"))
 
+#Functions that prepare data for download in different file formats
+source(here("auxiliary", "fun_download_prep.R"))
+
+#Check data by indicator functions
+source(here("auxiliary", "fun_check_data.R"))
+
 # Function that displays publications
 source(here("auxiliary", "fun_publications.R"))
 
@@ -67,6 +73,10 @@ source(here("modules", "mod_publications.R"))
 
 # Guide/help
 source(here("auxiliary", "guides.R"))
+
+#Use Bs4Dash Package post deprecation
+source(here("auxiliary","useBs4Dash.R"))
+
 
 # Data -------------------------------------------------------------
 
@@ -165,21 +175,22 @@ clean_country <-
     )
   )  
 
-
-down_clust_ctf_stat_data <- read_rds(
-  here(
-    "data",
-    "closeness_to_frontier_confint_static.rds"
-  )
-)
-
-down_clust_ctf_dyn_data <- read_rds(
-  here(
-    "data",
-    "closeness_to_frontier_confint_dynamic.rds"
-  )
-)
-
+#THESE ARE NOT CURRENTLY IN USE. REMOVE LATER?
+#==========
+# down_clust_ctf_stat_data <- read_rds(
+#   here(
+#     "data",
+#     "closeness_to_frontier_confint_static.rds"
+#   )
+# )
+# 
+# down_clust_ctf_dyn_data <- read_rds(
+#   here(
+#     "data",
+#     "closeness_to_frontier_confint_dynamic.rds"
+#   )
+# )
+#==========
 for(i in 1:nrow(clean_country)){
   if (clean_country[i,'Clean_Names']!=""){
     country_list$country_name[country_list$country_name==clean_country[i,'Country']]=clean_country[i,'Clean_Names']
@@ -298,6 +309,9 @@ variable_list_benchmarked <-
   lapply(family_names$var_name, extract_variables_benchmarked)
 
 names(variable_list_benchmarked) <- family_names$var_name
+
+# Exclude Monetary Stability - #296
+variable_list_benchmarked$`Public Finance Institutions` <- variable_list_benchmarked$`Public Finance Institutions` [variable_list_benchmarked$`Public Finance Institutions`  != "Monetary stability"]
 
 
 remove_average_items <- function(family) {
