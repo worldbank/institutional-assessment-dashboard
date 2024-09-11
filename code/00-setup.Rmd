@@ -1,4 +1,6 @@
-```{r setup, include = FALSE}
+# Load R packages
+
+```{r setup}
 library(tidyverse)
 library(readxl)
 library(here)

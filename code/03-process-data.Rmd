@@ -20,7 +20,7 @@ source(
 ref_year <- 2024
 ```
 
-## 1. Import data
+## Import data
 
 The data was imported from (a) the EFI360 shared data and (b) manual imports.
 This section first reads in each of the individual manual-input files (Note that the updated version count with '2024' as folder and the column id names are cleaned with the clean_names() function. After this is done, a list of of standardized WB country names and codes is read in and mutated to be better compatible with the CLIAR data
@@ -167,7 +167,7 @@ country_region_list <- wb_country_list |>
   select(country_code, region = group)
 ```
 
-## 2. Process data
+## Process data
 
 In this section, we take the EFI files, plus the manual import data, and clean them. In order to ensure clean column names and accurate variables, certain datasets are edited to create new variables or to change other factors. More detail given in each subsection.
 
@@ -480,7 +480,7 @@ wbl_clean <- wbl |>
   )
 ```
 
-## 3. Consolidate data
+## Consolidate data
 
 This section joins all of the datasets together to make the full data. The join is done by country code and year. This section excludes certain codes and alters others so that all of them fit the same standard. Once the country codes are standard, the excluded codes are filtered out and the datasets are joined. Lastly, any year before 1990 is excluded from the final set and the
 columns are ordered by country name.
@@ -553,8 +553,7 @@ cliar_indicators <- cliar_indicators %>%
   )
 ```
 
-
-## 4. Data Quality Control: Indicator Selection
+## Data Quality Control: Indicator Selection
 
 Verify that the indicators are selected correctly. To do this, take the non-removed indicators from the metadata file as the indicators from combined dataset created in step 5 and ensure they have the same contents by using an anti-join in both directions. Re-select indicators to ensure that only the indicators in metadata and v2 id cols are in data.
 
@@ -600,7 +599,7 @@ test_that(
 )
 ```
 
-## 5. Compute family averages
+## Compute family averages
 
 This section computes family averages, dynamically adapting to the selection of indicators.
 
@@ -672,7 +671,7 @@ cliar_indicators_clean %>%
   filter(is.na(country_code))
 ```
 
-## 6. Data Quality Control: verify country_code and country_name consistency
+## Data Quality Control: verify country_code and country_name consistency
 
 This section ensures that the country_code code and the country name are consistent. Check this by performing an anti-join in both directions on the official WB list of country codes and names and the cliar indicators dataset.
 
@@ -724,7 +723,7 @@ test_that(
 )
 ```
 
-## 7. Compute coverage diagnostics
+## Compute coverage diagnostics
 
 Use the compute_coverage function from funs.R to create the coverage countries and years it is present for. With that information, percentage coverage, year range, percent of complete records, as well as standard distribution information such as mean and standard deviation are calculated.
 
@@ -749,7 +748,7 @@ cliar_indicators_diagnostic <- cliar_indicators_clean |>
   )
 ```
 
-## 8.Incorporate country income and region
+## Incorporate country income and region
 
 We incorporate the country income group and region. Please note that there is no available data on income group for Venezuela (`country_code` == "VEN"). We retroactively classify income groups using 2023 data.
 
@@ -764,7 +763,7 @@ cliar_indicators_complete <- cliar_indicators_clean |>
   )
 ```
 
-## 8. Save data
+## Save data
 
 ```{r}
 write_rds(

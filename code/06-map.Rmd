@@ -64,7 +64,7 @@ disputed_areas <-
   )
 ```
 
-# Clean maps 
+## Clean maps 
 
 In this section, we combine the world map data with disputed areas, in order to address potential boundary conflicts. We also simplify the world map through the `st_simplify` command in order to improve loading performance on our Shiny App.
 
@@ -103,7 +103,7 @@ simple_world_map <-
 ```
 
 
-# Combine maps and data
+## Combine maps and data
 
 ## Closeness to frontier
 
@@ -162,7 +162,7 @@ final_world_map <-
 ```
 
 
-# Save datasets
+## Save datasets
 
 ```{r}
 final_world_map %>%

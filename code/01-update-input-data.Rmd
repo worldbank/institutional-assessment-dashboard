@@ -27,7 +27,7 @@ indicators only) and cleaned either calling .do files or in R. It uses
 the 'RStata' package for initial cleaning of manually imported data,
 streamlining the process and preparing key indicators. This step enables
 automation for future data update. Once cleaned, standardized CSV files
-will be exported to be further proceed.
+will be exported to be further processed.
 
 ```{r do-files-import, eval=FALSE}
 

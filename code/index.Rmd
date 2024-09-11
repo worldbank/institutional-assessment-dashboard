@@ -1,7 +1,7 @@
 --- 
 title: "Data processing"
 
-author: "Eric Braian Arias, Galileu Kim, Shelmith Kariuki, Abigail Paterson, Kannan Venkataramanan.\n **Former Members:** Luiza Andrade, Serena Cocciolo, Gabriel Vaz de Melo"
+author: "Eric Braian Arias, Galileu Kim, Kannan Venkataramanan, Ileana Marroquin Martinez, Alex Khater.\n **Former Members:** Luiza Andrade, Serena Cocciolo, Gabriel Vaz de Melo, Shelmith Kariuki, Abigail Paterson."
 
 site: "bookdown::bookdown_site"
 output: 
