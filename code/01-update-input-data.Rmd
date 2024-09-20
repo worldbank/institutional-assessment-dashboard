@@ -36,14 +36,16 @@ will be exported to be further processed.
   
   user <- Sys.getenv("USERNAME")
   
-  # NEED TO CHANGE THIS DIRECTORY
-  if (user == "wb622595") { 
-    print("Ileana has been selected")
-    directory <- "C:/Users/wb622595/gitHub-repositories/institutional-assessment-dashboard/code"
-  } else {
-    stop("Unknown user. Please set the correct directory.")
-  }
+  # # NEED TO CHANGE THIS DIRECTORY
+  # if (user == "wb622595") { 
+  #   print("Ileana has been selected")
+  #   directory <- "C:/Users/wb622595/gitHub-repositories/institutional-assessment-dashboard/code"
+  # } else {
+  #   stop("Unknown user. Please set the correct directory.")
+  # }
+  #ALEX ADDITION TO MAKE THIS RUN
   
+  directory<-here()
   # NEED TO CHANGE STATA (CHANGE DIRECTORY) 
   options("RStata.StataVersion" = 18.0)
   options("RStata.StataPath" = "/ProgramData/Microsoft/Windows/Start Menu/Programs/StataMP 18")
@@ -137,8 +139,10 @@ wdi <- WDI(
 )
 
 
-vdem <- vdemdata::vdem 
 
+```
+```{r}
+vdem <- vdemdata::vdem 
 ```
 
 ## Clean Inputs

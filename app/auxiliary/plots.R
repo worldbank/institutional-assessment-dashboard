@@ -90,11 +90,13 @@ static_plot <-
           by = "variable")
       
       # Family Ordering
-      if(tab_name== "Country overview")
+      #if(tab_name== "Country overview")
+      if(tab_name== "Overview")
       {
         unique_indicators <-family_order%>%
           arrange(family_order) %>% 
           pull(family_name)
+        
       }else{
         unique_indicators <- data %>% 
           distinct(var_name, rank_id) %>% 
@@ -109,22 +111,22 @@ static_plot <-
       data$var_name <- gsub("Institutions", "", data$var_name)
       unique_indicators <- gsub("Institutions","",unique_indicators)
       
-      
+    
+
       data$var_name <-
         factor(
           data$var_name,
           levels = unique_indicators,
           ordered = TRUE
-        )
+         )
     }
 
     
     vars <-
       data %>%
       select(var_name) %>%
-      unique %>%
-      unlist %>%
-      unname
+      unique() %>%
+      unlist()
     if (cutoff[[1]]==25){
     colors <-
       c("Weak\n(bottom 25%)" = "#D2222D",
@@ -187,7 +189,10 @@ static_plot <-
     }else{
       aspect_ratio = 1
     }
-    
+    #Solution to strange benchmarking: removes null var_names
+    data <- data %>%
+      filter(!is.na(var_name))
+    #====================
     #browser()
     plot <-
       ggplot() +
@@ -198,6 +203,7 @@ static_plot <-
             yend = var_name,
             x = 0,
             xend = q_cutoff1
+            
           ),
           color = "#e47a81",
           size = 2,
@@ -1430,6 +1436,7 @@ trends_plot <- function(raw_data,
           "Value:", get(indicator) %>% round(3)
         )
       ),
+      #Alex change 3 to 1
      size = 3
     ) +
     #scale_alpha_identity() +

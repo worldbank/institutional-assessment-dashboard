@@ -89,3 +89,32 @@ rds_prep <- function(data, des_names) {
   
   return(prepared_rds_data)
 }
+#================ CSV Prep
+csv_prep<- function(data,des_names){
+  if (des_names==TRUE){
+    XL_data <- data %>%
+    # Rename columns to ones in db_variables
+    setnames(
+      old = as.character(db_variables$variable),
+      new = as.character(db_variables$var_name),
+      skip_absent = TRUE)}
+  else{
+    XL_data<-data}
+    # Set Column Names for cleaning
+  column_names <- names(XL_data)
+    
+    # Make sure names are unique
+  unique_names <- make.unique(column_names)
+    
+    # Replace invalid characters
+  cleaned_XL_names <- str_replace_all(unique_names, "[^A-Za-z0-9_]", "_")
+    
+    
+    # Rename columns in the data
+  setnames(XL_data, old = column_names, new = cleaned_XL_names)
+    
+    # Return the prepared data
+    
+  return(XL_data)
+  }
+  
