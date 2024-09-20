@@ -11,16 +11,20 @@ params:
   comparison_countries: NA
   data: NA
   family_data: NA
-  data_dyn : NA
-  data_dyn_avg : NA
-  family_data_dyn : NA
+  data_dyn: NA
+  data_dyn_avg: NA
+  family_data_dyn: NA
   rank: NA
   dots: NA
   group_median: NA
   threshold: NA
   family_order: NA
-  global_data : NA
-  download_opt : NA
+  global_data: NA
+  download_opt: NA
+  #==============================================
+  wb_country_list: NA           
+  compiled_indicators: NA     
+  db_variables: NA    
 ---
 
 
@@ -279,7 +283,7 @@ The dynamic analysis of institutions is performed on a basis of `r params$base_c
   params$data_dyn_avg%>%
   filter(str_detect(variable, "_avg"))%>%
   left_join(.,params$family_order,by = 'family_name')%>%
-  filter(Benchmark_dynamic_family_aggregate!='No')%>%
+  #filter(Benchmark_dynamic_family_aggregate!='No')%>%
   static_plot_dyn(
     params$base_country,
     "Country overview",

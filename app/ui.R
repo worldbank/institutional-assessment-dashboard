@@ -636,28 +636,30 @@ ui <-
                       )
                     ),
                     column(
-                      width = 4,
+                      id = "download_data_opt",
+                      width = 3,
                       shinyjs::disabled(
                         downloadButton(
-                          "download_missing",
-                          "Missingness report",
+                          "download_data_1",
+                          "Data",
                           style = "width:100%; background-color: #204d74; color: white"
+                   
                         )
                       )
                     )
                   )
                 ),
-                column(
-                  id = "download_data_opt",
-                  width = 3,
-                  shinyjs::disabled(
-                    downloadButton(
-                      "download_data_1",
-                      "Data",
-                      style = "width:100%; background-color: #204d74; color: white"
-                    )
-                  )
-                )
+                #Commenting Out MISSINGNESS REPORT until it is fixed (Formatting is bad)
+                # column(
+                #   width = 4,
+                #   shinyjs::disabled(
+                #     downloadButton(
+                #       "download_missing",
+                #       "Missingness report",
+                #       style = "width:100%; background-color: #204d74; color: white"
+                #     )
+                #   )
+                # )
               )
               # shiny::column(3,
               #               shinyWidgets::materialSwitch(
