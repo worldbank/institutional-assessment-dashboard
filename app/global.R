@@ -25,6 +25,8 @@ library(openxlsx)
 library(countrycode)
 library(cicerone)
 library(shinyhelper)
+library(colourpicker)
+
 
 options(dplyr.summarise.inform = FALSE)
 
@@ -62,14 +64,23 @@ source(here("auxiliary", "fixfacets.R"))
 #Functions that prepare data for download in different file formats
 source(here("auxiliary", "fun_download_prep.R"))
 
-#Check data by indicator functions
+#Functions that check for null data by indicator
 source(here("auxiliary", "fun_check_data.R"))
+
+#Functions that extracts variables 
+source(here("auxiliary", "fun_extract_var.R"))
+
+#Functions that remove aggregate average columns from datasets
+source(here("auxiliary", "fun_remove_avg.R"))
 
 # Function that displays publications
 source(here("auxiliary", "fun_publications.R"))
 
 # Modules
 source(here("modules", "mod_publications.R"))
+
+#Functions that prepare plotting settings
+source(here("auxiliary","fun_plot_prep.R" ))
 
 # Guide/help
 source(here("auxiliary", "guides.R"))
