@@ -2434,8 +2434,7 @@ server <- function(input, output, session) {
           compiled_indicators = raw_data,
           db_variables = db_variables
         )
-      
-      #browser()
+     
       
       rmarkdown::render(
         tempReport,
@@ -2601,8 +2600,10 @@ server <- function(input, output, session) {
       
       
       slide_index = 10
+      #Alex
       
-      family_n <- data()%>%
+      #family_n <- data()%>%
+      family_n <- db_variables%>%
         distinct(family_name)%>%
         filter(!is.na(family_name))%>%
         pull(family_name) %>%
