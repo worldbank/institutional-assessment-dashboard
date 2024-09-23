@@ -262,10 +262,11 @@ static_plot <-
       scale_fill_manual(
         values = colors
       )
+    
         
     if(report==FALSE){
       plot <-plot+
-        scale_y_discrete(labels = function(x) str_wrap(x, width = 20))
+        scale_y_discrete(labels = function(x) str_wrap(x, width = 40))
     }      
         
 

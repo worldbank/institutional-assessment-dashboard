@@ -2037,13 +2037,35 @@ server <- function(input, output, session) {
   #=== REACTIVE Comparison Country MENU ITEMS-Trends
   filtered_countries_trends <- reactive({
     req(input$vars_trends)  # Ensure the indicator is selected
+    req(input$country_trends)# Ensure the base country is selected
+    
+    #Get the non-encoded variable name
+    fullvar <- db_variables %>%
+      filter(var_name == input$vars_trends) %>%
+      select(variable) %>%
+      pull()
+    
+    #Get the years we need to filter the comp counries for
+    filter_years <-
+      raw_data %>%
+      filter(
+        country_name == input$country_trends,
+        !is.na(get(fullvar))
+      ) %>%
+      summarise(
+        min = min(Year, na.rm = TRUE),
+        max = max(Year, na.rm = TRUE)
+      )
+    #Select each year individually
+    trends_start <- filter_years %>% pull(min)
+    trends_end <- filter_years %>% pull(max)
     
     countries %>%
-      # Filter countries based on check_data function
-      .[!sapply(., function(country) check_data(raw_data, country, input$vars_trends))]
+    #   # # Filter countries based on trends_check_data function
+      .[!sapply(., function(country) trends_check_data(trends_start,trends_end, country, fullvar))]
   })
   
-  
+  #Observe Changes in base country or variable and update comparison country selection options
   observeEvent(
     list(input$country_trends, input$vars_trends),
     {
