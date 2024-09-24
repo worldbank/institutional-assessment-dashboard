@@ -105,8 +105,9 @@ static_plot <-
           pull(var_name)
         
       }
+    
       #Change old name to new one for factoring
-      data$var_name[data$var_name == "Public Finance Institutions"] <- "Public Financial Management Institutions"
+      #data$var_name[data$var_name == "Public Finance Institutions"] <- "Public Financial Management Institutions"
       
       #Issue 283 - Remove Institutions keyword in y axis for plots
       
@@ -266,6 +267,8 @@ static_plot <-
         
     if(report==FALSE){
       plot <-plot+
+
+        scale_y_discrete(labels = function(x) str_wrap(x, width = 40))
         scale_y_discrete(labels = function(x) str_wrap(x, width = 35))
     }      
         
