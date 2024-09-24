@@ -1306,6 +1306,7 @@ server <- function(input, output, session) {
               data_family() %>%
                 left_join(.,family_order,by=c('var_name'='family_name'))%>%
                 arrange(family_order,country_name)%>%
+                
                 static_plot(
                   base_country(),
                   input$family,
@@ -1516,6 +1517,7 @@ server <- function(input, output, session) {
               filter(str_detect(variable, "_avg"))%>%
               left_join(.,family_order,by = 'family_name')%>%
               # filter(Benchmark_dynamic_family_aggregate!='No')%>%
+             
               static_plot_dyn(
                 base_country(),
                 input$family,
@@ -2622,7 +2624,6 @@ server <- function(input, output, session) {
       
       
       slide_index = 10
-      #Alex
       
       #family_n <- data()%>%
       family_n <- db_variables%>%
