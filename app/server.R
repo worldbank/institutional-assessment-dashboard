@@ -1306,7 +1306,7 @@ server <- function(input, output, session) {
               data_family() %>%
                 left_join(.,family_order,by=c('var_name'='family_name'))%>%
                 arrange(family_order,country_name)%>%
-                
+              
                 static_plot(
                   base_country(),
                   input$family,
@@ -1334,12 +1334,14 @@ server <- function(input, output, session) {
                 )
               
               
+              
               low_variance_variables <-
                 low_variance_indicators() %>%
                 data.frame() %>%
                 rename("variable" = ".") %>%
                 left_join(variable_names %>% select(variable, var_name), by = "variable") %>%
                 .$var_name
+              
               
               missing_variables <- c(missing_variables, low_variance_variables)
               
@@ -1486,7 +1488,7 @@ server <- function(input, output, session) {
   
   output$dynamic_benchmark_plot <-
     renderPlotly({
-      #      tryCatch({
+            tryCatch({
       
       validate(need(length(input$country) == 1,'Dynamic Benchmarking is available only when One base Country is selected'))
       validate(need(!(input$family %in% family_order$family_name[family_order$Benchmark_dynamic_indicator == "No"])," No Dynamic Benchmarking Plot available for this family."))
@@ -1589,12 +1591,12 @@ server <- function(input, output, session) {
         )
       }
       
-      # }
-      # , error = function(e) {
-      # #   # If an error occurs, display a standard text message
-      #    showNotification('An error occurred. Data is missing for the selected base country.','',type = "error",duration = 10)
-      #    return()
-      # })
+      }
+      , error = function(e) {
+      #   # If an error occurs, display a standard text message
+         showNotification(' Data is insufficient for the selected base country. No Dynamic Plot was generated','',type = "message",duration = 10)
+         return()
+      })
     })%>%
     bindCache(input$country,  input$groups, input$family,input$benchmark_median,
               input$rank, input$benchmark_dots, input$preset_order, input$create_custom_grps,

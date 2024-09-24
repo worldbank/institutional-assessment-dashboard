@@ -279,7 +279,7 @@ families <-
 The dynamic analysis of institutions is performed on a basis of `r params$base_country` available indicators that are grouped in `r length(unique(params$data_dyn$var_name))` institutional clusters.
 
 
-```{r,fig.height= 8,results = "asis"}
+```{r,fig.height= 14,results = "asis"}
   params$data_dyn_avg%>%
   filter(str_detect(variable, "_avg"))%>%
   left_join(.,params$family_order,by = 'family_name')%>%
