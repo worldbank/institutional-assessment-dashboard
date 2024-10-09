@@ -47,7 +47,7 @@ ui <-
         menuItem("World map", tabName = "world_map", icon = icon("globe-americas")),
         menuItem("Time trends", tabName = "trends", icon = icon("chart-line")),
         menuItem("Data", tabName = "data", icon = icon("table")),
-        menuItem("Methodology", tabName = "methodology", icon = icon("book")),
+        menuItem("Methodology & User Guide", tabName = "methodology_ug", icon = icon("book")),
         menuItem("Publications", tabName = "pubs", icon = icon("list")),
         menuItem("Terms of use and Disclaimers", tabName = "terms", icon = icon("handshake")),
         menuItem("FAQ", tabName = "faq", icon = icon("question")),
@@ -94,45 +94,45 @@ ui <-
             tags$ul(
               tags$li(
                 "The ",
-                tags$b("country benchmarking"),
+                tags$b("Country Benchmarking"),
                 "tab shows how one country compares to another group of countries in terms of closeness to frontier for each relevant indicator and institutional cluster.
                 It works best with a relatively large group of comparator countries."
               ),
               tags$li(
                 "The ",
-                tags$b("cross-country comparison "),
+                tags$b("Cross-Country Comparison "),
                 "tab shows how one country compares to another group of countries for each relevant indicator.
                 It works even with a few comparator countries."
               ),
               tags$li(
                 "The",
-                tags$b("bivariate correlation"),
+                tags$b("Bivariate Correlation"),
                 "tab shows correlations between the closeness to frontier scores for pairs of indicators"
               ),
               tags$li(
                 "The ",
-                tags$b("world map"),
+                tags$b("World Map"),
                 "tab shows the closeness to frontier of a given indicator for all countries with available data."
               ),
               tags$li(
                 "The ",
-                tags$b("time trends"),
+                tags$b("Time Trends"),
                 "tab shows the evolution year by year of multiple indicators."
               ),
               tags$li(
                 "The ",
-                tags$b("data"),
+                tags$b("Data"),
                 "tab provides an interactive table containing the closeness to frontier data for all countries.
                 It also allows users to download the data in different formats."
               ),
               tags$li(
                 "The ",
-                tags$b("methodology"),
+                tags$b("Methodology & User Guide"),
                 "tab includes metadata on the indicators, country groups and methods used in the analysis, and FAQs."
               ),
               tags$li(
                 "The ",
-                tags$b("Terms of use and Disclaimers"),
+                tags$b("Terms of Use and Disclaimers"),
                 "tab provides more information about the terms of use and disclaimers, as well as citation information."
               ),
               tags$li(
@@ -590,7 +590,11 @@ ui <-
                     icon = "circle-question",
                     title = "Pre-populated reports and data",
                     content = c(
-                      "Download pre-populated Word or Power Point documents with the results. Note that you may select the “Advanced Report (~10 min)” box to receive more detailed information - including all dynamic graphs - which takes longer to produce and download. Click the download “Data” button to download a CSV file that contains the data needed to recreate the benchmarking graphs."
+                      "Download pre-populated Word or Power Point documents with the results. Note that you may select the 
+                      “Advanced Report” box to receive more detailed information - including all dynamic graphs. Select the help
+                      button next to the checkbox to learn more.
+                      
+                      Click the download “Data” button to download a CSV file that contains the data needed to recreate the benchmarking graphs."
                     ),
                     buttonLabel = "Close",
                     fade = T,
@@ -615,6 +619,19 @@ ui <-
                       shiny::fluidRow(
                         column(
                           width = 12,
+                          helper(
+                            shiny_tag = tags$b("Advanced Report Download"),
+                            type = "inline",
+                            icon = "circle-question",
+                            title = "Pre-populated reports and data",
+                            content = c(
+                              "The Advanced Report includes all available dynamic graphs for the selected base country. 
+                              These plots take a lot of time to produce, so please wait about 10 minutes for the advanced report to download"
+                            ),
+                            buttonLabel = "Close",
+                            fade = T,
+                            size = "s"
+                          ),
                           prettyCheckbox(
                             inputId = "download_Opt",
                             label = "Advanced Report (~10min)",
@@ -636,28 +653,30 @@ ui <-
                       )
                     ),
                     column(
-                      width = 4,
+                      id = "download_data_opt",
+                      width = 3,
                       shinyjs::disabled(
                         downloadButton(
-                          "download_missing",
-                          "Missingness report",
+                          "download_data_1",
+                          "Data",
                           style = "width:100%; background-color: #204d74; color: white"
+                   
                         )
                       )
                     )
                   )
                 ),
-                column(
-                  id = "download_data_opt",
-                  width = 3,
-                  shinyjs::disabled(
-                    downloadButton(
-                      "download_data_1",
-                      "Data",
-                      style = "width:100%; background-color: #204d74; color: white"
-                    )
-                  )
-                )
+                #Commenting Out MISSINGNESS REPORT until it is fixed (Formatting is bad)
+                # column(
+                #   width = 4,
+                #   shinyjs::disabled(
+                #     downloadButton(
+                #       "download_missing",
+                #       "Missingness report",
+                #       style = "width:100%; background-color: #204d74; color: white"
+                #     )
+                #   )
+                # )
               )
               # shiny::column(3,
               #               shinyWidgets::materialSwitch(
@@ -1562,11 +1581,24 @@ ui <-
         ## Methodology tab -------------------------------------------------------------
         
         tabItem(
-          tabName = "methodology",
+          tabName = "methodology_ug",
           
           box(
             width = 12,
             status = "navy",
+            title = "User Guide",
+            
+            p('Here is a Downloadable User Guide Meant to Demonstrate the Capabilities of the CLIAR Dashboard'),
+            downloadButton("download_user_guide",
+                           "Download CLIAR User Guide",
+                           style = "background-color: #204d74; color: white")
+          
+            
+          ),
+          box(
+            width = 12,
+            status = "navy",
+            collapsed=TRUE,
             title = "Institutional families",
             
             p("The CLIAR Benchmarking uses a set of curated and validated institutional indicators, clustered into 13 institutional clusters:", 
