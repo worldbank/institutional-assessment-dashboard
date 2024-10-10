@@ -863,9 +863,12 @@ server <- function(input, output, session) {
   ## Validate options
   
   output$select_button <-
+   
     renderUI({
-      if (length(input$countries) >= 10 & length(input$country) >=1) {
-        actionButton(
+      #Commented out to handle custom groups
+      #if (length(input$countries) >= 10 & length(input$country) >=1) {
+      if ((length(input$countries) + length(input$groups)) >= 10 & length(input$country) >=1) {  
+      actionButton(
           "select",
           "Apply selection",
           icon = icon("check"),
@@ -886,6 +889,7 @@ server <- function(input, output, session) {
           shinyjs::disable('download_missing'),
           shinyjs::disable("download_data_1"),
           shinyjs::disable("save_inputs")
+
         ) #|>
         #helper(
         #  type = "inline",
@@ -2731,6 +2735,18 @@ server <- function(input, output, session) {
   
   
   #=======================================
+  #Download Word Doc with User Guide:
+  output$download_user_guide <- downloadHandler(
+    filename = 'CLIAR_User_Guide.docx', 
+    content = function(file) {
+      # Construct the path to the user guide
+      existing_file_path <- paste(here(), 'www', 'dashboard_userguide_outline_v5.2.docx', sep = "/")
+      
+      # Copy the existing document to the user's download location
+      file.copy(existing_file_path, file)
+    }
+  )
+
   # Download csv with definitions
   output$download_indicators <-
     downloadHandler(
