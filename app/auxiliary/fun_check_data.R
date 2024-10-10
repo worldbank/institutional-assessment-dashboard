@@ -46,7 +46,23 @@ check_data <-function(data,country,indicator_1, indicator_2=NULL){
       return(TRUE)
   }
 }}
-#==============================
+#============================== Raw Data Check data function (used in time trends plot)
+trends_check_data <- function(start_year, end_year, country, var) {
+
+  # Filter the data down to start and end years and current comparison country
+    comp_data <- raw_data %>%
+    select(country_name, Year, !!sym(var)) %>%  # Select only necessary columns
+    filter(Year >= start_year & Year <= end_year, country_name == country)
+    
+  # Check for nulls in the input variable column
+  any_nulls <- comp_data %>%
+    summarise(has_nulls = any(is.na(!!sym(var)))) %>%
+    pull(has_nulls)
+  
+  return(any_nulls)  # Return TRUE if any nulls are found, FALSE otherwise
+}
+
+#====================
 #This Function checks data for the map section
 
 check_spatial_data <-function(data,indicator){

@@ -889,8 +889,8 @@ server <- function(input, output, session) {
           shinyjs::disable('download_missing'),
           shinyjs::disable("download_data_1"),
           shinyjs::disable("save_inputs")
-        )
-        #|>
+
+        ) #|>
         #helper(
         #  type = "inline",
         #  icon = "circle-question",
@@ -2746,6 +2746,7 @@ server <- function(input, output, session) {
       file.copy(existing_file_path, file)
     }
   )
+
   # Download csv with definitions
   output$download_indicators <-
     downloadHandler(

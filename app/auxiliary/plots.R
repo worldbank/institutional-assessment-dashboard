@@ -37,6 +37,7 @@ static_plot <-
            report = FALSE) {
   
     #browser()
+    
 
     data$var_name <- ifelse(grepl("Average", data$var_name, ignore.case = TRUE), toupper(data$var_name), data$var_name)
     
@@ -83,18 +84,20 @@ static_plot <-
             ordered = TRUE
           )
 
-    }else{
-      
+    }
+    else{
+
       data <- data %>% 
         left_join(., db_variables %>% select(variable, rank_id),
           by = "variable")
       
-      # Family Ordering
-      if(tab_name== "Country overview")
+      # ===================OVERVIEW
+      if(tab_name== "Overview")
       {
         unique_indicators <-family_order%>%
           arrange(family_order) %>% 
           pull(family_name)
+        
       }else{
         unique_indicators <- data %>% 
           distinct(var_name, rank_id) %>% 
@@ -102,29 +105,31 @@ static_plot <-
           pull(var_name)
         
       }
+    
+      #Change old name to new one for factoring
+      #data$var_name[data$var_name == "Public Finance Institutions"] <- "Public Financial Management Institutions"
       
-      
-      #Issue 283 - Remove Institutions keywork in y axis for plots
+      #Issue 283 - Remove Institutions keyword in y axis for plots
       
       data$var_name <- gsub("Institutions", "", data$var_name)
       unique_indicators <- gsub("Institutions","",unique_indicators)
       
       
+
       data$var_name <-
         factor(
           data$var_name,
           levels = unique_indicators,
           ordered = TRUE
-        )
+         )
     }
-
+    
     
     vars <-
       data %>%
       select(var_name) %>%
-      unique %>%
-      unlist %>%
-      unname
+      unique() %>%
+      unlist()
     if (cutoff[[1]]==25){
     colors <-
       c("Weak\n(bottom 25%)" = "#D2222D",
@@ -161,7 +166,7 @@ static_plot <-
           )
         ) %>%
         ungroup()
-
+      
       
     } else {
       data <-
@@ -187,8 +192,9 @@ static_plot <-
     }else{
       aspect_ratio = 1
     }
-    
-    #browser()
+   
+    #====================
+   
     plot <-
       ggplot() +
         geom_segment(
@@ -198,6 +204,7 @@ static_plot <-
             yend = var_name,
             x = 0,
             xend = q_cutoff1
+            
           ),
           color = "#e47a81",
           size = 2,
@@ -247,7 +254,7 @@ static_plot <-
           plot.caption.position =  "plot"
         ) +
         labs(
-          y = tab_name,
+          y = '',
           x = x_lab,
           fill = NULL,
           shape = NULL,
@@ -256,10 +263,13 @@ static_plot <-
       scale_fill_manual(
         values = colors
       )
+    
         
     if(report==FALSE){
       plot <-plot+
-        scale_y_discrete(labels = function(x) str_wrap(x, width = 20))
+
+        scale_y_discrete(labels = function(x) str_wrap(x, width = 40))
+        scale_y_discrete(labels = function(x) str_wrap(x, width = 35))
     }      
         
 
@@ -415,6 +425,8 @@ static_plot <-
       #   )
     }
     if (length(base_country)==1){
+      #Alex 
+      
       plot <-
         plot +
         suppressWarnings(geom_point(
@@ -509,7 +521,6 @@ static_plot_dyn <-
     threshold,
     preset_order = FALSE) {
     
-    #browser()
     
     if (threshold=="Default"){
       cutoff<-c(25,50)
@@ -534,7 +545,6 @@ static_plot_dyn <-
       
     }else{
 
-      ## temporary placeholder
       data$var_name <-
         factor(
           data$var_name,
@@ -606,6 +616,8 @@ static_plot_dyn <-
           )
         )
       
+      
+      
     } else {
       data <-
         data %>%
@@ -657,8 +669,7 @@ static_plot_dyn <-
           )
       ) %>% 
       ungroup()
-    
-    
+     
     
     ## The year var should be character or factor
     data <- data %>% 
@@ -1430,6 +1441,7 @@ trends_plot <- function(raw_data,
           "Value:", get(indicator) %>% round(3)
         )
       ),
+      #Alex change 3 to 1
      size = 3
     ) +
     #scale_alpha_identity() +
