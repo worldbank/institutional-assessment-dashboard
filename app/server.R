@@ -1902,7 +1902,8 @@ server <- function(input, output, session) {
         variable_names,
         custom_df_bar(),
         input$color_base_bar,
-        input$color_comp_bar
+        input$color_comp_bar,
+        input$color_groups_bar
       ) %>%
         interactive_bar(
           input$vars_bar,
@@ -2118,7 +2119,8 @@ server <- function(input, output, session) {
           db_variables,
           custom_df_trend(),
           input$color_base_trends,
-          input$color_comp_trends
+          input$color_comp_trends,
+          input$color_groups_trends
         )
       }
     })
@@ -2210,10 +2212,12 @@ server <- function(input, output, session) {
   })
   #================================ Download Page Outputs
   output$benchmark_datatable <-
+    
     DT::renderDataTable(
       server = FALSE,
       datatable(
         pre_download_data()%>%
+          
           setnames(
             .,
             as.character(db_variables$variable),
@@ -2316,7 +2320,7 @@ server <- function(input, output, session) {
         on.exit(remove_modal_spinner())
         
         write_csv(
-          down_clust_ctf_stat_data,
+          ctf_long,
           file,
           na = ""
         )
@@ -2361,7 +2365,8 @@ server <- function(input, output, session) {
         on.exit(remove_modal_spinner())
         
         write_csv(
-          down_clust_ctf_dyn_data,
+          ctf_long_dyn,
+          #down_clust_ctf_dyn_data,
           file,
           na = ""
         )

@@ -1340,7 +1340,7 @@ interactive_map <-
 trends_plot <- function(raw_data,
                         indicator, indicator_name,
                         base_country, comparison_countries, country_list, groups,
-                        definitions, custom_df = NULL, base_color, comp_color) {
+                        definitions, custom_df = NULL, base_color, comp_color, groups_color) {
 
   
   def <-
@@ -1415,12 +1415,16 @@ trends_plot <- function(raw_data,
       color = case_when(
         country_name == base_country ~ base_color,
         country_name %in% comparison_countries ~ comp_color,
+        #This is how we assign country group color
+        grepl("average", country_name) ~ groups_color,
+         
         TRUE ~ '#000000' # Adding default black color
       ),
       legend_label = country_name
     ) %>%
     rename(Country = country_name) %>% 
     mutate(Year = as.factor(Year))
+
   #==================PLOTTING: TIME TRENDS
   static_plot <-
     ggplot(
@@ -1512,7 +1516,7 @@ trends_plot <- function(raw_data,
 static_bar <-
   function(data,
            base_country, comparison_countries, groups,
-           var, variable_names, custom_df, color_base_bar, color_comp_bar) {
+           var, variable_names, custom_df, color_base_bar, color_comp_bar, color_groups_bar) {
 
     varname <-
       variable_names %>%
@@ -1607,6 +1611,7 @@ static_bar <-
         color = case_when(
           country_name == base_country ~ color_base_bar,
           country_name %in% comparison_countries ~ color_comp_bar,
+          country_name %in% groups ~ color_groups_bar,
           TRUE ~ '#7a7d7b' # Default gray color for median
         ),
         country_name = fct_reorder(country_name, get(varname), min)

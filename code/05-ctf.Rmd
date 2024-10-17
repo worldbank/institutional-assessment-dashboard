@@ -161,7 +161,8 @@ country_average <-
       all_of(c(vars_static_ctf)),
       ~ mean(., na.rm = TRUE)
     ),
-    wdi_nygdppcapppkd = wdi_nygdppcapppkd[year == max(year)]
+    #Try switching with 2023 for max(year)
+    wdi_nygdppcapppkd = wdi_nygdppcapppkd[year == 2023]
   )
 
 country_last_year <-

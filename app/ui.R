@@ -893,7 +893,14 @@ ui <-
                   "color_comp_bar",
                   "Choose a comparison country color:",
                   value = "#080770")
-            )
+            ),
+              column(
+                width = 4,
+                colourInput(
+                  "color_groups_bar",
+                  "Choose a comparison group color:",
+                  value = "#808080")
+              )
           )),
   
 
@@ -1172,7 +1179,13 @@ ui <-
                   "Choose a comparison country color:",
                   value = "#080770"  
                 )
-              )
+              ),
+              column(
+                width = 4,
+                colourInput(
+                  "color_groups_trends",
+                  "Choose a comparison group color:",
+                  value = "#808080"))
             )
           ),
           

@@ -17,7 +17,9 @@ source(
   here("funs.R")
 )
 
-ref_year <- 2024
+#ref_year <- 2024
+#Data final year + 1
+ref_year <- 2025
 ```
 
 ## Import data
@@ -27,9 +29,8 @@ This section first reads in each of the individual manual-input files (Note that
 
 ```{r read in}
 efi <- read_dta(
-  here("data", "input", "efi", "EFI360_CLIAR_1990-2022_032124.dta")
+  here("data", "input", "efi", "Update_EFI360_1990_2024.dta")
 )
-
 
 romelli <- read_dta(
   here("data", "input", "romelli", "CBIData_Romelli2022.dta")
@@ -40,11 +41,13 @@ debt_transparency <- read_dta(
   here("data", "input", "debt_transparency", "debt_transparency_2021-2022.dta")
 )
 
-fraser <- read_csv(
-  here("data", "input", "fraser", "fraser.csv")
-) |>
-  clean_names()
+fraser <- read_xlsx(
+  here("data", "input", "fraser", "2024", "efotw-2023-master-index-data-for-researchers-iso.xlsx")
+) |> 
+  clean_names() |> 
+  slice(-c(1:2)) 
 
+  
 gfdb <- read_dta(
   here("data", "input", "gfdb", "GFDB_19902021.dta")
 )
@@ -67,7 +70,10 @@ spi <- read_csv(
   clean_names() 
 
 aspire <- read_dta(
-  here("data", "input", "aspire", "ASPIRE performance indicators.dta")
+  #Testing new ASPIRE pulled from Pros360 API
+  here("data", "input", "aspire", "API_ASPIRE.dta")
+  #VV Original Dataset
+  #here("data", "input", "aspire", "ASPIRE performance indicators.dta")
 )
 
 rise <- read_dta(
@@ -236,23 +242,45 @@ efi_clean <- efi |>
       # necessary columns, standardizing the country code variable name, casting
       # the year variable to numeric, and changing variable prefixes to be
       # in line with EFI conventions
-fraser_clean <- fraser |>
+
+      # NOTE 2024:
+      # Change variable names https://www.fraserinstitute.org/economic-freedom/approach
+fraser <- fraser |> 
+  slice(-1) |> 
+  setNames(as.character(fraser[1, ])) 
+
+fraser_clean <- fraser |> 
+  clean_names() 
+
+# Define the columns to convert to double type
+double_columns <- c(
+  "year",
+  "x5a_credit_market_regulation",
+  "x3d_foreign_currency_bank_accounts",
+  "x4diii_freedom_of_foreigners_to_visit", 
+  "x4dii_capital_controls",
+  "x2b_impartial_courts",
+  "x2e_legal_integrity",
+  "x2a_judicial_independence",
+  "x2f_contracts"
+)
+
+fraser_clean <- fraser_clean %>% 
   transmute(
     country_code = iso_code_3,
-    year = as.numeric(year),
-    x4diii_freedom_of_foreigners_to_visit,
-    x4dii_capital_controls,
-    x5a_credit_market_regulations,
-    x3d_freedom_to_own_foreign_currency_bank_accounts,
-    x2b_impartial_courts,
-    x2e_integrity_of_the_legal_system,
-    x2a_judicial_independence,
-    x2f_legal_enforcement_of_contracts
-  ) |>
+    across(all_of(double_columns), as.double)
+  ) |> 
   rename_with(
-    # replace prefixes with efi conventions
     ~ str_replace(., "^x[:alnum:]+_", "fraser_efw_")
   )
+
+###
+### After using the new fraser file, 4 indicators would need renaming in db_var
+### at the time of transforming the variables, Batlesman Institute seems to be the official source
+###
+
+
+  
 
 # 3. romelli - central bank independence
 #       The romelli data is cleaned by setting the country code variable name
@@ -348,7 +376,7 @@ aspire_clean <- aspire |>
     ),
     year = as.numeric(Year),
     Indicator_Code,
-    value = val_w
+    value = val
   ) |> 
   filter(
     # exclude non-country codes
@@ -363,6 +391,7 @@ aspire_clean <- aspire |>
     wb_aspire_coverage = per_allsp.cov_pop_tot,
     wb_aspire_adequacy_benefits = per_allsp.adq_pop_tot
   )
+
 
 # 7. rise data
 rise_clean <- rise |> 
@@ -648,28 +677,56 @@ cliar_indicators_clean <- cliar_indicators |>
 
 ```
 
-```{r channel island}
-### Balancing the panel
-# Create a new row with specified values
-new_row <- tibble(
-  country_code = "CHI",
-  country_name = "Channel Islands",
-  year = 2023
-)
+```{r panel balance}
+# ## Balancing the panel
+# # Define the range of years
+# year_range <- 1990:2024
+# 
+# balanced_panel <- cliar_indicators_clean %>%
+#   group_by(country_name) %>%
+#   filter(n_distinct(year) < 35) %>%
+#   complete(year = year_range) %>%
+#   ungroup() %>%
+#     mutate(country_code = countrycode(country_name, "country.name", "iso3c"))
+# 
+# 
+# 
+# cliar_indicators_balanced <- left_join(
+#   cliar_indicators_clean,
+#   balanced_panel,
+#   by = c("year", "country_name")
+#   )
+# 
+# cliar_indicators_clean <- cliar_indicators_balanced
 
-# # Add NA for all other columns
+```
+
+
+
+```{r}
+# Create a new row with specified values
+# new_row <- tibble(
+#   country_code = "CHI",
+#   country_name = "Channel Islands",
+#   year = 2023
+# )
+#Commenting out as this is causing issues
+
+# Add NA for all other columns
 # new_row <- new_row %>%
 #   mutate(
 #   add_column(across(everything(), ~ NA))
 # )
 
-# Add the new row to the existing dataframe
-cliar_indicators_clean <- cliar_indicators_clean %>%
-  bind_rows(new_row)
-
-cliar_indicators_clean %>% 
+# # Add the new row to the existing dataframe
+# cliar_indicators_clean <- cliar_indicators_clean %>%
+#   bind_rows(new_row)
+# 
+cliar_indicators_clean %>%
   filter(is.na(country_code))
+
 ```
+
 
 ## Data Quality Control: verify country_code and country_name consistency
 
@@ -707,6 +764,10 @@ test_that(
     )
   }
 )
+
+distinct_years_per_country <- cliar_indicators_clean %>%
+  group_by(country_name) %>%
+  summarize(distinct_years = n_distinct(year))
 
 # c. verify that all countries have complete year coverage
 test_that(
