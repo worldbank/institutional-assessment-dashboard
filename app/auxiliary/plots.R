@@ -1436,7 +1436,7 @@ trends_plot <- function(raw_data,
         group = Country,
         alpha = alpha)
     ) +
-    geom_line(aes(color = Country)) +
+    geom_line(aes(y = na.approx(get(indicator)),color = Country)) +
     geom_point(
       aes(
         text = paste(
