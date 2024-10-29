@@ -628,7 +628,7 @@ vars_family_static_ctf |>
   ) +
   geom_col() +
   geom_label(
-    aes(label = round(pct_miss))
+    aes(label = round(pct_miss(variable)))
   ) +
   facet_wrap(
     vars(family_var),
@@ -660,7 +660,7 @@ vars_family_dynamic_ctf |>
   ) +
   geom_col() +
   geom_label(
-    aes(label = round(pct_miss))
+    aes(label = round(pct_miss(variable)))
   ) +
   facet_wrap(
     vars(family_var),
