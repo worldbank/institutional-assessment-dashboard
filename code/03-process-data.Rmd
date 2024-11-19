@@ -826,9 +826,11 @@ test_that(
 
 ## Compute coverage diagnostics
 
+### a. Internal coverage
+
 Use the compute_coverage function from funs.R to create the coverage countries and years it is present for. With that information, percentage coverage, year range, percent of complete records, as well as standard distribution information such as mean and standard deviation are calculated.
 
-```{r coverage_diagnostics}
+```{r internal coverage_diagnostics}
 cliar_indicators_diagnostic <- cliar_indicators_clean |>
   select(-country_name) |> 
   compute_coverage(country_code, year, ref_year - 5) |> 
@@ -848,6 +850,58 @@ cliar_indicators_diagnostic <- cliar_indicators_clean |>
     Indicator
   )
 ```
+
+
+
+### b. External coverage
+
+Building on the 'compute_coverage' function, this subsection makes an assessment on the  available at a country-level information to create a table that overvieews at range, latest year, missing years (vector), missing years share (%) and a logic benchmarked column.
+
+```{r external coverage_diagnostics}
+# Pivot long
+cliar_indicators_long_diagnosis <- cliar_indicators_clean %>%
+  pivot_longer(
+    cols = -c(country_code, country_name, year),  # Exclude these columns
+    names_to = "indicators", 
+    values_to = "indicator_value"  
+  )
+
+cliar_global_coverage <- cliar_indicators_long_diagnosis |>
+  compute_global_coverage(country_name, indicators, year, indicator_value)
+
+### [MAKE THIS MORE EFICIENT, IFELSE TAKES FOREVER!]
+cliar_global_coverage_renamed <- cliar_global_coverage |>
+  # Extract available_share from a list-column and convert it to numeric if it's a percentage
+  mutate(available_share = as.character(available_share)) |>  # Ensure it's a character vector
+  mutate(available_share = ifelse(available_share != "Not available", 
+                                  as.double(sub("%", "", available_share)) / 100, 
+                                  NA_real_)) |> ### DID NOT WORK
+  left_join(
+    db_variables |> select(variable, var_name, source, family_name),
+    by = c("indicators" = "variable")
+  ) |>
+  select(
+    `Indicator Code` = indicators,
+    `Indicator Name` = var_name,
+    `Institutional Family` = family_name,
+    everything(),
+    `Data Source` = source
+  ) |>
+  
+  arrange(
+    `Institutional Family`,
+    `Indicator Code`
+  )
+
+  
+
+
+```
+
+
+
+
+
 
 ## Incorporate country income and region
 
