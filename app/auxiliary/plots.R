@@ -1786,7 +1786,17 @@ static_scatter <-
                  "y: ", {{yvar}} , "<br>", "<br>"
                )
       )
-    
+  
+  
+  sc_data<-data %>%
+    select(country_code, country_name, income_group, region, country_group, x, y)
+  
+  sc_data<- sc_data %>%
+    rename(
+      !!x_scatter := x,  # Rename 'x' to the value in x_scatter
+      !!y_scatter := y   # Rename 'y' to the value in y_scatter
+    )
+  
   #PLOTTING THE SCATTER PLOT
   sc_plot <-  ggplot(
       data,
@@ -1867,7 +1877,7 @@ static_scatter <-
   }else
     sc_plot <- sc_plot
    
-  return(sc_plot) 
+  return(list(sc_plot = sc_plot, sc_data = sc_data))
   }
 
 interactive_scatter <-

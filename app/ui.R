@@ -1013,7 +1013,17 @@ ui <-
                   value = FALSE,
                   status = "success"
                 )
-              )
+              ),
+              column(
+                width = 6),
+              column(
+                width = 2.4,
+                shinyjs::hidden(downloadButton(
+                  "download_bivariate_data",
+                  "Download Chart Data",
+                  style = "width:100%; background-color: #204d74; color: white"
+                ))
+              ),
             )
           ),
           
