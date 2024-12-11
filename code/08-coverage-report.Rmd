@@ -1,0 +1,402 @@
+---
+title: "CLIAR dashboard Coverage Report (2000-2024) - DRAFT"
+date: December 4, 2005
+output:
+  html_document:
+    theme: united
+    toc: yes
+    toc_float:
+      collapsed: false
+---
+
+-   Input: `data/output/coverage_report_full_for_analysis.rds`
+
+-   Output: `data/output/coverage_report.Rmd`
+
+```{r set-up, include = FALSE}
+# This script generates the consolidated report on coverage by country and CLIAR indicator. It imports, processes and visualizes the data coverage and more importantly, explores at a family level the areas of improvement to tackle data deserts - data poverty.
+
+# Load in the funs.R file 
+source(
+  here("funs_coverage.R")
+)
+
+### Theme: https://bookdown.org/yihui/rmarkdown/pdf-document.html
+
+library(ggrepel)
+library(forcats)
+library(RColorBrewer)
+
+
+theme_set(
+  theme_minimal() +
+  theme(
+    # text = element_text(family = "Segoe UI Semibold"),
+    axis.text.x = element_text(size = 9, angle = 45, hjust = .5),
+    axis.text.y = element_text(size = 12),
+    plot.title = element_text(size = 20, face = "bold"),
+    plot.subtitle = element_text(size = 14),
+    plot.background = element_blank(),
+    plot.caption = element_text(hjust = 0, size = 10),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(), 
+    legend.position = "none")
+  )
+
+# Set global confition for labels. Source: https://ggrepel.slowkow.com/articles/examples.html
+options(ggrepel.max.overlaps = Inf)
+
+```
+
+## Import data
+
+```{r read in, include = FALSE}
+# The data imported here has been processed in the 03-process-data.Rmd script
+coverage_long_panel <- read_rds(
+  here("data", "output","coverage_report_full_for_analysis.rds" )
+)
+
+coverage_long_panel <- read_rds(
+  here("data", "output","coverage_ctf_for_analysis.rds" )
+)
+```
+
+## Motivation
+
+Context: CLIAR dashboard, Sources feed framework, best administrative data available in the world not a balanced panel and opportunities for improvement
+
+Sample size detaills: countries and indicator level, time frame
+
+Objective:Data poverty overview at a country level
+
+## I. Density Av Coverage
+
+### a. Region
+
+```{r,  fig.height= 8, fig.width=12}
+# Apply group_average function and specifying
+# the following arguments: data, group, subgroup, quantity
+coverage_regional <- coverage_long_panel |>
+  select(region_short, country_code, available_share) |>
+   group_average(region_short, country_code, available_share)
+
+coverage_regional %>%
+  ggplot(aes(x = group_av, fill = region_short)) +
+  geom_density(alpha = 0.5) + 
+  geom_vline(xintercept = 50, linetype = "solid", linewidth = 1, color = "grey") + 
+  geom_vline(xintercept = 25, linetype = "dotted", linewidth = 1, color = "grey") +
+  geom_vline(xintercept = 75, linetype = "dotted", linewidth = 1, color = "grey") +
+  geom_boxplot(aes(x = group_av, y = 0), 
+               color = "grey3", 
+               fill = "white", 
+               width = 0.1, 
+               alpha = 0.2, 
+               position = position_dodge(width = 0.5)) +  
+  geom_jitter(aes(x = group_av, y = 0), 
+              color = "grey3", 
+              width = 0.1, 
+              height = 0,  
+              alpha = 0.5) +  
+  ggtitle("How Does Data Coverage Vary Across Regions?",
+    subtitle = "Average Country-Level Coverage to CLIAR Indicators") +
+  labs(x = "Average Coverage (%)", y = "Density", fill = "Family Name") +
+  facet_grid(~region_short) +
+  scale_fill_brewer(palette = "Paired") +
+  coord_cartesian(ylim = c(0, 1)) +
+  coord_flip() +
+  scale_x_continuous(breaks = c(0, 25, 50, 75, 100))
+
+```
+
+### b. Income
+
+```{r, fig.height= 8, fig.width=12}
+coverage_income <- coverage_long_panel |>
+  select(income_group, region_short, country_code, available_share) |>
+  group_facet_average(income_group, region_short, country_code, available_share) |>
+  filter(!is.na(income_group))
+
+coverage_income %>%
+  ggplot(aes(x = group_av, fill = income_group)) +
+  geom_density(alpha = 0.75) + 
+  geom_vline(xintercept = 50, linetype = "solid", linewidth = 1, color = "grey") + 
+  geom_vline(xintercept = 25, linetype = "dotted", linewidth = 1, color = "grey") +
+  geom_vline(xintercept = 75, linetype = "dotted", linewidth = 1, color = "grey") +
+    geom_boxplot(aes(x = group_av, y = 0), 
+               color = "grey3", 
+               fill = "white", 
+               width = 0.1, 
+               alpha = 0.2, 
+               position = position_dodge(width = 0.5)) +  
+  geom_jitter(aes(x = group_av, y = 0), 
+              color = "grey3", 
+              width = 0.1, 
+              height = 0,  
+              alpha = 0.5) +  
+  ggtitle("How Does Data Coverage Vary Across Income Groups?",
+    subtitle = "Average Country-Level Coverage to CLIAR Indicators") +
+  labs(x = "Average Coverage (%)", y = "Density", fill = "Income Group") +
+  facet_grid(~income_group) + 
+  scale_fill_brewer(palette = "Paired") +
+  coord_cartesian(ylim = c(0, 1)) +
+  scale_color_brewer(palette = "Spectral") +
+  coord_flip() +
+  scale_x_continuous(breaks = c(0, 25, 50, 75, 100)) 
+
+```
+
+### c. Family
+
+```{r,  fig.height= 8, fig.width=12}
+coverage_family <- coverage_long_panel |>
+  select(family_name, region_short, country_code, available_share) |>
+  group_facet_average(family_name, region_short, country_code, available_share) |>
+  filter(!is.na(family_name))
+
+coverage_family %>%
+  ggplot(aes(x = group_av, fill = family_name)) +
+  geom_density(alpha = 0.75) +
+  geom_vline(xintercept = 50, linetype = "solid", linewidth = 1, color = "grey") + 
+  geom_vline(xintercept = 25, linetype = "dotted", linewidth = 1, color = "grey") +
+  geom_vline(xintercept = 75, linetype = "dotted", linewidth = 1, color = "grey") +
+    geom_boxplot(aes(x = group_av, y = 0), 
+               color = "grey3", 
+               fill = "white", 
+               width = 0.1, 
+               alpha = 0.2, 
+               position = position_dodge(width = 0.5)) +  
+  geom_jitter(aes(x = group_av, y = 0), 
+              color = "grey3", 
+              width = 0.1, 
+              height = 0,  
+              alpha = 0.5) +  
+  ggtitle("How Does Data Coverage Vary Across Clusters?",
+    subtitle = "Average Country-Level Coverage to CLIAR Indicators") +
+  labs(x = "Average Coverage (%)", y = "Density", fill = "Family Name") +
+  facet_wrap(~family_name, nrow = 2) + 
+  scale_fill_brewer(palette = "Paired") +
+  coord_cartesian(ylim = c(0, 1)) +
+  scale_x_continuous(breaks = c(0, 25, 50, 75, 100)) +
+  coord_flip()  
+
+
+```
+
+## II. Country: Av Coverage
+
+### a. Region
+
+Which is the country data coverage within the regions?
+
+```{r, fig.height= 8, fig.width= 12}
+coverage_regional %>% 
+  group_by(country_code) %>% 
+  ggplot(aes(x = region_short,
+            y = group_av,
+            color = region_short)) +
+   geom_hline(yintercept = 50,
+              linetype = "solid", 
+              linewidth = 1.5,
+              color = "grey") +
+   geom_segment(aes(x = region_short,
+                    xend = region_short,
+                    y = group_min,
+                    yend = group_max),
+                    linetype = "solid",
+                    linewidth = 5) +
+   geom_label_repel(aes(label = country_code, y = group_av), 
+                    size = 3, 
+                    box.padding = 0.25, 
+                    segment.color = "grey", 
+                    nudge_y = 0.1, 
+                    direction = "both", 
+                    hjust = 0.5) +  
+   ggtitle("How Does Data Coverage Vary within the Regions?",
+    subtitle = "Average Country-Level Coverage to CLIAR Indicators") +
+   labs(
+     x = "Region",
+     y = "Average Values",
+     shape = "Values",
+     color = "Region",
+     hjust = 0
+   ) +
+   coord_cartesian(ylim = c(0, 100)) +
+   scale_color_brewer(palette = "Paired")
+```
+
+MENA has great coverage at an indicator level. What happens is we digg into income level and families
+
+```{r}
+### NEXT STEPS REGION
+# Questions to answer:
+# Number of countries per decile?
+### mutate to bins and count by category
+```
+
+### b. Income
+
+Are there data deserts at a income level?
+
+```{r, fig.height= 8, fig.width= 12}
+# Income group
+coverage_income %>% 
+  ggplot(aes(x = income_group,
+             y = group_av,
+             color = income_group)) +
+  geom_hline(yintercept = 50,
+              linetype = "solid", 
+              linewidth = 1.5,
+              color = "grey") +
+  geom_segment(aes(x = income_group,
+                   xend = income_group,
+                   y = group_min,
+                   yend = group_max),
+                   linetype = "solid",
+                   linewidth = 5) +
+   geom_label_repel(aes(label = country_code, y = group_av), 
+                    size = 3, 
+                    box.padding = 0.25, # Padding around the label
+                    segment.color = "grey", # Color of the connecting line
+                    nudge_y = 0.1, 
+                    direction = "both", 
+                    hjust = 0.5) +  
+  ggtitle("How Does Data Coverage Vary within Income Groups?",
+    subtitle = "Average Country-Level Coverage to CLIAR Indicators"
+  ) +
+  labs(
+    x = "Region",
+    y = "Average Values",
+    shape = "Values",
+    color = "Region",
+    hjust = 0
+  ) +
+  coord_cartesian(ylim = c(0, 100)) +
+  scale_color_brewer(palette = "Dark2")
+
+
+
+```
+
+Here is the same group, bus colored by region
+
+```{r, fig.height= 8, fig.width= 12}
+coverage_income %>% 
+  ggplot(aes(x = income_group,
+             y = group_av,
+             color = region_short)) +
+  geom_hline(yintercept = 50,
+              linetype = "solid", 
+              linewidth = 1.5,
+              color = "grey") +
+  geom_segment(aes(x = income_group,
+                   xend = income_group,
+                   y = group_min,
+                   yend = group_max),
+                   linetype = "solid",
+                   linewidth = 5) +
+   geom_label_repel(aes(label = country_code, y = group_av), 
+                    size = 3, 
+                    box.padding = 0.25, # Padding around the label
+                    segment.color = "grey", # Color of the connecting line
+                    nudge_y = 0.1, 
+                    direction = "both", 
+                    hjust = 0.5) +  
+    ggtitle("How Does Data Coverage Vary within Income Groups from a Regional perspective?",
+    subtitle = "Average Country-Level Coverage to CLIAR Indicators"
+  ) +
+  labs(
+    x = "Region",
+    y = "Average Values",
+    shape = "Values",
+    color = "Region",
+    hjust = 0
+  ) +
+  coord_cartesian(ylim = c(0, 100)) +
+  scale_color_brewer(palette = "Paired")
+ 
+
+
+```
+
+### c. Family
+
+```{r eval=FALSE, fig.height=18, fig.width=, include=FALSE}
+# Families
+coverage_family %>% 
+  group_by(family_name) %>% 
+  ggplot(aes(x = family_name,
+             y = group_av,
+             color = family_name)) +
+  geom_hline(yintercept = 50,
+              linetype = "solid", 
+              linewidth = 1.5,
+              color = "grey") +
+  geom_segment(aes(x = family_name,
+                   xend = family_name,
+                   y = group_min,
+                   yend = group_max),
+                   linetype = "solid",
+                   linewidth = 5) +
+  geom_text_repel(aes(label = country_code),
+                  size = 2.5, hjust = 2, nudge_y = 0.25, 
+                  box.padding = 0.25, point.padding = 0.1) +
+  
+  ggtitle("Data Coverage: Regional Averages by Family",
+    subtitle = "Min to Max Average Coverage"
+  ) +
+  labs(
+    x = "Region",
+    y = "Average Values",
+    shape = "Values",
+    color = "Region",
+    hjust = 0
+  ) +
+  facet_wrap(~family_name) +
+  coord_cartesian(ylim = c(0, 100)) 
+
+```
+
+## III. Indicator coverage: Cluster specific
+
+-Work in progress- 
+
+How extensive is the country coverage by indicator for the CTF calculations?
+
+Steps:
+
+a)  BINS CLASSIFICATION: 0-25-50-75-100 --- semaforo colorcode
+b)  Build function: filter country - viz by indicator - family facet
+
+Corr? region x income
+
+```{r}
+### Bins
+indicators_bins <- coverage_long_panel %>%
+  mutate(
+    ctf_years = case_when(
+      between(available_share, 0, 20) ~ "1",
+      between(available_share, 21, 40) ~ "2",
+      between(available_share, 41, 60) ~ "3",
+      between(available_share, 61, 80) ~ "4",
+      between(available_share, 81, 100) ~ "5",
+      TRUE ~ "Other"
+    )
+  ) %>%
+  glimpse()
+
+#Look g=for duplicated values
+  
+```
+
+```{r}
+### Visual
+indicators_bins %>% tabyl(family_name, ctf_years)
+#
+
+```
+
+```{r}
+### Function
+
+```

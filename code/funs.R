@@ -180,21 +180,22 @@ coverage_share_global <- function(value, time_id) {
   # Get the non-NA time_ids corresponding to non-NA values
   available_years <- unique(time_id[!is.na(value)])
 
-  # If there are no available years, return "Not available"
+  # If there are no available years, return NA
   if (length(available_years) == 0) {
-    return(tibble(available_share = "Not available"))
+    return(NA_real_)  # Return NA instead of "Not available"
   }
 
   # Calculate the share: number of available years / total years
   total_years <- length(unique(time_id))  # Correct way to count total number of years
-  available_years_count <- length(available_years)  # number of available years
+  available_years_count <- length(available_years)  # Number of available years
 
   # Calculate the share as a percentage
   share <- (available_years_count / total_years) * 100
 
-  # Return the share with percentage sign
-  return(tibble(available_share = paste0(round(share, 2), "%")))
+  # Return the share as a numeric vector (as percentage with rounding)
+  return(round(share, 2))  # Return as a numeric value, not a tibble
 }
+
 
 
 x <- c(0, NA, 2, 4)
@@ -319,3 +320,6 @@ compute_family_variance <- function(cliar_data, vars, type = "static", db_variab
 
   return(cliar_family_level)
 }
+
+
+

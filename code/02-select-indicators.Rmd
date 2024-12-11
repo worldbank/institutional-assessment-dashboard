@@ -21,8 +21,11 @@ db_variables <-
   ) |> 
   clean_names() |> 
   mutate(
-    variable = make_clean_names(variable)
-  )
+    variable = make_clean_names(variable),
+    var_name = str_to_sentence(var_name, locale = "en") # To Sentence
+  ) 
+
+
 ```
 
 

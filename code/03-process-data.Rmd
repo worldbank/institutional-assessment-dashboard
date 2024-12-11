@@ -121,7 +121,7 @@ wb_country_list <- read_xlsx(
     "CLASS.xlsx"
     ),
     sheet = "Groups"
-  ) %>%
+  ) |>
   transmute(
     country_code = CountryCode,
     country_name = CountryName,
@@ -144,7 +144,7 @@ country_income_and_region <- read_xlsx(
       ),
       sheet = "List of economies",
       n_max = 219
-    ) %>%
+    ) |>
     transmute(
       country_code = Code,
       region = Region,
@@ -255,15 +255,15 @@ grade_pefa <- c("D" = 1,
                 "A" = 4)
 
 # Transforming the PEFA data
-pefa_transformed <- pefa %>%
+pefa_transformed <- pefa |>
   mutate(across(starts_with("pi_"), 
                  ~ ifelse(. %in% names(grade_pefa), 
                            grade_pefa[.], 
-                           NA_real_))) %>% 
+                           NA_real_))) |> 
   rename_with(~ gsub("^pi_", "pi_2016_", .), starts_with("pi_"))
 
-pefa_clean <- pefa_transformed %>%
-  rename_with(~ paste0("wb_pefa_", .), .cols = starts_with("pi_")) %>%
+pefa_clean <- pefa_transformed |>
+  rename_with(~ paste0("wb_pefa_", .), .cols = starts_with("pi_")) |>
   select(-framework, -uhlg_01, -uhlg_01_1, -uhlg_01_2, -uhlg_01_3)
 
 # Handling country codes, including Kosovo
@@ -855,52 +855,192 @@ cliar_indicators_diagnostic <- cliar_indicators_clean |>
 
 ### b. External coverage
 
-Building on the 'compute_coverage' function, this subsection makes an assessment on the  available at a country-level information to create a table that overvieews at range, latest year, missing years (vector), missing years share (%) and a logic benchmarked column.
+Building on the 'compute_coverage' function, this subsection makes an assessment on the  available at a country-level information to create a table that overviews at range, latest year, missing years (vector) and missing years share (%) 
 
 ```{r external coverage_diagnostics}
 # Pivot long
 cliar_indicators_long_diagnosis <- cliar_indicators_clean %>%
-  pivot_longer(
-    cols = -c(country_code, country_name, year),  # Exclude these columns
-    names_to = "indicators", 
-    values_to = "indicator_value"  
-  )
+    filter(year >= 2000) |>
+    pivot_longer(
+      cols = -c(country_code, country_name, year),  # Exclude these columns
+      names_to = "indicators", 
+      values_to = "indicator_value"  
+    )
 
+# Apply coverage calculation from funs.R 
 cliar_global_coverage <- cliar_indicators_long_diagnosis |>
   compute_global_coverage(country_name, indicators, year, indicator_value)
 
-### [MAKE THIS MORE EFICIENT, IFELSE TAKES FOREVER!]
+# Renaming and joining to db_variables classification 
 cliar_global_coverage_renamed <- cliar_global_coverage |>
-  # Extract available_share from a list-column and convert it to numeric if it's a percentage
-  mutate(available_share = as.character(available_share)) |>  # Ensure it's a character vector
-  mutate(available_share = ifelse(available_share != "Not available", 
-                                  as.double(sub("%", "", available_share)) / 100, 
-                                  NA_real_)) |> ### DID NOT WORK
-  left_join(
-    db_variables |> select(variable, var_name, source, family_name),
+  mutate(
+    available_share = case_when(
+      !is.na(available_share) ~ as.numeric(str_remove(available_share, "%")),
+      TRUE ~ NA_real_) 
+    )|>
+  left_join( # Join with db_variables
+    db_variables |> select(variable, var_name, source, family_name, benchmarked_ctf),
     by = c("indicators" = "variable")
   ) |>
-  select(
-    `Indicator Code` = indicators,
-    `Indicator Name` = var_name,
-    `Institutional Family` = family_name,
+  select( # Select and reorder columns
     everything(),
-    `Data Source` = source
+    indicators,
+    var_name,
+    family_name,
+    source,
+    benchmarked_ctf
   ) |>
-  
   arrange(
-    `Institutional Family`,
-    `Indicator Code`
+    family_name,
+    indicators
   )
+                                     
 
-  
+# Cleaning for naming conventions
+cliar_global_coverage_country <- cliar_global_coverage_renamed |>
+  mutate(
+    country_code = case_when(
+      country_name == "Channel Islands" ~ "GGY", 
+      country_name == "Kosovo" ~ "XKX", 
+      TRUE ~ countrycode(country_name, "country.name", "iso3c") 
+    )
+  ) %>% 
+  filter(!is.na(available_share))
+
+# Region naming for analysis
+cliar_global_coverage_complete <- cliar_global_coverage_country |>
+  left_join(
+    country_income_and_region,
+    by = c("country_code")
+  ) %>% 
+  mutate(
+      region = if_else(region == "North America", "Latin America & Caribbean", region)
+             ) %>%
+          filter(
+           !is.na(region)
+              ) %>% 
+          mutate(
+              region_short = recode(region,
+                                 "Europe & Central Asia" = "ECA",
+                                 "East Asia & Pacific" = "EAP",
+                                 "Latin America & Caribbean" = "LAC",
+                                 "Middle East & North Africa" = "MENA",
+                                 "South Asia" = "SAR",
+                                 "Sub-Saharan Africa" = "SSA")
+                  )
 
 
 ```
 
 
+```{r eval=FALSE, include=FALSE}
+### CTF coverage
+ctf_long_diagnosis <- cliar_indicators_clean %>%
+                    filter(between(year,2019,2023)) |> 
+                     pivot_longer(
+                        cols = -c(country_code, country_name, year),  # Exclude these columns
+                        names_to = "indicators", 
+                        values_to = "indicator_value"  
+                      )
+
+ctf_global_coverage <- ctf_long_diagnosis |>
+  compute_global_coverage(country_name, indicators, year, indicator_value)
+
+# Renaming and joining to db_variables classification 
+ctf_renamed <- ctf_global_coverage |>
+  mutate(
+    available_share = case_when(
+      !is.na(available_share) ~ as.numeric(str_remove(available_share, "%")),
+      TRUE ~ NA_real_) 
+    )|>
+  left_join( # Join with db_variables
+    db_variables |> select(variable, var_name, source, family_name, benchmarked_ctf),
+    by = c("indicators" = "variable")
+  ) |>
+  select( # Select and reorder columns
+    everything(),
+    indicators,
+    var_name,
+    family_name,
+    source,
+    benchmarked_ctf
+  ) |>
+  arrange(
+    family_name,
+    indicators
+  )
+                                     
+
+# Cleaning for naming conventions
+ctf_coverage_country <- ctf_renamed |>
+  mutate(
+    country_code = case_when(
+      country_name == "Channel Islands" ~ "GGY", 
+      country_name == "Kosovo" ~ "XKX", 
+      TRUE ~ countrycode(country_name, "country.name", "iso3c") 
+    )
+  ) %>% 
+  filter(!is.na(available_share))
+
+# Region naming for analysis
+ctf_coverage_country_complete <- ctf_coverage_country |>
+  filter(benchmarked_ctf == "Yes")
+  left_join(
+    country_income_and_region,
+    by = c("country_code")
+  ) %>% 
+  mutate(
+      region = if_else(region == "North America", "Latin America & Caribbean", region)
+             ) %>%
+          filter(
+           !is.na(region)
+              ) %>% 
+          mutate(
+              region_short = recode(region,
+                                 "Europe & Central Asia" = "ECA",
+                                 "East Asia & Pacific" = "EAP",
+                                 "Latin America & Caribbean" = "LAC",
+                                 "Middle East & North Africa" = "MENA",
+                                 "South Asia" = "SAR",
+                                 "Sub-Saharan Africa" = "SSA")
+                  )
+
+write_rds(
+  ctf_coverage_country_complete,
+  here(
+    "data",
+    "output",
+    "coverage_ctf_for_analysis.rds"
+  )
+)
+
+```
+
+```{r}
+#Write the input for the functions and the complete output
+
+write_rds(
+  cliar_indicators_long_diagnosis,
+  here(
+    "data",
+    "output",
+    "coverage_report_input.rds"
+  )
+)
+
+write_rds(
+  cliar_global_coverage_complete,
+  here(
+    "data",
+    "output",
+    "coverage_report_full_for_analysis.rds"
+  )
+)
 
 
+
+
+```
 
 
 ## Incorporate country income and region
@@ -938,4 +1078,6 @@ cliar_indicators_diagnostic |>
         "diagnostics_compiled_indicators.rds"
       )
     )
+
+
 ```
