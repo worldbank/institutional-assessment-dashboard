@@ -1311,7 +1311,7 @@ interactive_map <-
                    ),
                    
                    str_wrap(
-                     "<b>Note:</b> The color illustrates the latest value of the indicator available for each country.The data presented here for CTF is obtained by taking the average of the indicator for the period 2018-2022 and for original indicator, it is latest datapoint available.",
+                     "<b>Note:</b> The color illustrates the latest value of the indicator available for each country.The data presented here for CTF is obtained by taking the average of the indicator for the period 2019-2023 and for original indicator, it is latest datapoint available.",
                      note_chars
                    ),
                    sep = "<br>"
@@ -1786,7 +1786,17 @@ static_scatter <-
                  "y: ", {{yvar}} , "<br>", "<br>"
                )
       )
-    
+  
+  
+  sc_data<-data %>%
+    select(country_code, country_name, income_group, region, country_group, x, y)
+  
+  sc_data<- sc_data %>%
+    rename(
+      !!x_scatter := x,  # Rename 'x' to the value in x_scatter
+      !!y_scatter := y   # Rename 'y' to the value in y_scatter
+    )
+  
   #PLOTTING THE SCATTER PLOT
   sc_plot <-  ggplot(
       data,
@@ -1867,7 +1877,7 @@ static_scatter <-
   }else
     sc_plot <- sc_plot
    
-  return(sc_plot) 
+  return(list(sc_plot = sc_plot, sc_data = sc_data))
   }
 
 interactive_scatter <-

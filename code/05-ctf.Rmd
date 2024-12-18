@@ -145,13 +145,13 @@ cliar_indicators_rescaled <- cliar_indicators |>
 
 ## Calculate country-level average for each indicator
 
-For the static benchmark, we only calculate averages for indicators starting in the year 2018.
+For the static benchmark, we only calculate averages for indicators starting in the year 2019.
 
 ```{r}
 country_average <-
   #filter only data from years we are using
   cliar_indicators_rescaled %>%
-  filter(year >= 2018) |> 
+  filter(between(year,2019,2023)) |> 
   #this groups countries together so average can be taken 
   group_by(
     country_code
@@ -168,7 +168,7 @@ country_average <-
 country_last_year <-
   #filter only data from years we are using
   cliar_indicators_rescaled %>%
-  filter(year >= 2018) |> 
+  filter(between(year,2019,2023)) |>  
   arrange(country_code, year) |> 
   #this groups countries together so average can be taken 
   group_by(
@@ -196,7 +196,7 @@ values in each category.
 # static
 min_max <-
   cliar_indicators_rescaled %>%
-  filter(year >= 2018) |>
+  filter(between(year,2019,2023)) |> 
   summarise(
     across(
       all_of(vars_static_ctf),
@@ -216,7 +216,7 @@ min_max <-
 # dynamic: note that there are quite a few cases of Infinite warnings (due to missingness)
 min_max_dynamic <- cliar_indicators_rescaled %>%
   filter(
-    between(year, 2014, 2022)
+    between(year, 2014, 2023)
   ) |> 
   summarise(
     across(
@@ -628,7 +628,7 @@ vars_family_static_ctf |>
   ) +
   geom_col() +
   geom_label(
-    aes(label = round(pct_miss))
+    aes(label = round(pct_miss(variable)))
   ) +
   facet_wrap(
     vars(family_var),
@@ -660,7 +660,7 @@ vars_family_dynamic_ctf |>
   ) +
   geom_col() +
   geom_label(
-    aes(label = round(pct_miss))
+    aes(label = round(pct_miss(variable)))
   ) +
   facet_wrap(
     vars(family_var),

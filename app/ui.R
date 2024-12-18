@@ -1013,7 +1013,17 @@ ui <-
                   value = FALSE,
                   status = "success"
                 )
-              )
+              ),
+              column(
+                width = 6),
+              column(
+                width = 2.4,
+                shinyjs::hidden(downloadButton(
+                  "download_bivariate_data",
+                  "Download Chart Data",
+                  style = "width:100%; background-color: #204d74; color: white"
+                ))
+              ),
             )
           ),
           
@@ -1208,7 +1218,7 @@ ui <-
           )
         ),
         
-        ## Map  tab ------------------------------------------------------------
+        ##  World Map  tab ------------------------------------------------------------
         
         
         tabItem(
@@ -1657,7 +1667,7 @@ ui <-
             collapsed = TRUE,
             title = "Closeness to frontier",
             
-            p('The dashboard uses a “Closeness to Frontier"(CTF) methodology. The CTF methodology allows to assess country’s performance across institutional indicators by comparing it with the “global frontier”, where the global frontier is the world’s best performer. For each indicator, a country’s performance is rescaled on a 0-1 scale using the linear transformation (worst–y)/(worst–frontier), where 1 represents the best performer and 0 the worst performer. The higher the score, the closer a country is to the best performer and the lower the score, the closer a country is to the worst performer, and more distant to the frontier. The best and worst performers are identified using available data from the global sample (i.e., considering all countries for which data is available), and using the relevant time period according to the benchmarking approach –i.e., whether it estimates the static (default) CTF benchmarking scores or dynamic CTF scores. In the static case, the average of the 2018-2022 period is used.'),
+            p('The dashboard uses a “Closeness to Frontier"(CTF) methodology. The CTF methodology allows to assess country’s performance across institutional indicators by comparing it with the “global frontier”, where the global frontier is the world’s best performer. For each indicator, a country’s performance is rescaled on a 0-1 scale using the linear transformation (worst–y)/(worst–frontier), where 1 represents the best performer and 0 the worst performer. The higher the score, the closer a country is to the best performer and the lower the score, the closer a country is to the worst performer, and more distant to the frontier. The best and worst performers are identified using available data from the global sample (i.e., considering all countries for which data is available), and using the relevant time period according to the benchmarking approach –i.e., whether it estimates the static (default) CTF benchmarking scores or dynamic CTF scores. In the static case, the average of the 2019-2023 period is used.'),
             p('For each institutional family, the CTF scores obtained for each indicator are aggregated through simple averaging into one CTF score at family level. This captures the overall performance for an institutional family relatively to the “global frontier”, while the performance across the indicators will help identify the most challenging areas for institutional strengthening.')
             
           ),

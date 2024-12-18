@@ -1991,7 +1991,7 @@ server <- function(input, output, session) {
         input$linear_fit,
         input$color_base_scatter,
         input$color_comp_scatter
-      ) %>%
+      )$sc_plot %>%
         interactive_scatter(
           input$y_scatter,
           input$x_scatter,
@@ -2418,6 +2418,62 @@ server <- function(input, output, session) {
       }
     )
   
+  # Downloadable csv of Bivariate dataset
+  
+  observe({
+    # Check the condition
+    
+    inputs_not_blank <- input$country_scatter != "" &&
+      input$y_scatter != "" &&
+      input$x_scatter != ""
+    
+    # Check the condition using check_data and input completeness
+    condition <- inputs_not_blank &&
+                  check_data(global_data, input$country_scatter, input$y_scatter, input$x_scatter) == FALSE
+    
+    # Show or hide the button based on the condition
+    if (condition) {
+      shinyjs::show("download_bivariate_data")
+    } else {
+      shinyjs::hide("download_bivariate_data")
+    }
+  })
+  
+  
+  output$download_bivariate_data <-
+    downloadHandler(
+      filename = function() {
+        paste0("CLIAR Bivariate Analysis-",input$country_scatter," - data.csv")
+      },
+      content = function(file) {
+        
+        show_modal_spinner(
+          color = "#17a2b8",
+          text = "Loading Data",
+        )
+        
+        on.exit(remove_modal_spinner())
+        
+        write_csv(
+          static_scatter(
+            global_data,
+            input$country_scatter,
+            input$countries_scatter,
+            high_group(),
+            input$y_scatter,
+            input$x_scatter,
+            variable_names,
+            country_list,
+            input$linear_fit,
+            input$color_base_scatter,
+            input$color_comp_scatter
+          )$sc_data,
+          file,
+          na = "")
+      }
+    )
+  
+  
   
   
   # Report ================================================================================
@@ -2835,6 +2891,13 @@ server <- function(input, output, session) {
       saveRDS(cliar_inputs(), file)
     })
   
+  
+  observeEvent(input$family, {
+    if (input$family == "SOE Corporate Governance" || input$family == "Labor and Social Protection Institutions"  )
+      shinyjs::hide("download_data_1")
+    else
+      shinyjs::show("download_data_1")
+  })
   
   observeEvent(input$family, {
     if (input$family == "SOE Corporate Governance" || input$family == "Labor and Social Protection Institutions"  )
