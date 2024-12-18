@@ -659,7 +659,7 @@ ui <-
                   fluidRow(
                     id = "download_reports",
                     column(
-                      width = 4,
+                      width = 3,
                       shinyjs::disabled(
                         downloadButton(
                           "report",
@@ -667,34 +667,20 @@ ui <-
                           style = "width:100%; background-color: #204d74; color: white"
                         )
                       ),
-                      shiny::fluidRow(
-                        column(
-                          width = 12,
-                          helper(
-                            shiny_tag = tags$b("Advanced Report Download"),
-                            type = "inline",
-                            icon = "circle-question",
-                            title = "Pre-populated reports and data",
-                            content = c(
-                              "The Advanced Report includes all available dynamic graphs for the selected base country. 
-                              These plots take a lot of time to produce, so please wait about 10 minutes for the advanced report to download"
-                            ),
-                            buttonLabel = "Close",
-                            fade = T,
-                            size = "s"
-                          ),
-                          prettyCheckbox(
-                            inputId = "download_Opt",
-                            label = "Advanced Report (~10min)",
-                            value = FALSE,
-                            icon = icon("check"),
-                            status = "success"
-                          )
+             
+                    ),
+                    column(
+                      width = 3,
+                      shinyjs::disabled(
+                        downloadButton(
+                          "advreport",
+                          "Advanced Report",
+                          style = "width:100%; background-color: #204d74; color: white"
                         )
                       )
                     ),
                     column(
-                      width = 4,
+                      width = 3,
                       shinyjs::disabled(
                         downloadButton(
                           "pptreport",

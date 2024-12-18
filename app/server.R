@@ -281,6 +281,11 @@ server <- function(input, output, session) {
         shinyjs::disable("report")
       )
       toggleState(
+        id = "advreport",
+        condition = input$select,
+        shinyjs::disable("advreport")
+      )
+      toggleState(
         id = "pptreport",
         condition = input$select,
         shinyjs::disable("pptreport")
@@ -929,6 +934,7 @@ server <- function(input, output, session) {
           status = "warning",
           width = "100%",
           shinyjs::disable("report"),
+          shinyjs::disable("advreport"),
           shinyjs::disable("pptreport"),
           shinyjs::disable('download_missing'),
           shinyjs::disable("download_data_1"),
@@ -956,6 +962,11 @@ server <- function(input, output, session) {
         id = "select",
         condition = length(input$countries) >= 10,
         shinyjs::disable("report"),
+      )
+      toggleState(
+        id = "select",
+        condition = length(input$countries) >= 10,
+        shinyjs::disable("advreport"),
       )
       toggleState(
         id = "select",
@@ -2565,7 +2576,7 @@ server <- function(input, output, session) {
           family_order = family_order,
           global_data = global_data,
           family_order = family_order,
-          download_opt = input$download_Opt,
+          download_opt = FALSE,
           compiled_indicators = raw_data,
           db_variables = db_variables
         )
@@ -2580,7 +2591,66 @@ server <- function(input, output, session) {
       )
     }
   )
-  
+
+  #Advanced Report  
+  output$advreport <- downloadHandler(
+    filename =
+      reactive(
+        paste0(
+          "CLIAR-benchmarking-Advanced-Report-",
+          base_country(),
+          ".docx"
+        )
+      ),
+    content = function(file) {
+      show_modal_spinner(
+        color = "#17a2b8",
+        text = "Compiling report",
+      )
+      
+      on.exit(remove_modal_spinner())
+      
+      tmp_dir <- tempdir()
+      
+      tempReport <- file.path(tmp_dir, "report.Rmd")
+      
+      file.copy("www/", tmp_dir, recursive = TRUE)
+      file.copy("report.Rmd", tempReport, overwrite = TRUE)
+      
+      params <-
+        list(
+          base_country = base_country(),
+          comparison_countries = input$countries,
+          data = data_avg(),
+          wb_country_list = country_list,
+          family_data = data_family(),
+          data_dyn = data_dyn(),
+          data_dyn_avg = data_dyn_avg(),
+          family_data_dyn = data_family_dyn(),
+          rank = input$rank,
+          definitions = definitions,
+          variable_names = variable_names,
+          dots = input$benchmark_dots,
+          group_median = input$benchmark_median,
+          threshold = input$threshold,
+          family_order = family_order,
+          global_data = global_data,
+          family_order = family_order,
+          download_opt = TRUE,
+          compiled_indicators = raw_data,
+          db_variables = db_variables
+        )
+      
+      
+      rmarkdown::render(
+        tempReport,
+        output_file = file,
+        params = params,
+        envir = new.env(parent = globalenv()),
+        knit_root_dir = getwd()
+      )
+    }
+  )
   
   # Missingness Report ================================================================================
   
