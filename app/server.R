@@ -1,5 +1,49 @@
 # Server ################################################################################
 
+# -----------------------------------------------------------------------------
+# CLIAR Benchmarking Dashboard - Server Logic Script (server.R)
+# -----------------------------------------------------------------------------
+# Overview:
+# This script defines the server-side logic for the CLIAR Benchmarking Dashboard, 
+# handling all the computational tasks, data processing, and dynamic interactions 
+# required to drive the user interface (UI). It works in tandem with the ui.R script 
+# to create a fully functional Shiny application.
+
+# Purpose:
+# The server script serves as the backend engine of the dashboard, providing:
+# - Data processing and transformations necessary for visualization and analysis.
+# - Responsive updates to user inputs in the UI.
+# - Integration of external datasets, statistical calculations, and plots.
+
+# Functionality:
+# The `server.R` script is organized into multiple reactive components, which 
+# dynamically respond to user interactions. It supports the following key features:
+
+# 1. **Country Benchmarking**:
+#    - Retrieves and processes closeness-to-frontier scores for selected countries.
+#    - Generates comparative benchmarking visualizations.
+
+# 2. **Cross-Country Comparison**:
+#    - Allows comparisons of selected indicators between countries.
+#    - Dynamically updates tables and plots based on user-defined inputs.
+
+# 3. **Bivariate Correlation**:
+#    - Computes and visualizes correlations between institutional indicators.
+#    - Provides scatter plots and correlation matrices.
+
+# 4. **World Map**:
+#    - Visualizes global patterns in closeness-to-frontier scores using geospatial data.
+#    - Adjusts dynamically to the selected indicator.
+
+# 5. **Time Trends**:
+#    - Processes historical data for selected indicators.
+#    - Generates time-series plots to observe trends.
+
+# 6. **Data Table**:
+#    - Displays an interactive data table with options for filtering, sorting, 
+#      and downloading data in various formats (e.g., CSV, Excel).
+
+
 server <- function(input, output, session) {
   # Handle inputs ======================================================================
   

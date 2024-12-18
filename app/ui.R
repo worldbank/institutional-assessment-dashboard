@@ -1,5 +1,56 @@
 # UI ###########################################################################
 
+# -----------------------------------------------------------------------------
+# CLIAR Benchmarking Dashboard - User Interface Script (ui.R)
+# -----------------------------------------------------------------------------
+# Overview:
+# This script defines the User Interface (UI) for the CLIAR Benchmarking Dashboard, 
+# a comprehensive tool developed to facilitate the analysis and visualization 
+# of country-level institutional indicators. The dashboard serves as a resource 
+# for policymakers, researchers, and stakeholders interested in benchmarking 
+# institutional performance globally.
+
+# Purpose:
+# The CLIAR Benchmarking Dashboard provides a standardized methodology to:
+# - Summarize information from diverse country-level institutional indicators.
+# - Facilitate country-level institutional comparisons.
+# - Offer dynamic data visualization and interactive analysis tools.
+
+# Functionality:
+# The dashboard consists of multiple tabs designed to provide users with various 
+# tools for interacting with CLIAR data, including:
+# 1. **Country Benchmarking**: Compare a country's closeness to frontier scores 
+#    against a group of comparator countries.
+# 2. **Cross-Country Comparison**: Perform direct indicator-level comparisons 
+#    across countries.
+# 3. **Bivariate Correlation**: Visualize correlations between indicators.
+# 4. **World Map**: Explore global patterns in closeness to frontier scores.
+# 5. **Time Trends**: Analyze year-on-year changes in indicators.
+# 6. **Data**: Access and download the dataset.
+# 7. **Methodology & User Guide**: Understand the methods, metadata, and FAQs.
+# 8. **Terms of Use and Disclaimers**: Review the legal and citation information.
+# 9. **FAQ**: Address commonly asked questions about CLIAR.
+# 10. **Contact Us**: Connect with the CLIAR team for inquiries.
+# 11. **Source Code**: Access the open-source GitHub repository.
+
+# Key Features:
+# - Dynamic visualizations to simplify institutional indicator analysis.
+# - Downloadable data in multiple formats.
+# - Comprehensive metadata and user guide for clarity on methodologies.
+# - Integrated disclaimers and citation guidelines for transparency.
+
+# Disclaimer:
+# The findings, interpretations, and conclusions expressed in CLIAR are those of 
+# World Bank staff and do not necessarily represent the views of the World Bank, 
+# its affiliated organizations, or its member governments.
+
+# Usage:
+# To launch the dashboard, ensure all dependencies are installed and execute 
+# the server script along with this UI script in an R environment or deploy it 
+# on a Shiny Server.
+
+
+
 js <- "
 var mytips = ['0-25, 25-50, >50', '0-33, 33-66, >66'];
 $('#threshold').on('shown.bs.select', function() {

@@ -1,6 +1,22 @@
 # Source: https://stackoverflow.com/questions/69289623/avoid-legend-duplication-in-plotly-conversion-from-ggplot-with-facet-wrap
 # 
 # 
+# -----------------------------------------------------------------------------
+# Function: clean_plotly_legend
+# -----------------------------------------------------------------------------
+# Purpose:
+# Simplifies and cleans the legend of a Plotly object, particularly useful for 
+# handling duplicated legends in facetted ggplots converted to Plotly.
+
+# Parameters:
+# - .pltly_obj: The Plotly object to be cleaned.
+# - .new_legend: (Optional) A vector of new legend group names to replace existing ones.
+
+# Functionality:
+# - Cleans legend group names, removes duplicates, and updates legend visibility.
+# - Ensures legends are grouped logically and hidden where unnecessary.
+
+
 clean_plotly_legend <- function(.pltly_obj, .new_legend = c()) {
   # Cleans up a plotly object legend, particularly when ggplot is facetted
   

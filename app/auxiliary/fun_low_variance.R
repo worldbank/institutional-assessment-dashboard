@@ -1,4 +1,27 @@
-# FUNCTION THAT DEFINES THE QUANTILES BASED ON SELECTED COUNTRY AND COMPARISON GROUP -----------------------
+
+# Functions: low_variance and low_variance_dyn
+# ---------------------------------------------------------
+# These functions are designed to calculate quantiles for a selected base country
+# and a comparison group of countries. The quantiles are calculated for a set of 
+# variables, and the functions categorize the variables into "Weak", "Emerging", 
+# or "Strong" based on their percentile rank. Missing data is handled dynamically 
+# to ensure that only relevant variables are considered in the quantile calculation.
+# 
+# Parameters:
+# - data: A dataset containing country-specific data for analysis.
+# - base_country: The country of interest for which quantiles are calculated.
+# - country_list: A dataset with country details, used to filter comparison countries.
+# - comparison_countries: A vector of country names to compare against the base country.
+# - vars: A vector of variable names to evaluate.
+# - variable_names: A dataframe mapping variable codes to human-readable names for better interpretability.
+# 
+# Outputs:
+# - low_variance: Returns a list of variables from the base country that have 
+#                 identical 25th and 75th percentiles, indicating low variance.
+# - low_variance_dyn: Similar to low_variance but handles missing variables 
+#                     dynamically and ensures variables with complete data are selected.
+# ---------------------------------------------------------
+
 
 low_variance <- function(data, base_country, country_list, comparison_countries, vars, variable_names) {
 

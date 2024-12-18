@@ -1,3 +1,13 @@
+
+# Function: def_quantiles
+#
+# This function calculates quantiles for a given set of variables, filters the dataset
+# to include relevant countries and variables, and categorizes the variables based on
+# percentile ranks. The function also handles missing data by identifying and excluding
+# variables with missing values for the base country. It computes the quantile thresholds 
+# based on the specified `threshold` (Default or Terciles) and then classifies the values
+# as 'Weak', 'Emerging', or 'Strong' based on their percentile ranks.
+
 def_quantiles <- function(data, base_country, country_list, comparison_countries, vars, variable_names,threshold) {
   
 # List all relevant countries
@@ -102,6 +112,15 @@ if (threshold=="Default"){
     filter(!(variable %in% low_variance_indicators))
 
 }
+
+# Function: def_quantiles_dyn
+#
+# This function calculates quantiles with dynamic adjustments for missing data.
+# It handles missing variables by identifying those with 100% missing data for
+# the base country and excluding them from the analysis. Similar to `def_quantiles`, 
+# it computes the quantile thresholds based on the specified `threshold` (Default or Terciles).
+# The function also filters the dataset to include only relevant variables and categorizes 
+# the values as 'Weak', 'Emerging', or 'Strong' based on their percentile ranks.
 
 
 def_quantiles_dyn <- function(data, base_country, country_list, comparison_countries, vars, variable_names,threshold) {
