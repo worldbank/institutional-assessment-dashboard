@@ -274,6 +274,16 @@ pefa_country <- pefa_clean %>%
   )) %>% 
   filter(country != "Bosnia and Herzegovina - District Brčko")
 
+# ### Write-out this dataframe for PIGO analysis
+# write_rds(
+#   pefa_country,
+#   here(
+#     "data",
+#     "output",
+#     "pefa_clean_for_analysis.rds"
+#   )
+# )
+
 
 # Identify columns that contain "pefa" and are in efi_clean
 efi_pefa_subset <- efi_clean  %>% 
@@ -462,6 +472,13 @@ rise_clean <- rise |>
   clean_names()
 
 # 8. wdi data
+# Step 1: Extract variable names and labels
+var_labels <- sapply(wdi, function(x) attr(x, "label"))  # Extract labels from the attributes
+var_names <- names(var_labels)  # Get the variable names
+
+
+
+
 wdi_clean <- wdi |>
   rename(
     country_name = countryname,
@@ -1005,16 +1022,103 @@ ctf_coverage_country_complete <- ctf_coverage_country |>
                                  "Sub-Saharan Africa" = "SSA")
                   )
 
-write_rds(
-  ctf_coverage_country_complete,
-  here(
-    "data",
-    "output",
-    "coverage_ctf_for_analysis.rds"
-  )
-)
+# write_rds(
+#   ctf_coverage_country_complete,
+#   here(
+#     "data",
+#     "output",
+#     "coverage_ctf_for_analysis.rds"
+#   )
+# )
+
+
+
+
+
+
 
 ```
+
+### c. CTF by year 
+```{r}
+### CTF coverage
+ctf_year_long_diagnosis <- cliar_indicators_clean %>%
+                    filter(between(year,2019,2023)) |> 
+                     pivot_longer(
+                        cols = -c(country_code, country_name, year),  
+                        names_to = "indicators", 
+                        values_to = "indicator_value"  
+                      ) |>
+                  left_join( # Join with db_variables
+                    db_variables |> 
+                      select(variable,
+                             var_name,
+                             source,
+                             family_name,
+                             benchmarked_ctf),
+                            by = c("indicators" = "variable")
+                  ) |>
+                  select( # Select and reorder columns
+                    everything(),
+                    indicators,
+                    var_name,
+                    family_name,
+                    source,
+                    benchmarked_ctf
+                  ) |>
+                  arrange(
+                    family_name,
+                    indicators
+                  )
+                                     
+
+# Cleaning for naming conventions
+ctf_year_rename <- ctf_year_long_diagnosis |>
+  mutate(
+    country_code = case_when(
+      country_name == "Channel Islands" ~ "GGY", 
+      country_name == "Kosovo" ~ "XKX", 
+      TRUE ~ countrycode(country_name, "country.name", "iso3c") 
+    )
+  ) 
+
+# Region naming for analysis
+ctf_year_coverage_complete <- ctf_year_rename |>
+  left_join(
+    country_income_and_region,
+    by = c("country_code")
+  ) %>% 
+  mutate(
+      region = if_else(region == "North America", "Latin America & Caribbean", region)
+             ) %>%
+          filter(
+           !is.na(region)
+              ) %>% 
+          mutate(
+              region_short = recode(region,
+                                 "Europe & Central Asia" = "ECA",
+                                 "East Asia & Pacific" = "EAP",
+                                 "Latin America & Caribbean" = "LAC",
+                                 "Middle East & North Africa" = "MENA",
+                                 "South Asia" = "SAR",
+                                 "Sub-Saharan Africa" = "SSA")
+                  )
+
+# write_rds(
+#   ctf_year_coverage_complete,
+#   here(
+#     "data",
+#     "output",
+#     "year_coverage_ctf_for_analysis.rds"
+#   )
+# )
+
+```
+
+
+
+
+
 
 ```{r}
 #Write the input for the functions and the complete output

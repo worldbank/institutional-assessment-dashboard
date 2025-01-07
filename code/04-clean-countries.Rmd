@@ -12,7 +12,7 @@
 ## Inputs
 
 ```{r}
-  indicators <-
+  indicators <-                                                                                                                                                               
     read_rds(
       here(
         "data",

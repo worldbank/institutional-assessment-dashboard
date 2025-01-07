@@ -1,19 +1,10 @@
----
-title: "CLIAR dashboard Coverage Report (2000-2024) - DRAFT"
-date: December 4, 2005
-output:
-  html_document:
-    theme: united
-    toc: yes
-    toc_float:
-      collapsed: false
----
+# [Draft] CLIAR dashboard CTF Coverage Report (2019-2023)
 
 -   Input: `data/output/coverage_report_full_for_analysis.rds`
 
 -   Output: `data/output/coverage_report.Rmd`
 
-```{r set-up, include = FALSE}
+```{r, include = FALSE}
 # This script generates the consolidated report on coverage by country and CLIAR indicator. It imports, processes and visualizes the data coverage and more importantly, explores at a family level the areas of improvement to tackle data deserts - data poverty.
 
 # Load in the funs.R file 
@@ -27,11 +18,14 @@ library(ggrepel)
 library(forcats)
 library(RColorBrewer)
 
+wrap_facet_titles <- function(x, width) {
+  str_wrap(x, width = width)
+}
+
 
 theme_set(
   theme_minimal() +
   theme(
-    # text = element_text(family = "Segoe UI Semibold"),
     axis.text.x = element_text(size = 9, angle = 45, hjust = .5),
     axis.text.y = element_text(size = 12),
     plot.title = element_text(size = 20, face = "bold"),
@@ -51,28 +45,39 @@ options(ggrepel.max.overlaps = Inf)
 
 ## Import data
 
-```{r read in, include = FALSE}
+```{r, include = FALSE}
 # The data imported here has been processed in the 03-process-data.Rmd script
-coverage_long_panel <- read_rds(
-  here("data", "output","coverage_report_full_for_analysis.rds" )
-)
+# coverage_long_panel <- read_rds(
+#   here("data", "output","coverage_report_full_for_analysis.rds" )
+# )
 
 coverage_long_panel <- read_rds(
   here("data", "output","coverage_ctf_for_analysis.rds" )
 )
+
+ctf_static_long <- read_rds(
+  here("data", "output","closeness_to_frontier_long.rds" )
+)
+
+
+ctf_dynamic <- read_rds(
+  here("data", "output","year_coverage_ctf_for_analysis.rds" )
+)
+
+
 ```
 
 ## Motivation
 
 Context: CLIAR dashboard, Sources feed framework, best administrative data available in the world not a balanced panel and opportunities for improvement
 
-Sample size detaills: countries and indicator level, time frame
+Sample size details: countries and indicator level, time frame
 
-Objective:Data poverty overview at a country level
+Objective: Data poverty overview at a country level
 
-## I. Density Av Coverage
+## I. Avg Data Coverage Map
 
-### a. Region
+### a. Regional distribution
 
 ```{r,  fig.height= 8, fig.width=12}
 # Apply group_average function and specifying
@@ -81,7 +86,7 @@ coverage_regional <- coverage_long_panel |>
   select(region_short, country_code, available_share) |>
    group_average(region_short, country_code, available_share)
 
-coverage_regional %>%
+coverage_regional |>
   ggplot(aes(x = group_av, fill = region_short)) +
   geom_density(alpha = 0.5) + 
   geom_vline(xintercept = 50, linetype = "solid", linewidth = 1, color = "grey") + 
@@ -109,7 +114,7 @@ coverage_regional %>%
 
 ```
 
-### b. Income
+### b. Income distribution
 
 ```{r, fig.height= 8, fig.width=12}
 coverage_income <- coverage_long_panel |>
@@ -117,7 +122,7 @@ coverage_income <- coverage_long_panel |>
   group_facet_average(income_group, region_short, country_code, available_share) |>
   filter(!is.na(income_group))
 
-coverage_income %>%
+coverage_income |>
   ggplot(aes(x = group_av, fill = income_group)) +
   geom_density(alpha = 0.75) + 
   geom_vline(xintercept = 50, linetype = "solid", linewidth = 1, color = "grey") + 
@@ -146,16 +151,17 @@ coverage_income %>%
 
 ```
 
-### c. Family
+### c. Cluster distribution
 
 ```{r,  fig.height= 8, fig.width=12}
 coverage_family <- coverage_long_panel |>
   select(family_name, region_short, country_code, available_share) |>
   group_facet_average(family_name, region_short, country_code, available_share) |>
-  filter(!is.na(family_name))
+  filter(!is.na(family_name)) |>
+  filter(family_name != "(other indicators)")
 
-coverage_family %>%
-  ggplot(aes(x = group_av, fill = family_name)) +
+coverage_family |>
+  ggplot(aes(x = group_av, fill =family_name)) +
   geom_density(alpha = 0.75) +
   geom_vline(xintercept = 50, linetype = "solid", linewidth = 1, color = "grey") + 
   geom_vline(xintercept = 25, linetype = "dotted", linewidth = 1, color = "grey") +
@@ -174,7 +180,9 @@ coverage_family %>%
   ggtitle("How Does Data Coverage Vary Across Clusters?",
     subtitle = "Average Country-Level Coverage to CLIAR Indicators") +
   labs(x = "Average Coverage (%)", y = "Density", fill = "Family Name") +
-  facet_wrap(~family_name, nrow = 2) + 
+  facet_wrap(
+    vars(wrap_facet_titles(family_name, width = 30))) +
+  # facet_wrap(~family_name, nrow = 2) + 
   scale_fill_brewer(palette = "Paired") +
   coord_cartesian(ylim = c(0, 1)) +
   scale_x_continuous(breaks = c(0, 25, 50, 75, 100)) +
@@ -183,15 +191,15 @@ coverage_family %>%
 
 ```
 
-## II. Country: Av Coverage
+## II. Country Coverage
 
 ### a. Region
 
 Which is the country data coverage within the regions?
 
 ```{r, fig.height= 8, fig.width= 12}
-coverage_regional %>% 
-  group_by(country_code) %>% 
+coverage_regional |> 
+  group_by(country_code) |> 
   ggplot(aes(x = region_short,
             y = group_av,
             color = region_short)) +
@@ -240,7 +248,7 @@ Are there data deserts at a income level?
 
 ```{r, fig.height= 8, fig.width= 12}
 # Income group
-coverage_income %>% 
+coverage_income |> 
   ggplot(aes(x = income_group,
              y = group_av,
              color = income_group)) +
@@ -278,10 +286,8 @@ coverage_income %>%
 
 ```
 
-Here is the same group, bus colored by region
-
 ```{r, fig.height= 8, fig.width= 12}
-coverage_income %>% 
+coverage_income |> 
   ggplot(aes(x = income_group,
              y = group_av,
              color = region_short)) +
@@ -319,84 +325,407 @@ coverage_income %>%
 
 ```
 
-### c. Family
-
-```{r eval=FALSE, fig.height=18, fig.width=, include=FALSE}
-# Families
-coverage_family %>% 
-  group_by(family_name) %>% 
-  ggplot(aes(x = family_name,
-             y = group_av,
-             color = family_name)) +
-  geom_hline(yintercept = 50,
-              linetype = "solid", 
-              linewidth = 1.5,
-              color = "grey") +
-  geom_segment(aes(x = family_name,
-                   xend = family_name,
-                   y = group_min,
-                   yend = group_max),
-                   linetype = "solid",
-                   linewidth = 5) +
-  geom_text_repel(aes(label = country_code),
-                  size = 2.5, hjust = 2, nudge_y = 0.25, 
-                  box.padding = 0.25, point.padding = 0.1) +
-  
-  ggtitle("Data Coverage: Regional Averages by Family",
-    subtitle = "Min to Max Average Coverage"
-  ) +
-  labs(
-    x = "Region",
-    y = "Average Values",
-    shape = "Values",
-    color = "Region",
-    hjust = 0
-  ) +
-  facet_wrap(~family_name) +
-  coord_cartesian(ylim = c(0, 100)) 
-
-```
-
-## III. Indicator coverage: Cluster specific
-
--Work in progress- 
+## III. Cluster coverage
 
 How extensive is the country coverage by indicator for the CTF calculations?
 
-Steps:
-
-a)  BINS CLASSIFICATION: 0-25-50-75-100 --- semaforo colorcode
-b)  Build function: filter country - viz by indicator - family facet
-
-Corr? region x income
+Specifically: what indicators exist for a given country
 
 ```{r}
 ### Bins
-indicators_bins <- coverage_long_panel %>%
+indicators_bins <- coverage_long_panel |>
   mutate(
     ctf_years = case_when(
-      between(available_share, 0, 20) ~ "1",
-      between(available_share, 21, 40) ~ "2",
-      between(available_share, 41, 60) ~ "3",
-      between(available_share, 61, 80) ~ "4",
-      between(available_share, 81, 100) ~ "5",
-      TRUE ~ "Other"
+      between(available_share, 0, 20) ~ "1 year",
+      between(available_share, 21, 40) ~ "2 years",
+      between(available_share, 41, 60) ~ "3 years",
+      between(available_share, 61, 80) ~ "4 years",
+      between(available_share, 81, 100) ~ "5 years",
+      TRUE ~ "Data not available"
     )
-  ) %>%
-  glimpse()
+  ) |>
+  filter(family_name != "(other indicators)")
 
-#Look g=for duplicated values
+
   
 ```
 
 ```{r}
-### Visual
-indicators_bins %>% tabyl(family_name, ctf_years)
-#
+# Duplicated values test: level of observations country-indicator
+indicators_bins |>
+  add_count(country_name, indicators) |>
+  filter(n > 1) |>
+  print() # Empty, no duplicates
 
 ```
 
+### a. Total Count and Share
+
+```{r, fig.height= 8, fig.width= 12}
+theme_set(
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(size = 12, hjust = .5),
+    axis.text.y = element_text(size = 12),
+    plot.title = element_text(size = 20, face = "bold"),
+    plot.subtitle = element_text(size = 14),
+    plot.background = element_blank(),
+    plot.caption = element_text(hjust = 0, size = 10),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(), 
+    legend.position = "top")
+  )
+
+# Count number of indicators per family for each country 
+cluster_shares <- indicators_bins |>
+  group_by(family_name, ctf_years) |>
+  summarise(
+    total_country = n(),
+    .groups = "drop"  
+  ) |>
+  group_by(family_name) |>
+  mutate(country_share = total_country / sum(total_country)) |>
+  ungroup()
+
+cluster_shares %>%
+ ggplot(aes(x = reorder(family_name, total_country), y = total_country, fill = as.factor(ctf_years))) +
+  geom_col(position = position_stack(reverse = TRUE)) +  
+  labs(
+    title = "Indicator Availability by Cluster",
+    subtitle = "Analyzing the Total Count of Indicators Within Each Cluster",
+    x = "Cluster",
+    y = "Total indicator count",
+    fill = "CTF Years"
+  ) +
+  scale_fill_brewer(palette = "OrRd", guide = "legend") + 
+  coord_flip()  
+
+```
+
+```{r, fig.height= 8, fig.width= 12}
+cluster_shares |>
+ggplot(aes(x = reorder(family_name, country_share), y = country_share*100, fill = as.factor(ctf_years))) +
+  geom_col(position = position_stack(reverse = TRUE)) +  
+  labs(
+    title = "Indicator Availability Proportion (%) by Cluster",
+    subtitle = "Analyzing the Total Share (%) of Indicators Within Each Cluster",
+    x = "Cluster",
+    y = "Total indicator share (%)",
+    fill = "CTF Years"
+  ) +
+  scale_fill_brewer(palette = "OrRd", guide = "legend") +  
+  coord_flip()  # Flip coordinates for easier viewing of the family names
+```
+
+###b. Regional Count
+```{r, fig.height= 8, fig.width= 12}
+regional_cluster_shares <- indicators_bins |>
+  group_by(region_short, family_name, ctf_years) |>
+  summarise(
+    total_country = n(),
+    .groups = "drop"  
+  ) |>
+  group_by(region_short,family_name) |>
+  mutate(country_share = total_country / sum(total_country)) |>
+  ungroup()
+
+regional_cluster_shares %>%
+ ggplot(aes(x = reorder(family_name, total_country), y = total_country, fill = as.factor(ctf_years))) +
+  geom_col(position = position_stack(reverse = TRUE)) +  
+  labs(
+    title = "Regional Indicator Availability by Cluster",
+    subtitle = "Analyzing the Total Count of Indicators Within Each Cluster by Region",
+    x = "Cluster",
+    y = "Total indicator count",
+    fill = "CTF Years"
+  ) +
+  facet_grid(~region_short) +
+   theme(
+    axis.text.x = element_text(size = 9, angle = 45, hjust = .5)) +
+  scale_fill_brewer(palette = "OrRd", guide = "legend") + 
+  coord_flip()  
+
+```
+
+
+##IV. CFT Indicators
+
+###a. Share
 ```{r}
-### Function
+# Clean and normalize the availability column, handling NA values
+availability_ctf_long <- ctf_static_long %>%
+  mutate(
+    availability = ifelse(is.na(value), "missing",
+                   ifelse(value >= 0, "available", availability))
+  )
+
+duplicates_ctf <- availability_ctf_long %>%
+  group_by(family_name, var_name, country_name) %>%
+  tally() %>%
+  filter(n > 1) 
+```
+
+
+```{r, fig.height= 10, fig.width= 12}
+country_syria_table <- availability_ctf_long %>%
+  filter(country_name == "Syrian Arab Republic") %>%  
+  group_by(family_name) %>%
+  summarise(
+    available_count = sum(availability == "available", na.rm = TRUE),
+    missing_count = sum(availability == "missing", na.rm = TRUE),
+    total_country_indicators = n(),
+    .groups = "drop"
+  ) 
+
+# Create a table using gt for better formatting
+# Load necessary libraries
+library(knitr)
+library(gt)
+
+# Adding the share columns to the table
+country_syria_table %>%
+  mutate(
+    available_share = available_count / total_country_indicators * 100,
+    missing_share = missing_count / total_country_indicators * 100
+  ) %>%
+  gt() %>%
+  tab_header(
+    title = "Data Coverage by Cluster",
+    subtitle = "Syrian Arab Republic"
+  ) %>%
+  cols_label(
+    family_name = "Family Name",
+    available_count = "Full Access",
+    missing_count = "No Access",
+    total_country_indicators = "Total Indicators",
+    available_share = "Full Access Share (%)",
+    missing_share = "No Access Share (%)"
+  ) %>%
+  tab_spanner(
+    label = "Indicators Availabilable",
+    columns = c("available_count", "missing_count")
+  ) %>%
+  fmt_number(
+    columns = c("available_count", "missing_count", "total_country_indicators"),
+    decimals = 0
+  ) %>%
+  fmt_number(
+    columns = c("available_share", "missing_share"),
+    decimals = 1
+  ) %>%
+  tab_style(
+    style = list(
+      cell_borders(sides = "bottom", color = "gray", weight = 1)
+    ),
+    locations = cells_body()
+  ) %>%
+  tab_options(
+    table.width = pct(80),
+    column_labels.border.top.width = px(2),
+    column_labels.border.bottom.width = px(2)
+  )
+
+
+
 
 ```
+
+
+```{r, fig.height= 8, fig.width= 12}
+# Calculate Proportions for Available and Missing
+country_syria_table <- country_syria_table %>%
+  mutate(
+    available_share = available_count / total_country_indicators,
+    missing_share = missing_count / total_country_indicators
+  )
+
+# Create a long format directly for ggplot 
+country_syria_table_long <- country_syria_table %>%
+  select(family_name, available_share, missing_share) %>%
+  pivot_longer(cols = c(available_share, missing_share), 
+               names_to = "availability_status", 
+               values_to = "share") %>%
+  mutate(
+    availability_status = recode(availability_status, 
+                                "available_share" = "Full Access", 
+                                "missing_share" = "No Access")
+  )
+
+# Plot share
+country_syria_table_long %>%
+  arrange(desc(share)) %>%
+  ggplot(aes(x = reorder(family_name, share),
+             y = share * 100,
+             fill = availability_status)) + 
+  geom_col(position = position_stack(reverse = TRUE)) +  
+  labs(
+    title = "Syria: Indicator Availability Proportion (%) by Cluster",
+    subtitle = "Share of Available vs Missing Indicators for Each Cluster",
+    x = "Family Name",
+    y = "Cluster Share (%)",
+    fill = "Availability Status"
+  ) +
+  scale_fill_manual(values = c("Full Access" = "#58d68d", "No Access" = "#cd6155")) + 
+  coord_flip()
+
+
+
+
+
+```
+
+
+### b. Heatmaps 
+```{r, fig.height= 8, fig.width= 10}
+# Clean Dataframe 
+ctf_dynamic_clean <- ctf_dynamic %>%
+                    filter(family_name != "(other indicators)") %>% 
+                    filter(!is.na(family_name))
+
+# Create a Function
+generate_availability_heatmap <- function(data, country_name_input, family_name_input) {
+  
+  data %>%
+    filter(country_name == country_name_input) %>%  # Filter by country
+    filter(family_name == family_name_input) %>%    # Filter by family_name
+    filter(benchmarked_ctf == "Yes") %>% 
+    mutate(
+      availability_status = ifelse(is.na(indicator_value), "No Access", "Full Access")
+    ) %>%
+    ggplot(aes(x = year, y = var_name, fill = availability_status)) +
+    geom_tile(color = "white") +  
+    labs(
+      title = paste(country_name_input, ": Indicator Availability\nCluster: ", family_name_input),
+      subtitle = "Availability of Indicators Over Time (2019-2023)",
+      x = "Year",
+      y = "Cluster Benchmarked Indicators",
+      fill = "Availability Status",
+      caption = "Note: Indicator availability across clusters may differ based on how often the data source is updated. 
+For a deeper understanding, please consult Table <#> to gain more insight into the update cycles."
+    ) +
+    scale_fill_manual(
+      values = c("Full Access" = "#58d68d", "No Access" = "#cd6155"),  
+      breaks = c("Full Access", "No Access"),
+      labels = c("Full Access", "No Access")
+    )
+}
+
+
+```
+
+
+
+```{r, fig.height= 8, fig.width= 10}
+
+# Prepare Country to perform analysis
+# Example: Create plots for the country "Syrian Arab Republic" and all unique family names
+unique_family_names <- unique(ctf_dynamic_clean$family_name)
+
+# Loop through each unique family_name and apply the generate_availability_heatmap formula
+for(family_name in unique_family_names) {
+  print(generate_availability_heatmap(ctf_dynamic_clean,"Syrian Arab Republic", family_name))
+}
+
+```
+
+
+[End of code]
+
+
+```{r eval=FALSE, include=FALSE}
+# Load Required Libraries
+library(shiny)
+library(ggplot2)
+library(dplyr)
+
+# Clean data 
+ctf_dynamic_clean <- ctf_dynamic %>%
+  filter(family_name != "(other indicators)", !is.na(family_name))
+
+# Define the heatmap function
+generate_availability_heatmap <- function(data, country_name_input, family_name_input) {
+  
+  # Preprocess data for the plot
+  plot_data <- data %>%
+    filter(country_name == country_name_input, family_name == family_name_input, benchmarked_ctf == "Yes") %>%
+    mutate(
+      availability_status = ifelse(is.na(indicator_value), "No Access", "Full Access")
+    )
+  
+  # Create the heatmap plot
+  ggplot(plot_data, aes(x = year, y = var_name, fill = availability_status)) +
+    geom_tile(color = "white") +  
+    labs(
+      title = paste(country_name_input, ": Indicator Availability\nCluster: ", family_name_input),
+      subtitle = "Availability of Indicators Over Time (2019-2023)",
+      x = "Year",
+      y = "Cluster Benchmarked Indicators",
+      fill = "Availability Status",
+      caption = "Note: Indicator availability across clusters may differ based on how often the data source is updated. 
+For a deeper understanding, please consult Table <#> to gain more insight into the update cycles."
+    ) +
+    scale_fill_manual(
+      values = c("Full Access" = "#58d68d", "No Access" = "#cd6155"),  
+      breaks = c("Full Access", "No Access"),
+      labels = c("Full Access", "No Access")
+    )
+}
+
+# Define UI for the application
+ui <- fluidPage(
+  
+  titlePanel("Indicator Availability Heatmap"),
+  
+  fluidRow(
+    column(12, 
+           h4("Objective: To monitor the availability of indicators over time across different countries."),
+           br(),
+           p(
+             strong("This tool addresses the question: "),
+             "What indicators exist for a given country?"
+           )
+    )
+  ),
+  
+  # Sidebar layout
+  sidebarLayout(
+    sidebarPanel(
+      
+      # Dropdown for selecting country name
+      selectInput("country_name_input", "Select Country:",
+                  choices = unique(ctf_dynamic_clean$country_name)),
+      
+      # Dropdown for selecting family name
+      selectInput("family_name_input", "Select Family Name:",
+                  choices = unique(ctf_dynamic_clean$family_name))
+      
+    ),
+    
+    # Main panel to display the heatmap
+    mainPanel(
+      plotOutput("heatmap_plot")
+    )
+  )
+)
+
+# Define server logic to plot the heatmap
+server <- function(input, output) {
+  
+  # Reactive expression to generate the plot based on selected inputs
+  output$heatmap_plot <- renderPlot({
+    
+    # Generate the heatmap for selected country and family
+    generate_availability_heatmap(ctf_dynamic_clean, input$country_name_input, input$family_name_input)
+    
+  })
+}
+
+# Run the application
+shinyApp(ui = ui, server = server)
+
+```
+
+
+
+
