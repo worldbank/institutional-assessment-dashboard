@@ -23,6 +23,20 @@ wrap_facet_titles <- function(x, width) {
 }
 
 
+ggsave <- partial(
+  ggplot2::ggsave,
+  bg = "white",
+  width = 8,
+  height = 6
+)
+
+ggsave_full<- partial(
+  ggplot2::ggsave,
+  bg = "white",
+  width = 12,
+  height = 8
+)
+
 theme_set(
   theme_minimal() +
   theme(
@@ -47,10 +61,6 @@ options(ggrepel.max.overlaps = Inf)
 
 ```{r, include = FALSE}
 # The data imported here has been processed in the 03-process-data.Rmd script
-# coverage_long_panel <- read_rds(
-#   here("data", "output","coverage_report_full_for_analysis.rds" )
-# )
-
 coverage_long_panel <- read_rds(
   here("data", "output","coverage_ctf_for_analysis.rds" )
 )
@@ -63,7 +73,6 @@ ctf_static_long <- read_rds(
 ctf_dynamic <- read_rds(
   here("data", "output","year_coverage_ctf_for_analysis.rds" )
 )
-
 
 ```
 
@@ -79,7 +88,7 @@ Objective: Data poverty overview at a country level
 
 ### a. Regional distribution
 
-```{r,  fig.height= 8, fig.width=12}
+```{r,  fig.height=6, fig.width=10}
 # Apply group_average function and specifying
 # the following arguments: data, group, subgroup, quantity
 coverage_regional <- coverage_long_panel |>
@@ -89,9 +98,9 @@ coverage_regional <- coverage_long_panel |>
 coverage_regional |>
   ggplot(aes(x = group_av, fill = region_short)) +
   geom_density(alpha = 0.5) + 
-  geom_vline(xintercept = 50, linetype = "solid", linewidth = 1, color = "grey") + 
-  geom_vline(xintercept = 25, linetype = "dotted", linewidth = 1, color = "grey") +
-  geom_vline(xintercept = 75, linetype = "dotted", linewidth = 1, color = "grey") +
+  geom_vline(xintercept = 0, linetype = "solid", linewidth = 0.5, color = "grey3") + 
+  geom_vline(xintercept = 75, linetype = "dotted", linewidth = 1.5, color = "grey") +
+  geom_vline(xintercept = 100, linetype = "solid", linewidth = 0.5, color = "grey3") +
   geom_boxplot(aes(x = group_av, y = 0), 
                color = "grey3", 
                fill = "white", 
@@ -103,20 +112,27 @@ coverage_regional |>
               width = 0.1, 
               height = 0,  
               alpha = 0.5) +  
-  ggtitle("How Does Data Coverage Vary Across Regions?",
-    subtitle = "Average Country-Level Coverage to CLIAR Indicators") +
-  labs(x = "Average Coverage (%)", y = "Density", fill = "Family Name") +
+ggtitle("Global Data Landscape: Gaps in Country-Level Average Coverage by Region",
+        subtitle = "Insights from the Latest CLIAR Data: 2019-2023") +
+  labs(x = "Average Coverage (%)",
+       y = "Density",
+       fill = "Region",
+       caption = "Source: CLIAR Dashboard. CLIAR is an internal dashboard that offers the most comprehensive suite of governance indicators, compiling more than 400 indicators\n across seven critical governance dimensions from over 30 renowned data sources, covering more than 180 countries over a 30-year period.") +
   facet_grid(~region_short) +
   scale_fill_brewer(palette = "Paired") +
-  coord_cartesian(ylim = c(0, 1)) +
+  coord_cartesian(xlim = c(0, 100)) +
   coord_flip() +
   scale_x_continuous(breaks = c(0, 25, 50, 75, 100))
+
+ggsave_full(
+  here("figs", "region_missingness.png")
+)
 
 ```
 
 ### b. Income distribution
 
-```{r, fig.height= 8, fig.width=12}
+```{r, fig.height=6, fig.width=10}
 coverage_income <- coverage_long_panel |>
   select(income_group, region_short, country_code, available_share) |>
   group_facet_average(income_group, region_short, country_code, available_share) |>
@@ -124,10 +140,10 @@ coverage_income <- coverage_long_panel |>
 
 coverage_income |>
   ggplot(aes(x = group_av, fill = income_group)) +
-  geom_density(alpha = 0.75) + 
-  geom_vline(xintercept = 50, linetype = "solid", linewidth = 1, color = "grey") + 
-  geom_vline(xintercept = 25, linetype = "dotted", linewidth = 1, color = "grey") +
-  geom_vline(xintercept = 75, linetype = "dotted", linewidth = 1, color = "grey") +
+  geom_density(alpha = 0.5) + 
+  geom_vline(xintercept = 0, linetype = "solid", linewidth = 0.5, color = "grey3") + 
+  geom_vline(xintercept = 75, linetype = "dotted", linewidth = 1.5, color = "grey") +
+  geom_vline(xintercept = 100, linetype = "solid", linewidth = 0.5, color = "grey3") +
     geom_boxplot(aes(x = group_av, y = 0), 
                color = "grey3", 
                fill = "white", 
@@ -139,15 +155,23 @@ coverage_income |>
               width = 0.1, 
               height = 0,  
               alpha = 0.5) +  
-  ggtitle("How Does Data Coverage Vary Across Income Groups?",
-    subtitle = "Average Country-Level Coverage to CLIAR Indicators") +
-  labs(x = "Average Coverage (%)", y = "Density", fill = "Income Group") +
+  ggtitle("Uneven Data Landscape: Gaps in Country-Level Average Coverage by Income Group",
+    subtitle = "Insights from the Latest CLIAR Data: 2019-2023"
+   ) + 
+  labs(x = "Average Coverage (%)",
+       y = "Density",
+       fill = "Income Group",
+      caption = "Source: CLIAR Dashboard. CLIAR is an internal dashboard that offers the most comprehensive suite of governance indicators, compiling more than 400 indicators\n across seven critical governance dimensions from over 30 renowned data sources, covering more than 180 countries over a 30-year period.") +
   facet_grid(~income_group) + 
   scale_fill_brewer(palette = "Paired") +
   coord_cartesian(ylim = c(0, 1)) +
   scale_color_brewer(palette = "Spectral") +
   coord_flip() +
   scale_x_continuous(breaks = c(0, 25, 50, 75, 100)) 
+
+ggsave_full(
+  here("figs", "income_missingness.png")
+)
 
 ```
 
@@ -161,34 +185,37 @@ coverage_family <- coverage_long_panel |>
   filter(family_name != "(other indicators)")
 
 coverage_family |>
-  ggplot(aes(x = group_av, fill =family_name)) +
-  geom_density(alpha = 0.75) +
-  geom_vline(xintercept = 50, linetype = "solid", linewidth = 1, color = "grey") + 
-  geom_vline(xintercept = 25, linetype = "dotted", linewidth = 1, color = "grey") +
-  geom_vline(xintercept = 75, linetype = "dotted", linewidth = 1, color = "grey") +
-    geom_boxplot(aes(x = group_av, y = 0), 
+  ggplot(aes(x = group_av, fill = family_name)) +
+  geom_density(alpha = 0.5) +
+  geom_vline(xintercept = 0, linetype = "solid", linewidth = 0.5, color = "grey3") +
+  geom_vline(xintercept = 75, linetype = "dotted", linewidth = 1.5, color = "grey") +
+  geom_vline(xintercept = 100, linetype = "solid", linewidth = 0.5, color = "grey3") +
+  geom_boxplot(aes(x = group_av, y = 0), 
                color = "grey3", 
                fill = "white", 
                width = 0.1, 
                alpha = 0.2, 
-               position = position_dodge(width = 0.5)) +  
+               position = position_dodge(width = 0.5)) +
   geom_jitter(aes(x = group_av, y = 0), 
-              color = "grey3", 
-              width = 0.1, 
-              height = 0,  
-              alpha = 0.5) +  
-  ggtitle("How Does Data Coverage Vary Across Clusters?",
-    subtitle = "Average Country-Level Coverage to CLIAR Indicators") +
-  labs(x = "Average Coverage (%)", y = "Density", fill = "Family Name") +
-  facet_wrap(
-    vars(wrap_facet_titles(family_name, width = 30))) +
-  # facet_wrap(~family_name, nrow = 2) + 
+             color = "grey3", 
+             width = 0.1, 
+             height = 0, 
+             alpha = 0.5) +
+  ggtitle("Uneven Data Landscape: Gaps in Country-Level Average Coverage by Cluster",
+          subtitle = "Insights from the Latest CLIAR Data: 2019-2023") + 
+  labs(x = "Average Coverage (%)", 
+       y = "Density", 
+       fill = "Family Name", 
+       caption = "Source: CLIAR Dashboard. CLIAR is an internal dashboard that offers the most comprehensive suite of governance indicators, compiling more than 400 indicators\n across seven critical governance dimensions from over 30 renowned data sources, covering more than 180 countries over a 30-year period.") + 
+  facet_wrap(~ wrap_facet_titles(family_name, width = 30)) + 
   scale_fill_brewer(palette = "Paired") +
   coord_cartesian(ylim = c(0, 1)) +
   scale_x_continuous(breaks = c(0, 25, 50, 75, 100)) +
-  coord_flip()  
+  coord_flip()
 
-
+ggsave_full(
+  here("figs", "clusters_missingness.png")
+)
 ```
 
 ## II. Country Coverage
@@ -220,8 +247,8 @@ coverage_regional |>
                     nudge_y = 0.1, 
                     direction = "both", 
                     hjust = 0.5) +  
-   ggtitle("How Does Data Coverage Vary within the Regions?",
-    subtitle = "Average Country-Level Coverage to CLIAR Indicators") +
+    ggtitle("Uneven Data Landscape: Gaps in Country-Level Coverage within Regions",
+    subtitle = "Focus: CTF CLIAR Indicators (2019-2023)") +
    labs(
      x = "Region",
      y = "Average Values",
@@ -231,6 +258,10 @@ coverage_regional |>
    ) +
    coord_cartesian(ylim = c(0, 100)) +
    scale_color_brewer(palette = "Paired")
+
+ggsave_full(
+  here("figs", "within_region_missingness.png")
+)
 ```
 
 MENA has great coverage at an indicator level. What happens is we digg into income level and families
@@ -269,9 +300,8 @@ coverage_income |>
                     nudge_y = 0.1, 
                     direction = "both", 
                     hjust = 0.5) +  
-  ggtitle("How Does Data Coverage Vary within Income Groups?",
-    subtitle = "Average Country-Level Coverage to CLIAR Indicators"
-  ) +
+  ggtitle("Uneven Data Landscape: Gaps in Country-Level Coverage within Income Groups",
+    subtitle = "Focus: CTF CLIAR Indicators (2019-2023)") +
   labs(
     x = "Region",
     y = "Average Values",
@@ -282,7 +312,9 @@ coverage_income |>
   coord_cartesian(ylim = c(0, 100)) +
   scale_color_brewer(palette = "Dark2")
 
-
+ggsave_full(
+  here("figs", "within_income_missingness.png")
+)
 
 ```
 
@@ -532,7 +564,7 @@ country_syria_table %>%
 ```
 
 
-```{r, fig.height= 8, fig.width= 12}
+```{r, fig.height= 8, fig.width= 14}
 # Calculate Proportions for Available and Missing
 country_syria_table <- country_syria_table %>%
   mutate(
@@ -601,8 +633,8 @@ generate_availability_heatmap <- function(data, country_name_input, family_name_
       x = "Year",
       y = "Cluster Benchmarked Indicators",
       fill = "Availability Status",
-      caption = "Note: Indicator availability across clusters may differ based on how often the data source is updated. 
-For a deeper understanding, please consult Table <#> to gain more insight into the update cycles."
+      caption = "Note: Indicator availability across clusters may differ based on how often the data source is updated. For a deeper understanding, 
+consult Apendix (a) of this document to gain more insight into the update cycles."
     ) +
     scale_fill_manual(
       values = c("Full Access" = "#58d68d", "No Access" = "#cd6155"),  
@@ -616,7 +648,7 @@ For a deeper understanding, please consult Table <#> to gain more insight into t
 
 
 
-```{r, fig.height= 8, fig.width= 10}
+```{r, fig.height= 8, fig.width= 14}
 
 # Prepare Country to perform analysis
 # Example: Create plots for the country "Syrian Arab Republic" and all unique family names
@@ -728,4 +760,99 @@ shinyApp(ui = ui, server = server)
 
 
 
+## V. Dynamic analysis
+
+```{r}
+### Data Preparation
+ctf_dynamic_share <- ctf_dynamic %>%
+  group_by(year, family_name) %>%
+  summarise(
+    total_indicators = n(),
+    available_indicators = sum(!is.na(indicator_value))
+  ) %>%
+  mutate(global_coverage = (available_indicators / total_indicators) * 100) %>%
+  ungroup()
+
+
+### Only country level
+ctf_dynamic_share_cc <- ctf_dynamic %>%
+  group_by(year, family_name, country_code ) %>%
+  summarise(
+    total_indicators = n(),
+    available_indicators = sum(!is.na(indicator_value))
+  ) %>%
+  ungroup() %>% 
+  group_by(year, family_name) %>% 
+  mutate(global_coverage = (available_indicators / total_indicators) * 100) %>%
+  ungroup()
+
+```
+
+
+```{r, fig.height=6, fig.width=10}
+
+
+selected_family_names <- c(
+  "Public Finance Institutions",
+  "Public Human Resource Management Institutions",
+  "Digital and Data Institutions",
+  "Service Delivery Institutions",
+  "Transparency and Accountability Institutions"
+)
+
+
+### Plot
+ctf_dynamic_share |>
+  filter(family_name %in% selected_family_names) %>% 
+  ggplot(aes(x = year, y = global_coverage, color = as.factor(family_name))) +
+    geom_hline(yintercept = 0, linetype = "solid", linewidth = 0.5, color = "grey3") + 
+  geom_hline(yintercept = 50, linetype = "dotted", linewidth = 1, color = "grey") +
+  geom_hline(yintercept = 100, linetype = "solid", linewidth = 0.5, color = "grey3") +
+  geom_point(size = 3, shape = 15) +
+  geom_line(linewidth = 1) +
+  # annotate("text",
+  #          x = Inf,
+  #          y = Inf,  
+  #          label = "Relevant finding here",
+  #          hjust = 1.1,
+  #          vjust = 3,  
+  #          color = "black",  
+  #          size = 3) +
+ ggtitle("Uneven Data Landscape: Coverage Gaps by Governance Dimensions",
+    subtitle = "Insights from the Latest CLIAR Data: 2019-2023"
+   ) + 
+  labs(
+    x = "Year",
+    y = "Indicator-Country Coverage (%)",
+    color = "Key Governance Dimensions",
+    caption = "Source: CLIAR Dashboard."
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(size = 12, hjust = .5),
+    axis.text.y = element_text(size = 12),
+    plot.title = element_text(size = 16, face = "bold"),
+    plot.subtitle = element_text(size = 13),
+    plot.background = element_blank(),
+    plot.caption = element_text(hjust = 0, size = 10),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(), 
+    legend.position = "bottom") +
+  scale_x_continuous() +
+  scale_y_continuous(breaks = c(0, 25, 50, 75, 100)) +
+  scale_fill_brewer(palette = "Dark2") +
+  guides(color=guide_legend(nrow=3, byrow=TRUE)) +
+  coord_cartesian(ylim = c(0, 100))
+
+ggsave(
+  here("figs", "dynamic_clusters_missingness.png")
+)
+
+
+```
+
+
+
+ 
 
