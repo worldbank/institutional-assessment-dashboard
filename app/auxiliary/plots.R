@@ -1945,7 +1945,7 @@ interactive_scatter <-
       layout(
         margin = list(
           t = 50,
-          b = 200
+          b = 300
         ),
         legend = list(
           title = list(text = ''),
