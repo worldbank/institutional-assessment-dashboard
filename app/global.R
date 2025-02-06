@@ -145,6 +145,13 @@ ctf_long_dyn <-
     )
   )
 
+year_ctf_dynamic <-
+  read_rds(
+    here(
+      "data",
+      "year_coverage_ctf_for_analysis.rds"
+    )
+  )
 country_groups <-
   read_rds(
     here(

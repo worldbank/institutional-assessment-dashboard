@@ -703,6 +703,17 @@ ui <-
                     )
                   )
                 ),
+                
+                column(
+                  width = 3,
+                  shinyjs::disabled(
+                    downloadButton(
+                      "download_Coverage",
+                      "Coverage report",
+                      style = "width:100%; background-color: #204d74; color: white"
+                    )
+                  )
+                )
                 #Commenting Out MISSINGNESS REPORT until it is fixed (Formatting is bad)
                 # column(
                 #   width = 4,

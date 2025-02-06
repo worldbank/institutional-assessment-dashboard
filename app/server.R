@@ -291,6 +291,11 @@ server <- function(input, output, session) {
         shinyjs::disable("pptreport")
       )
       toggleState(
+        id = "download_Coverage",
+        condition = input$select,
+        shinyjs::disable("download_Coverage")
+      )
+      toggleState(
         id = "download_missing",
         condition = input$select,
         shinyjs::disable("download_missing")
@@ -937,6 +942,7 @@ server <- function(input, output, session) {
           shinyjs::disable("advreport"),
           shinyjs::disable("pptreport"),
           shinyjs::disable('download_missing'),
+          shinyjs::disable('download_Coverage'),
           shinyjs::disable("download_data_1"),
           shinyjs::disable("save_inputs")
 
@@ -2651,9 +2657,54 @@ server <- function(input, output, session) {
       )
     }
   )
+
+  #Coverage Report ===============
   
+  output$download_Coverage<-downloadHandler(
+    filename =
+      reactive(
+        paste0(
+          "Missing_data-",
+          base_country(),
+          ".docx"
+        )
+      ),
+    content = function(file) {
+      show_modal_spinner(
+        color = "#17a2b8",
+        text = "Compiling report",
+      )
+      
+      on.exit(remove_modal_spinner())
+      
+      tmp_dir <- tempdir()
+      
+      tempReport <- file.path(tmp_dir, "coverage-report.Rmd")
+      
+      file.copy("www/", tmp_dir, recursive = TRUE)
+      file.copy("coverage-report.Rmd", tempReport, overwrite = TRUE)
+      
+      params <-
+        list(
+          ctf_static_long = ctf_long,
+          ctf_dynamic = year_ctf_dynamic
+        )
+      
+      #browser()
+      
+      rmarkdown::render(
+        tempReport,
+        output_file = file,
+        params = params,
+        envir = new.env(parent = globalenv()),
+        knit_root_dir = getwd()
+      )
+    }
+  )
+  
+    
   # Missingness Report ================================================================================
-  
+
   output$download_missing <- downloadHandler(
     filename =
       reactive(
