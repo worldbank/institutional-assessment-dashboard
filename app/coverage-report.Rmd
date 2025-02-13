@@ -144,8 +144,8 @@ base_country_table <- availability_ctf_long %>%
 # Adding the share columns to the table
 table_data <- base_country_table %>%
   mutate(
-    available_share = available_count / total_country_indicators * 100,
-    missing_share = missing_count / total_country_indicators * 100
+    available_share = round((available_count / total_country_indicators) * 100, 2),
+    missing_share = round((missing_count / total_country_indicators) * 100,2)
   ) %>%
   select(
     Family_Name = family_name,
