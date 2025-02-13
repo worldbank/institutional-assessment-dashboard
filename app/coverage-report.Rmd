@@ -60,7 +60,6 @@ library(stringr)
 library(countrycode)
 library(RColorBrewer)
 library(knitr)
-library(gt)
 library(dplyr)
 library(flextable)
 
