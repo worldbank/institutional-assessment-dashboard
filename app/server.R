@@ -2687,7 +2687,8 @@ server <- function(input, output, session) {
       params <-
         list(
           ctf_static_long = ctf_long,
-          ctf_dynamic = year_ctf_dynamic
+          ctf_dynamic = year_ctf_dynamic,
+          base_country = base_country()
         )
       
       #browser()
