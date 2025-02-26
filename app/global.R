@@ -124,6 +124,7 @@ global_data_dyn <-
       "closeness_to_frontier_dynamic.rds"
     )
   ) %>%
+  filter(year <2024)%>%
   ungroup
 
 
