@@ -2997,9 +2997,9 @@ server <- function(input, output, session) {
   # Full methodology --------------------------------------------------------
   output$download_metho <-
     downloadHandler(
-      filename = "CLIAR-Methodological-Note_20220403.pdf",
+      filename = "CLIAR Benchmarking.pdf",
       content = function(file) {
-        file.copy("www/CLIAR-Methodological-Note_20220403.pdf", file)
+        file.copy("www/CLIAR Benchmarking.pdf", file)
       }
     )
   
