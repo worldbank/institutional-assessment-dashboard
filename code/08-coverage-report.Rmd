@@ -808,24 +808,26 @@ ctf_dynamic_share |>
     geom_hline(yintercept = 0, linetype = "solid", linewidth = 0.5, color = "grey3") + 
   geom_hline(yintercept = 50, linetype = "dotted", linewidth = 1, color = "grey") +
   geom_hline(yintercept = 100, linetype = "solid", linewidth = 0.5, color = "grey3") +
+  geom_rect(aes(xmin = -Inf, xmax = Inf, ymin = 50, ymax = 100),
+              fill = "grey", alpha = 0.7, inherit.aes = FALSE) +
   geom_point(size = 3, shape = 15) +
   geom_line(linewidth = 1) +
-  # annotate("text",
-  #          x = Inf,
-  #          y = Inf,  
-  #          label = "Relevant finding here",
-  #          hjust = 1.1,
-  #          vjust = 3,  
-  #          color = "black",  
-  #          size = 3) +
- ggtitle("Uneven Data Landscape: Coverage Gaps by Governance Dimensions",
-    subtitle = "Insights from the Latest CLIAR Data: 2019-2023"
+  annotate("text",
+           x = Inf,
+           y = Inf,
+           label = "Coverage Gap Zone",
+           hjust = 1.1,
+           vjust = 3,
+           color = "white",
+           size = 4) +
+ ggtitle("Uneven Data Landscape: Coverage Gaps",
+    subtitle = "Insights from the Latest CLIAR Database: 2019-2023"
    ) + 
   labs(
     x = "Year",
     y = "Indicator-Country Coverage (%)",
-    color = "Key Governance Dimensions",
-    caption = "Source: CLIAR Dashboard."
+    color = "Key Dimensions",
+    caption = "Source: World Bank CLIAR Database."
   ) +
   theme_minimal() +
   theme(
@@ -846,7 +848,7 @@ ctf_dynamic_share |>
   coord_cartesian(ylim = c(0, 100))
 
 ggsave(
-  here("figs", "dynamic_clusters_missingness.png")
+  here("figs", "dynamic_clusters_missingness_zone_.png")
 )
 
 
