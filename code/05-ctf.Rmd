@@ -465,21 +465,22 @@ ctf_long <-
   ) %>%
   left_join(
     country_list %>%
-      select(country_code, group_code),
+      select(country_code, group_name),
     relationship = "many-to-many",
     by = "country_code",
   )
 
 ctf_long_clean <-
   ctf_long %>%
-  group_by(family_name, family_var, country_name, country_code, group_code, country_group) %>%
+  group_by(family_name, family_var, country_name, country_code, group_name, country_group) %>%
   summarise(value = median(value, na.rm = TRUE)) %>%
   ungroup() %>%
   mutate(
     variable = family_var,
     var_name = family_name
   ) %>%
-  bind_rows(ctf_long)
+  bind_rows(ctf_long) %>% 
+  rename(group = group_name)
 
 # dynamic
 ctf_dynamic_long <-
@@ -495,21 +496,23 @@ ctf_dynamic_long <-
   ) %>%
   left_join(
     country_list %>%
-      select(country_code, group_code),
+      select(country_code, group_name),
     relationship = "many-to-many",
     by = "country_code",
-  )
+  ) 
 
 ctf_dynamic_long_clean <-
   ctf_dynamic_long %>%
-  group_by(family_name, family_var, country_name, country_code, country_group, group_code, year) %>%
+  group_by(family_name, family_var, country_name, country_code, country_group, group_name, year) %>%
   summarise(value = median(value, na.rm = TRUE)) %>%
   ungroup() %>%
   mutate(
     variable = family_var,
     var_name = family_name
   ) %>%
-  bind_rows(ctf_dynamic_long)
+  bind_rows(ctf_dynamic_long) %>% 
+  rename(group = group_name)
+
 ```
 
 ## Calculate family level data

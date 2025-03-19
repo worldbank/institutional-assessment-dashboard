@@ -4,10 +4,12 @@
   - `data/output/compiled_indicators.rds`
   - `data/input/wb/CLASS.xlsx`, obtained from https://datahelpdesk.worldbank.org/knowledgebase/articles/906519-world-bank-country-and-lending-groups on September 1, 2022
   - `data/input/wb/group_list.csv`, input by the research team to list relevant groups
+  - `data/output/region_list_compliment.rds`, complimentary for groups in the case of splitting SSA into AFW and AFE
       
 - Outputs:
   - `data/final/wb_country_list.rds`
   - `data/final/wb_country_groups.rds`
+ 
 
 ## Inputs
 
