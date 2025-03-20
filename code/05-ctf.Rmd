@@ -35,7 +35,7 @@ cliar_indicators <-
     year >= 2013
   )
 
-#read in country list from step 3
+#read in country list from step 4
 country_list <- read_rds(
   here(
     "data",
@@ -216,7 +216,7 @@ min_max <-
 # dynamic: note that there are quite a few cases of Infinite warnings (due to missingness)
 min_max_dynamic <- cliar_indicators_rescaled %>%
   filter(
-    between(year, 2014, 2023)
+    between(year,2014,2023)
   ) |> 
   summarise(
     across(
@@ -341,20 +341,20 @@ group_ctf <-
   ) %>%
   #group by group code
   group_by(
-    group_code, group
+    group_code, 
+    group_name
   ) %>%
   #take median
   summarise(
     across(
       c(all_of(vars_static_ctf)),
       ~ median(., na.rm = TRUE)
-    )
+    ),
+    .groups = "drop"  # optionally ungroup after summarise
   ) %>%
-  #filter for any na values 
-  filter(!is.na(group)) %>%
-  #rename values to be consisted with other datasets
+  filter(!is.na(group_name)) %>%  # use group_name instead of group
   rename(
-    country_name = group,
+    country_name = group_name,  # rename group_name to country_name
     country_code = group_code
   )
 
@@ -370,23 +370,17 @@ group_ctf_dynamic <- country_list %>%
     by = "country_code",
     relationship = "many-to-many"
   ) %>%
-  #group by group code
-  group_by(
-    group_code, group, year
-  ) %>%
-  #take mediam
-  summarise(
-    across(
-      c(all_of(vars_dynamic_ctf)),
-      ~ median(., na.rm = TRUE)
-    )
-  ) %>%
-  #filter out na and rename for consistency
-  filter(!is.na(group)) %>%
-  rename(
-    country_name = group,
-    country_code = group_code
-  )
+  # group by group_code, group_name, and year
+  group_by(group_code, group_name, year) %>%
+  # take median
+  summarise(across(all_of(vars_dynamic_ctf),
+                   ~ median(., na.rm = TRUE)),
+            .groups = "drop") %>%  # optionally drop grouping
+  # filter out rows with missing group_name
+  filter(!is.na(group_name)) %>%
+  # rename group_name to country_name and group_code to country_code
+  rename(country_name = group_name,
+         country_code = group_code)
 
 ctf_dynamic <- add_column(ctf_dynamic, country_group = 0, .after = "country_code")
 group_ctf_dynamic <- add_column(group_ctf_dynamic, country_group = 1, .after = "country_code")
@@ -427,26 +421,27 @@ ctf_dynamic <-
   ctf_dynamic %>%
   # add country codes and names
   left_join(
-    country_list |> distinct(country_code, country_name),
-    by = c("country_code")
-  ) |>
+    country_list %>% distinct(country_code, country_name),
+    by = "country_code"
+  ) %>%
   # add gdp per capita (PPP) data
   left_join(
-    cliar_indicators |> select(country_code, year, wdi_nygdppcapppkd),
+    cliar_indicators %>% select(country_code, year, wdi_nygdppcapppkd),
     by = c("country_code", "year")
-  ) |>
+  ) %>%
   # rename and transform gdp per capita to log
   mutate(
     log_gdp = log(wdi_nygdppcapppkd)
-  ) |>
+  ) %>%
   bind_rows(group_ctf_dynamic) %>%
   ungroup() %>%
-  arrange(country_name) |>
+  arrange(country_name) %>%
   select(
     country_code,
     country_name,
     everything()
   )
+
 ```
 
 ## Convert to long-form
@@ -470,21 +465,22 @@ ctf_long <-
   ) %>%
   left_join(
     country_list %>%
-      select(country_code, group),
+      select(country_code, group_name),
     relationship = "many-to-many",
     by = "country_code",
   )
 
 ctf_long_clean <-
   ctf_long %>%
-  group_by(family_name, family_var, country_name, country_code, group, country_group) %>%
+  group_by(family_name, family_var, country_name, country_code, group_name, country_group) %>%
   summarise(value = median(value, na.rm = TRUE)) %>%
   ungroup() %>%
   mutate(
     variable = family_var,
     var_name = family_name
   ) %>%
-  bind_rows(ctf_long)
+  bind_rows(ctf_long) %>% 
+  rename(group = group_name)
 
 # dynamic
 ctf_dynamic_long <-
@@ -500,21 +496,23 @@ ctf_dynamic_long <-
   ) %>%
   left_join(
     country_list %>%
-      select(country_code, group),
+      select(country_code, group_name),
     relationship = "many-to-many",
     by = "country_code",
-  )
+  ) 
 
 ctf_dynamic_long_clean <-
   ctf_dynamic_long %>%
-  group_by(family_name, family_var, country_name, country_code, country_group, group, year) %>%
+  group_by(family_name, family_var, country_name, country_code, country_group, group_name, year) %>%
   summarise(value = median(value, na.rm = TRUE)) %>%
   ungroup() %>%
   mutate(
     variable = family_var,
     var_name = family_name
   ) %>%
-  bind_rows(ctf_dynamic_long)
+  bind_rows(ctf_dynamic_long) %>% 
+  rename(group = group_name)
+
 ```
 
 ## Calculate family level data
@@ -579,7 +577,7 @@ vars_family_dynamic_ctf <- ctf_dynamic_family |>
     ""
   )
 
-# missingness by institutional family average
+# missingness by institutional family average ### [KEY FOR GRAPH]
 # static
 ctf_static_family |> 
   select(ends_with("avg")) |> 

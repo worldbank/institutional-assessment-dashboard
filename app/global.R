@@ -177,6 +177,9 @@ country_list <-
     )
   )
 
+country_list <- country_list %>% 
+  rename(group = group_name)
+
 spatial_data <-
   read_rds(
     here(

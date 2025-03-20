@@ -29,8 +29,8 @@ This section first reads in each of the individual manual-input files (Note that
 
 ```{r read in}
 efi <- read_dta(
-  here("data", "input", "efi", "Update_EFI360_1990_2024.dta")
-)
+  here("data", "input", "efi", "2024", "GTMI_Fixed_Update_EFI360_1990_2024.dta") 
+) ### Latest API extraction and FTMI patch implemented due to a bug [Github issue #326]
 
 # Data availablke here: https://www.pefa.org/assessments/batch-downloads
 # Methodology 2016 and national download
@@ -121,7 +121,7 @@ wb_country_list <- read_xlsx(
     "CLASS.xlsx"
     ),
     sheet = "Groups"
-  ) %>%
+  ) |>
   transmute(
     country_code = CountryCode,
     country_name = CountryName,
@@ -144,7 +144,7 @@ country_income_and_region <- read_xlsx(
       ),
       sheet = "List of economies",
       n_max = 219
-    ) %>%
+    ) |>
     transmute(
       country_code = Code,
       region = Region,
@@ -179,6 +179,22 @@ country_region_list <- wb_country_list |>
   # this filter excludes Canada, Bermuda and USA
   filter(group %in% wb_regions) |> 
   select(country_code, region = group)
+
+# Separate SSA into "Africa Eastern and Southern" and "Africa Western and Central",
+country_income_and_region_updated <- country_income_and_region %>%
+  left_join(country_region_list, by = "country_code", suffix = c("", "_new")) %>%
+  mutate(region = if_else(region == "Sub-Saharan Africa", region_new, region)) %>%
+  select(-region_new)
+
+country_income_and_region_updated |> 
+    write_rds(
+      here(
+        "data",
+        "output",
+        "grouping_country_income_and_region_updated.rds"
+      )
+    )
+
 ```
 
 ## Process data
@@ -190,6 +206,7 @@ In this section, we take the EFI files, plus the manual import data, and clean t
 #       For the EFI, first the name of enterprise survey variables is changed to 
 #       be more consistent. Then a single PFM indicator is by taking the sum of
 #       several GTMI variables. 
+
 efi_clean <- efi |> 
   clean_names() |> 
   # fix enterprise surveys variable name
@@ -255,15 +272,15 @@ grade_pefa <- c("D" = 1,
                 "A" = 4)
 
 # Transforming the PEFA data
-pefa_transformed <- pefa %>%
+pefa_transformed <- pefa |>
   mutate(across(starts_with("pi_"), 
                  ~ ifelse(. %in% names(grade_pefa), 
                            grade_pefa[.], 
-                           NA_real_))) %>% 
+                           NA_real_))) |> 
   rename_with(~ gsub("^pi_", "pi_2016_", .), starts_with("pi_"))
 
-pefa_clean <- pefa_transformed %>%
-  rename_with(~ paste0("wb_pefa_", .), .cols = starts_with("pi_")) %>%
+pefa_clean <- pefa_transformed |>
+  rename_with(~ paste0("wb_pefa_", .), .cols = starts_with("pi_")) |>
   select(-framework, -uhlg_01, -uhlg_01_1, -uhlg_01_2, -uhlg_01_3)
 
 # Handling country codes, including Kosovo
@@ -273,6 +290,16 @@ pefa_country <- pefa_clean %>%
     TRUE ~ countrycode(country, "country.name", "iso3c", custom_match = c("Kosovo" = "XKX"))
   )) %>% 
   filter(country != "Bosnia and Herzegovina - District Brčko")
+
+# ### Write-out this dataframe for PIGO analysis
+# write_rds(
+#   pefa_country,
+#   here(
+#     "data",
+#     "output",
+#     "pefa_clean_for_analysis.rds"
+#   )
+# )
 
 
 # Identify columns that contain "pefa" and are in efi_clean
@@ -300,6 +327,8 @@ efi_clean <- left_join(
                 efi_pefa_merged,
                 by = c("country_code", "year")
 )
+
+
 
 # 2. fraser - market regulations
       # For the fraser data, the clean dataset is created by selecting only the
@@ -462,6 +491,13 @@ rise_clean <- rise |>
   clean_names()
 
 # 8. wdi data
+# Step 1: Extract variable names and labels
+var_labels <- sapply(wdi, function(x) attr(x, "label"))  # Extract labels from the attributes
+var_names <- names(var_labels)  # Get the variable names
+
+
+
+
 wdi_clean <- wdi |>
   rename(
     country_name = countryname,
@@ -657,14 +693,14 @@ db_variables_indicators <- db_variables |>
     variable
   )
 
-# only retain indicators contained in metadata + id cols
-cliar_indicators <- cliar_indicators %>%  
+
+cliar_indicators <- cliar_indicators %>%
   # add country names
   left_join(
-    wb_country_list |> 
-      distinct(country_code, country_name),
+    wb_country_list |>
+       distinct(country_code, country_name),
     by = "country_code"
-  ) |> 
+  ) |>
   select(
     country_code,
     country_name,
@@ -672,8 +708,8 @@ cliar_indicators <- cliar_indicators %>%
     all_of(db_variables_indicators |> pull(variable))
   )
 
-cliar_indicators_id <- cliar_indicators |> 
-  colnames()|> 
+cliar_indicators_id <- cliar_indicators |>
+  colnames()|>
   tibble(
     variable = colnames(cliar_indicators)
   )
@@ -826,9 +862,11 @@ test_that(
 
 ## Compute coverage diagnostics
 
+### a. Internal coverage
+
 Use the compute_coverage function from funs.R to create the coverage countries and years it is present for. With that information, percentage coverage, year range, percent of complete records, as well as standard distribution information such as mean and standard deviation are calculated.
 
-```{r coverage_diagnostics}
+```{r internal coverage_diagnostics}
 cliar_indicators_diagnostic <- cliar_indicators_clean |>
   select(-country_name) |> 
   compute_coverage(country_code, year, ref_year - 5) |> 
@@ -849,6 +887,292 @@ cliar_indicators_diagnostic <- cliar_indicators_clean |>
   )
 ```
 
+
+
+### b. External coverage
+```{r}
+### Post transformation
+gtmi_mistery <- cliar_indicators_clean %>%
+  select(year, starts_with("wb_gtmi_")) %>%
+  filter(if_any(starts_with("wb_gtmi_"), ~ !is.na(.))) %>%
+  group_by(year) %>%
+  summarize(count = n())
+
+```
+
+Building on the 'compute_coverage' function, this subsection makes an assessment on the  available at a country-level information to create a table that overviews at range, latest year, missing years (vector) and missing years share (%) 
+
+```{r external coverage_diagnostics}
+# Pivot long
+cliar_indicators_long_diagnosis <- cliar_indicators_clean %>%
+    filter(year >= 2000) |>
+    pivot_longer(
+      cols = -c(country_code, country_name, year),  # Exclude these columns
+      names_to = "indicators", 
+      values_to = "indicator_value"  
+    )
+
+# Apply coverage calculation from funs.R 
+cliar_global_coverage <- cliar_indicators_long_diagnosis |>
+  compute_global_coverage(country_name, indicators, year, indicator_value)
+
+# Renaming and joining to db_variables classification 
+cliar_global_coverage_renamed <- cliar_global_coverage |>
+  mutate(
+    available_share = case_when(
+      !is.na(available_share) ~ as.numeric(str_remove(available_share, "%")),
+      TRUE ~ NA_real_) 
+    )|>
+  left_join( # Join with db_variables
+    db_variables |> select(variable, var_name, source, family_name, benchmarked_ctf),
+    by = c("indicators" = "variable")
+  ) |>
+  select( # Select and reorder columns
+    everything(),
+    indicators,
+    var_name,
+    family_name,
+    source,
+    benchmarked_ctf
+  ) |>
+  arrange(
+    family_name,
+    indicators
+  )
+                                     
+
+# Cleaning for naming conventions
+cliar_global_coverage_country <- cliar_global_coverage_renamed |>
+  mutate(
+    country_code = case_when(
+      country_name == "Channel Islands" ~ "GGY", 
+      country_name == "Kosovo" ~ "XKX", 
+      TRUE ~ countrycode(country_name, "country.name", "iso3c") 
+    )
+  ) %>% 
+  filter(!is.na(available_share))
+
+# Region naming for analysis
+cliar_global_coverage_complete <- cliar_global_coverage_country |>
+  left_join(
+    country_income_and_region_updated,
+    by = c("country_code")
+  ) %>% 
+  mutate(
+      region = if_else(region == "North America", "Latin America & Caribbean", region)
+             ) %>%
+          filter(
+           !is.na(region)
+              ) %>% 
+          mutate(
+              region_short = recode(region,
+                                 "Europe & Central Asia" = "ECA",
+                                 "East Asia & Pacific" = "EAP",
+                                 "Latin America & Caribbean" = "LAC",
+                                 "Middle East & North Africa" = "MENA",
+                                 "South Asia" = "SAR",
+                                 "Africa Eastern and Southern" = "AFE",
+                                 "Africa Western and Central" = "AFW",
+                                 )
+                  )
+
+
+```
+
+
+```{r eval=FALSE, include=FALSE}
+### CTF coverage
+ctf_long_diagnosis <- cliar_indicators_clean %>%
+                    filter(between(year,2019,2023)) |> 
+                     pivot_longer(
+                        cols = -c(country_code, country_name, year),  # Exclude these columns
+                        names_to = "indicators", 
+                        values_to = "indicator_value"  
+                      )
+
+ctf_global_coverage <- ctf_long_diagnosis |>
+  compute_global_coverage(country_name, indicators, year, indicator_value)
+
+# Renaming and joining to db_variables classification 
+ctf_renamed <- ctf_global_coverage |>
+  mutate(
+    available_share = case_when(
+      !is.na(available_share) ~ as.numeric(str_remove(available_share, "%")),
+      TRUE ~ NA_real_) 
+    )|>
+  left_join( # Join with db_variables
+    db_variables |> select(variable, var_name, source, family_name, benchmarked_ctf),
+    by = c("indicators" = "variable")
+  ) |>
+  select( # Select and reorder columns
+    everything(),
+    indicators,
+    var_name,
+    family_name,
+    source,
+    benchmarked_ctf
+  ) |>
+  arrange(
+    family_name,
+    indicators
+  )
+                                     
+
+# Cleaning for naming conventions
+ctf_coverage_country <- ctf_renamed |>
+  mutate(
+    country_code = case_when(
+      country_name == "Channel Islands" ~ "GGY", 
+      country_name == "Kosovo" ~ "XKX", 
+      TRUE ~ countrycode(country_name, "country.name", "iso3c") 
+    )
+  ) %>% 
+  filter(!is.na(available_share))
+
+# Region naming for analysis
+ctf_coverage_country_complete <- ctf_coverage_country |>
+  filter(benchmarked_ctf == "Yes") |> 
+  left_join(
+    country_income_and_region_updated,
+    by = c("country_code")
+  ) %>% 
+  mutate(
+      region = if_else(region == "North America", "Latin America & Caribbean", region)
+             ) %>%
+          filter(
+           !is.na(region)
+              ) %>% 
+          mutate(
+              region_short = recode(region,
+                                 "Europe & Central Asia" = "ECA",
+                                 "East Asia & Pacific" = "EAP",
+                                 "Latin America & Caribbean" = "LAC",
+                                 "Middle East & North Africa" = "MENA",
+                                 "South Asia" = "SAR",
+                                 "Africa Eastern and Southern" = "AFE",
+                                 "Africa Western and Central" = "AFW",)
+                  )
+
+write_rds(
+  ctf_coverage_country_complete,
+  here(
+    "data",
+    "output",
+    "coverage_ctf_for_analysis.rds"
+  )
+)
+
+```
+
+### c. CTF by year 
+```{r}
+### CTF coverage
+ctf_year_long_diagnosis <- cliar_indicators_clean %>%
+                    filter(between(year,2019,2023)) |> 
+                     pivot_longer(
+                        cols = -c(country_code, country_name, year),  
+                        names_to = "indicators", 
+                        values_to = "indicator_value"  
+                      ) |>
+                  left_join( # Join with db_variables
+                    db_variables |> 
+                      select(variable,
+                             var_name,
+                             source,
+                             family_name,
+                             benchmarked_ctf),
+                            by = c("indicators" = "variable")
+                  ) |>
+                  select( # Select and reorder columns
+                    everything(),
+                    indicators,
+                    var_name,
+                    family_name,
+                    source,
+                    benchmarked_ctf
+                  ) |>
+                  arrange(
+                    family_name,
+                    indicators
+                  )
+                                     
+
+# Cleaning for naming conventions
+ctf_year_rename <- ctf_year_long_diagnosis |>
+  mutate(
+    country_code = case_when(
+      country_name == "Channel Islands" ~ "GGY", 
+      country_name == "Kosovo" ~ "XKX", 
+      TRUE ~ countrycode(country_name, "country.name", "iso3c") 
+    )
+  ) 
+
+# Region naming for analysis 
+ctf_year_coverage_complete <- ctf_year_rename |>
+  left_join(
+    country_income_and_region_updated,
+    by = c("country_code")
+  ) %>% 
+  mutate(
+      region = if_else(region == "North America", "Latin America & Caribbean", region)
+             ) %>%
+          filter(
+           !is.na(region)
+              ) %>% 
+          mutate(
+              region_short = recode(region,
+                                 "Europe & Central Asia" = "ECA",
+                                 "East Asia & Pacific" = "EAP",
+                                 "Latin America & Caribbean" = "LAC",
+                                 "Middle East & North Africa" = "MENA",
+                                 "South Asia" = "SAR",
+                                 "Africa Eastern and Southern" = "AFE",
+                                 "Africa Western and Central" = "AFW")
+                  )
+
+# write_rds(
+#   ctf_year_coverage_complete,
+#   here(
+#     "data",
+#     "output",
+#     "year_coverage_ctf_for_analysis.rds"
+#   )
+# )
+
+```
+
+
+
+
+
+
+```{r}
+#Write the input for the functions and the complete output
+
+write_rds(
+  cliar_indicators_long_diagnosis,
+  here(
+    "data",
+    "output",
+    "coverage_report_input.rds"
+  )
+)
+
+write_rds(
+  cliar_global_coverage_complete,
+  here(
+    "data",
+    "output",
+    "coverage_report_full_for_analysis.rds"
+  )
+)
+
+
+
+
+```
+
+
 ## Incorporate country income and region
 
 We incorporate the country income group and region. Please note that there is no available data on income group for Venezuela (`country_code` == "VEN"). We retroactively classify income groups using 2023 data.
@@ -856,7 +1180,7 @@ We incorporate the country income group and region. Please note that there is no
 ```{r country_income_and_region}
 cliar_indicators_complete <- cliar_indicators_clean |> 
   left_join(
-    country_income_and_region,
+    country_income_and_region_updated,
     by = c("country_code")
   ) |> 
   select(
@@ -884,4 +1208,6 @@ cliar_indicators_diagnostic |>
         "diagnostics_compiled_indicators.rds"
       )
     )
+
+
 ```
