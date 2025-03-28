@@ -1,6 +1,6 @@
 {
   "R": {
-    "Version": "4.3.2",
+    "Version": "4.3.0",
     "Repositories": [
       {
         "Name": "CRAN",
@@ -100,18 +100,6 @@
       ],
       "Hash": "45f0398006e83a5b10b72a90663d8d8c"
     },
-    "RStata": {
-      "Package": "RStata",
-      "Version": "1.1.1",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "foreign",
-        "tools",
-        "utils"
-      ],
-      "Hash": "7b27df9dda2cfaee206a55c0392f2827"
-    },
     "Rcpp": {
       "Package": "Rcpp",
       "Version": "1.0.13",
@@ -160,17 +148,6 @@
         "utils"
       ],
       "Hash": "6603bfcbc7883a5fed41fb13042a3899"
-    },
-    "WDI": {
-      "Package": "WDI",
-      "Version": "2.7.8",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "jsonlite"
-      ],
-      "Hash": "d0621c89c78e458566b28c79c3b9faab"
     },
     "askpass": {
       "Package": "askpass",
@@ -749,19 +726,6 @@
       ],
       "Hash": "1a0a9a3d5083d0d573c4214576f1e690"
     },
-    "foreign": {
-      "Package": "foreign",
-      "Version": "0.8-87",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "methods",
-        "stats",
-        "utils"
-      ],
-      "Hash": "81fc09bdeab0077a73927ed1243404b6"
-    },
     "fs": {
       "Package": "fs",
       "Version": "1.6.4",
@@ -842,6 +806,22 @@
         "withr"
       ],
       "Hash": "44c6a2f8202d5b7e878ea274b1092426"
+    },
+    "ggrepel": {
+      "Package": "ggrepel",
+      "Version": "0.9.6",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "Rcpp",
+        "ggplot2",
+        "grid",
+        "rlang",
+        "scales",
+        "withr"
+      ],
+      "Hash": "3d4156850acc1161f2f24bc61c9217c1"
     },
     "glue": {
       "Package": "glue",
@@ -1950,7 +1930,7 @@
     },
     "sf": {
       "Package": "sf",
-      "Version": "1.0-18",
+      "Version": "1.0-20",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -1969,7 +1949,7 @@
         "units",
         "utils"
       ],
-      "Hash": "801bec14b3bae0f37eef4d187ee0bb44"
+      "Hash": "b99bc68a928d7d9aea4aad10d970edf1"
     },
     "skimr": {
       "Package": "skimr",
