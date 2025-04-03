@@ -2426,7 +2426,7 @@ server <- function(input, output, session) {
         on.exit(remove_modal_spinner())
         
         write_csv(
-          ctf_long_dyn,
+          global_data_dyn,
           #down_clust_ctf_dyn_data,
           file,
           na = ""
