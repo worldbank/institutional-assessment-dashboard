@@ -198,11 +198,11 @@ coverage_share_global <- function(value, time_id) {
 
 
 
-x <- c(0, NA, 2, 4)
-year <- c(2001, 2002, 2004, 2008)
-
-# the truth is 75%
-coverage_share_global(x, year)
+# x <- c(0, NA, 2, 4)
+# year <- c(2001, 2002, 2004, 2008)
+#
+# # the truth is 75%
+# coverage_share_global(x, year)
 
 # Second, use the above inputs to create the desired table
 compute_global_coverage <- function(data, country_id, indicator_id, time_id, value_column) {
