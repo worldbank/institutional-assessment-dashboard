@@ -6,6 +6,8 @@
 This script reproduces the data used to produce the CLIAR dashbaord. All
 you have to do is:
 
+- Please reach out to Public Institutions Data and Analytics Team for
+  the input data which you should place in the `data/input` folder.
 - Open the `code.Rproj` in the base directory of the ETL folder.
 - Simply click the knit button to the `README.Rmd` file.
 
@@ -13,7 +15,7 @@ you have to do is:
 
 ## Process Data
 
-    #> Test passed 😀
+    #> Test passed 🎉
     #> # A tibble: 0 × 445
     #> # ℹ 445 variables: country_code <chr>, country_name <chr>, year <dbl>,
     #> #   wb_aspire_adequacy_benefits <dbl>, wb_aspire_coverage <dbl>,
@@ -22,9 +24,9 @@ you have to do is:
     #> #   bs_bti_q14_3 <dbl>, bs_bti_q15_1 <dbl>, bs_bti_q15_2 <dbl>,
     #> #   bs_bti_q2_1 <dbl>, bs_bti_q2_3 <dbl>, bs_bti_q3_1 <dbl>, bs_bti_q3_2 <dbl>,
     #> #   bs_bti_q7_2 <dbl>, bs_bti_q7_4 <dbl>, bs_bti_q8_1 <dbl>, …
-    #> Test passed 🥳
-    #> Test passed 😀
-    #> Test passed 🥳
+    #> Test passed 🎊
+    #> Test passed 🌈
+    #> Test passed 🎉
 
 ## Clean List of Countries
 
@@ -39,7 +41,7 @@ in the last $y$ years (2013 - most recent data).[^1]
 ![](README_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-5-2.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-5-3.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-5-4.png)<!-- -->
 
     #> Test passed 🌈
-    #> Test passed 😀
+    #> Test passed 🥇
 
 ![](README_files/figure-gfm/unnamed-chunk-5-5.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-5-6.png)<!-- -->
 

@@ -8,6 +8,7 @@ output: github_document
 
 This script reproduces the data used to produce the CLIAR dashbaord. All you have to do is: 
 
+- Please reach out to Public Institutions Data and Analytics Team for the input data which you should place in the `data/input` folder.
 - Open the `code.Rproj` in the base directory of the ETL folder. 
 - Simply click the knit button to the `README.Rmd` file. 
 
