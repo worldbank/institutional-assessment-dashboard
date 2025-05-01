@@ -18,17 +18,27 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
-
-if (sum(installed.packages()[,1] %in% "pacman") != 1){
-  
-  install.packages("pacman")
-  
+find_root <- function(filename = "renv.lock") {
+  path <- normalizePath(getwd(), winslash = "/", mustWork = TRUE)
+  while (!file.exists(file.path(path, filename))) {
+    new_path <- dirname(path)
+    if (new_path == path) stop(paste("Could not find", filename, "in any parent directory"))
+    path <- new_path
+  }
+  return(path)
 }
 
-pacman::p_load(tidyverse, readxl, here, labelled, haven, 
-               knitr, assertthat, tibble, sf, janitor,
-               stringr, scales, naniar, countrycode,
-               purrr, testthat)
+project_root <- find_root()
+
+renv::restore(project = project_root)
+
+pak_list <- c("tidyverse", "readxl", "here", "labelled", "haven", 
+               "knitr", "assertthat", "tibble", "sf", "janitor",
+               "stringr", "scales", "naniar", "countrycode",
+               "purrr", "testthat")
+
+lapply(pak_list, library, character.only = TRUE, quietly = TRUE)
+
 
 source(here::here("funs.R"))
 source(here::here("funs - original.R"))
