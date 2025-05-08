@@ -1,14 +1,15 @@
 # How to run the code
 
 *Following World Bank policies, the data for this project is not available on GitHub. 
-To run the code, you will need to get access to the project's OneDrive folder, 
+To reproduce our work, you will need to get access to the project's OneDrive folder, 
 and copy the files inside the data folder to the data folder of your local repository clone.*
 
-1. Click on the green `Code` button in this repository and download or clone the files to your computer.
-1. Copy the data files in the OneDrive to the `code/data/input` folder in GitHub.
-1. Open the R Project,use the index.Rmd file and bookdown::render_book() command to generate the data.
+1. Please switch to the "REPRO" branch and Git clone this branch to your computer or 
+click the green "Code" button to download the folder in the "REPRO" branch onto your local machine.
+2. Copy the data files in the OneDrive to the `code/data/input` folder in GitHub.
+3. The data preparation and app generation processes are independently replicated. 
+Please click the `ETL` folder above and scroll down to the README.md for replication instructions for the data 
+preparation process. Likewise, please click on the `app` folder and scroll down to the README.md for replicating
+the app deployment process.
 
-If all this is working, you should be able to run the app:
-1. Go to `app`.
-2. Open `app.Rproj`.
-3. Find the file `global.R` in the *Files* pane, open it, and click on *Run App*.
+
