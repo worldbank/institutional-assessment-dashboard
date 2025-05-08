@@ -2480,6 +2480,30 @@ server <- function(input, output, session) {
       }
     )
   
+  
+  #Data Dictionary
+  output$down_db_var <-
+    downloadHandler(
+      filename = function() {
+        paste0("CLIAR Data Dictionary.csv")
+      },
+      content = function(file) {
+        
+        show_modal_spinner(
+          color = "#17a2b8",
+          text = "Loading Data",
+        )
+        
+        on.exit(remove_modal_spinner())
+        
+        write_csv(
+          db_variables,
+          file,
+          na = ""
+        )
+      }
+    )
+  
   # Downloadable csv of Bivariate dataset
   
   observe({

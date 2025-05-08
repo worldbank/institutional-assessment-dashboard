@@ -1401,6 +1401,14 @@ ui <-
                     "Original indicators",
                     style = "width:100%; background-color: #204d74; color: white"
                   )
+              ),
+              column(
+                width = 2.4,
+                downloadButton(
+                  "down_db_var",
+                  "Data Dictionary",
+                  style = "width:100%; background-color: #204d74; color: white"
+                )
               )
             )
           ),
