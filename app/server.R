@@ -2481,7 +2481,7 @@ server <- function(input, output, session) {
     )
   
   
-  #Data Dictionary
+  #Data Dictionary - CLIAR
   output$down_db_var <-
     downloadHandler(
       filename = function() {
