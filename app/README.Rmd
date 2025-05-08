@@ -48,7 +48,7 @@ knitr::include_graphics(here("images/restore.PNG"))
 
 ```
 
-3) Open the `global.R` in this app folder. Go ahead and click `Run App` in the script of the window. A full reproduced app will look something like this:
+3) Open the `global.R` in this app folder. Go ahead and click `Run App` in the script of the window. A full reproduced app will look something like this on your local machine:
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE, fig.height=12, fig.width=10}
 
@@ -56,7 +56,7 @@ knitr::include_graphics(here("images/clairapp.PNG"))
 
 ```
 
-
+You can find the published app [here](https://datanalytics-int.worldbank.org/CLIAR/)
 <!-- badges: start -->
 <!-- badges: end -->
 

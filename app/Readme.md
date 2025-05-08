@@ -20,12 +20,13 @@ following:
 
 3)  Open the `global.R` in this app folder. Go ahead and click `Run App`
     in the script of the window. A full reproduced app will look
-    something like this:
+    something like this on your local machine:
 
 ![](images/clairapp.PNG)<!-- -->
 
-<!-- badges: start -->
-<!-- badges: end -->
+You can find the published app
+[here](https://datanalytics-int.worldbank.org/CLIAR/)
+<!-- badges: start --> <!-- badges: end -->
 
 # CLIAR Dashboard Overview
 
