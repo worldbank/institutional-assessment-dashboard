@@ -132,12 +132,9 @@ wdi <- WDI(
   latest = NULL,
   language = "en"
 )
-
-
-
 ```
 ```{r}
-vdem <- vdemdata::vdem 
+# vdem <- vdemdata::vdem 
 ```
 
 ## Clean Inputs
@@ -254,7 +251,6 @@ vdem_clean <- vdem |>
     ~ paste0("vdem_core_", .), 
     .cols = starts_with("v2")
   )
-
 ```
 
 ## Export Inputs
@@ -271,7 +267,6 @@ write_dta(
   )
 )
 
-
 write_dta(
   wdi_clean,
   here(
@@ -282,5 +277,4 @@ write_dta(
     "wdi_19902023.dta"
   )
 )
-
 ```
