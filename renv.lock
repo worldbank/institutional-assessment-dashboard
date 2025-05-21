@@ -92,37 +92,6 @@
       ],
       "Hash": "8dcfa99b14c296bc9f1fd64d52fd3ce7"
     },
-    "MASS": {
-      "Package": "MASS",
-      "Version": "7.3-57",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "grDevices",
-        "graphics",
-        "methods",
-        "stats",
-        "utils"
-      ],
-      "Hash": "71476c1d88d1ebdf31580e5a257d5d31"
-    },
-    "Matrix": {
-      "Package": "Matrix",
-      "Version": "1.5-1",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "graphics",
-        "grid",
-        "lattice",
-        "methods",
-        "stats",
-        "utils"
-      ],
-      "Hash": "539dc0c0c05636812f1080f473d2c177"
-    },
     "R6": {
       "Package": "R6",
       "Version": "2.5.1",
