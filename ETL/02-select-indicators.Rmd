@@ -29,7 +29,7 @@ db_variables <-
   ) 
 
 family_order <- read_csv(
-  here("data", "output", "family_order.csv")
+  here("data", "input", "cliar", "family_order.csv")
 )
 ```
 
@@ -83,9 +83,10 @@ write_rds(
   )
 )
 
-write_csv(
-  here("data", "output", "family_order.csv")
-)
+family_order |> 
+  write_csv(
+    here("data", "output", "family_order.csv")
+  )
 ```
 
 
