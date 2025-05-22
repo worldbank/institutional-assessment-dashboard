@@ -27,7 +27,6 @@ library(cicerone)
 library(shinyhelper)
 library(colourpicker)
 
-
 options(dplyr.summarise.inform = FALSE)
 
 ## Auxiliary functions -----------------------------------------------------------------
