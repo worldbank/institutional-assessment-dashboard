@@ -881,8 +881,6 @@ cliar_indicators_diagnostic <- cliar_indicators_clean |>
   )
 ```
 
-
-
 ### b. External coverage
 ```{r}
 ### Post transformation
@@ -1056,7 +1054,7 @@ write_rds(
 )
 ```
 
-### c. CTF by year 
+### c. CTF by year
 ```{r}
 ### CTF coverage
 ctf_year_long_diagnosis <- cliar_indicators_clean %>%
@@ -1121,6 +1119,7 @@ ctf_year_coverage_complete <- ctf_year_rename |>
                                  "Africa Eastern and Southern" = "AFE",
                                  "Africa Western and Central" = "AFW")
                   )
+
 ```
 
 ## Incorporate country income and region
@@ -1175,6 +1174,15 @@ write_rds(
     "data",
     "output",
     "coverage_report_full_for_analysis.rds"
+  )
+)
+
+write_rds(
+  ctf_year_coverage_complete,
+  here(
+    "data",
+    "output",
+    "year_coverage_ctf_for_analysis.rds"
   )
 )
 

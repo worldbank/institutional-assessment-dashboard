@@ -1,9 +1,12 @@
 # Process selected indicators
 
-- Input: `data/db_variables.xlsx`
+- Input: 
+  -`data/input/cliar/db_variables.xlsx`
+  - `data/input/cliar/family_order.csv`
 - Outputs: 
-  - `data/final/db_variables.xlsx`
-  - `data/final/definitions.rds`
+  - `data/output/db_variables.xlsx`
+  - `data/output/definitions.rds`
+  - `data/output/family_order.csv`
 
 ## Load list of selected indicators
 
@@ -25,7 +28,9 @@ db_variables <-
     var_name = str_to_sentence(var_name, locale = "en") # To Sentence
   ) 
 
-
+family_order <- read_csv(
+  here("data", "output", "family_order.csv")
+)
 ```
 
 
@@ -76,6 +81,10 @@ write_rds(
     "output",
     "definitions.rds"
   )
+)
+
+write_csv(
+  here("data", "output", "family_order.csv")
 )
 ```
 

@@ -1583,7 +1583,7 @@ server <- function(input, output, session) {
             data_dyn_avg() %>%
               filter(str_detect(variable, "_avg"))%>%
               left_join(.,family_order,by = 'family_name')%>%
-              filter(Benchmark_dynamic_family_aggregate!='No')%>%
+              filter(benchmark_dynamic_family_aggregate!='No')%>%
               static_plot_dyn(
                 base_country(),
                 input$family,
@@ -1625,7 +1625,7 @@ server <- function(input, output, session) {
             plot_data_1  <- plot_data %>%
               filter(str_detect(variable, "_avg"))%>%
               left_join(.,family_order,by = 'family_name')
-              filter(Benchmark_dynamic_family_aggregate!='No')
+              filter(benchmark_dynamic_family_aggregate!='No')
             
             plot_data_2  <- plot_data %>%
               filter(!str_detect(variable, "_avg"))
@@ -1947,7 +1947,7 @@ server <- function(input, output, session) {
   output$bar_plot <-
     
     renderPlotly({
-      #browser()
+      
       #Base Country Check
       validate(need(check_data(global_data,input$country_bar,input$vars_bar) == FALSE,'Country Comparison is not available for this Indicator for the selected base country'))
       
@@ -2201,7 +2201,7 @@ server <- function(input, output, session) {
   #=====================REACTIVE pre_download_data:
   #This creates a reactive pre-download version of the dataset for the user
   pre_download_data <- reactive({
-    #browser()
+    
     # Step 1: Select Data Based input$data_source
     data <- switch(
       input$data_source,
@@ -2714,7 +2714,7 @@ server <- function(input, output, session) {
           base_country = base_country()
         )
       
-      #browser()
+      
       
       rmarkdown::render(
         tempReport,
@@ -2777,7 +2777,7 @@ server <- function(input, output, session) {
           db_variables = db_variables
         )
       
-      #browser()
+      
       
       rmarkdown::render(
         tempReport,

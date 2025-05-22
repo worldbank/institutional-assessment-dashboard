@@ -1,4 +1,3 @@
-
 calculate_coverage <- function(indicator, id) {
   coverage_id <- n_distinct({{id}}[!is.na(indicator)])
 
@@ -143,7 +142,6 @@ calculate_global_coverage <- function(value, id) {
   return(global_coverage_id)
 }
 
-
 coverage_range_global <- function(value, time_id) {
   global_year_range <- paste0(
     min({{time_id}}[!is.na({{value}})], na.rm = TRUE), "-",
@@ -159,7 +157,6 @@ coverage_range_global <- function(value, time_id) {
   return(global_year_range)
 }
 
-
 coverage_years_global <- function(value, time_id) {
   # Remove NAs from both the value and time_id
   available_years <- time_id[!is.na(value)]
@@ -174,7 +171,6 @@ coverage_years_global <- function(value, time_id) {
 
   return(global_year_coverage)
 }
-
 
 coverage_share_global <- function(value, time_id) {
   # Get the non-NA time_ids corresponding to non-NA values
@@ -207,6 +203,13 @@ coverage_share_global(x, year)
 # Second, use the above inputs to create the desired table
 compute_global_coverage <- function(data, country_id, indicator_id, time_id, value_column) {
   global_data_coverage <- data |>
+    data.table::as.data.table() |> 
+    # .[, list("year_range", "available_years", "available_share") := list(
+    #   coverage_range_global({{value_column}}, {{time_id}}),
+    #   coverage_years_global({{value_column}}, {{time_id}}),
+    #   coverage_share_global({{value_column}}, {{time_id}})
+    # ), by = c({{country_id}}, {{indicator_id}})] 
+    # |>
     group_by({{country_id}}, {{indicator_id}}) |>
     summarise(
       year_range = coverage_range_global({{value_column}}, {{time_id}}),
@@ -214,10 +217,9 @@ compute_global_coverage <- function(data, country_id, indicator_id, time_id, val
       available_share = coverage_share_global({{value_column}}, {{time_id}}),
       .groups = 'drop'
     )
+  
   return(global_data_coverage)
 }
-
-
 
 scale_values <- function(x){
   (x-min(x, na.rm = TRUE))/(max(x, na.rm = TRUE)-min(x, na.rm = TRUE))

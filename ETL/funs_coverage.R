@@ -1,6 +1,3 @@
-
-
-
 group_segment_limits <- function(data, group, subgroup, quantity) {
   data |>
     group_by({{group}},{{subgroup}}) |>

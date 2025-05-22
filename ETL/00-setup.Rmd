@@ -2,7 +2,9 @@
 
 ```{r setup}
 # generate output data folder
-if(!dir.exists(here("data", "output"))) dir.create(here("data", "output"))
+if(
+  !dir.exists(here::here("data", "output"))
+  ) dir.create(here::here("data", "output"))
 
 library(tidyverse)
 library(readxl)
