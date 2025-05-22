@@ -572,13 +572,13 @@ wb_country_list <- read_xlsx(
     "wb",
     "CLASS.xlsx"
     ),
-    sheet = "compositions"
+    sheet = "Groups"
   ) |>
   transmute(
-    country_code = WB_Country_Code,
-    country_name = WB_Country_Name,
-    group = WB_Group_Name,
-    group_code = WB_Group_Code
+    country_code = CountryCode,
+    country_name = CountryName,
+    group = GroupName,
+    group_code = GroupCode
   ) |> 
   # exclude non-WB member countries
   filter(
@@ -1701,7 +1701,6 @@ cliar_indicators_diagnostic |>
       )
     )
 
-
   country_list <-
     read_xlsx(
       here(
@@ -1710,13 +1709,13 @@ cliar_indicators_diagnostic |>
         "wb",
         "CLASS.xlsx"
       ),
-      sheet = "Groups"
+      sheet = "compositions"
     ) %>%
     transmute(
-      country_code = CountryCode,
-      country_name = CountryName,
-      group = GroupName,
-      group_code = GroupCode
+      country_code = WB_Country_Code,
+      country_name = WB_Country_Name,
+      group = WB_Group_Name,
+      group_code = WB_Group_Code
     ) |>
   # exclude non-WB member countries
   filter(

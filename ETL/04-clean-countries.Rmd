@@ -33,7 +33,6 @@
       )
     )
 
-
   country_list <-
     read_xlsx(
       here(
@@ -42,13 +41,13 @@
         "wb",
         "CLASS.xlsx"
       ),
-      sheet = "Groups"
+      sheet = "compositions"
     ) %>%
     transmute(
-      country_code = CountryCode,
-      country_name = CountryName,
-      group = GroupName,
-      group_code = GroupCode
+      country_code = WB_Country_Code,
+      country_name = WB_Country_Name,
+      group = WB_Group_Name,
+      group_code = WB_Group_Code
     ) |>
   # exclude non-WB member countries
   filter(
