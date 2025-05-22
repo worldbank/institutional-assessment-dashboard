@@ -1,7 +1,12 @@
 # Process data
 
 - Input: `data/input/**/*.csv`
-- Output: `data/output/cliar_compiled_indicators.rds`
+- Output: 
+    - `data/output/cliar_compiled_indicators.rds`
+    - `data/output/diagnostics_compiled_indicators.rds`
+    - `data/output/coverage_report_input.rds`
+    - `data/output/coverage_report_full_for_analysis.rds`
+    - `data/output/grouping_country_income_and_region_updated.rds`
 
 This script generates the consolidated indicators for the CLIAR dashboard. It imports, processes and consolidates a diverse range of datasets, including from EFI360 and others. An exhaustive list of datasets is provided below:
 
@@ -17,8 +22,6 @@ source(
   here("funs.R")
 )
 
-#ref_year <- 2024
-#Data final year + 1
 ref_year <- 2025
 ```
 
@@ -114,20 +117,20 @@ open_budget <- list.files(
 # read in world bank standard country codes and mutate them to be compatible
 # with the other files
 wb_country_list <- read_xlsx(
-  here(
-   "data",
-    "input",
-    "wb",
-    "CLASS.xlsx"
-    ),
-    sheet = "Groups"
-  ) |>
-  transmute(
-    country_code = CountryCode,
-    country_name = CountryName,
-    group = GroupName,
-    group_code = GroupCode
-  ) |> 
+      here(
+        "data",
+        "input", 
+        "wb",
+        "CLASS.xlsx"
+      ),
+      sheet = "compositions"
+    ) %>%
+    transmute(
+      country_code = WB_Country_Code,
+      country_name = WB_Country_Name,
+      group = WB_Group_Name,
+      group_code = WB_Group_Code
+    ) |>
   # exclude non-WB member countries
   filter(
     country_code != "CUB" & 
@@ -185,16 +188,6 @@ country_income_and_region_updated <- country_income_and_region %>%
   left_join(country_region_list, by = "country_code", suffix = c("", "_new")) %>%
   mutate(region = if_else(region == "Sub-Saharan Africa", region_new, region)) %>%
   select(-region_new)
-
-country_income_and_region_updated |> 
-    write_rds(
-      here(
-        "data",
-        "output",
-        "grouping_country_income_and_region_updated.rds"
-      )
-    )
-
 ```
 
 ## Process data
@@ -1129,49 +1122,7 @@ ctf_year_coverage_complete <- ctf_year_rename |>
                                  "Africa Eastern and Southern" = "AFE",
                                  "Africa Western and Central" = "AFW")
                   )
-
-# write_rds(
-#   ctf_year_coverage_complete,
-#   here(
-#     "data",
-#     "output",
-#     "year_coverage_ctf_for_analysis.rds"
-#   )
-# )
-
 ```
-
-
-
-
-
-
-```{r}
-#Write the input for the functions and the complete output
-
-write_rds(
-  cliar_indicators_long_diagnosis,
-  here(
-    "data",
-    "output",
-    "coverage_report_input.rds"
-  )
-)
-
-write_rds(
-  cliar_global_coverage_complete,
-  here(
-    "data",
-    "output",
-    "coverage_report_full_for_analysis.rds"
-  )
-)
-
-
-
-
-```
-
 
 ## Incorporate country income and region
 
@@ -1201,13 +1152,40 @@ write_rds(
 )
 
 cliar_indicators_diagnostic |> 
+  write_rds(
+    here(
+      "data",
+      "output",
+      "diagnostics_compiled_indicators.rds"
+    )
+  )
+
+#Write the input for the functions and the complete output
+write_rds(
+  cliar_indicators_long_diagnosis,
+  here(
+    "data",
+    "output",
+    "coverage_report_input.rds"
+  )
+)
+
+write_rds(
+  cliar_global_coverage_complete,
+  here(
+    "data",
+    "output",
+    "coverage_report_full_for_analysis.rds"
+  )
+)
+
+# country groupings updated
+country_income_and_region_updated |> 
     write_rds(
       here(
         "data",
         "output",
-        "diagnostics_compiled_indicators.rds"
+        "grouping_country_income_and_region_updated.rds"
       )
     )
-
-
 ```
