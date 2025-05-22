@@ -53,16 +53,6 @@
       country_code != "PRK"
   )
 
-# read in world bank standard country codes and mutate them to be compatible
-  region_list <-
-    read_rds(
-      here(
-        "data",
-        "output",
-        "wb_country_list.rds"
-      )
-    )
-
 ### Updated region grouping
   region_list_complement <-
     read_rds(
@@ -72,34 +62,6 @@
         "grouping_country_income_and_region_updated.rds"
       )
     )
-```
-
-## Transform Region List for 2 Africas
-
-```{r}
-### Define the indexing regions
-target_regions <- c("Africa Eastern and Southern", "Africa Western and Central")
-
-region_list_updated <- country_list %>%
-  # Add Abbreviations to AFE and AFE regions in one dataframe
-  left_join(
-    region_list_complement %>% 
-      mutate(region_code = recode(region,
-                                  "Africa Eastern and Southern" = "AFE",
-                                  "Africa Western and Central" = "AFW",
-                                  .default = region)) %>% 
-      transmute(country_code, detailed_region = region, detailed_region_code = region_code),
-    by = "country_code"
-  ) %>%
-  # Index SSF region to effectively reclassify it into AFE and AFW
-  mutate(
-    group_name      = if_else(group_code == "SSF" & detailed_region %in% target_regions,
-                          detailed_region, group_code),
-    group_code = if_else(group_code == "SSF" & detailed_region %in% target_regions,
-                          detailed_region_code, group_code)
-  ) %>%
-  # Ensure that region_code follows the changes regions
-  select(names(country_list)[1:2], group_name, group_code)
 ```
 
 ## Subset country list
