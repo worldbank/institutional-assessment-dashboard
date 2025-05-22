@@ -5,6 +5,7 @@
     - `data/output/cliar_compiled_indicators.rds`
     - `data/output/diagnostics_compiled_indicators.rds`
     - `data/output/coverage_report_input.rds`
+    - `data/output/coverage_ctf_for_analysis.rds`
     - `data/output/coverage_report_full_for_analysis.rds`
     - `data/output/grouping_country_income_and_region_updated.rds`
 
@@ -973,7 +974,7 @@ cliar_global_coverage_complete <- cliar_global_coverage_country |>
 ```
 
 
-```{r eval=FALSE, include=FALSE}
+```{r eval = FALSE, include = FALSE}
 ### CTF coverage
 ctf_long_diagnosis <- cliar_indicators_clean %>%
                     filter(between(year,2019,2023)) |> 
@@ -1010,7 +1011,6 @@ ctf_renamed <- ctf_global_coverage |>
     indicators
   )
                                      
-
 # Cleaning for naming conventions
 ctf_coverage_country <- ctf_renamed |>
   mutate(
@@ -1054,7 +1054,6 @@ write_rds(
     "coverage_ctf_for_analysis.rds"
   )
 )
-
 ```
 
 ### c. CTF by year 

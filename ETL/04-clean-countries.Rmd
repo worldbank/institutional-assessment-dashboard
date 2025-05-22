@@ -13,7 +13,7 @@
 ## Inputs
 
 ```{r}
-  indicators <-                                                       
+indicators <-                                                       
       read_rds(
       here(
         "data",
@@ -22,7 +22,7 @@
       )
     )
 
-  group_list <-
+group_list <-
     read_csv(
       here(
         "data",
@@ -32,7 +32,7 @@
       )
     )
 
-  country_list <- read_xlsx(
+country_list <- read_xlsx(
       here(
         "data",
         "input", 
@@ -52,6 +52,9 @@
     country_code != "CUB" & 
       country_code != "PRK"
   )
+  
+# create a duplicate of the original dataset
+region_list <- country_list
 
 ### Updated region grouping
   region_list_complement <-
@@ -129,7 +132,7 @@ group_list_updated <- group_list %>%
 
 ## Save datasets
 
-Dataset with list of countries in our sample
+Dataset with list of countries in our sample.
 
 ```{r}
 write_rds(

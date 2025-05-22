@@ -57,7 +57,8 @@ This section describes the different stages of data processing in CLIAR. We desc
 
 # Load R packages
 
-```{r setup}
+
+``` r
 # generate output data folder
 if(!dir.exists(here("data", "output"))) dir.create(here("data", "output"))
 
@@ -107,8 +108,8 @@ streamlining the process and preparing key indicators. This step enables
 automation for future data update. Once cleaned, standardized CSV files
 will be exported to be further processed.
 
-```{r do-files-import, eval=FALSE}
 
+``` r
 # Setting path based on the user
 {
   
@@ -146,12 +147,10 @@ will be exported to be further processed.
 # stata(file.path(do_doc, "clean-2024-wbl.do"))
 
 }
-
-
 ```
 
-```{r r_packages_import, eval=FALSE}
 
+``` r
 wdi <- WDI(
   country = "all",
   indicator = c(
@@ -216,13 +215,15 @@ wdi <- WDI(
   language = "en"
 )
 ```
-```{r}
+
+``` r
 # vdem <- vdemdata::vdem 
 ```
 
 ## Clean Inputs
 
-```{r cleaning, eval=FALSE}
+
+``` r
 wdi_clean <- wdi %>%
   clean_names() %>%
   rename(
@@ -338,7 +339,8 @@ vdem_clean <- vdem |>
 
 ## Export Inputs
 
-```{r export, eval=FALSE}
+
+``` r
 write_dta(
   vdem_clean,
   here(
@@ -375,7 +377,8 @@ write_dta(
 
 This list is filled by hand in Excel.
 
-```{r}
+
+``` r
 db_variables <-
   read_excel(
     here(
@@ -390,14 +393,13 @@ db_variables <-
     variable = make_clean_names(variable),
     var_name = str_to_sentence(var_name, locale = "en") # To Sentence
   ) 
-
-
 ```
 
 
 ## Save list of selected indicators in R format
 
-```{r}
+
+``` r
 write_rds(
   db_variables,
   here(
@@ -411,7 +413,8 @@ write_rds(
 
 ## Save variable definitions by family
 
-```{r}
+
+``` r
 description <- 
   function(x) {
     assign(
@@ -463,27 +466,15 @@ write_rds(
 
 This script generates the consolidated indicators for the CLIAR dashboard. It imports, processes and consolidates a diverse range of datasets, including from EFI360 and others. An exhaustive list of datasets is provided below:
 
-```{r set-up, include = FALSE}
-# define list of variables
-source(
-  here("vars-control.R")
-)
 
-# Load in the funs.R file which contains many of the specialized functions
-# used in this process.
-source(
-  here("funs.R")
-)
-
-ref_year <- 2025
-```
 
 ## Import data
 
 The data was imported from (a) the EFI360 shared data and (b) manual imports.
 This section first reads in each of the individual manual-input files (Note that the updated version count with '2024' as folder and the column id names are cleaned with the clean_names() function. After this is done, a list of of standardized WB country names and codes is read in and mutated to be better compatible with the CLIAR data
 
-```{r read in}
+
+``` r
 efi <- read_dta(
   here("data", "input", "efi", "2024", "GTMI_Fixed_Update_EFI360_1990_2024.dta") 
 ) ### Latest API extraction and FTMI patch implemented due to a bug [Github issue #326]
@@ -494,8 +485,20 @@ pefa <- read_csv(
         here("data", "input", "efi", "2024", "assessments_1730149268.csv")
 ) |>
   clean_names()
-  
+```
 
+```
+## Rows: 102 Columns: 132
+## ── Column specification ────────
+## Delimiter: ","
+## chr (130): Country, PI-01, P...
+## dbl   (2): Framework, Year
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+```
+
+``` r
 romelli <- read_dta(
   here("data", "input", "romelli", "CBIData_Romelli2022.dta")
 ) |>
@@ -510,8 +513,96 @@ fraser <- read_xlsx(
 ) |> 
   clean_names() |> 
   slice(-c(1:2)) 
+```
 
-  
+```
+## New names:
+## • `` -> `...1`
+## • `` -> `...2`
+## • `` -> `...3`
+## • `` -> `...4`
+## • `` -> `...5`
+## • `` -> `...6`
+## • `` -> `...7`
+## • `` -> `...8`
+## • `` -> `...9`
+## • `` -> `...10`
+## • `` -> `...11`
+## • `` -> `...12`
+## • `` -> `...13`
+## • `` -> `...14`
+## • `` -> `...15`
+## • `` -> `...16`
+## • `` -> `...17`
+## • `` -> `...18`
+## • `` -> `...19`
+## • `` -> `...20`
+## • `` -> `...21`
+## • `` -> `...22`
+## • `` -> `...23`
+## • `` -> `...24`
+## • `` -> `...25`
+## • `` -> `...26`
+## • `` -> `...27`
+## • `` -> `...28`
+## • `` -> `...29`
+## • `` -> `...30`
+## • `` -> `...31`
+## • `` -> `...32`
+## • `` -> `...33`
+## • `` -> `...34`
+## • `` -> `...35`
+## • `` -> `...36`
+## • `` -> `...37`
+## • `` -> `...38`
+## • `` -> `...39`
+## • `` -> `...40`
+## • `` -> `...41`
+## • `` -> `...42`
+## • `` -> `...44`
+## • `` -> `...45`
+## • `` -> `...46`
+## • `` -> `...47`
+## • `` -> `...48`
+## • `` -> `...49`
+## • `` -> `...50`
+## • `` -> `...51`
+## • `` -> `...52`
+## • `` -> `...53`
+## • `` -> `...54`
+## • `` -> `...55`
+## • `` -> `...56`
+## • `` -> `...57`
+## • `` -> `...58`
+## • `` -> `...59`
+## • `` -> `...60`
+## • `` -> `...62`
+## • `` -> `...63`
+## • `` -> `...64`
+## • `` -> `...65`
+## • `` -> `...66`
+## • `` -> `...67`
+## • `` -> `...68`
+## • `` -> `...69`
+## • `` -> `...70`
+## • `` -> `...71`
+## • `` -> `...72`
+## • `` -> `...73`
+## • `` -> `...74`
+## • `` -> `...75`
+## • `` -> `...76`
+## • `` -> `...77`
+## • `` -> `...78`
+## • `` -> `...79`
+## • `` -> `...80`
+## • `` -> `...81`
+## • `` -> `...82`
+## • `` -> `...83`
+## • `` -> `...84`
+## • `` -> `...85`
+```
+
+``` r
 gfdb <- read_dta(
   here("data", "input", "gfdb", "GFDB_19902021.dta")
 )
@@ -519,11 +610,39 @@ gfdb <- read_dta(
 oecd_epl_regular <- read_csv(
   here("data", "input", "oecd", "epl_regular.csv")
 )
+```
 
+```
+## Rows: 2654 Columns: 15
+## ── Column specification ────────
+## Delimiter: ","
+## chr (7): COUNTRY, Country, S...
+## dbl (4): TIME, Time, PowerCo...
+## lgl (4): Reference Period Co...
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+```
+
+``` r
 oecd_epl_temporary <- read_csv(
   here("data", "input", "oecd", "epl_temporary.csv")
 )
+```
 
+```
+## Rows: 1805 Columns: 15
+## ── Column specification ────────
+## Delimiter: ","
+## chr (7): COUNTRY, Country, S...
+## dbl (4): TIME, Time, PowerCo...
+## lgl (4): Reference Period Co...
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+```
+
+``` r
 oecd_pmr <- read_dta(
   here("data", "input", "pmr", "PMR_2018.dta")
 )
@@ -532,7 +651,20 @@ spi <- read_csv(
   here("data", "input", "spi", "2024", "SPI_index_labelled.csv")
 ) |> 
   clean_names() 
+```
 
+```
+## Rows: 4141 Columns: 79
+## ── Column specification ────────
+## Delimiter: ","
+## chr (76): country, iso3c, SP...
+## dbl  (3): date, weights, pop...
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+```
+
+``` r
 aspire <- read_dta(
   #Testing new ASPIRE pulled from Pros360 API
   here("data", "input", "aspire", "API_ASPIRE.dta")
@@ -566,7 +698,44 @@ open_budget <- list.files(
       read_csv,
       col_select = c(ISO, year, obi)
     )
+```
 
+```
+## Rows: 441 Columns: 3
+## ── Column specification ────────
+## Delimiter: ","
+## chr (1): ISO
+## dbl (2): year, obi
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+## Rows: 115 Columns: 3
+## ── Column specification ────────
+## Delimiter: ","
+## chr (1): ISO
+## dbl (2): year, obi
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+## Rows: 117 Columns: 3
+## ── Column specification ────────
+## Delimiter: ","
+## chr (1): ISO
+## dbl (2): year, obi
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+## Rows: 120 Columns: 3
+## ── Column specification ────────
+## Delimiter: ","
+## chr (1): ISO
+## dbl (2): year, obi
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+```
+
+``` r
 # read in world bank standard country codes and mutate them to be compatible
 # with the other files
 wb_country_list <- read_xlsx(
@@ -647,7 +816,8 @@ country_income_and_region_updated <- country_income_and_region %>%
 
 In this section, we take the EFI files, plus the manual import data, and clean them. In order to ensure clean column names and accurate variables, certain datasets are edited to create new variables or to change other factors. More detail given in each subsection.
 
-```{r clean_data}
+
+``` r
 # 1. efi
 #       For the EFI, first the name of enterprise survey variables is changed to 
 #       be more consistent. Then a single PFM indicator is by taking the sum of
@@ -863,7 +1033,14 @@ oecd_epl_clean <- oecd_epl_regular_clean |>
   full_join(
     oecd_epl_temporary_clean
   )
+```
 
+```
+## Joining with `by =
+## join_by(country_code, year)`
+```
+
+``` r
 # 5. spi - statistical performance indicators
 #       First  generate an average index of the census and survey indexes, and
 #       then perform the standard cleanings of changing the country code column
@@ -930,8 +1107,18 @@ aspire_clean <- aspire |>
     wb_aspire_coverage = per_allsp.cov_pop_tot,
     wb_aspire_adequacy_benefits = per_allsp.adq_pop_tot
   )
+```
 
+```
+## Warning: There was 1 warning in
+## `transmute()`.
+## ℹ In argument: `country_code =
+##   countrycode(...)`.
+## Caused by warning:
+## ! Some values were not matched unambiguously: AGGREGATE
+```
 
+``` r
 # 7. rise data
 rise_clean <- rise |> 
   clean_names()
@@ -1060,7 +1247,8 @@ wbl_clean <- wbl |>
 This section joins all of the datasets together to make the full data. The join is done by country code and year. This section excludes certain codes and alters others so that all of them fit the same standard. Once the country codes are standard, the excluded codes are filtered out and the datasets are joined. Lastly, any year before 1990 is excluded from the final set and the
 columns are ordered by country name.
 
-```{r consolidate_data}
+
+``` r
 excluded_country_code <- c(
   "AIA", # anguilla
   "OECD", # OECD
@@ -1132,7 +1320,8 @@ cliar_indicators <- cliar_indicators %>%
 
 Verify that the indicators are selected correctly. To do this, take the non-removed indicators from the metadata file as the indicators from combined dataset created in step 5 and ensure they have the same contents by using an anti-join in both directions. Re-select indicators to ensure that only the indicators in metadata and v2 id cols are in data.
 
-```{r indicator_selection}
+
+``` r
 # verify that the indicators are selected correctly
 db_variables_indicators <- db_variables |> 
   select(
@@ -1174,11 +1363,16 @@ test_that(
 )
 ```
 
+```
+## Test passed 🥇
+```
+
 ## Compute family averages
 
 This section computes family averages, dynamically adapting to the selection of indicators.
 
-```{r}
+
+``` r
 # compute family averages
 cliar_indicators_long <-
   cliar_indicators %>%
@@ -1220,12 +1414,12 @@ cliar_indicators_clean <- cliar_indicators |>
     by = c("country_code", "year")
   ) |>
   filter(!country_code %in% c("DDR", "YMD"))
-
 ```
 
 
 
-```{r}
+
+``` r
 # Create a new row with specified values
 # new_row <- tibble(
 #   country_code = "CHI",
@@ -1246,7 +1440,17 @@ cliar_indicators_clean <- cliar_indicators |>
 # 
 cliar_indicators_clean %>%
   filter(is.na(country_code))
+```
 
+```
+## # A tibble: 0 × 443
+## # ℹ 443 variables:
+## #   country_code <chr>,
+## #   country_name <chr>,
+## #   year <dbl>,
+## #   bs_sgi_195 <dbl>,
+## #   bs_sgi_196 <dbl>,
+## #   bs_bti_q1_2 <dbl>, …
 ```
 
 
@@ -1254,7 +1458,8 @@ cliar_indicators_clean %>%
 
 This section ensures that the country_code code and the country name are consistent. Check this by performing an anti-join in both directions on the official WB list of country codes and names and the cliar indicators dataset.
 
-```{r country_validation}
+
+``` r
 # there are 218 country codes listed in the WB's official website
 # https://datahelpdesk.worldbank.org/knowledgebase/articles/906519-world-bank-country-and-lending-groups
 
@@ -1274,7 +1479,13 @@ test_that(
       0
   )
 )
+```
 
+```
+## Test passed 🥇
+```
+
+``` r
 # b. verify that cliar has distinct country-year
 test_that(
   "Verify that CLIAR has distinct country years",{
@@ -1286,7 +1497,13 @@ test_that(
     )
   }
 )
+```
 
+```
+## Test passed 🥳
+```
+
+``` r
 distinct_years_per_country <- cliar_indicators_clean %>%
   group_by(country_name) %>%
   summarize(distinct_years = n_distinct(year))
@@ -1306,13 +1523,18 @@ test_that(
 )
 ```
 
+```
+## Test passed 🥳
+```
+
 ## Compute coverage diagnostics
 
 ### a. Internal coverage
 
 Use the compute_coverage function from funs.R to create the coverage countries and years it is present for. With that information, percentage coverage, year range, percent of complete records, as well as standard distribution information such as mean and standard deviation are calculated.
 
-```{r internal coverage_diagnostics}
+
+``` r
 cliar_indicators_diagnostic <- cliar_indicators_clean |>
   select(-country_name) |> 
   compute_coverage(country_code, year, ref_year - 5) |> 
@@ -1336,19 +1558,20 @@ cliar_indicators_diagnostic <- cliar_indicators_clean |>
 
 
 ### b. External coverage
-```{r}
+
+``` r
 ### Post transformation
 gtmi_mistery <- cliar_indicators_clean %>%
   select(year, starts_with("wb_gtmi_")) %>%
   filter(if_any(starts_with("wb_gtmi_"), ~ !is.na(.))) %>%
   group_by(year) %>%
   summarize(count = n())
-
 ```
 
 Building on the 'compute_coverage' function, this subsection makes an assessment on the  available at a country-level information to create a table that overviews at range, latest year, missing years (vector) and missing years share (%) 
 
-```{r external coverage_diagnostics}
+
+``` r
 # Pivot long
 cliar_indicators_long_diagnosis <- cliar_indicators_clean %>%
     filter(year >= 2000) |>
@@ -1361,7 +1584,27 @@ cliar_indicators_long_diagnosis <- cliar_indicators_clean %>%
 # Apply coverage calculation from funs.R 
 cliar_global_coverage <- cliar_indicators_long_diagnosis |>
   compute_global_coverage(country_name, indicators, year, indicator_value)
+```
 
+```
+## Warning: There were 67224 warnings in
+## `summarise()`.
+## The first warning was:
+## ℹ In argument: `year_range =
+##   coverage_range_global(indicator_value,
+##   year)`.
+## ℹ In group 19: `country_name =
+##   "Afghanistan"` `indicators =
+##   "bs_sgi_195"`.
+## Caused by warning in `min()`:
+## ! no non-missing arguments to min; returning Inf
+## ℹ Run
+##   `dplyr::last_dplyr_warnings()`
+##   to see the 67223 remaining
+##   warnings.
+```
+
+``` r
 # Renaming and joining to db_variables classification 
 cliar_global_coverage_renamed <- cliar_global_coverage |>
   mutate(
@@ -1397,7 +1640,18 @@ cliar_global_coverage_country <- cliar_global_coverage_renamed |>
     )
   ) %>% 
   filter(!is.na(available_share))
+```
 
+```
+## Warning: There was 1 warning in
+## `mutate()`.
+## ℹ In argument: `country_code =
+##   case_when(...)`.
+## Caused by warning:
+## ! Some values were not matched unambiguously: Channel Islands, Kosovo
+```
+
+``` r
 # Region naming for analysis
 cliar_global_coverage_complete <- cliar_global_coverage_country |>
   left_join(
@@ -1421,95 +1675,14 @@ cliar_global_coverage_complete <- cliar_global_coverage_country |>
                                  "Africa Western and Central" = "AFW",
                                  )
                   )
-
-
 ```
 
 
-```{r eval = FALSE, include = FALSE}
-### CTF coverage
-ctf_long_diagnosis <- cliar_indicators_clean %>%
-                    filter(between(year,2019,2023)) |> 
-                     pivot_longer(
-                        cols = -c(country_code, country_name, year),  # Exclude these columns
-                        names_to = "indicators", 
-                        values_to = "indicator_value"  
-                      )
 
-ctf_global_coverage <- ctf_long_diagnosis |>
-  compute_global_coverage(country_name, indicators, year, indicator_value)
-
-# Renaming and joining to db_variables classification 
-ctf_renamed <- ctf_global_coverage |>
-  mutate(
-    available_share = case_when(
-      !is.na(available_share) ~ as.numeric(str_remove(available_share, "%")),
-      TRUE ~ NA_real_) 
-    )|>
-  left_join( # Join with db_variables
-    db_variables |> select(variable, var_name, source, family_name, benchmarked_ctf),
-    by = c("indicators" = "variable")
-  ) |>
-  select( # Select and reorder columns
-    everything(),
-    indicators,
-    var_name,
-    family_name,
-    source,
-    benchmarked_ctf
-  ) |>
-  arrange(
-    family_name,
-    indicators
-  )
-                                     
-# Cleaning for naming conventions
-ctf_coverage_country <- ctf_renamed |>
-  mutate(
-    country_code = case_when(
-      country_name == "Channel Islands" ~ "GGY", 
-      country_name == "Kosovo" ~ "XKX", 
-      TRUE ~ countrycode(country_name, "country.name", "iso3c") 
-    )
-  ) %>% 
-  filter(!is.na(available_share))
-
-# Region naming for analysis
-ctf_coverage_country_complete <- ctf_coverage_country |>
-  filter(benchmarked_ctf == "Yes") |> 
-  left_join(
-    country_income_and_region_updated,
-    by = c("country_code")
-  ) %>% 
-  mutate(
-      region = if_else(region == "North America", "Latin America & Caribbean", region)
-             ) %>%
-          filter(
-           !is.na(region)
-              ) %>% 
-          mutate(
-              region_short = recode(region,
-                                 "Europe & Central Asia" = "ECA",
-                                 "East Asia & Pacific" = "EAP",
-                                 "Latin America & Caribbean" = "LAC",
-                                 "Middle East & North Africa" = "MENA",
-                                 "South Asia" = "SAR",
-                                 "Africa Eastern and Southern" = "AFE",
-                                 "Africa Western and Central" = "AFW",)
-                  )
-
-write_rds(
-  ctf_coverage_country_complete,
-  here(
-    "data",
-    "output",
-    "coverage_ctf_for_analysis.rds"
-  )
-)
-```
 
 ### c. CTF by year 
-```{r}
+
+``` r
 ### CTF coverage
 ctf_year_long_diagnosis <- cliar_indicators_clean %>%
                     filter(between(year,2019,2023)) |> 
@@ -1550,7 +1723,18 @@ ctf_year_rename <- ctf_year_long_diagnosis |>
       TRUE ~ countrycode(country_name, "country.name", "iso3c") 
     )
   ) 
+```
 
+```
+## Warning: There was 1 warning in
+## `mutate()`.
+## ℹ In argument: `country_code =
+##   case_when(...)`.
+## Caused by warning:
+## ! Some values were not matched unambiguously: Channel Islands, Kosovo
+```
+
+``` r
 # Region naming for analysis 
 ctf_year_coverage_complete <- ctf_year_rename |>
   left_join(
@@ -1579,7 +1763,8 @@ ctf_year_coverage_complete <- ctf_year_rename |>
 
 We incorporate the country income group and region. Please note that there is no available data on income group for Venezuela (`country_code` == "VEN"). We retroactively classify income groups using 2023 data.
 
-```{r country_income_and_region}
+
+``` r
 cliar_indicators_complete <- cliar_indicators_clean |> 
   left_join(
     country_income_and_region_updated,
@@ -1592,7 +1777,8 @@ cliar_indicators_complete <- cliar_indicators_clean |>
 
 ## Save data
 
-```{r}
+
+``` r
 write_rds(
   cliar_indicators_complete,
   here(
@@ -1657,7 +1843,8 @@ country_income_and_region_updated |>
 
 ## Inputs
 
-```{r}
+
+``` r
 indicators <-                                                       
       read_rds(
       here(
@@ -1676,7 +1863,19 @@ group_list <-
         "group_list.csv"
       )
     )
+```
 
+```
+## Rows: 17 Columns: 2
+## ── Column specification ────────
+## Delimiter: ","
+## chr (2): group_name, group_c...
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+```
+
+``` r
 country_list <- read_xlsx(
       here(
         "data",
@@ -1716,7 +1915,8 @@ region_list <- country_list
 
 The only relevant countries are those we have some data for
 
-```{r}
+
+``` r
 country_list <-
   indicators %>%
   select(country_code) %>%
@@ -1724,9 +1924,15 @@ country_list <-
   left_join(country_list)
 ```
 
+```
+## Joining with `by =
+## join_by(country_code)`
+```
+
 ## Subset groups
 
-```{r}
+
+``` r
 country_list <-
   country_list %>%
   filter(
@@ -1761,7 +1967,8 @@ country_list_updated <- country_list %>%
 
 ## Add AFE anhd AFW to Region list
 
-```{r}
+
+``` r
 group_list_updated <- group_list %>%
   # Remove the "Sub-Saharan Africa" row
   filter(group_name != "Sub-Saharan Africa") %>%
@@ -1779,7 +1986,8 @@ group_list_updated <- group_list %>%
 
 Dataset with list of countries in our sample.
 
-```{r}
+
+``` r
 write_rds(
   country_list_updated,
   here(
@@ -1823,7 +2031,8 @@ performance for indicator $i$ among all countries and in the last $y$ years (201
 
 Ideally, this will use data for the last 7 years in any given year.
 
-```{r}
+
+``` r
 #load in cleaned indicators from step 3
 cliar_indicators <-
   read_rds(
@@ -1906,7 +2115,8 @@ Freedom house: Countries are graded between 1 (most free) and 7 (least free)
     Subtract each indicator from 8 so that a value of 1 for the most free is now 7,
     indicating stronger institutions.
     
-```{r}
+
+``` r
 #create new table to hold rescaled values
 cliar_indicators_rescaled <- cliar_indicators |> 
   mutate(
@@ -1950,7 +2160,8 @@ cliar_indicators_rescaled <- cliar_indicators |>
 
 For the static benchmark, we only calculate averages for indicators starting in the year 2019.
 
-```{r}
+
+``` r
 country_average <-
   #filter only data from years we are using
   cliar_indicators_rescaled %>%
@@ -1987,6 +2198,11 @@ country_last_year <-
   ungroup()
 ```
 
+```
+## Adding missing grouping
+## variables: `country_code`
+```
+
 ## Identify worst and best performance for each indicator
 
 Find this data both on a global time-scale, and for each individual year.
@@ -1995,7 +2211,8 @@ Inspect the entire dataset of rescaled indicator values - so including the indic
 values for every country year after 2013 - and identify the lowes tand highest 
 values in each category. 
 
-```{r}
+
+``` r
 # static
 min_max <-
   cliar_indicators_rescaled %>%
@@ -2015,7 +2232,22 @@ min_max <-
     names_to = c("variable", ".value"),
     names_pattern = "(.*)-(.*)"
   )
+```
 
+```
+## Warning: There were 12 warnings in
+## `summarise()`.
+## The first warning was:
+## ℹ In argument: `across(...)`.
+## Caused by warning in `min()`:
+## ! no non-missing arguments to min; returning Inf
+## ℹ Run
+##   `dplyr::last_dplyr_warnings()`
+##   to see the 11 remaining
+##   warnings.
+```
+
+``` r
 # dynamic: note that there are quite a few cases of Infinite warnings (due to missingness)
 min_max_dynamic <- cliar_indicators_rescaled %>%
   filter(
@@ -2041,7 +2273,8 @@ min_max_dynamic <- cliar_indicators_rescaled %>%
 
 ## Calculate closeness to frontier at indicator level
 
-```{r}
+
+``` r
 ctf <-
   country_average %>%
   pivot_longer(
@@ -2070,7 +2303,14 @@ ctf <-
     country_average %>%
       select(country_code)
   )
+```
 
+```
+## Joining with `by =
+## join_by(country_code)`
+```
+
+``` r
 # reproduce CTF scores using latest available data for each country-indicator
 ctf_static_last_year <- country_last_year %>%
   pivot_longer(
@@ -2099,7 +2339,14 @@ ctf_static_last_year <- country_last_year %>%
     country_average %>%
       select(country_code)
   )
-  
+```
+
+```
+## Joining with `by =
+## join_by(country_code)`
+```
+
+``` r
 ctf_dynamic <-
   cliar_indicators_rescaled %>%
   pivot_longer(
@@ -2129,11 +2376,17 @@ ctf_dynamic <-
   )
 ```
 
+```
+## Joining with `by =
+## join_by(country_code, year)`
+```
+
 ## Calculate median per group
 
 Group countries by regional, economic, or income groups and take indicator median
 for those groups
-```{r}
+
+``` r
 # static
 group_ctf <-
   #join country list with ctf
@@ -2191,7 +2444,8 @@ group_ctf_dynamic <- add_column(group_ctf_dynamic, country_group = 1, .after = "
 
 ## Clean CTF data and incorporate logged GDP per capita
 
-```{r}
+
+``` r
 # static
 ctf <-
   ctf %>%
@@ -2244,7 +2498,6 @@ ctf_dynamic <-
     country_name,
     everything()
   )
-
 ```
 
 ## Convert to long-form
@@ -2252,7 +2505,8 @@ ctf_dynamic <-
 This changes the CTF dataset from wide form to long form and adds some additional 
 data such as indicator family.
 
-```{r}
+
+``` r
 # static
 ctf_long <-
   ctf %>%
@@ -2284,7 +2538,18 @@ ctf_long_clean <-
   ) %>%
   bind_rows(ctf_long) %>% 
   rename(group = group_name)
+```
 
+```
+## `summarise()` has grouped
+## output by 'family_name',
+## 'family_var', 'country_name',
+## 'country_code', 'group_name'.
+## You can override using the
+## `.groups` argument.
+```
+
+``` r
 # dynamic
 ctf_dynamic_long <-
   ctf_dynamic %>%
@@ -2303,7 +2568,14 @@ ctf_dynamic_long <-
     relationship = "many-to-many",
     by = "country_code",
   ) 
+```
 
+```
+## Joining with `by =
+## join_by(variable)`
+```
+
+``` r
 ctf_dynamic_long_clean <-
   ctf_dynamic_long %>%
   group_by(family_name, family_var, country_name, country_code, country_group, group_name, year) %>%
@@ -2315,7 +2587,16 @@ ctf_dynamic_long_clean <-
   ) %>%
   bind_rows(ctf_dynamic_long) %>% 
   rename(group = group_name)
+```
 
+```
+## `summarise()` has grouped
+## output by 'family_name',
+## 'family_var', 'country_name',
+## 'country_code',
+## 'country_group', 'group_name'.
+## You can override using the
+## `.groups` argument.
 ```
 
 ## Calculate family level data
@@ -2324,7 +2605,8 @@ Similarly to creating group-level data, this section calculates median CTF for e
 
 ### Static
 
-```{r}
+
+``` r
 # static
 ctf_static_family <- ctf |> 
   compute_family_average(
@@ -2362,7 +2644,8 @@ ctf_dynamic_clean <- ctf_dynamic |>
 
 Take the family averages for dynamic data.
 
-```{r}
+
+``` r
 # select family averages to diagnose
 vars_family_static_ctf <- ctf_static_family |> 
   select(ends_with("avg")) |> 
@@ -2391,7 +2674,11 @@ ctf_static_family |>
     "Percentage of Missing Institutional Family Averages: Static CTF",
     subtitle = "Unit of Analysis: Country"
   )
+```
 
+<img src="_main_files/figure-html/unnamed-chunk-25-1.png" width="672" />
+
+``` r
 # dynamic
 ctf_dynamic_family |> 
   select(ends_with("avg")) |> 
@@ -2402,7 +2689,11 @@ ctf_dynamic_family |>
     "Percentage of Missing Institutional Family Averages: Dynamic CTF",
     subtitle = "Unit of Analysis: Country-Year"
   )
+```
 
+<img src="_main_files/figure-html/unnamed-chunk-25-2.png" width="672" />
+
+``` r
 # static family averages diagnosis
 theme_set(
   theme_minimal()
@@ -2439,7 +2730,16 @@ vars_family_static_ctf |>
   ggtitle(
     "Missingness by Indicator in the Static Benchmarking"
   )
-  
+```
+
+```
+## Joining with `by =
+## join_by(family_var, variable)`
+```
+
+<img src="_main_files/figure-html/unnamed-chunk-25-3.png" width="672" />
+
+``` r
 # dynamic family averages diagnosis
 vars_family_dynamic_ctf |> 
   set_names(vars_family_dynamic_ctf) |> 
@@ -2473,10 +2773,18 @@ vars_family_dynamic_ctf |>
   )
 ```
 
+```
+## Joining with `by =
+## join_by(family_var, variable)`
+```
+
+<img src="_main_files/figure-html/unnamed-chunk-25-4.png" width="672" />
+
 ## Data Quality Control
 
 Test that all expected indicators and countries are covered
-```{r}
+
+``` r
 test_that(
   "All countries are covered",
   {
@@ -2490,7 +2798,13 @@ test_that(
     )
   }
 )
+```
 
+```
+## Test passed 🌈
+```
+
+``` r
 test_that(
   "All indicators are covered",
   {
@@ -2507,9 +2821,14 @@ test_that(
 )
 ```
 
+```
+## Test passed 🥇
+```
+
 ## Update db_variables to contain the family averages
 
-```{r}
+
+``` r
 db_variables <- db_variables %>% 
   mutate(
     across(where(is.character), str_squish)
@@ -2545,7 +2864,8 @@ db_variables <- db_variables %>%
 
 In this section, we add income groups and region. Note that the CTF includes groups as observations, meaning that not all rows are expected to have an income group or region.
 
-```{r}
+
+``` r
 ctf_complete <- ctf_clean |> 
   left_join(
     country_income_and_region,
@@ -2575,7 +2895,8 @@ We compute the dispersion of our institutional family-level scores by country. F
 
 In the case of the dynamic benchmarking we extend our analysis by specifying min-max and standard deviation for a given country and year.
 
-```{r}
+
+``` r
 ctf_static_variance <- ctf_complete |> 
   compute_family_variance(
     vars_static_ctf,
@@ -2598,7 +2919,8 @@ For (a), we plot the values of CTF-scores for the 5-year average against the las
 
 For (b), we summarize the CTF scores presented in (a) at the indicator level, computing the correlation between the CTF scores using 5-year averages and last-year values for each indicator. For example, for the indicator "Separation of powers", we calculate the correlation of its two types of CTF scores (5-year vs. last-year) across countries. This gives us a final correlation score at the indicator level, e.g., `0.982`. The same procedure is repeated for each indicator. Finally, we produce a histogram of all correlation scores at the indicator level. We find that the majority of scores (96.4%) have a correlation above 0.95. 
 
-```{r}
+
+``` r
 ctf_static_last_year_long <- ctf_static_last_year |> 
   pivot_longer(
     cols = c(
@@ -2643,7 +2965,18 @@ ctf_robustness |>
     "Correlation between CTF scores computed using (a) 5-Year Average and (b) Last-Year values for indicators"
   ) +
   theme_minimal()
+```
 
+```
+## Warning: Removed 19869 rows containing
+## missing values or values
+## outside the scale range
+## (`geom_point()`).
+```
+
+<img src="_main_files/figure-html/unnamed-chunk-30-1.png" width="672" />
+
+``` r
 # (b) distribution of correlations by indicator
 ctf_robustness |> 
   group_by(variable) |> 
@@ -2676,9 +3009,29 @@ ctf_robustness |>
   theme_minimal()
 ```
 
+```
+## Warning in geom_histogram(aes(correlation, y = stat(width * density), binwidth = 0.01)): Ignoring unknown aesthetics:
+## binwidth
+```
+
+```
+## `stat_bin()` using `bins = 30`.
+## Pick better value with
+## `binwidth`.
+```
+
+```
+## Warning: Removed 52 rows containing
+## non-finite outside the scale
+## range (`stat_bin()`).
+```
+
+<img src="_main_files/figure-html/unnamed-chunk-30-2.png" width="672" />
+
 ## Write-out data
 
-```{r}
+
+``` r
 write_rds(
   ctf_complete,
   here(
@@ -2759,7 +3112,8 @@ write_rds(
 
 ## Input data 
 
-```{r}
+
+``` r
 ctf <-
   read_rds(
     here(
@@ -2790,7 +3144,8 @@ db_variables <-
 
 ## Official WB maps 
 
-```{r}
+
+``` r
 world_map <-
   read_sf(
     here(
@@ -2816,7 +3171,8 @@ disputed_areas <-
 
 In this section, we combine the world map data with disputed areas, in order to address potential boundary conflicts. We also simplify the world map through the `st_simplify` command in order to improve loading performance on our Shiny App.
 
-```{r}
+
+``` r
 disputed_areas <-
   disputed_areas %>%
   transmute(country_code = str_trim(WB_A3)) %>%
@@ -2855,7 +3211,8 @@ simple_world_map <-
 
 ## Closeness to frontier
 
-```{r}
+
+``` r
 ctf <-
   ctf %>%
   pivot_longer(
@@ -2880,7 +3237,8 @@ ctf <-
 
 ## Raw data
 
-```{r}
+
+``` r
 raw <-
   raw_indicators %>%
   select(
@@ -2908,9 +3266,17 @@ final_world_map <-
   )
 ```
 
+```
+## Joining with `by =
+## join_by(country_code)`
+## Joining with `by =
+## join_by(country_code)`
+```
+
 ## Save datasets
 
-```{r}
+
+``` r
 final_world_map %>%
   write_rds(
     here(
@@ -2925,7 +3291,8 @@ final_world_map %>%
 
 # Move final data to app folder
 
-```{r}
+
+``` r
 file.copy(
   list.files(
     here(
@@ -2942,6 +3309,13 @@ file.copy(
   recursive = TRUE,
   overwrite = TRUE
 )
+```
+
+```
+##  [1] TRUE TRUE TRUE TRUE TRUE
+##  [6] TRUE TRUE TRUE TRUE TRUE
+## [11] TRUE TRUE TRUE TRUE TRUE
+## [16] TRUE
 ```
 
 <!--chapter:end:07-copy-final-data.Rmd-->

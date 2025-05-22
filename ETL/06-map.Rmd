@@ -130,7 +130,6 @@ ctf <-
   )
 ```
 
-
 ## Raw data
 
 ```{r}
@@ -160,7 +159,6 @@ final_world_map <-
     ctf
   )
 ```
-
 
 ## Save datasets
 
