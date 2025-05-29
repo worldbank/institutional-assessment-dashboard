@@ -1797,7 +1797,7 @@ ui <-
             width = 12,
             status = "navy",
             title = "Where can I find additional information on the methodology?",
-            downloadButton("download_metho",
+            downloadButton("download_methodology_note",
                            "Download complete methodology",
                            style = "background-color: #204d74; color: white")
           )

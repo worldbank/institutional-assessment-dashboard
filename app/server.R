@@ -4,7 +4,7 @@
 # CLIAR Benchmarking Dashboard - Server Logic Script (server.R)
 # -----------------------------------------------------------------------------
 # Overview:
-# This script defines the server-side logic for the CLIAR Benchmarking Dashboard, 
+# This script defines the server-side lodogic for the CLIAR Benchmarking Dashboard, 
 # handling all the computational tasks, data processing, and dynamic interactions 
 # required to drive the user interface (UI). It works in tandem with the ui.R script 
 # to create a fully functional Shiny application.
@@ -3018,11 +3018,11 @@ server <- function(input, output, session) {
     )
   
   # Full methodology --------------------------------------------------------
-  output$download_metho <-
+  output$download_methodology_note <-
     downloadHandler(
       filename = "CLIAR Benchmarking.pdf",
       content = function(file) {
-        file.copy("www/CLIAR Benchmarking.pdf", file)
+        file.copy("www/CLIAR Benchmarking v2-6_May2025.pdf", file)
       }
     )
   
