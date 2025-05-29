@@ -1583,7 +1583,7 @@ server <- function(input, output, session) {
             data_dyn_avg() %>%
               filter(str_detect(variable, "_avg"))%>%
               left_join(.,family_order,by = 'family_name')%>%
-              filter(benchmark_dynamic_family_aggregate!='No')%>%
+              filter(Benchmark_dynamic_family_aggregate!='No')%>%
               static_plot_dyn(
                 base_country(),
                 input$family,
@@ -1625,7 +1625,7 @@ server <- function(input, output, session) {
             plot_data_1  <- plot_data %>%
               filter(str_detect(variable, "_avg"))%>%
               left_join(.,family_order,by = 'family_name')
-              filter(benchmark_dynamic_family_aggregate!='No')
+              filter(Benchmark_dynamic_family_aggregate!='No')
             
             plot_data_2  <- plot_data %>%
               filter(!str_detect(variable, "_avg"))
