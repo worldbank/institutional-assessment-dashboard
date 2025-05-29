@@ -1,3 +1,30 @@
+# ---------------------------------------------------------
+# Functions: missing_var and missing_var_dyn
+# ---------------------------------------------------------
+# These functions identify and handle variables with missing 
+# data for a specified base country within a dataset. They 
+# are designed to filter relevant variables and list those 
+# with complete data for comparative analysis.
+# 
+# Parameters:
+# - data: A dataset containing country-specific data for analysis.
+# - base_country: The country of interest for which missing variables 
+#                 are identified.
+# - country_list: A dataset with country details, used to filter 
+#                 comparison countries.
+# - comparison_countries: A vector of country names to compare 
+#                         against the base country.
+# - vars: A vector of variable names to evaluate.
+# - variable_names: A dataframe mapping variable codes to human-readable 
+#                   names for better interpretability.
+# 
+# Outputs:
+# - missing_var: Returns a list of relevant variables after excluding 
+#                those with missing values for the base country.
+# - missing_var_dyn: Extends the functionality of missing_var by 
+#                    calculating the proportion of missing values 
+#                    and handling cases dynamically.
+
 missing_var <- function(data, base_country, country_list, comparison_countries, vars, variable_names) {
 
   # List all relevant countries

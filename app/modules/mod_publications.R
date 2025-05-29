@@ -17,9 +17,10 @@ publicationsUI <- function(id) {
   ns <- NS(id)
 
   tagList(
-
-    ## ensures that we can use the Bs4Dash functions in our module
-    shinyWidgets::useBs4Dash(),
+    # ## ensures that we can use the Bs4Dash functions in our module, but also suppresses
+    #Warnings from bs4dash
+    tags$script(suppressWarnings(shinyWidgets::useBs4Dash())),
+    # shinyWidgets::useBs4Dash(),
 
     ## styling implemented on the divs
     tags$style(

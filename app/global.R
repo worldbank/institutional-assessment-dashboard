@@ -25,6 +25,7 @@ library(openxlsx)
 library(countrycode)
 library(cicerone)
 library(shinyhelper)
+library(colourpicker)
 
 options(dplyr.summarise.inform = FALSE)
 
@@ -59,14 +60,33 @@ source(here("auxiliary", "plots.R"))
 source(here("auxiliary", "clean_plotly_legend.R"))
 source(here("auxiliary", "fixfacets.R"))
 
+#Functions that prepare data for download in different file formats
+source(here("auxiliary", "fun_download_prep.R"))
+
+#Functions that check for null data by indicator
+source(here("auxiliary", "fun_check_data.R"))
+
+#Functions that extracts variables 
+source(here("auxiliary", "fun_extract_var.R"))
+
+#Functions that remove aggregate average columns from datasets
+source(here("auxiliary", "fun_remove_avg.R"))
+
 # Function that displays publications
 source(here("auxiliary", "fun_publications.R"))
 
 # Modules
 source(here("modules", "mod_publications.R"))
 
+#Functions that prepare plotting settings
+source(here("auxiliary","fun_plot_prep.R" ))
+
 # Guide/help
 source(here("auxiliary", "guides.R"))
+
+#Use Bs4Dash Package post deprecation
+source(here("auxiliary","useBs4Dash.R"))
+
 
 # Data -------------------------------------------------------------
 
@@ -103,6 +123,7 @@ global_data_dyn <-
       "closeness_to_frontier_dynamic.rds"
     )
   ) %>%
+  filter(year <2024)%>%
   ungroup
 
 
@@ -124,6 +145,13 @@ ctf_long_dyn <-
     )
   )
 
+year_ctf_dynamic <-
+  read_rds(
+    here(
+      "data",
+      "year_coverage_ctf_for_analysis.rds"
+    )
+  )
 country_groups <-
   read_rds(
     here(
@@ -148,6 +176,9 @@ country_list <-
     )
   )
 
+country_list <- country_list %>% 
+  rename(group = group_name)
+
 spatial_data <-
   read_rds(
     here(
@@ -165,21 +196,22 @@ clean_country <-
     )
   )  
 
-
-down_clust_ctf_stat_data <- read_rds(
-  here(
-    "data",
-    "closeness_to_frontier_confint_static.rds"
-  )
-)
-
-down_clust_ctf_dyn_data <- read_rds(
-  here(
-    "data",
-    "closeness_to_frontier_confint_dynamic.rds"
-  )
-)
-
+#THESE ARE NOT CURRENTLY IN USE. REMOVE LATER?
+#==========
+# down_clust_ctf_stat_data <- read_rds(
+#   here(
+#     "data",
+#     "closeness_to_frontier_confint_static.rds"
+#   )
+# )
+# 
+# down_clust_ctf_dyn_data <- read_rds(
+#   here(
+#     "data",
+#     "closeness_to_frontier_confint_dynamic.rds"
+#   )
+# )
+#==========
 for(i in 1:nrow(clean_country)){
   if (clean_country[i,'Clean_Names']!=""){
     country_list$country_name[country_list$country_name==clean_country[i,'Country']]=clean_country[i,'Clean_Names']
@@ -298,6 +330,9 @@ variable_list_benchmarked <-
   lapply(family_names$var_name, extract_variables_benchmarked)
 
 names(variable_list_benchmarked) <- family_names$var_name
+
+# Exclude Monetary Stability - #296
+variable_list_benchmarked$`Public Finance Institutions` <- variable_list_benchmarked$`Public Finance Institutions` [variable_list_benchmarked$`Public Finance Institutions`  != "Monetary stability"]
 
 
 remove_average_items <- function(family) {

@@ -1,0 +1,219 @@
+# Cleaning and appending Heritage xls files
+
+-   Input: `data/heritage`
+-   Output:
+    -   `data/heritage/heritage1324.csv.gz`
+
+
+## Read in data
+
+```{r}
+# Load required libraries
+library(tidyverse)
+library(readxl)
+library(here)
+library(labelled)
+library(haven)
+library(data360r)
+library(skimr)
+library(knitr)
+library(assertthat)
+library(tibble)
+library(sf)
+library(janitor)
+library(stringr)
+library(scales)
+library(naniar)
+library(countrycode)
+library(purrr)
+library(testthat)
+
+heritage_dta <- read_dta(
+  here("data", "input", "heritage", "heritage20122022.dta")
+)
+
+
+```
+
+## 1. Clean names for xls files from 2013 till 2022
+
+```{r}
+# Define the directory and pattern
+directory <- here("data", "input", "heritage")
+pattern_xls <- "index\\d{4}_data\\.xls"
+
+# List all files matching the pattern_xls
+file_paths_xls <- list.files(path = directory, pattern = pattern_xls, full.names = TRUE)
+
+print(file_paths_xls)
+
+# Define a function to process each file
+process_xls_file <- function(file_path) {
+  
+  # Extract year from file name
+  year <- as.numeric(sub("index(\\d{4})_data\\.xls", "\\1", basename(file_path)))
+  
+  # Read and clean the data
+  data <- read_excel(file_path, sheet = 1) %>%
+    clean_names()
+  
+  # Print the names of columns to check for issues
+  print(colnames(data))
+  
+  # Check if the required columns exist
+  if (all(c("country_name", "business_freedom", "labor_freedom", "monetary_freedom", 
+            "trade_freedom", "investment_freedom", "financial_freedom") %in% colnames(data))) {
+    
+    data %>%
+      select(country_name,
+             business_freedom,
+             labor_freedom,
+             monetary_freedom,
+             trade_freedom,
+             investment_freedom,
+             financial_freedom) %>%
+      mutate(year = year - 1) %>%
+      filter(country_name != "") %>%
+      mutate(across(c(business_freedom, labor_freedom, monetary_freedom, trade_freedom, 
+                      investment_freedom, financial_freedom),
+                    ~ as.numeric(as.character(.))))
+  } else {
+    warning(paste("One or more required columns are missing in file:", file_path))
+    return(NULL)
+  }
+}
+
+# Process and combine all files into a single data frame
+combined_heritage_xls <- map_dfr(file_paths_xls, process_xls_file)
+
+# Print the first few rows of the combined data
+print(head(combined_heritage_xls))
+
+```
+
+
+
+
+## 2. Clean names for 2023 and 2024 xlsx
+
+```{r}
+
+# Define pattern
+pattern_xlsx <- "index\\d{4}_data\\.xlsx"
+
+# List all files matching the pattern_xlsx
+file_path_xlsx <- list.files(path = directory, pattern = pattern_xlsx, full.names = TRUE)
+
+print(file_path_xlsx)
+
+# Define the function to process each file
+process_xlsx_file <- function(file_path_xlsx) {
+  # Print file path for debugging
+  print(paste("Processing file:", file_path_xlsx))
+  
+  # Read and clean the data
+  data <- read_excel(file_path_xlsx, sheet = 1) %>%
+    clean_names()
+  
+  # Print the names of columns to check for issues
+  print(colnames(data))
+  
+  # Extract year from file name based on known format
+  year <- as.numeric(sub("index(\\d{4})_data\\.xlsx", "\\1", basename(file_path_xlsx)))
+  
+  # Check if the required columns exist
+  if (all(c("country_name", "business_freedom", "labor_freedom", "monetary_freedom", 
+            "trade_freedom", "investment_freedom", "financial_freedom") %in% colnames(data))) {
+    
+    # Process the data
+    processed_data <- data %>%
+      select(country_name,
+             business_freedom,
+             labor_freedom,
+             monetary_freedom,
+             trade_freedom,
+             investment_freedom,
+             financial_freedom) %>%
+      mutate(year = year - 1) %>%
+      filter(country_name != "") %>%
+      mutate(across(c(business_freedom, labor_freedom, monetary_freedom, trade_freedom, 
+                      investment_freedom, financial_freedom),
+                    ~ as.numeric(as.character(.))))
+    
+    return(processed_data)
+    
+  } else {
+    warning(paste("One or more required columns are missing in file:", file_path_xlsx))
+    return(NULL)
+  }
+}
+
+# Define the directory and pattern
+directory <- here("data", "input", "heritage")
+pattern_xlsx <- "index\\d{4}_data\\.xlsx"
+
+# List all files matching the pattern_xlsx
+file_path_xlsx <- list.files(path = directory, pattern = pattern_xlsx, full.names = TRUE)
+
+# Print file paths for debugging
+print(file_path_xlsx)
+
+# Process and combine all files into a single data frame
+combined_heritage_xlsx <- map_dfr(file_path_xlsx, process_xlsx_file)
+
+# Print the first few rows of the combined data
+print(head(combined_heritage_xlsx))
+
+```
+
+## 3. Combine all years
+
+
+
+### 3.1. Edit Country Codes
+
+```{r}
+# Standardize country names
+combined_data <- combined_data |>
+    mutate(CountryName = recode(CountryName,
+                                "Cabo Verde" = "Cape Verde",
+                                "Congo, Democratic Republic of the Congo" = "Congo, Dem. Rep.",
+                                "Côte d'Ivoire" = "Ivory Coast",
+                                "Eswatini" = "Swaziland",
+                                "Hong Kong SAR" = "Hong Kong",
+                                "North Macedonia" = "Macedonia",
+                                "São Tomé and Príncipe" = "Sao Tome and Principe"))
+
+# Assuming the country codes conversion file is available
+# Example data for country codes
+iso3c_data <- data.frame(
+  CountryName = c("Taiwan", "Kosovo"),
+  country_code = c("TWN", "XKX")
+)
+
+# Merge country codes
+combined_data <- combined_data |>
+    left_join(iso3c_data, by = "CountryName") |>
+    mutate(country_code = ifelse(CountryName == "Taiwan", "TWN", country_code),
+           country_code = ifelse(CountryName == "Kosovo", "XKX", country_code))
+
+```
+
+## 4. Final Cleanup
+
+```{r}
+# Rename columns
+combined_data <- combined_data |>
+    rename_with(~ str_replace_all(., "^(Business|Labor|Monetary|Trade|Investment|Financial)Freedom$", "HERITAGE_\\1"), 
+                starts_with("Business") | starts_with("Labor") | starts_with("Monetary") | 
+                starts_with("Trade") | starts_with("Investment") | starts_with("Financial"))
+
+
+```
+
+##Save data
+
+```{r}
+# Save the final cleaned data
+write_rds(combined_data, "heritage20122022.rds")
+```

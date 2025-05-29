@@ -1,0 +1,155 @@
+# Clean list of contries
+
+- Inputs:
+  - `data/output/compiled_indicators.rds`
+  - `data/input/wb/CLASS.xlsx`, obtained from https://datahelpdesk.worldbank.org/knowledgebase/articles/906519-world-bank-country-and-lending-groups on September 1, 2022
+  - `data/input/wb/group_list.csv`, input by the research team to list relevant groups
+  - `data/output/grouping_country_income_and_region_updated.rds`, complementary list for groups in the case of splitting SSA into AFW and AFE
+      
+- Outputs:
+  - `data/final/wb_country_list.rds`
+  - `data/final/wb_country_groups.rds`
+
+## Inputs
+
+```{r}
+indicators <-                                                       
+      read_rds(
+      here(
+        "data",
+        "output",
+        "compiled_indicators.rds"
+      )
+    )
+
+group_list <-
+    read_csv(
+      here(
+        "data",
+        "input",
+        "wb",
+        "group_list.csv"
+      )
+    )
+
+country_list <- read_xlsx(
+      here(
+        "data",
+        "input", 
+        "wb",
+        "CLASS.xlsx"
+      ),
+      sheet = "compositions"
+    ) %>%
+    transmute(
+      country_code = WB_Country_Code,
+      country_name = WB_Country_Name,
+      group = WB_Group_Name,
+      group_code = WB_Group_Code
+    ) |>
+  # exclude non-WB member countries
+  filter(
+    country_code != "CUB" & 
+      country_code != "PRK"
+  )
+  
+# create a duplicate of the original dataset
+region_list <- country_list
+
+### Updated region grouping
+  region_list_complement <-
+    read_rds(
+      here(
+        "data",
+        "output",
+        "grouping_country_income_and_region_updated.rds"
+      )
+    )
+```
+
+## Subset country list
+
+The only relevant countries are those we have some data for
+
+```{r}
+country_list <-
+  indicators %>%
+  select(country_code) %>%
+  unique %>%
+  left_join(country_list)
+```
+
+## Subset groups
+
+```{r}
+country_list <-
+  country_list %>%
+  filter(
+    group %in% group_list$group_name
+  ) %>%
+  unique
+
+### Define the indexing regions
+target_regions <- c("Africa Eastern and Southern", "Africa Western and Central")
+
+country_list_updated <- country_list %>%
+  # Add Abbreviations to AFE and AFE regions in one dataframe
+  left_join(
+    region_list_complement %>% 
+      mutate(region_code = recode(region,
+                                  "Africa Eastern and Southern" = "AFE",
+                                  "Africa Western and Central" = "AFW",
+                                  .default = region)) %>% 
+      transmute(country_code, detailed_region = region, detailed_region_code = region_code),
+    by = "country_code"
+  ) %>%
+  # Index SSF region to reclassify it into AFE and AFW
+  mutate(
+    group_name      = if_else(group_code == "SSF" & detailed_region %in% target_regions,
+                          detailed_region, group),
+    group_code = if_else(group_code == "SSF" & detailed_region %in% target_regions,
+                          detailed_region_code, group_code)
+  ) %>%
+  # Ensure that region_code follows the changes regions
+  select(names(region_list)[1:2], group_name, group_code)
+```
+
+## Add AFE anhd AFW to Region list
+
+```{r}
+group_list_updated <- group_list %>%
+  # Remove the "Sub-Saharan Africa" row
+  filter(group_name != "Sub-Saharan Africa") %>%
+  # Append new rows with the desired groups and group_category "Region"
+  bind_rows(
+    tibble(
+      group_name = c("Africa Eastern and Southern", "Africa Western and Central"),
+      group_category = "Region"
+    )
+  ) %>% 
+  arrange(group_category, group_name)
+```
+
+## Save datasets
+
+Dataset with list of countries in our sample.
+
+```{r}
+write_rds(
+  country_list_updated,
+  here(
+    "data",
+    "output",
+    "wb_country_list.rds"
+  )
+)
+
+write_rds(
+  group_list_updated,
+  here(
+    "data",
+    "output",
+    "wb_country_groups.rds"
+  )
+)
+```

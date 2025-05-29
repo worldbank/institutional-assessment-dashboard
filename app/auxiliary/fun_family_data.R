@@ -92,7 +92,17 @@ compute_family_average <- function(cliar_data, vars, type = "static", db_variabl
   # taking a simple average by grouping
   # default is static
   
-    lv_data<-cliar_data%>% 
+  na_indicators <-
+    cliar_data %>%
+    ungroup() %>%
+    filter(country_name %in% base_country) %>%
+    select(-(1:5)) %>%
+    summarise(across(everything(), ~ if_else(any(is.na(.)), NA, sum(., na.rm = TRUE)))) %>%
+    select(where(is.na)) %>%
+    distinct() %>%
+    names
+  
+  lv_data<-cliar_data%>% 
     filter(country_name %in% c(base_country,comparison_countries))%>%
     select(-(1:5))
   
@@ -102,22 +112,22 @@ compute_family_average <- function(cliar_data, vars, type = "static", db_variabl
   
   cliar_data <-
     cliar_data %>%
-    select(-lv_indicators)%>%
+    select(-c(union(na_indicators, lv_indicators)))%>%
     ungroup %>%
     select(country_name, everything())
 
-  vars <-setdiff(vars, lv_indicators)
+  vars <-setdiff(vars, c(union(na_indicators, lv_indicators)))
   
   cliar_data_long <-
     cliar_data %>%
     pivot_longer(
-      all_of({{vars}}),
+      cols = 6:ncol(.),
       names_to = "variable"
     ) %>%
     select(-contains("gdp")) %>%
+    filter(!variable %in% grep("_avg", variable, value = T))%>%
     left_join(
-      db_variables %>%
-        select(variable, var_name, family_name, family_var),
+      variable_names,
       by = "variable"
     )
   

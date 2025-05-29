@@ -1,0 +1,275 @@
+---
+title:
+output:
+  word_document: default
+  pdf_document: default
+params:
+  ctf_static_long: NA
+  ctf_dynamic: NA
+  base_country: NA
+---
+
+# Country-Level Institutional Assessment and Review (CLIAR)
+
+## Benchmarking Data Coverage Report - `r params$base_country`
+
+Report generated on : `r format(Sys.time(), "%Y-%m-%d %H:%M:%S")`
+
+\pagebreak
+
+### Acronyms and Abbreviations
+
+| Abbreviation | Description                                                    |
+|-------------------------------------|-----------------------------------|
+| ASPIRE       | Atlas of Social Protection Indicators of Resilience and Equity |
+| BTI          | Bertelsmann Transformation Index                               |
+| CLIAR        | Country Level Institutional Assessment and Review              |
+| CTF          | Closeness to Frontier                                          |
+| CPIA         | Country Policy and Institutional Assessment                    |
+| CPF          | Country Partnership Framework                                  |
+| GFDB         | Global Financial Database                                      |
+| GSD          | Global State of Democracy                                      |
+| IBRD         | International Bank for Reconstruction and Development          |
+| OECD         | Organisation for Economic Co-operation and Development         |
+| PEFA         | Public Expenditure and Financial Accountability                |
+| PMR          | Product Market Regulation (OECD Database)                      |
+| RISE         | Regulatory Indicators for Sustainable Energy                   |
+| SCD          | Systematic Country Diagnostic                                  |
+| SGI          | Sustainable Governance Indicators                              |
+| SPI          | Statistical Performance Indicators                             |
+| V-DEM        | Varieties of Democracy Database                                |
+| WDR          | World Development Reports                                      |
+| WBL          | Women, Business and the Law                                    |
+| WDI          | World Development Indicators                                   |
+| WGI          | World Governance indicators                                    |
+| WJP          | World Justice Project                                          |
+| WWBI         | Worldwide Bureaucracy Indicators                               |
+
+\newpage
+
+```{r warning=FALSE, include=FALSE}
+## Load Relevant Packages
+library(tidyverse)
+library(readxl)
+library(here)
+library(haven)
+library(tibble)
+library(sf)
+library(janitor)
+library(stringr)
+library(countrycode)
+library(RColorBrewer)
+library(knitr)
+library(dplyr)
+library(flextable)
+
+wrap_facet_titles <- function(x, width) {
+  str_wrap(x, width = width)
+}
+
+
+theme_set(
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(size = 14, hjust = .5),
+    axis.text.y = element_text(size = 14),
+    plot.title = element_text(size = 22, face = "bold"),
+    plot.subtitle = element_text(size = 16),
+    plot.background = element_blank(),
+    plot.caption = element_text(hjust = 0, size = 10),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(),
+    legend.position = "top")
+  )
+
+```
+
+
+### Introduction
+
+The Country Level Institutional Assessment and Review (CLIAR) is a methodological framework designed to make the Bank's institutional diagnostic work and policy dialogue at the country level more integrated and data-driven. The aim of CLIAR's institutional analysis is to support the World Bank's policy dialogue with counterparts and help identify entry points and priorities for institutional reform.
+
+The primary objective of this Coverage Report is to address the question: "Which indicators are available for which years?" By assessing data availability across clusters, this report provides a detailed view of the extent and quality of coverage for key indicators that inform CLIAR country diagnostics. This analysis is relevant for identifying gaps and prioritizing efforts to improve data availability with counterparts, ensuring a more robust foundation for policy dialogue and decision-making.
+
+This report is divided into three key sections. **Section i. Data Update Frequency and Timing** provides a context table exploring the data update cycles for the data sources that construct the indicators and their frequency of publication. Understanding these update cycles is crucial for evaluating data timeliness and identifying potential limitations in the analysis of the following sections. **Section ii. Data Coverage Summary: Proportions Across Clusters** presents an overview table displaying the proportion of indicators shared per cluster, offering a high-level overview of data coverage. Finally, **Section iii. Temporal Insights: Yearly Coverage within Clusters** provides a sharper picture of the clusters using heat maps to visualize the availability of specific indicators across years. Together, these sections aim to provide a global understanding of the current data landscape, highlight temporal trends in data coverage, and pinpoint gaps that require complementary data or action from the institutions that generate the indicators to consider publishing the data.
+
+\newpage
+
+## i. Data Update Frequency and Timing
+
+| Manual Data Sources                | Latest year on dashboard | Expected Publication cycle |
+|-------------------------------|--------------------|---------------------|
+| Fraser Institute                   | 2021                     | Annual                     |
+| Heritage Index of Economic Freedom | 2023                     | Annual                     |
+| Open Budget Survey                 | 2021                     | Bi-annually                |
+| RISE                               | 2021                     | Bi-annually                |
+| Romelli (2022)                     | 2018                     | Academic Source            |
+| SPI                                | 2022                     | Bi-annually                |
+| V-DEM                              | 2023                     | Annually                   |
+| WBL: Women, Business and the Law   | 2024                     | Annually                   |
+| WDI                                | 2023                     | Annually                   |
+
+In the context of out methodology note, to understand indicator-level data availability and expected Publication Cycles within the Country Level Institutional Assessment and Review (CLIAR) framework, consult the [Indicators Definition](https://w0lxdrconn01.worldbank.org/CLIAR_UAT/){refer section Methodology & User Guide - List of Indicators} file for a comprehensive overview. For data sourced directly from Prosperity Data 360 via their API, indicator-specific metadata is available in the [Resources section](https://prosperitydata360.worldbank.org/en/resources), enabling case-by-case examination. This information complements the following sections of this report, which detail data update frequency, overall coverage across clusters, and yearly coverage within each cluster.
+
+\newpage
+
+## ii. Data Coverage Summary: Proportions Across Clusters
+
+```{r include=FALSE}
+# Clean and normalize the availability column, handling NA values
+availability_ctf_long <- params$ctf_static_long %>%
+  mutate(
+    availability = ifelse(is.na(value), "missing",
+                   ifelse(value >= 0, "available", availability))
+  )
+
+duplicates_ctf <- availability_ctf_long %>%
+  group_by(family_name, var_name, country_name) %>%
+  tally() %>%
+  filter(n > 1) 
+```
+
+```{r echo=FALSE, fig.height=14, fig.width=12}
+base_country_table <- availability_ctf_long %>%
+  filter(country_name == params$base_country) %>%  #base country
+  group_by(family_name) %>%
+  summarise(
+    available_count = sum(availability == "available", na.rm = TRUE),
+    missing_count = sum(availability == "missing", na.rm = TRUE),
+    total_country_indicators = n(),
+    .groups = "drop"
+  ) 
+
+# Adding the share columns to the table
+table_data <- base_country_table %>%
+  mutate(
+    available_share = round((available_count / total_country_indicators) * 100, 2),
+    missing_share = round((missing_count / total_country_indicators) * 100,2)
+  ) %>%
+  select(
+    Family_Name = family_name,
+    Available = available_count,
+    `Not Available` = missing_count,
+    `Total Indicators` = total_country_indicators,
+    `Available Share (%)` = available_share,
+    `Not Available Share (%)` = missing_share
+  )
+
+# Create flextable with formatting
+ft <- flextable(table_data) %>%
+  set_caption(paste("Data Coverage by Cluster -", params$base_country)) %>%
+  colformat_num(j = c("Available", "Not Available", "Total Indicators"), digits = 0) %>%
+  colformat_num(j = c("Available Share (%)", "Not Available Share (%)"), digits = 1) %>%
+  theme_vanilla() %>%
+  color(i = ~ `Available Share (%)` > 50, color = "darkgreen") %>%
+  color(i = ~ `Available Share (%)` <= 50, color = "red") %>%
+  border_outer(part = "all", border = officer::fp_border(color = "black", width = 2)) %>%
+  border_inner_h(part = "body", border = officer::fp_border(color = "gray", width = 1)) %>%
+  autofit()%>% 
+  width(j = 1, width = 3) %>%   # Set first column width to 3 inches
+  width(j = 2:ncol(table_data), width = 0.8)  # Set the rest to 0.8 inch
+
+ft
+```
+
+\newpage
+
+```{r echo=FALSE, fig.height=8, fig.width=12}
+# Calculate Proportions for Available and Missing
+share_table <- base_country_table %>%
+  mutate(
+    available_share = available_count / total_country_indicators,
+    missing_share = missing_count / total_country_indicators
+  )
+
+# Create a long format directly for ggplot 
+share_table_long <- share_table %>%
+  select(family_name, available_share, missing_share) %>%
+  pivot_longer(cols = c(available_share, missing_share), 
+               names_to = "availability_status", 
+               values_to = "share") %>%
+  mutate(
+    availability_status = recode(availability_status, 
+                                "available_share" = "Available", 
+                                "missing_share" = "Not Available")
+  )
+
+# Plot share
+share_table_long %>%
+  arrange(desc(share)) %>%
+  ggplot(aes(x = reorder(family_name, share),
+             y = share * 100,
+             fill = availability_status)) + 
+  geom_col(position = position_stack(reverse = TRUE)) +  
+  labs(
+    title = paste0(params$base_country," At-A-Glance:\nIndicator Availability Proportion (%) by Cluster"),
+    subtitle = "Share of Available vs Missing Indicators for Each Cluster",
+    x = "Cluster Name",
+    y = "Cluster Share (%)",
+    fill = "Availability Status"
+  ) +
+  scale_fill_manual(values = c("Available" = "#58d68d", "Not Available" = "grey")) + 
+  coord_flip()
+
+
+
+```
+
+
+
+\pagebreak
+
+```{r echo=FALSE}
+# Clean Dataframe 
+ctf_dynamic_clean <- params$ctf_dynamic %>%
+                    filter(family_name != "(other indicators)") %>% 
+                    filter(!is.na(family_name))
+
+# Create a Function
+generate_availability_heatmap <- function(data, country_name_input, family_name_input) {
+  
+  data %>%
+    filter(country_name == country_name_input) %>%  # Filter by country
+    filter(family_name == family_name_input) %>%    # Filter by family_name
+    filter(benchmarked_ctf == "Yes") %>% 
+    mutate(
+      availability_status = ifelse(is.na(indicator_value), "Not Available", "Available")
+    ) %>%
+    ggplot(aes(x = year, y = str_wrap(var_name, width = 30), fill = availability_status)) +
+    geom_tile(color = "white") +  
+    labs(
+      title = paste(country_name_input, ": Indicator Availability\nCluster: ", family_name_input),
+      subtitle = "Availability of Indicators Over Time (2019-2023)",
+      x = "Year",
+      y = "Cluster Benchmarked Indicators",
+      fill = "Availability Status",
+      caption = "Note: Indicator availability across clusters may differ based on how often the data source is updated. For a deeper understanding, 
+consult the appendix of this document to gain more insight into the update cycles."
+    ) +
+    scale_fill_manual(
+      values = c("Available" = "#58d68d", "Not Available" = "grey"),  
+      breaks = c("Available", "Not Available"),
+      labels = c("Available", "Not Available")
+    )
+}
+
+
+```
+
+## iii. Temporal Insights: Yearly Coverage within Clusters
+
+
+```{r echo=FALSE, fig.height=13, fig.width=12}
+# Prepare Country to perform analysis
+# Example: Create plots for the country "Syrian Arab Republic" and all unique family names
+unique_family_names <- unique(ctf_dynamic_clean$family_name)
+
+# Loop through each unique family_name and apply the generate_availability_heatmap formula
+for(family_name in unique_family_names) {
+  print(generate_availability_heatmap(ctf_dynamic_clean,params$base_country, family_name))
+}
+
+```
+
+

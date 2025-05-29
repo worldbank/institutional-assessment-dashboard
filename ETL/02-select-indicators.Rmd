@@ -1,0 +1,93 @@
+# Process selected indicators
+
+- Input: 
+  -`data/input/cliar/db_variables.xlsx`
+  - `data/input/cliar/family_order.csv`
+- Outputs: 
+  - `data/output/db_variables.xlsx`
+  - `data/output/definitions.rds`
+  - `data/output/family_order.csv`
+
+## Load list of selected indicators
+
+This list is filled by hand in Excel.
+
+```{r}
+db_variables <-
+  read_excel(
+    here(
+      "data",
+      "input",
+      "cliar",
+      "db_variables.xlsx"
+    )
+  ) |> 
+  clean_names() |> 
+  mutate(
+    variable = make_clean_names(variable),
+    var_name = str_to_sentence(var_name, locale = "en") # To Sentence
+  ) 
+
+family_order <- read_csv(
+  here("data", "input", "cliar", "family_order.csv")
+)
+```
+
+
+## Save list of selected indicators in R format
+
+```{r}
+write_rds(
+  db_variables,
+  here(
+
+    "data",
+    "output",
+    "db_variables.rds"
+  )
+)
+```
+
+## Save variable definitions by family
+
+```{r}
+description <- 
+  function(x) {
+    assign(
+      x,
+      db_variables %>%
+        filter(family_name == x) %>%
+        select(
+          Indicator = var_name,
+          Description = description,
+          Source = source
+        )
+    )
+  }
+
+description <-
+  lapply(
+    unique(db_variables$family_name),
+    description
+  )
+
+names(description) <- 
+  unique(db_variables$family_name)
+
+write_rds(
+  description,
+  here(
+    "data",
+    "output",
+    "definitions.rds"
+  )
+)
+
+family_order |> 
+  write_csv(
+    here("data", "output", "family_order.csv")
+  )
+```
+
+
+

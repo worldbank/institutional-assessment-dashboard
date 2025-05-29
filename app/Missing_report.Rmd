@@ -1,0 +1,480 @@
+---
+title:
+output: 
+  word_document:
+    reference_docx: www/template.docx
+    
+params:
+  base_country: NA
+  variable_names: NA
+  definitions: NA
+  comparison_countries: NA
+  data: NA
+  family_data: NA
+  data_dyn : NA
+  data_dyn_avg : NA
+  family_data_dyn : NA
+  rank: NA
+  dots: NA
+  group_median: NA
+  threshold: NA
+  family_order: NA
+  global_data : NA
+  download_opt : NA
+  wb_country_list : NA
+  compiled_indicators : NA
+  db_variables : NA
+---
+
+
+```{r, setup, include = FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  fig.width = 10
+)
+```
+
+```{r}
+
+# Auxiliary functions -----------------------------------------------------------------
+
+source(file.path("auxiliary",
+                   "plots.R"))
+source <- "Source: Authors’ elaboration using CLIAR’s Interactive Online Dashboard."
+  
+  note <- 
+    paste0(
+      "Note: ",
+      "The bar reflects the simple average of the score for all subindicators included in a given institutional cluster. For each cluster, the x-axis shows the closeness to frontier \n
+      (length of the bar), which captures the gap between a country’s performance and the best performer among countries for which data are available (global frontier). The large circles show ",
+      params$base_country,
+      "'s performance. The traffic lights coloring indicates areas where the largest institutional gaps exist in ",
+      params$base_country,
+      " relative to comparator countries, as follows: red = weak institutional capital; yellow = emerging institutional capital; green = strong institutional capital."
+    )
+  
+```
+
+```{r}
+knitr::include_graphics("www/cliar.png")
+```
+
+# Country-Level Institutional Assessment and Review (CLIAR) Benchmarking Report - **`r params$base_country`**
+
+
+
+Report generated on : `r format(Sys.time(), "%Y-%m-%d %H:%M:%S")`
+
+
+\pagebreak
+
+## Acronyms and Abbreviations
+
+| Abbreviation | Description |
+| ------------ | ----------- |
+| ASPIRE       | Atlas of Social Protection Indicators of Resilience and Equity |
+| BTI          | Bertelsmann Transformation Index |
+| CLIAR        | Country Level Institutional Assessment and Review |
+| CTF	         | Closeness to Frontier |
+| CPIA         | Country Policy and Institutional Assessment |
+| CPF	         | Country Partnership Framework |
+| GFDB	       | Global Financial Database |
+| GSD          | Global State of Democracy |
+| IBRD	       | International Bank for Reconstruction and Development |
+| OECD	       | Organisation for Economic Co-operation and Development |
+| PEFA	       | Public Expenditure and Financial Accountability |
+| PMR          | Product Market Regulation (OECD Database) |
+| RISE         | Regulatory Indicators for Sustainable Energy |
+| SCD	         | Systematic Country Diagnostic |
+| SGI          | Sustainable Governance Indicators |
+| SPI	         | Statistical Performance Indicators |
+| V-DEM	       | Varieties of Democracy Database |
+| WDR	         | World Development Reports |
+| WBL          | Women, Business and the Law |
+| WDI	         | World Development Indicators |
+| WGI          | World Governance indicators |
+| WJP	         | World Justice Project |
+| WWBI         | Worldwide Bureaucracy Indicators |
+
+
+
+\newpage
+
+
+
+# Introduction
+
+**This institutional assessment for `r params$base_country` is based on the CLIAR Dashboard**: an innovative approach that uses data from a multitude of global indicators and compares the country with relevant peers.
+
+## What is CLIAR ? 
+**The Country Level Institutional Assessment and Review (CLIAR) is a methodological framework to make the Bank’s institutional diagnostic work and policy dialogue at the country level more integrated and data-driven.** The aim of CLIAR’s institutional analysis is to support the World Bank’s policy dialogue with counterparts and help identify entry-points and priorities for institutional reform. CLIAR is composed of two different but complementary products: (i) the CLIAR Dashboard and (ii) the CLIAR Country Deep-Dive. This report is focused on the former.
+
+\newpage
+
+
+
+
+
+```{r, include = FALSE}
+## Load packages
+packages <- 
+  c(
+    "tidyverse",
+    "here",
+    "testthat",
+    "naniar",
+    "tidytext"
+  )
+
+pacman::p_load(
+  packages, 
+  character.only = TRUE
+)
+
+theme_set(
+  theme_minimal(
+    base_size = 20
+  )
+)
+
+knitr::opts_chunk$set(
+  echo = FALSE, warning = FALSE, message = FALSE, 
+  fig.width = 10, fig.height = 8, dpi = 300
+)
+```
+
+
+```{r, include = FALSE}
+## Read Data
+wb_country_groups <- params$wb_country_list |>
+  # extract only regions
+  distinct(
+    country_code, country_name, .keep_all = TRUE 
+  ) |>
+  select(
+    country_code,
+    country_name,
+    region = group
+  )
+
+full_data <- params$compiled_indicators |>
+  left_join(
+    wb_country_groups,
+    by = c("country_code", "country_name")
+  )
+
+# variable definitions
+db_variables <- params$db_variables
+
+
+# 1. Anti-corruption institutions ======================
+vars_anticorruption <-
+  db_variables %>%
+  filter(
+    var_level == "indicator",
+    family_var == "vars_anticorruption"
+  ) %>%
+  pull(variable)
+
+# 2. Business environment and trade institutions ======================
+vars_mkt <-
+  db_variables %>%
+  filter(
+    var_level == "indicator",
+    family_var == "vars_mkt"
+  ) %>%
+  pull(variable)
+
+# 3. Climate Change and Environment Institutions ======================
+vars_climate <-
+  db_variables %>%
+  filter(
+    var_level == "indicator",
+    family_var == "vars_climate"
+  ) %>%
+  pull(variable)
+
+# 4. Digital and Data Institutions ======================
+vars_digital <-
+  db_variables %>%
+  filter(
+    var_level == "indicator",
+    family_var == "vars_digital"
+  ) %>%
+  pull(variable)
+
+# 5. Financial market institutions ======================
+vars_fin <-
+  db_variables %>%
+  filter(
+    var_level == "indicator",
+    family_var == "vars_fin"
+  ) %>%
+  pull(variable)
+
+# 6. Labor market institutions ======================
+vars_lab <-
+  db_variables %>%
+  filter(
+    var_level == "indicator",
+    family_var == "vars_lab"
+  ) %>%
+  pull(variable)
+
+# 7. Justice institutions ======================
+vars_leg <-
+  db_variables %>%
+  filter(
+    var_level == "indicator",
+    family_var == "vars_leg"
+  ) %>%
+  pull(variable)
+
+# 8. Political institutions ======================
+vars_pol <-
+  db_variables %>%
+  filter(
+    var_level == "indicator",
+    family_var == "vars_pol"
+  ) %>%
+  pull(variable)
+
+# 9. Public Human Resource Management Institutions ======================
+vars_hrm <-
+  db_variables %>%
+  filter(
+    var_level == "indicator",
+    family_var == "vars_hrm"
+  ) %>%
+  pull(variable)
+
+# 10. Public Public Financial Management Institutions ======================
+vars_pfm <-
+  db_variables %>%
+  filter(
+    var_level == "indicator",
+    family_var == "vars_pfm"
+  ) %>%
+  pull(variable)
+
+# 11. Social institutions ======================
+vars_social <-
+  db_variables %>%
+  filter(
+    var_level == "indicator",
+    family_var == "vars_social"
+  ) %>%
+  pull(variable)
+
+# 12. SOE Corporate Governance ======================
+vars_service_del <-
+  db_variables %>%
+  filter(
+    var_level == "indicator",
+    family_var == "vars_service_del"
+  ) %>%
+  pull(variable)
+
+# 13. Service Delivery Institutions ======================
+vars_service_delivery <-
+  db_variables %>%
+  filter(
+    var_level == "indicator",
+    family_var == "vars_service_delivery"
+  ) %>%
+  pull(variable)
+
+# 14. Transparency and Accountability institutions ======================
+vars_transp <-
+  db_variables %>%
+  filter(
+    var_level == "indicator",
+    family_var == "vars_transp"
+  ) %>%
+  pull(variable)
+
+# variables with other families ======================
+vars_other <-
+  db_variables %>%
+  filter(
+    var_level == "indicator",
+    family_var == "vars_other"
+  ) %>%
+  pull(variable)
+
+# removed variables ======================
+vars_removed <-
+  db_variables %>%
+  filter(
+    var_level == "indicator",
+    family_var == "vars_removed"
+  ) %>%
+  pull(variable)
+
+# variables with missing families ======================
+vars_missing <-
+  db_variables %>%
+  filter(
+    var_level == "indicator",
+    family_var == "vars_missing"
+  ) %>%
+  pull(variable)
+
+# All variables ======================
+vars_all <-
+  db_variables %>%
+  filter(
+    var_level == "indicator"
+  ) %>%
+  pull(variable)
+
+# Families variables ======================
+vars_family <-
+  db_variables %>%
+  filter(
+    family_var != "vars_other"
+  ) %>%
+  pull(family_var) %>%
+  unique
+
+# vars_benchmarked --------------------------------------------------------
+vars_static_ctf <- db_variables |>
+  filter(
+    benchmarked_ctf == "Yes"
+  ) |>
+  pull(variable)
+
+vars_dynamic_ctf <- db_variables |>
+  filter(
+    benchmark_dynamic_indicator == "Yes"
+  ) |>
+  pull(variable)
+
+vars_dynamic_partial_ctf <- db_variables |>
+  filter(
+    benchmark_dynamic_family_aggregate == "Partial"
+  ) |>
+  pull(variable)
+
+vars_static_family_ctf <- db_variables |>
+  filter(
+    benchmark_static_family_aggregate_download == "Yes"
+  ) |>
+  pull(variable)
+
+vars_dynamic_family_ctf <- db_variables |>
+  filter(
+    benchmark_dynamic_family_aggregate == "Yes"
+  ) |>
+  pull(variable)
+
+# extract family names
+family_names <-
+  db_variables %>%
+  # exclude extraneous families
+  filter(
+    family_var != "vars_other" &
+      family_var != "vars_missing"
+  ) %>%
+  transmute(
+    variable = family_var,
+    var_name = family_name
+  ) %>%
+  unique
+
+
+```
+
+```{r aux_funs}
+plot_missingness_heatmap <- function(data, family, dictionary){
+  # plot a heatmap for all indicators in a given family
+  
+  family_indicators <- get(family)
+  
+  data_missingness <- data |> 
+    select(
+    country_name,
+    any_of(family_indicators)
+  ) |> 
+    rename_from_dictionary(dictionary) |> 
+    group_by(country_name) |> 
+    miss_var_summary() |> 
+    select(-n_miss) |> 
+    pivot_wider(
+      id_cols = country_name,
+      names_from = variable,
+      values_from = pct_miss
+    ) |> 
+    ungroup() |> 
+    arrange(
+      country_name
+    )
+
+  matrix_missingness_by_country <- data_missingness |> 
+    select(-country_name) |> 
+    as.matrix() |> 
+    t()
+  
+  colnames(matrix_missingness_by_country) <- data_missingness |> 
+    pull(country_name)
+  
+  matrix_missingness_by_country
+  # heatmap(
+  #   matrix_missingness_by_country, scale = "none", Colv = NA, Rowv = NA,
+  #   main = sprintf("Missingness Heatmap by Indicator Family: %s", family)
+  # )
+}
+
+
+rename_from_dictionary <- function(data, dictionary){
+  # function to rename variables from dictionary
+  var_tibble <- tibble(
+    variable = colnames(data)
+  )
+  
+  # extract only variables contained in the data
+  vars_in_data <- dictionary |> 
+    inner_join(
+      var_tibble,
+      by = c("variable")
+    )
+  
+  vars_variable <- vars_in_data |> 
+    pull(variable)
+  
+  vars_complete_name <- vars_in_data |> 
+    pull(var_name)
+  
+  vars_dictionary <- vars_variable |>
+    set_names(
+      vars_complete_name
+    )
+  
+  data |>
+    rename(!!vars_dictionary)
+}
+
+```
+
+## List of Missing Indicators for each country
+```{r,  results = "asis"}
+
+missing_stats <- params$global_data
+
+missing_stats$Missing_Indicators <- apply(missing_stats, 1, function(row) {
+  paste(Hmisc::label(missing_stats)[which(is.na(row))],collapse = ', ')
+})
+
+missing_stats<-missing_stats[,c('country_name','Missing_Indicators')]
+
+print(
+  knitr::kable(
+    missing_stats,
+    format = "pipe"
+  )
+  
+)
+
+```

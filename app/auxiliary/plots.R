@@ -4,6 +4,10 @@ note_chars <- 200
 color_groups <- colorRampPalette(c("#001f3f", "#60C2F7"))
 color_countries <- colorRampPalette(c("grey20", "grey50"))
 
+
+#============
+
+
 plotly_remove_buttons <-
   c("zoomIn2d",
     "zoomOut2d",
@@ -33,6 +37,7 @@ static_plot <-
            report = FALSE) {
   
     #browser()
+    
 
     data$var_name <- ifelse(grepl("Average", data$var_name, ignore.case = TRUE), toupper(data$var_name), data$var_name)
     
@@ -61,10 +66,17 @@ static_plot <-
         }else{
           base_country_df <- base_country_df[order(base_country_df$status,base_country_df$dtt), ]
         }
+        
+
+        
         unique_indicators = base_country_df %>% 
             distinct(var_name) %>% 
             pull(var_name)
-      
+        
+        #Issue 283 - Remove Institutions keywork in y axis for plots
+        data$var_name <- gsub("Institutions", "", data$var_name)
+        unique_indicators <- gsub("Institutions","",unique_indicators)
+        
         data$var_name <-
           factor(
             data$var_name,
@@ -72,32 +84,52 @@ static_plot <-
             ordered = TRUE
           )
 
-    }else{
-      
+    }
+    else{
+
       data <- data %>% 
         left_join(., db_variables %>% select(variable, rank_id),
           by = "variable")
       
-      unique_indicators = data %>% 
-        distinct(var_name, rank_id) %>% 
-        arrange(desc(rank_id)) %>% 
-        pull(var_name)
+      # ===================OVERVIEW
+      if(tab_name== "Overview")
+      {
+        unique_indicators <-family_order%>%
+          arrange(family_order) %>% 
+          pull(family_name)
+        
+      }else{
+        unique_indicators <- data %>% 
+          distinct(var_name, rank_id) %>% 
+          arrange(desc(rank_id)) %>% 
+          pull(var_name)
+        
+      }
+    
+      #Change old name to new one for factoring
+      #data$var_name[data$var_name == "Public Finance Institutions"] <- "Public Financial Management Institutions"
       
+      #Issue 283 - Remove Institutions keyword in y axis for plots
+      
+      data$var_name <- gsub("Institutions", "", data$var_name)
+      unique_indicators <- gsub("Institutions","",unique_indicators)
+      
+      
+
       data$var_name <-
         factor(
           data$var_name,
           levels = unique_indicators,
           ordered = TRUE
-        )
+         )
     }
-
+    
     
     vars <-
       data %>%
       select(var_name) %>%
-      unique %>%
-      unlist %>%
-      unname
+      unique() %>%
+      unlist()
     if (cutoff[[1]]==25){
     colors <-
       c("Weak\n(bottom 25%)" = "#D2222D",
@@ -134,7 +166,7 @@ static_plot <-
           )
         ) %>%
         ungroup()
-
+      
       
     } else {
       data <-
@@ -155,6 +187,14 @@ static_plot <-
       x_lab <- "Rank"
     }
     
+    if(report==FALSE){
+      aspect_ratio = 1.6/1
+    }else{
+      aspect_ratio = 1
+    }
+   
+    #====================
+   
     plot <-
       ggplot() +
         geom_segment(
@@ -164,6 +204,7 @@ static_plot <-
             yend = var_name,
             x = 0,
             xend = q_cutoff1
+            
           ),
           color = "#e47a81",
           size = 2,
@@ -198,11 +239,10 @@ static_plot <-
           color = "#8ec18e",
           size = 2,
           alpha = .3
-        ) +
-      scale_y_discrete(labels = function(x) str_wrap(x, width = 20))+
+        )+ 
         theme_minimal() +
         theme(
-          aspect.ratio = 1.6/1,
+          #aspect.ratio = aspect_ratio,
           legend.position = "top",
           panel.grid.minor = element_blank(),
           axis.ticks = element_blank(),
@@ -214,7 +254,7 @@ static_plot <-
           plot.caption.position =  "plot"
         ) +
         labs(
-          y = NULL,
+          y = '',
           x = x_lab,
           fill = NULL,
           shape = NULL,
@@ -223,6 +263,15 @@ static_plot <-
       scale_fill_manual(
         values = colors
       )
+    
+        
+    if(report==FALSE){
+      plot <-plot+
+
+        scale_y_discrete(labels = function(x) str_wrap(x, width = 40))
+        scale_y_discrete(labels = function(x) str_wrap(x, width = 35))
+    }      
+        
 
     
     if (rank) {
@@ -350,31 +399,34 @@ static_plot <-
           median_data %>%
           bind_rows(countries)
       }
-
-      plot <-
-        plot +
-        suppressWarnings(geom_point(
-          data = median_data,
-          aes(
-            y = var_name,
-            x = value,
-            shape = country_name,
-            text = paste(
-              "Group:", country_name,"<br>",
-              "Median closeness to frontier:", round(value, 3)
-            )
-          ),
-          alpha = .5,
-          color = "black",
-          fill = "white",
-          size = 3
-        )) +
-        scale_shape_manual(
-          values = 22:25 #,
-          #lab = NULL
-        )
+      # Custom Group Point needs to be excluded in the plot . Issue #294 
+      
+      # plot <-
+      #   plot +
+      #   suppressWarnings(geom_point(
+      #     data = median_data,
+      #     aes(
+      #       y = var_name,
+      #       x = value,
+      #       shape = country_name,
+      #       text = paste(
+      #         "Group:", country_name,"<br>",
+      #         "Median closeness to frontier:", round(value, 3)
+      #       )
+      #     ),
+      #     alpha = .5,
+      #     color = "black",
+      #     fill = "white",
+      #     size = 3
+      #   )) +
+      #   scale_shape_manual(
+      #     values = 22:25 #,
+      #     #lab = NULL
+      #   )
     }
     if (length(base_country)==1){
+      #Alex 
+      
       plot <-
         plot +
         suppressWarnings(geom_point(
@@ -469,7 +521,6 @@ static_plot_dyn <-
     threshold,
     preset_order = FALSE) {
     
-    #browser()
     
     if (threshold=="Default"){
       cutoff<-c(25,50)
@@ -494,7 +545,6 @@ static_plot_dyn <-
       
     }else{
 
-      ## temporary placeholder
       data$var_name <-
         factor(
           data$var_name,
@@ -566,6 +616,8 @@ static_plot_dyn <-
           )
         )
       
+      
+      
     } else {
       data <-
         data %>%
@@ -617,8 +669,7 @@ static_plot_dyn <-
           )
       ) %>% 
       ungroup()
-    
-    
+     
     
     ## The year var should be character or factor
     data <- data %>% 
@@ -900,12 +951,14 @@ static_plot_dyn <-
     
     
     ### create the plot
+    
     plot <- plot +
       facet_wrap(~var_name, ncol = 2, 
-        labeller = labeller(var_name = plot_titles),
-        shrink = FALSE, scales = sc) +
-      theme(strip.text = element_text(face = "bold", size = 10),panel.spacing = unit(5, "lines"))
-    
+                 labeller = labeller(var_name = plot_titles),
+                 shrink = FALSE, scales = sc) +
+      theme(strip.text = element_text(face = "bold", size = 8),
+            panel.spacing.x = unit(1, "lines"),
+            panel.spacing.y = unit(3, "lines"))
     
    ## fix facets
    # plot <- fixfacets(figure = plot, facets = names(plot_titles), domain_offset = 0.16) 
@@ -999,11 +1052,14 @@ plot_notes_function <-
 
 interactive_plot <-
   function(x, tab_name, buttons,  plot_type) {
-    if(length(x$facet)>10 & plot_type=='dynamic'){
+    if(tab_name=='Justice Institutions' & plot_type=='dynamic'){
       plt_height = 3000
     }else if(plot_type=='dynamic') {
-      plt_height = 1000
-    }else if(tab_name=='Overview'){
+      plt_height = 1200
+    }else if(tab_name=='Service Delivery Institutions' | tab_name=='Justice Institutions'){
+      plt_height = 1200
+    }
+    else if(tab_name=='Overview'){
       plt_height = 900
     }else{
       plt_height = 750
@@ -1049,6 +1105,24 @@ interactive_plot <-
     }
 
     int_plot <- clean_plotly_legend(int_plot)
+    
+
+    
+    # names_lst <- names(int_plot$x$layout)
+    # names_lst <- names_lst[grep("yaxis",names_lst)]
+    # if(length(names_lst)>2){
+    #   nrows = ceiling(length(names_lst)/2)
+    #   height_gap = (nrows-1)*0.1182804
+    #   height_plt = (1-height_gap)/nrows
+    #   height_start = 1
+    #   for(i in seq(1,length(names_lst),1)){
+    #     int_plot$x$layout[[names_lst[i]]][['domain']] <-c(max(0,height_start-height_plt),height_start)
+    #     int_plot$x$layout$annotations[[i+1]][['y']] <- height_start
+    #     if((i+1)%%2 ==1){
+    #       height_start <-height_start-height_plt-0.1182804
+    #     }
+    #   }
+    # }
     
     return(int_plot)
     
@@ -1237,7 +1311,7 @@ interactive_map <-
                    ),
                    
                    str_wrap(
-                     "<b>Note:</b> The color illustrates the latest value of the indicator available for each country.The data presented here for CTF is obtained by taking the average of the indicator for the period 2018-2022 and for original indicator, it is latest datapoint available.",
+                     "<b>Note:</b> The color illustrates the latest value of the indicator available for each country.The data presented here for CTF is obtained by taking the average of the indicator for the period 2019-2023 and for original indicator, it is latest datapoint available.",
                      note_chars
                    ),
                    sep = "<br>"
@@ -1266,7 +1340,7 @@ interactive_map <-
 trends_plot <- function(raw_data,
                         indicator, indicator_name,
                         base_country, comparison_countries, country_list, groups,
-                        definitions, custom_df = NULL) {
+                        definitions, custom_df = NULL, base_color, comp_color, groups_color) {
 
   
   def <-
@@ -1323,6 +1397,10 @@ trends_plot <- function(raw_data,
         ) %>%
         rename(country_name = group) %>%
         mutate(country_name = paste(country_name, "average"))
+      
+      avg_df <- avg_df %>%
+        arrange(country_name, Year)
+      
     } else {
       NULL
     }
@@ -1333,12 +1411,21 @@ trends_plot <- function(raw_data,
              country_name %in% comparison_countries) %>%
     bind_rows(data_groups) %>%
     mutate(
-      alpha = ifelse(country_name == base_country, .8, .5)
+      alpha = ifelse(country_name == base_country, .8, .5),
+      color = case_when(
+        country_name == base_country ~ base_color,
+        country_name %in% comparison_countries ~ comp_color,
+        #This is how we assign country group color
+        grepl("average", country_name) ~ groups_color,
+         
+        TRUE ~ '#000000' # Adding default black color
+      ),
+      legend_label = country_name
     ) %>%
     rename(Country = country_name) %>% 
     mutate(Year = as.factor(Year))
-  
-  
+
+  #==================PLOTTING: TIME TRENDS
   static_plot <-
     ggplot(
       data,
@@ -1349,6 +1436,7 @@ trends_plot <- function(raw_data,
         group = Country,
         alpha = alpha)
     ) +
+    geom_line(aes(y = na.approx(get(indicator)),color = Country)) +
     geom_point(
       aes(
         text = paste(
@@ -1357,11 +1445,10 @@ trends_plot <- function(raw_data,
           "Value:", get(indicator) %>% round(3)
         )
       ),
+      #Alex change 3 to 1
      size = 3
     ) +
-    geom_line(
-      aes(y = na.approx(get(indicator)))
-    ) +
+    #scale_alpha_identity() +
     theme_ipsum() +
     labs(
       x = "Year",
@@ -1369,17 +1456,8 @@ trends_plot <- function(raw_data,
       title = paste0("<b>",indicator_name,"</b>")
     ) +
     scale_color_manual(
-      name = NULL,
-      values = c(
-        "#FB8500",
-        color_groups(length(groups)),
-        color_countries(length(comparison_countries))
-      ),
-      breaks = c(
-        base_country,
-        paste(groups, "average"),
-        comparison_countries
-      )
+      values = setNames(data$color, data$Country),  # Map each Country to its color
+      name = "Country"  # Set the legend title
     ) +
     scale_alpha_identity() +
     theme(
@@ -1395,7 +1473,7 @@ trends_plot <- function(raw_data,
         title = list(text = '<b>Country:</b>'),
         y = 0.5
       ),
-      margin = list(l = 50, r = 150, t = 175, b = 200),
+      margin = list(l = 50, r = 150, t = 100, b = 300),
       annotations =
         list(x = 0, y = -0.5,
              text = HTML(
@@ -1435,11 +1513,10 @@ trends_plot <- function(raw_data,
 }
 
 # Cross-country comparison #####################################################
-
 static_bar <-
   function(data,
            base_country, comparison_countries, groups,
-           var, variable_names, custom_df) {
+           var, variable_names, custom_df, color_base_bar, color_comp_bar, color_groups_bar) {
 
     varname <-
       variable_names %>%
@@ -1526,21 +1603,23 @@ static_bar <-
           bind_rows(custom_grp_median_data_df)
       }
     }
-    
-    data <-
-      data %>%
-      ungroup %>%
+    #NEW PIPELINE START=============
+    data <- data %>%
+      ungroup() %>%
       mutate(
-        color =
-          case_when(
-            country_name == base_country ~ 1,
-            country_name %in% comparison_countries ~ 2,
-            TRUE ~ 3
-          ),
+        # Initial color assignment 
+        color = case_when(
+          country_name == base_country ~ color_base_bar,
+          country_name %in% comparison_countries ~ color_comp_bar,
+          country_name %in% groups ~ color_groups_bar,
+          TRUE ~ '#7a7d7b' # Default gray color for median
+        ),
         country_name = fct_reorder(country_name, get(varname), min)
       ) %>%
-      select(all_of(varname), country_name, color)
-
+      select(all_of(varname), country_name, color) %>%
+      ungroup()
+    #NEW PIPELINE END============
+    #PLOTTING:
     ggplot(
       data = data,
       aes(
@@ -1550,9 +1629,13 @@ static_bar <-
     ) +
       geom_col(
         aes(
-          fill = factor(color)
+          fill=color
+          # fill = factor(color)
         )
       ) +
+
+      scale_fill_identity() +
+      
       geom_text(
         aes(
           x = get(varname) + .03,
@@ -1577,12 +1660,9 @@ static_bar <-
         x = "Closeness to Frontier",
         fill = NULL,
         title = paste0("<b>", var, "</b>")
-      ) +
-      scale_fill_manual(
-        values = c(`1` = "#FB8500", `2` = "#001f3f", `3` = "#6c757d")
-      )
+      )} 
 
-  }
+  
 
 
 interactive_bar <-
@@ -1601,7 +1681,7 @@ interactive_bar <-
         ),
         margin = list(t = 75, b = 220),
         annotations =
-          list(x = -.1,
+          list(x = -.6,
                y = -.4,
                text = HTML(
                  paste(
@@ -1643,13 +1723,12 @@ interactive_bar <-
   }
 
 # Bivariate correlation #####################################################
-
 static_scatter <-
   function(data, 
            base_country, comparison_countries, high_group,
            y_scatter, x_scatter,
            variable_names, country_list,
-           linear_fit) {
+           linear_fit, color_base_scatter, color_comp_scatter ) {
     
     y <-
       ifelse(
@@ -1675,8 +1754,7 @@ static_scatter <-
       )
 
 
-    data <-
-      data %>%
+    data <- data %>%
       mutate(
         # label = paste0(
         #   "Country: ", country_name, "<br>"
@@ -1686,11 +1764,10 @@ static_scatter <-
           country_name == base_country ~ "Base country",
           country_name %in% comparison_countries ~ "Comparison countries",
           TRUE ~ "Others"
-        ),
-
-      ) %>%
+        )
+       ) %>%
       left_join(
-        high_group, by = c("country_name")
+        high_group, by = "country_name"
       )
 
    
@@ -1709,8 +1786,18 @@ static_scatter <-
                  "y: ", {{yvar}} , "<br>", "<br>"
                )
       )
-    
-    
+  
+  
+  sc_data<-data %>%
+    select(country_code, country_name, income_group, region, country_group, x, y)
+  
+  sc_data<- sc_data %>%
+    rename(
+      !!x_scatter := x,  # Rename 'x' to the value in x_scatter
+      !!y_scatter := y   # Rename 'y' to the value in y_scatter
+    )
+  
+  #PLOTTING THE SCATTER PLOT
   sc_plot <-  ggplot(
       data,
       aes(
@@ -1735,8 +1822,8 @@ static_scatter <-
 
       scale_color_manual(
         values = c(
-          "Base country" = "#FB8500",
-          "Comparison countries" = "#001f3f",
+          "Base country" = color_base_scatter,
+          "Comparison countries" = color_comp_scatter,
           group_name = "#60C2F7"
         )
       ) +
@@ -1790,7 +1877,7 @@ static_scatter <-
   }else
     sc_plot <- sc_plot
    
-  return(sc_plot) 
+  return(list(sc_plot = sc_plot, sc_data = sc_data))
   }
 
 interactive_scatter <-
@@ -1858,7 +1945,7 @@ interactive_scatter <-
       layout(
         margin = list(
           t = 50,
-          b = 200
+          b = 300
         ),
         legend = list(
           title = list(text = ''),
@@ -1895,3 +1982,4 @@ annotations =
     align = 'left',
     font = list(size = note_size)
   )
+

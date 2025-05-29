@@ -1,13 +1,9 @@
-# source("global.R")
-# source("auxiliary/fun_quantiles.R")
-# source("auxiliary/fun_missing_var.R")
-# source("auxiliary/fun_low_variance.R")
-# source("auxiliary/plots.R")
-# 
-# closeness_to_frontier_dyn <- readRDS("../data/final/closeness_to_frontier_dyn.rds")
-# 
-# closeness_to_frontier_dyn_long <- readRDS("../data/final/closeness_to_frontier_dyn_long.rds")
-# 
+# Static Plot for Dynamic Benchmarking
+#
+# This function generates a static visualization to compare country performance 
+# based on a specified metric (closeness to frontier or rank) across years and groups.
+# The function allows flexibility to include custom group comparisons, thresholds 
+# for performance categorization, and dynamic median calculations.
 
 static_plot_dyn <-
   function(data,
@@ -384,118 +380,3 @@ static_plot_dyn <-
 
     return(plot)
   }
-# 
-# base_country <- "United Kingdom"
-# tab_name <- "Financial market"
-# rank <- FALSE
-# threshold  <- "default"
-# countries <- country_list %>% 
-#   filter(group == "Sub-Saharan Africa") %>% 
-#   distinct(country_name) %>% 
-#   pull()
-# comparison_countries <- countries[!countries %in% base_country]
-# family_names <- family_names
-# custom_df <- NULL
-# 
-# vars <- variable_names %>%
-#   filter(family_name == tab_name) %>%
-#   pull(variable) %>%
-#   unique()
-# 
-# dots = FALSE
-# note = NULL
-# title = TRUE
-# 
-# Category <- "Custom"
-# 
-# Grp = c("Custom GRP1", "Custom GRP1", "Custom GRP1","Custom GRP2", "Custom GRP2", 
-#   "Custom GRP2", "Custom GRP2", "Custom GRP2", "Custom GRP3", "Custom GRP3", "Custom GRP3",
-#   "Custom GRP3")
-# 
-# Countries <- c("Denmark", "Russian Federation", "Sweden", "Tajikistan", "Thailand",
-#   "Trinidad and Tobago", "Tunisia", "Turkmenistan", "Uzbekistan",
-#   "Venezuela, RB", "Vietnam", "Yemen, Rep.")
-# custom_df <- data.frame(Category, Grp, Countries)
-# 
-# group_median = c("Sub-Saharan Africa", unique(custom_df$Grp))
-# 
-# data <- closeness_to_frontier_dyn %>%
-#   def_quantiles_dyn(
-#     base_country,
-#     country_list,
-#     countries,
-#     vars,
-#     variable_names,
-#     threshold
-#   )
-# 
-# missing_variables <-
-#   closeness_to_frontier_dyn %>%
-#   missing_var_dyn(
-#     base_country,
-#     country_list,
-#     countries,
-#     vars,
-#     variable_names
-#   )
-# 
-# low_variance_variables <-
-#   closeness_to_frontier_dyn %>%
-#   low_variance_dyn(
-#     base_country,
-#     country_list,
-#     countries,
-#     vars,
-#     variable_names
-#   ) %>%
-#   data.frame() %>%
-#   rename("variable" = ".") %>%
-#   left_join(variable_names %>% select(variable, var_name), by = "variable") %>%
-#   .$var_name
-# 
-# missing_variables <- c(missing_variables, low_variance_variables)
-# 
-# 
-# fig <- static_plot(data,
-#   base_country,
-#   tab_name,
-#   rank,
-#   group_median,
-#   custom_df, ## New addition made by Shel in August 2023 to accomodate custom groups
-#   title = TRUE,
-#   dots = FALSE,
-#   note = NULL,
-#   threshold) %>%
-#   interactive_plot(
-#     base_country,
-#     z = NULL,
-#     tab_name,
-#     buttons = plotly_remove_buttons,
-#     miss_var = missing_variables
-#   )
-
-# htmlwidgets::saveWidget(fig, "../../../../Desktop/Screenshots/UK_dynamicbenchmarking.html")
-
-
-# vars <- vars_family
-# data <- family_data_dyn(
-#   closeness_to_frontier_dyn,
-#   base_country,
-#   variable_names
-# ) %>%
-#   def_quantiles_dyn(
-#     base_country,
-#     country_list,
-#     countries,
-#     vars_family,
-#     family_names,
-#     threshold
-#   )
-
-
-
-
-# group_median = c("Sub-Saharan Africa", unique(custom_df$Grp))
-
-
-
